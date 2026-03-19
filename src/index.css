@@ -118,3 +118,69 @@
     box-shadow: var(--shadow-modal);
   }
 }
+
+/* ─── Print Styles ─── */
+@media print {
+  /* Hide everything except the invoice */
+  body * {
+    visibility: hidden;
+  }
+  #invoice-print-area,
+  #invoice-print-area * {
+    visibility: visible;
+  }
+  #invoice-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20mm;
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Remove dialog overlay & chrome */
+  [role="dialog"],
+  [data-radix-popper-content-wrapper] {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  /* Hide action buttons in print */
+  #invoice-print-area ~ div {
+    display: none !important;
+  }
+
+  /* Clean table borders */
+  #invoice-print-area .border {
+    border-color: #d1d5db !important;
+  }
+
+  /* Ensure text is black */
+  #invoice-print-area span,
+  #invoice-print-area p,
+  #invoice-print-area div {
+    color: black !important;
+  }
+
+  /* Keep primary color for totals */
+  #invoice-print-area .text-primary {
+    color: hsl(168 80% 30%) !important;
+  }
+  #invoice-print-area .text-destructive {
+    color: hsl(0 72% 50%) !important;
+  }
+
+  /* Page settings */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+}
