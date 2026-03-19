@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -11,13 +11,13 @@ import {
 import {
   Hash, Calendar, User, Stethoscope, Briefcase, Syringe, Package,
   Tag, DollarSign, Percent, CreditCard, Printer, Receipt, Save, Pill,
-  Plus, Barcode, Trash2,
+  Barcode, Trash2, ShoppingCart, FileText, Eye,
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { opdPatients } from "@/data/opdPatients";
 import { toast } from "sonner";
-import { formatDualPrice } from "@/lib/currency";
+import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
@@ -85,16 +85,8 @@ interface LineItem {
   qty: number;
 }
 
-interface CustomItem {
-  name: string;
-  price: number;
-  qty: number;
-}
-
-interface MedicineItem {
-  name: string;
-  qty: number;
-}
+interface CustomItem { name: string; price: number; qty: number; }
+interface MedicineItem { name: string; qty: number; }
 
 export interface InvoiceFormData {
   patient: string;
@@ -109,6 +101,8 @@ export interface InvoiceFormData {
   discountType: "flat" | "percent";
   paidAmount: number;
   paymentMethod: string;
+  lineItems: LineItem[];
+  medicationTotal: number;
 }
 
 interface NewInvoiceDialogProps {
@@ -120,12 +114,20 @@ interface NewInvoiceDialogProps {
 let lineIdCounter = 0;
 const nextId = () => `li-${++lineIdCounter}`;
 
-const typeBadgeColors: Record<LineItemType, string> = {
-  SVC: "bg-muted text-muted-foreground",
-  MED: "bg-muted text-muted-foreground",
-  INJ: "bg-muted text-muted-foreground",
-  PKG: "bg-muted text-muted-foreground",
+const typeBadgeStyles: Record<LineItemType, string> = {
+  SVC: "bg-primary/10 text-primary",
+  MED: "bg-emerald-500/10 text-emerald-600",
+  INJ: "bg-amber-500/10 text-amber-600",
+  PKG: "bg-violet-500/10 text-violet-600",
   CUSTOM: "bg-muted text-muted-foreground",
+};
+
+const typeLabels: Record<LineItemType, string> = {
+  SVC: "Service",
+  MED: "Medicine",
+  INJ: "Injection",
+  PKG: "Package",
+  CUSTOM: "Custom",
 };
 
 const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProps) => {
@@ -135,6 +137,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
 
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
+  const [showPreview, setShowPreview] = useState(false);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -146,9 +149,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
   const [discountType, setDiscountType] = useState<"flat" | "percent">("flat");
   const [paidAmount, setPaidAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-
   const [customDraft, setCustomDraft] = useState<CustomItem>({ name: "", price: 0, qty: 1 });
-  const [medicineDraft, setMedicineDraft] = useState({ name: "", qty: 1 });
 
   useEffect(() => { const unsub = subscribe(() => setPatients([...getPatients()])); return () => { unsub(); }; }, []);
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { unsub(); }; }, []);
@@ -159,43 +160,32 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
       setLineItems([]); setDiscount(0); setDiscountType("flat");
       setPaidAmount(0); setPaymentMethod("Cash");
       setCustomDraft({ name: "", price: 0, qty: 1 });
-      setMedicineDraft({ name: "", qty: 1 });
+      setShowPreview(false);
     }
   }, [open]);
 
-  // Add helpers
   const addService = (name: string) => {
     const svc = serviceOptions.find((s) => s.name === name);
-    if (!svc) return;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "SVC", name: svc.name, price: svc.price, qty: 1 }]);
+    if (svc) setLineItems((prev) => [...prev, { id: nextId(), type: "SVC", name: svc.name, price: svc.price, qty: 1 }]);
   };
-
   const addInjection = (name: string) => {
     const inj = injectionsList.find((i) => i.name === name);
-    if (!inj) return;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "INJ", name: inj.name, price: inj.price, qty: 1 }]);
+    if (inj) setLineItems((prev) => [...prev, { id: nextId(), type: "INJ", name: inj.name, price: inj.price, qty: 1 }]);
   };
-
   const addPackage = (name: string) => {
     const pkg = packageOptions.find((p) => p.name === name);
-    if (!pkg) return;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "PKG", name: pkg.name, price: pkg.price, qty: 1 }]);
+    if (pkg) setLineItems((prev) => [...prev, { id: nextId(), type: "PKG", name: pkg.name, price: pkg.price, qty: 1 }]);
   };
-
   const addMedicineByName = (name: string) => {
     const med = medicineOptions.find((m) => m.name === name);
-    if (!med) return;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: med.name, price: med.price, qty: 1 }]);
+    if (med) setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: med.name, price: med.price, qty: 1 }]);
   };
-
   const addCustomItem = () => {
     if (!customDraft.name) return;
     setLineItems((prev) => [...prev, { id: nextId(), type: "CUSTOM", name: customDraft.name, price: customDraft.price, qty: customDraft.qty }]);
     setCustomDraft({ name: "", price: 0, qty: 1 });
   };
-
   const removeItem = (id: string) => setLineItems((prev) => prev.filter((li) => li.id !== id));
-
   const updateItemQty = (id: string, qty: number) => {
     setLineItems((prev) => prev.map((li) => li.id === id ? { ...li, qty: Math.max(1, qty) } : li));
   };
@@ -207,10 +197,28 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
   const taxRate = appSettings.taxEnabled ? parseFloat(appSettings.taxRate) || 0 : 0;
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
+  const dueAmount = Math.max(0, grandTotal - paidAmount);
+
+  // Medication grouping for preview/print
+  const medicationItems = lineItems.filter((li) => li.type === "MED");
+  const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
+  const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
+
+  // Preview line items: group all meds into single "Medication" row
+  const previewItems = useMemo(() => {
+    const items = nonMedicineItems.map((li) => ({
+      name: li.name,
+      type: li.type,
+      total: li.price * li.qty,
+    }));
+    if (medicationItems.length > 0) {
+      items.push({ name: "Medication", type: "MED" as LineItemType, total: medicationTotal });
+    }
+    return items;
+  }, [lineItems]);
 
   const handleAction = (action: "draft" | "print" | "payment") => {
     if (!patient) { toast.error("Please select a patient"); return; }
-    // Convert lineItems back to InvoiceFormData shape for backward compat
     const formData: InvoiceFormData = {
       patient, doctor, date,
       service: lineItems.filter((li) => li.type === "SVC").map((li) => li.name).join(", "),
@@ -219,42 +227,145 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
       customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
       medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
       discount, discountType, paidAmount, paymentMethod,
+      lineItems, medicationTotal,
     };
     onSubmit(formData, action);
   };
 
+  const itemCount = lineItems.length;
+
+  // ─── PREVIEW / PRINT VIEW ───
+  if (showPreview) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0">
+          <div className="p-8 space-y-6" id="invoice-print-area">
+            {/* Clinic Header */}
+            <div className="text-center border-b border-border pb-4">
+              <h2 className="text-xl font-bold text-foreground">{appSettings.clinicName}</h2>
+              <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
+              <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
+            </div>
+
+            {/* Invoice Info */}
+            <div className="flex justify-between text-sm">
+              <div className="space-y-1">
+                <p><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{patient}</span></p>
+                {doctor && <p><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{doctor}</span></p>}
+              </div>
+              <div className="text-right space-y-1">
+                <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
+                <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{paymentMethod}</span></p>
+              </div>
+            </div>
+
+            {/* Invoice Items — Medicines grouped as "Medication" */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2.5 bg-muted/60 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="w-8">#</span>
+                <span>Description</span>
+                <span className="text-right">Amount</span>
+              </div>
+              {previewItems.map((item, i) => (
+                <div key={i} className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-3 border-t border-border items-center text-sm">
+                  <span className="w-8 text-muted-foreground">{i + 1}</span>
+                  <span className="font-medium text-foreground">{item.name}</span>
+                  <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Totals */}
+            <div className="ml-auto w-64 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="tabular-nums">{formatPrice(subtotal)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Discount</span>
+                  <span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
+              {taxRate > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax ({taxRate}%)</span>
+                  <span className="tabular-nums">{formatPrice(taxAmount)}</span>
+                </div>
+              )}
+              <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
+                <span>Grand Total</span>
+                <span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span>
+              </div>
+              {paidAmount > 0 && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Paid</span>
+                    <span className="tabular-nums">{formatPrice(paidAmount)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-semibold">
+                    <span className="text-muted-foreground">Due</span>
+                    <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
+          </div>
+
+          {/* Action bar */}
+          <div className="px-6 pb-6 flex gap-3">
+            <Button variant="outline" onClick={() => setShowPreview(false)} className="flex-1 gap-2">
+              <FileText className="w-4 h-4" /> Back to Edit
+            </Button>
+            <Button onClick={() => { window.print(); }} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
+              <Printer className="w-4 h-4" /> Print
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ─── MAIN FORM VIEW ───
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-0">
-        {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle className="font-heading text-xl">Create Bill</DialogTitle>
-          <p className="text-sm text-muted-foreground">Create and manage patient bills</p>
-        </DialogHeader>
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-4 border-b border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-2xl flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6 text-primary" />
+              Create Bill
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">Create and manage patient bills</p>
+          </DialogHeader>
+        </div>
 
-        <div className="px-6 pb-6 space-y-5">
-          {/* Invoice # + Date row */}
-          <div className="flex items-center justify-between">
+        <div className="px-6 pb-6 space-y-5 pt-5">
+          {/* Invoice # + Date */}
+          <div className="flex items-center justify-between bg-muted/40 rounded-lg px-4 py-3">
             <div className="flex items-center gap-2 text-sm">
-              <Hash className="w-4 h-4 text-muted-foreground" />
+              <Hash className="w-4 h-4 text-primary" />
               <span className="font-medium">Invoice</span>
-              <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded">Auto</span>
+              <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">Auto</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[160px] h-9" />
+              <Calendar className="w-4 h-4 text-primary" />
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[160px] h-9 bg-background" />
             </div>
           </div>
 
-          {/* Patient + Doctor row */}
+          {/* Patient + Doctor */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="flex items-center gap-1.5 mb-1.5">
-                <User className="w-3.5 h-3.5 text-muted-foreground" />
-                {t("patient", lang)} *
+              <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <User className="w-4 h-4 text-primary" />
+                {t("patient", lang)} <span className="text-destructive">*</span>
               </Label>
               <Select value={patient} onValueChange={setPatient}>
-                <SelectTrigger><SelectValue placeholder={t("selectPatient", lang)} /></SelectTrigger>
+                <SelectTrigger className="h-10"><SelectValue placeholder={t("selectPatient", lang)} /></SelectTrigger>
                 <SelectContent>
                   {patients.map((p) => (
                     <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>
@@ -263,12 +374,12 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
               </Select>
             </div>
             <div>
-              <Label className="flex items-center gap-1.5 mb-1.5">
-                <Stethoscope className="w-3.5 h-3.5 text-muted-foreground" />
+              <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <Stethoscope className="w-4 h-4 text-primary" />
                 Doctor / Refer Name
               </Label>
               <Select value={doctor} onValueChange={setDoctor}>
-                <SelectTrigger><SelectValue placeholder="Select or type doctor / refer name..." /></SelectTrigger>
+                <SelectTrigger className="h-10"><SelectValue placeholder="Select or type doctor / refer name..." /></SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
@@ -276,28 +387,32 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
             </div>
           </div>
 
-          {/* Main 2-column: Left (Services/Injection/Packages/Custom) | Right (Medicines) */}
+          {/* Main 2-column selectors */}
           <div className="grid grid-cols-2 gap-4">
-            {/* LEFT COLUMN */}
-            <div className="rounded-lg border border-border p-4 space-y-4">
+            {/* LEFT: Services / Injection / Packages / Custom */}
+            <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
               <div>
-                <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-primary" /> Services
+                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                  <Briefcase className="w-4 h-4 text-primary" /> Services
                 </Label>
-                <Select value="" onValueChange={(v) => { addService(v); }}>
-                  <SelectTrigger><SelectValue placeholder="Select Service" /></SelectTrigger>
+                <Select value="" onValueChange={addService}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Service" /></SelectTrigger>
                   <SelectContent>
-                    {serviceOptions.map((s) => <SelectItem key={s.name} value={s.name}>{s.name} — {formatDualPrice(s.price)}</SelectItem>)}
+                    {serviceOptions.map((s) => (
+                      <SelectItem key={s.name} value={s.name}>
+                        <span className="flex justify-between w-full">{s.name} <span className="text-muted-foreground ml-2">{formatPrice(s.price)}</span></span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Syringe className="w-3.5 h-3.5 text-primary" /> Injection
+                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                  <Syringe className="w-4 h-4 text-amber-500" /> Injection
                 </Label>
-                <Select value="" onValueChange={(v) => { addInjection(v); }}>
-                  <SelectTrigger><SelectValue placeholder="Select Injection" /></SelectTrigger>
+                <Select value="" onValueChange={addInjection}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Injection" /></SelectTrigger>
                   <SelectContent>
                     {injectionsList.filter((inj) => inj.status !== "out-of-stock").map((inj) => (
                       <SelectItem key={inj.id} value={inj.name}>
@@ -309,114 +424,137 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Package className="w-3.5 h-3.5 text-primary" /> Packages
+                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                  <Package className="w-4 h-4 text-violet-500" /> Packages
                 </Label>
-                <Select value="" onValueChange={(v) => { addPackage(v); }}>
-                  <SelectTrigger><SelectValue placeholder="Select Package" /></SelectTrigger>
+                <Select value="" onValueChange={addPackage}>
+                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Package" /></SelectTrigger>
                   <SelectContent>
-                    {packageOptions.map((p) => <SelectItem key={p.name} value={p.name}>{p.name} — {formatDualPrice(p.price)}</SelectItem>)}
+                    {packageOptions.map((p) => (
+                      <SelectItem key={p.name} value={p.name}>{p.name} — {formatPrice(p.price)}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Tag className="w-3.5 h-3.5 text-primary" /> Custom Item
+                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                  <Tag className="w-4 h-4 text-muted-foreground" /> Custom Item
                 </Label>
                 <div className="flex gap-2">
-                  <Input placeholder="Item name" value={customDraft.name} onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))} className="flex-1" />
-                  <Input type="number" placeholder="Price" value={customDraft.price || ""} onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))} className="w-20" />
-                  <Input type="number" min={1} value={customDraft.qty} onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16" />
-                  <Button type="button" variant="outline" size="sm" onClick={addCustomItem} className="px-3">Add</Button>
+                  <Input placeholder="Item name" value={customDraft.name} onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))} className="flex-1 h-10" />
+                  <Input type="number" placeholder="Price" value={customDraft.price || ""} onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))} className="w-20 h-10" />
+                  <Input type="number" min={1} value={customDraft.qty} onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16 h-10" />
+                  <Button type="button" variant="outline" onClick={addCustomItem} className="h-10 px-4">Add</Button>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT COLUMN — Medicines */}
-            <div className="rounded-lg border border-border p-4 space-y-3">
-              <Label className="flex items-center gap-1.5">
-                <Pill className="w-3.5 h-3.5 text-primary" />
-                Medicines <span className="text-muted-foreground text-xs">(pieces)</span>
+            {/* RIGHT: Medicines */}
+            <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
+              <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                <Pill className="w-4 h-4 text-emerald-500" />
+                Medicines <span className="text-muted-foreground text-xs font-normal">(pieces)</span>
               </Label>
 
-              <div className="flex items-center gap-2 border border-border rounded-md px-3 py-2 text-sm text-muted-foreground bg-muted/30">
+              <div className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2.5 text-sm text-muted-foreground bg-muted/20">
                 <Barcode className="w-4 h-4" />
                 <span>Scan barcode to add medicine</span>
               </div>
 
-              <Select value="" onValueChange={(v) => { addMedicineByName(v); }}>
-                <SelectTrigger><SelectValue placeholder="Select Medicine" /></SelectTrigger>
+              <Select value="" onValueChange={addMedicineByName}>
+                <SelectTrigger className="h-10"><SelectValue placeholder="Select Medicine" /></SelectTrigger>
                 <SelectContent>
-                  {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatDualPrice(m.price)}</SelectItem>)}
+                  {medicineOptions.map((m) => (
+                    <SelectItem key={m.name} value={m.name}>{m.name} — {formatPrice(m.price)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
               <p className="text-xs text-muted-foreground">Selling price per piece. Quantity is always in pieces.</p>
+
+              {/* Medicine count badge */}
+              {medicationItems.length > 0 && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 font-medium text-emerald-700">
+                      <Pill className="w-3.5 h-3.5" />
+                      {medicationItems.length} medicine{medicationItems.length > 1 ? "s" : ""} added
+                    </span>
+                    <span className="font-bold text-emerald-700">{formatPrice(medicationTotal)}</span>
+                  </div>
+                  <p className="text-xs text-emerald-600/80 mt-1">Shown as "Medication" on customer invoice</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* ===== LINE ITEMS TABLE ===== */}
+          {/* LINE ITEMS TABLE */}
           {lineItems.length > 0 && (
-            <div className="rounded-lg border border-border overflow-hidden">
-              {/* Table header */}
-              <div className="grid grid-cols-[1fr_80px_70px_80px_40px] gap-2 px-4 py-2.5 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="rounded-xl border border-border overflow-hidden shadow-sm">
+              <div className="grid grid-cols-[1fr_90px_70px_90px_40px] gap-2 px-4 py-3 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
                 <span>Item</span>
                 <span className="text-right">Price</span>
                 <span className="text-center">Qty</span>
                 <span className="text-right">Total</span>
                 <span></span>
               </div>
-              {/* Table rows */}
-              {lineItems.map((li) => (
-                <div key={li.id} className="grid grid-cols-[1fr_80px_70px_80px_40px] gap-2 px-4 py-2.5 border-t border-border items-center text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${typeBadgeColors[li.type]}`}>
-                      {li.type}
+              <div className="divide-y divide-border">
+                {lineItems.map((li) => (
+                  <div key={li.id} className="grid grid-cols-[1fr_90px_70px_90px_40px] gap-2 px-4 py-2.5 items-center text-sm hover:bg-muted/20 transition-colors">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${typeBadgeStyles[li.type]}`}>
+                        {li.type}
+                      </span>
+                      <span className="truncate font-medium">{li.name}</span>
+                    </div>
+                    <span className="text-right text-muted-foreground tabular-nums">{formatPrice(li.price)}</span>
+                    <div className="flex justify-center">
+                      <Input
+                        type="number" min={1} value={li.qty}
+                        onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
+                        className="w-14 h-7 text-center text-sm px-1"
+                      />
+                    </div>
+                    <span className="text-right font-bold text-primary tabular-nums">
+                      {formatPrice(li.price * li.qty)}
                     </span>
-                    <span className="truncate">{li.name}</span>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive/60 hover:text-destructive" onClick={() => removeItem(li.id)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
-                  <span className="text-right tabular-nums">{formatDualPrice(li.price)}</span>
-                  <div className="flex justify-center">
-                    <Input
-                      type="number" min={1} value={li.qty}
-                      onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
-                      className="w-14 h-7 text-center text-sm px-1"
-                    />
-                  </div>
-                  <span className="text-right font-semibold text-primary tabular-nums">
-                    {formatDualPrice(li.price * li.qty)}
-                  </span>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => removeItem(li.id)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* Item count row */}
+              <div className="px-4 py-2 bg-muted/30 border-t border-border flex justify-between text-xs text-muted-foreground">
+                <span>{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
+                <span className="font-semibold text-foreground">Subtotal: {formatDualPrice(subtotal)}</span>
+              </div>
             </div>
           )}
 
-          {/* Discount + Payment Method row */}
+          {/* Discount + Payment */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="flex items-center gap-1.5 mb-1.5">
-                <Tag className="w-3.5 h-3.5 text-primary" /> Discount
+            <div className="space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                <Tag className="w-4 h-4 text-primary" /> Discount
               </Label>
-              <div className="flex gap-1">
-                <Input type="number" min={0} value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0" className="flex-1" />
-                <Button type="button" size="sm" variant={discountType === "flat" ? "default" : "outline"} onClick={() => setDiscountType("flat")} className="px-3">
-                  <DollarSign className="w-3.5 h-3.5" />
+              <div className="flex gap-1.5">
+                <Input type="number" min={0} value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0" className="flex-1 h-10" />
+                <Button type="button" size="sm" variant={discountType === "flat" ? "default" : "outline"} onClick={() => setDiscountType("flat")} className="h-10 w-10 p-0">
+                  <DollarSign className="w-4 h-4" />
                 </Button>
-                <Button type="button" size="sm" variant={discountType === "percent" ? "default" : "outline"} onClick={() => setDiscountType("percent")} className="px-3">
-                  <Percent className="w-3.5 h-3.5" />
+                <Button type="button" size="sm" variant={discountType === "percent" ? "default" : "outline"} onClick={() => setDiscountType("percent")} className="h-10 w-10 p-0">
+                  <Percent className="w-4 h-4" />
                 </Button>
               </div>
             </div>
-            <div>
-              <Label className="flex items-center gap-1.5 mb-1.5">
-                <CreditCard className="w-3.5 h-3.5 text-primary" /> Payment Method
+            <div className="space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                <CreditCard className="w-4 h-4 text-primary" /> Payment Method
               </Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((m) => (
                     <SelectItem key={m.value} value={m.value}>
@@ -426,32 +564,32 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 </SelectContent>
               </Select>
 
-              <div className="mt-3">
-                <Label className="text-sm mb-1.5 block">Amount Paid</Label>
-                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0.00" />
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
+                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0.00" className="h-10" />
               </div>
 
-              <Button type="button" variant="outline" className="w-full mt-2 text-sm">Split Bill</Button>
+              <Button type="button" variant="outline" className="w-full text-sm h-9">Split Bill</Button>
             </div>
           </div>
 
           {/* Summary */}
-          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-1.5">
+          <div className="rounded-xl border border-border bg-gradient-to-br from-muted/40 to-muted/20 p-5 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="tabular-nums">{formatDualPrice(subtotal)}</span>
+              <span className="tabular-nums font-medium">{formatDualPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Discount</span>
-              <span className="text-destructive tabular-nums">-{formatDualPrice(discountAmount)}</span>
+              <span className="text-destructive tabular-nums font-medium">-{formatDualPrice(discountAmount)}</span>
             </div>
             {taxRate > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tax ({taxRate}%)</span>
-                <span className="tabular-nums">{formatDualPrice(taxAmount)}</span>
+                <span className="tabular-nums font-medium">{formatDualPrice(taxAmount)}</span>
               </div>
             )}
-            <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
+            <div className="border-t border-border pt-3 mt-2 flex justify-between font-bold text-lg">
               <span>Grand Total</span>
               <span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span>
             </div>
@@ -461,18 +599,27 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 <span className="tabular-nums">{formatDualPrice(grandTotal)}</span>
               </div>
             )}
+            {paidAmount > 0 && (
+              <div className="flex justify-between text-sm pt-1 font-semibold">
+                <span className="text-muted-foreground">Due Balance</span>
+                <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(dueAmount)}</span>
+              </div>
+            )}
           </div>
 
           {/* Footer buttons */}
-          <div className="grid grid-cols-3 gap-3 pt-2">
-            <Button variant="outline" onClick={() => handleAction("draft")} className="gap-2">
-              <Save className="w-4 h-4" /> Save as Draft
+          <div className="grid grid-cols-4 gap-3 pt-2">
+            <Button variant="outline" onClick={() => handleAction("draft")} className="gap-2 h-11">
+              <Save className="w-4 h-4" /> Save Draft
             </Button>
-            <Button onClick={() => handleAction("print")} className="gap-2 bg-primary hover:bg-primary/90">
+            <Button variant="outline" onClick={() => setShowPreview(true)} className="gap-2 h-11" disabled={lineItems.length === 0}>
+              <Eye className="w-4 h-4" /> Preview
+            </Button>
+            <Button onClick={() => handleAction("print")} className="gap-2 h-11 bg-primary hover:bg-primary/90">
               <Printer className="w-4 h-4" /> Print Invoice
             </Button>
-            <Button onClick={() => handleAction("payment")} className="gap-2 bg-orange-500 hover:bg-orange-600 text-white">
-              <Receipt className="w-4 h-4" /> Make Payment (POS)
+            <Button onClick={() => handleAction("payment")} className="gap-2 h-11 bg-[hsl(30,90%,50%)] hover:bg-[hsl(30,90%,45%)] text-white">
+              <Receipt className="w-4 h-4" /> Payment (POS)
             </Button>
           </div>
         </div>
