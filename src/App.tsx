@@ -16,8 +16,9 @@ import AddTestPage from "@/pages/AddTestPage";
 import TestNamePage from "@/pages/TestNamePage";
 import UltrasoundPage from "@/pages/UltrasoundPage";
 import {
-  HRMPage, RolesPage, ExpensesPage, BankPage, InvestmentsPage
+  HRMPage, RolesPage, BankPage, InvestmentsPage
 } from "@/pages/PlaceholderPages";
+import ExpensesPage from "@/pages/ExpensesPage";
 import SampleCollectionPage from "@/pages/SampleCollectionPage";
 import LabReportsPage from "@/pages/LabReportsPage";
 import XRayPage from "@/pages/XRayPage";
