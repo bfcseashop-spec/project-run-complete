@@ -182,12 +182,10 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
     setLineItems((prev) => [...prev, { id: nextId(), type: "PKG", name: pkg.name, price: pkg.price, qty: 1 }]);
   };
 
-  const addMedicine = () => {
-    if (!medicineDraft.name) return;
-    const med = medicineOptions.find((m) => m.name === medicineDraft.name);
-    const price = med?.price || 0;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: medicineDraft.name, price, qty: medicineDraft.qty }]);
-    setMedicineDraft({ name: "", qty: 1 });
+  const addMedicineByName = (name: string) => {
+    const med = medicineOptions.find((m) => m.name === name);
+    if (!med) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: med.name, price: med.price, qty: 1 }]);
   };
 
   const addCustomItem = () => {
