@@ -11,7 +11,7 @@ import { getSettings } from "@/data/settingsStore";
 import NewInvoiceDialog, { InvoiceFormData } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Dialog, DialogContent,
 } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -35,6 +35,7 @@ interface BillingRecord {
   date: string;
   status: "completed" | "pending" | "critical";
   method: string;
+  formData?: InvoiceFormData; // stored for edit
 }
 
 const initialData: BillingRecord[] = [
@@ -51,11 +52,12 @@ const BillingPage = () => {
   const appSettings = getSettings();
   const [billingData, setBillingData] = useState<BillingRecord[]>(initialData);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editRecord, setEditRecord] = useState<BillingRecord | null>(null);
   const [viewRecord, setViewRecord] = useState<BillingRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handleNewInvoice = (data: InvoiceFormData, action: "draft" | "print" | "payment") => {
+  const buildRecord = (data: InvoiceFormData, id: string): BillingRecord => {
     const parts: string[] = [];
     if (data.service) parts.push(data.service);
     if (data.injection) parts.push(data.injection);
@@ -74,25 +76,43 @@ const BillingPage = () => {
     const total = afterDiscount + taxAmt;
     const due = Math.max(0, total - data.paidAmount);
 
-    const prefix = appSettings.invoicePrefix || "BIL";
-    const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
-    const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
-
     const status: BillingRecord["status"] = due === 0 ? "completed" : data.paidAmount === 0 ? "critical" : "pending";
 
-    const record: BillingRecord = {
+    return {
       id, patient: data.patient, service: serviceNames,
       amount: subtotal, discount: discountAmt, tax: taxAmt,
       total, paid: data.paidAmount, due,
       date: data.date, status, method: data.paymentMethod,
+      formData: data,
     };
+  };
 
-    setBillingData((prev) => [record, ...prev]);
-    setDialogOpen(false);
+  const handleSubmit = (data: InvoiceFormData, action: "draft" | "print" | "payment") => {
+    if (editRecord) {
+      // Update existing record
+      const updated = buildRecord(data, editRecord.id);
+      setBillingData((prev) => prev.map((r) => r.id === editRecord.id ? updated : r));
+      setDialogOpen(false);
+      setEditRecord(null);
+      toast.success(`Invoice ${editRecord.id} updated`);
+    } else {
+      // Create new
+      const prefix = appSettings.invoicePrefix || "BIL";
+      const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
+      const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
+      const record = buildRecord(data, id);
+      setBillingData((prev) => [record, ...prev]);
+      setDialogOpen(false);
 
-    if (action === "draft") toast.success(`Invoice ${id} saved as draft`);
-    else if (action === "print") toast.success(`Invoice ${id} created — printing...`);
-    else toast.success(`Payment received for ${id}`);
+      if (action === "draft") toast.success(`Invoice ${id} saved as draft`);
+      else if (action === "print") toast.success(`Invoice ${id} created — printing...`);
+      else toast.success(`Payment received for ${id}`);
+    }
+  };
+
+  const handleEdit = (record: BillingRecord) => {
+    setEditRecord(record);
+    setDialogOpen(true);
   };
 
   const handleDelete = () => {
@@ -131,7 +151,7 @@ const BillingPage = () => {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => toast.info("Edit coming soon")}>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(d)}>
                   <Pencil className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
@@ -162,12 +182,17 @@ const BillingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title={t("billing", lang)} description="Create invoices, track payments and manage billing records">
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={() => { setEditRecord(null); setDialogOpen(true); }}>
           <Plus className="w-4 h-4 mr-2" /> New Invoice
         </Button>
       </PageHeader>
       <DataTable columns={columns} data={billingData} keyExtractor={(d) => d.id} />
-      <NewInvoiceDialog open={dialogOpen} onOpenChange={setDialogOpen} onSubmit={handleNewInvoice} />
+      <NewInvoiceDialog
+        open={dialogOpen}
+        onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditRecord(null); }}
+        onSubmit={handleSubmit}
+        editData={editRecord?.formData || null}
+      />
 
       {/* View Invoice Dialog */}
       <Dialog open={!!viewRecord} onOpenChange={() => setViewRecord(null)}>
@@ -175,14 +200,12 @@ const BillingPage = () => {
           {viewRecord && (
             <>
               <div className="p-8 space-y-6" id="invoice-print-area" ref={printRef}>
-                {/* Clinic Header */}
                 <div className="text-center border-b border-border pb-4">
                   <h2 className="text-xl font-bold text-foreground">{appSettings.clinicName}</h2>
                   <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
                   <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
                 </div>
 
-                {/* Invoice Meta */}
                 <div className="flex justify-between text-sm">
                   <div className="space-y-1">
                     <p><span className="text-muted-foreground">Invoice:</span> <span className="font-semibold">{viewRecord.id}</span></p>
@@ -194,7 +217,6 @@ const BillingPage = () => {
                   </div>
                 </div>
 
-                {/* Services Table */}
                 <div className="border border-border rounded-lg overflow-hidden">
                   <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2.5 bg-muted/60 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     <span className="w-8">#</span>
@@ -210,7 +232,6 @@ const BillingPage = () => {
                   ))}
                 </div>
 
-                {/* Totals */}
                 <div className="ml-auto w-64 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -247,11 +268,8 @@ const BillingPage = () => {
                 </p>
               </div>
 
-              {/* Action buttons */}
               <div className="px-6 pb-6 flex gap-3">
-                <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">
-                  Close
-                </Button>
+                <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">Close</Button>
                 <Button onClick={() => window.print()} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
                   <Printer className="w-4 h-4" /> Print Invoice
                 </Button>
