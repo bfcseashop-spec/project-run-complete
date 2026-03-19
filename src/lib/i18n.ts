@@ -14,7 +14,7 @@ type TranslationKey =
   | "clearAll" | "selectAll" | "prescribedTests" | "clinicProfile"
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
-  | "frequency" | "duration" | "dosage" | "injection";
+  | "frequency" | "duration" | "dosage" | "injection" | "systemManage";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {
@@ -41,6 +41,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inStock: "In Stock", lowStock: "Low Stock", outOfStock: "Out of Stock",
     code: "Code", route: "Route", strength: "Strength",
     frequency: "Frequency", duration: "Duration", dosage: "Dosage", injection: "Injection",
+    systemManage: "System Manage",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
@@ -66,6 +67,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inStock: "មានក្នុងស្តុក", lowStock: "ស្តុកទាប", outOfStock: "អស់ពីស្តុក",
     code: "កូដ", route: "ផ្លូវ", strength: "កម្លាំង",
     frequency: "ប្រេកង់", duration: "រយៈពេល", dosage: "កម្រិត", injection: "ថ្នាំចាក់",
+    systemManage: "គ្រប់គ្រងប្រព័ន្ធ",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
@@ -91,6 +93,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inStock: "স্টকে আছে", lowStock: "কম স্টক", outOfStock: "স্টক শেষ",
     code: "কোড", route: "রুট", strength: "শক্তি",
     frequency: "ফ্রিকোয়েন্সি", duration: "সময়কাল", dosage: "ডোজ", injection: "ইনজেকশন",
+    systemManage: "সিস্টেম ম্যানেজ",
   },
 };
 
