@@ -199,16 +199,35 @@ const BillingPage = () => {
                   </div>
                 </div>
                 <div className="border border-border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2.5 bg-muted/60 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    <span className="w-8">#</span><span>Description</span><span className="text-right">Amount</span>
+                  <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <span>#</span><span>Description</span><span className="text-right">Amount</span>
                   </div>
-                  {viewRecord.service.split(" + ").map((svc, i) => (
-                    <div key={i} className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-3 border-t border-border items-center text-sm">
-                      <span className="w-8 text-muted-foreground">{i + 1}</span>
-                      <span className="font-medium text-foreground">{svc}</span>
-                      <span className="text-right tabular-nums">—</span>
-                    </div>
-                  ))}
+                  {(() => {
+                    const items = viewRecord.formData?.lineItems;
+                    if (items && items.length > 0) {
+                      const nonMed = items.filter(li => li.type !== "MED");
+                      const meds = items.filter(li => li.type === "MED");
+                      const medTotal = meds.reduce((s, li) => s + li.price * li.qty, 0);
+                      const display = [
+                        ...nonMed.map(li => ({ name: li.name, total: li.price * li.qty })),
+                        ...(meds.length > 0 ? [{ name: "Medication", total: medTotal }] : []),
+                      ];
+                      return display.map((item, i) => (
+                        <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                          <span className="text-muted-foreground">{i + 1}</span>
+                          <span className="font-medium">{item.name}</span>
+                          <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                        </div>
+                      ));
+                    }
+                    return viewRecord.service.split(" + ").map((svc, i) => (
+                      <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                        <span className="text-muted-foreground">{i + 1}</span>
+                        <span className="font-medium">{svc}</span>
+                        <span className="text-right tabular-nums">—</span>
+                      </div>
+                    ));
+                  })()}
                 </div>
                 <div className="ml-auto w-64 space-y-2 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(viewRecord.amount)}</span></div>
