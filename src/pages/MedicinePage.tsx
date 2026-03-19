@@ -1,8 +1,12 @@
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useState } from "react";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 
 const medicines = [
   { id: "M001", name: "Amoxicillin 500mg", category: "Antibiotic", stock: 240, unit: "Caps", expiry: "2025-12-15", status: "in-stock" as const },
@@ -22,13 +26,33 @@ const columns = [
   { key: "status", header: "Status", render: (m: typeof medicines[0]) => <StatusBadge status={m.status} /> },
 ];
 
-const MedicinePage = () => (
-  <div className="space-y-6">
-    <PageHeader title="Medicine Management" description="Track inventory, stock levels, and expiry dates">
-      <Button><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
-    </PageHeader>
-    <DataTable columns={columns} data={medicines} keyExtractor={(m) => m.id} />
-  </div>
-);
+const MedicinePage = () => {
+  const [data, setData] = useState(medicines);
+  const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns, title: "Medicines" });
+  const display = toolbar.filteredByDate as unknown as typeof medicines;
+
+  const handleImport = async (file: File) => {
+    const rows = await toolbar.handleImport(file);
+    if (rows.length > 0) {
+      const newItems = rows.map((row, i) => ({
+        id: `M${String(data.length + i + 1).padStart(3, "0")}`,
+        name: String(row.name || ""), category: String(row.category || ""),
+        stock: Number(row.stock) || 0, unit: String(row.unit || "Tabs"),
+        expiry: String(row.expiry || ""), status: "in-stock" as const,
+      }));
+      setData((prev) => [...newItems, ...prev]);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Medicine Management" description="Track inventory, stock levels, and expiry dates">
+        <Button><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
+      </PageHeader>
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
+      {toolbar.viewMode === "list" ? <DataTable columns={columns} data={display} keyExtractor={(m) => m.id} /> : <DataGridView columns={columns} data={display} keyExtractor={(m) => m.id} />}
+    </div>
+  );
+};
 
 export default MedicinePage;
