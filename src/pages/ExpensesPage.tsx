@@ -110,7 +110,7 @@ const ExpensesPage = () => {
     {
       key: "amount", header: "Amount",
       render: (r: ExpenseRecord) => (
-        <span className="font-semibold text-card-foreground">{formatPrice(r.amount, settings)}</span>
+        <span className="font-semibold text-card-foreground">{formatPrice(r.amount)}</span>
       ),
     },
     { key: "paidTo", header: "Paid To" },
@@ -173,10 +173,10 @@ const ExpensesPage = () => {
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Expenses" value={formatPrice(totalAmount, settings)} icon={DollarSign} />
-        <StatCard title="Paid" value={formatPrice(paidAmount, settings)} icon={CheckCircle} />
-        <StatCard title="Pending" value={formatPrice(pendingAmount, settings)} icon={Clock} />
-        <StatCard title="Overdue" value={formatPrice(overdueAmount, settings)} icon={AlertTriangle} />
+        <StatCard title="Total Expenses" value={formatPrice(totalAmount)} icon={DollarSign} />
+        <StatCard title="Paid" value={formatPrice(paidAmount)} icon={CheckCircle} />
+        <StatCard title="Pending" value={formatPrice(pendingAmount)} icon={Clock} />
+        <StatCard title="Overdue" value={formatPrice(overdueAmount)} icon={AlertTriangle} />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
