@@ -350,9 +350,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl flex items-center gap-2">
               <ShoppingCart className="w-6 h-6 text-primary" />
-              Create Bill
+              {editData ? "Edit Bill" : "Create Bill"}
             </DialogTitle>
-            <p className="text-sm text-muted-foreground">Create and manage patient bills</p>
+            <p className="text-sm text-muted-foreground">{editData ? "Update invoice details" : "Create and manage patient bills"}</p>
           </DialogHeader>
         </div>
 
