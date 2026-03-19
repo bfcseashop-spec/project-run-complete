@@ -41,22 +41,18 @@ const BillingPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleNewInvoice = (data: InvoiceFormData, action: "draft" | "print" | "payment") => {
-    // Build service names from selections
+    // Build service description — medicines grouped as "Medication"
     const parts: string[] = [];
     if (data.service) parts.push(data.service);
     if (data.injection) parts.push(data.injection);
     if (data.packageItem) parts.push(data.packageItem);
     data.customItems.forEach((c) => parts.push(c.name));
-    data.medicines.forEach((m) => parts.push(m.name));
+    if (data.medicines.length > 0) parts.push("Medication");
     const serviceNames = parts.join(" + ") || "—";
 
-    // Calculate totals (mirrors dialog logic)
-    const servicePrice = data.service ? 100 : 0;
-    const injectionPrice = data.injection ? 100 : 0;
-    const packagePrice = data.packageItem ? 500 : 0;
-    const customTotal = data.customItems.reduce((s, c) => s + c.price * c.qty, 0);
-    const medicineTotal = data.medicines.reduce((s, m) => s + 50 * m.qty, 0);
-    const subtotal = servicePrice + injectionPrice + packagePrice + customTotal + medicineTotal;
+    // Use lineItems for accurate totals
+    const items = data.lineItems || [];
+    const subtotal = items.reduce((s, li) => s + li.price * li.qty, 0);
 
     const discountAmt = data.discountType === "percent" ? (subtotal * data.discount) / 100 : data.discount;
     const afterDiscount = Math.max(0, subtotal - discountAmt);
