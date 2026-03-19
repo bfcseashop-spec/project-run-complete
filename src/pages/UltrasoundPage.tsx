@@ -212,18 +212,28 @@ const UltrasoundPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: UltrasoundRecord) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" title="Print Report" onClick={() => printReport(r, {
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Ultrasound Record", fields: [
+              { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
+              { label: "Region", value: r.region }, { label: "Doctor", value: r.doctor },
+              { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
+              { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
+              { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print Report" onClick={() => printReport(r, {
             name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
             email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
-          })}>
-            <Printer className="w-4 h-4 text-primary" />
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),

@@ -129,12 +129,29 @@ const ExpensesPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: ExpenseRecord) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
-            <Pencil className="w-4 h-4" />
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Expense Details", fields: [
+              { label: "Title", value: r.title }, { label: "Category", value: r.category },
+              { label: "Amount", value: formatPrice(r.amount) }, { label: "Paid To", value: r.paidTo },
+              { label: "Payment Method", value: r.paymentMethod }, { label: "Date", value: r.date },
+              { label: "Receipt #", value: r.receipt }, { label: "Notes", value: r.notes },
+              { label: "Status", value: r.status },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Expense Report", fields: [
+              { label: "Title", value: r.title }, { label: "Category", value: r.category },
+              { label: "Amount", value: formatPrice(r.amount) }, { label: "Paid To", value: r.paidTo },
+              { label: "Payment Method", value: r.paymentMethod }, { label: "Date", value: r.date },
+              { label: "Receipt #", value: r.receipt }, { label: "Status", value: r.status },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       ),

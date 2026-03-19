@@ -138,9 +138,23 @@ const HealthServicesPage = () => {
     { key: "status", header: "Status", render: (s: HealthService) => <StatusBadge status={s.status} /> },
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
-          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteService(s)}><Trash2 className="w-4 h-4" /></Button>
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: s.id, sectionTitle: "Health Service", fields: [
+              { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
+              { label: "Price", value: formatDualPrice(s.price) }, { label: "Duration", value: s.duration },
+              { label: "Status", value: s.status }, { label: "Description", value: s.description },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(s)}><Pencil className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: s.id, sectionTitle: "Health Service Report", fields: [
+              { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
+              { label: "Price", value: formatDualPrice(s.price) }, { label: "Duration", value: s.duration },
+              { label: "Status", value: s.status }, { label: "Description", value: s.description },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteService(s)}><Trash2 className="w-3.5 h-3.5" /></Button>
         </div>
       ),
     },
