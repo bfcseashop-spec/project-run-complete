@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, MonitorSpeaker, Clock, CheckCircle, Activity,
-  Search, Heart, Baby, Scan, CircleDot, Waves,
+  Search, Heart, Baby, Scan, CircleDot, Waves, Printer,
 } from "lucide-react";
 import {
   ultrasoundRecords, type UltrasoundRecord, regions, examinationNames,
