@@ -3,7 +3,27 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
+import AppLayout from "@/components/AppLayout";
+import Dashboard from "@/pages/Dashboard";
+import MedicinePage from "@/pages/MedicinePage";
+import OPDPage from "@/pages/OPDPage";
+import PrescriptionPage from "@/pages/PrescriptionPage";
+import DoctorPage from "@/pages/DoctorPage";
+import DuesPage from "@/pages/DuesPage";
+import BillingPage from "@/pages/BillingPage";
+import LabTestsPage from "@/pages/LabTestsPage";
+import AddTestPage from "@/pages/AddTestPage";
+import TestNamePage from "@/pages/TestNamePage";
+import {
+  UltrasoundPage,
+  HRMPage, RolesPage, ExpensesPage, BankPage, InvestmentsPage
+} from "@/pages/PlaceholderPages";
+import SampleCollectionPage from "@/pages/SampleCollectionPage";
+import LabReportsPage from "@/pages/LabReportsPage";
+import XRayPage from "@/pages/XRayPage";
+import HealthServicesPage from "@/pages/HealthServicesPage";
+import InjectionsPage from "@/pages/InjectionsPage";
+import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -15,8 +35,30 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/billing" element={<BillingPage />} />
+            <Route path="/medicine" element={<MedicinePage />} />
+            <Route path="/opd" element={<OPDPage />} />
+            <Route path="/prescriptions" element={<PrescriptionPage />} />
+            <Route path="/doctors" element={<DoctorPage />} />
+            <Route path="/dues" element={<DuesPage />} />
+            <Route path="/lab-tests" element={<LabTestsPage />} />
+            <Route path="/lab-tests/add" element={<AddTestPage />} />
+            <Route path="/lab-tests/names" element={<TestNamePage />} />
+            <Route path="/lab-reports" element={<LabReportsPage />} />
+            <Route path="/xray" element={<XRayPage />} />
+            <Route path="/ultrasound" element={<UltrasoundPage />} />
+            <Route path="/sample-collection" element={<SampleCollectionPage />} />
+            <Route path="/health-services" element={<HealthServicesPage />} />
+            <Route path="/injections" element={<InjectionsPage />} />
+            <Route path="/hrm" element={<HRMPage />} />
+            <Route path="/roles" element={<RolesPage />} />
+            <Route path="/expenses" element={<ExpensesPage />} />
+            <Route path="/bank" element={<BankPage />} />
+            <Route path="/investments" element={<InvestmentsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
