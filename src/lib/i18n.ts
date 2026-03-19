@@ -93,6 +93,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inStock: "স্টকে আছে", lowStock: "কম স্টক", outOfStock: "স্টক শেষ",
     code: "কোড", route: "রুট", strength: "শক্তি",
     frequency: "ফ্রিকোয়েন্সি", duration: "সময়কাল", dosage: "ডোজ", injection: "ইনজেকশন",
+    systemManage: "সিস্টেম ম্যানেজ",
   },
 };
 

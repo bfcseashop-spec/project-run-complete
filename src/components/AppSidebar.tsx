@@ -83,6 +83,7 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "system",
     items: [
+      { icon: SlidersHorizontal, labelKey: "systemManage", path: "/system-manage" },
       { icon: Settings, labelKey: "settings", path: "/settings" },
     ],
   },
