@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { printRecordReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
