@@ -82,7 +82,7 @@ const OPDPage = () => {
           gender: String(row.gender || "Male"), complaint: String(row.complaint || ""),
           doctor: String(row.doctor || ""), time: String(row.time || ""),
           status: "waiting",
-        } as OPDPatient);
+        } as unknown as OPDPatient);
       });
     }
   };
