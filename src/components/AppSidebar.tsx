@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Pill, Users, FileText, TestTube, Scan,
   MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
   Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
-  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List,
+  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
 } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/use-settings";
