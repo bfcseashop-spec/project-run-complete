@@ -67,8 +67,8 @@ export const loadSettings = async () => {
       .eq("key", "global")
       .maybeSingle();
 
-    if (!error && data?.value) {
-      settings = { ...defaultSettings, ...(data.value as Partial<AppSettings>) };
+    if (!error && data && data.value) {
+      settings = { ...defaultSettings, ...(data.value as unknown as Partial<AppSettings>) };
       loaded = true;
       notify();
     } else {
