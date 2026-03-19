@@ -280,6 +280,8 @@ const SampleCollectionPage = () => {
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Sample</Button>
       </PageHeader>
 
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImportSamples} onDownloadSample={toolbar.handleDownloadSample} />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Total Samples" value={String(total)} icon={Pipette} />
         <StatCard title="Scheduled" value={String(scheduled)} icon={Clock} />
@@ -312,7 +314,11 @@ const SampleCollectionPage = () => {
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          {toolbar.viewMode === "list" ? (
+            <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          ) : (
+            <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          )}
         </TabsContent>
       </Tabs>
 
