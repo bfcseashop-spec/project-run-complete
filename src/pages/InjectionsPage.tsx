@@ -7,7 +7,8 @@ import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Syringe } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
@@ -91,8 +92,26 @@ const InjectionsPage = () => {
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: i.id, sectionTitle: "Injection Details", fields: [
+              { label: "Name", value: i.name }, { label: "Category", value: i.category },
+              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
+              { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
+              { label: "Status", value: i.status },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(i)}>
             <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: i.id, sectionTitle: "Injection Report", fields: [
+              { label: "Name", value: i.name }, { label: "Category", value: i.category },
+              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
+              { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(i.id, i.name)}>
+            <Barcode className="w-3.5 h-3.5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteInj(i)}>
             <Trash2 className="w-3.5 h-3.5" />

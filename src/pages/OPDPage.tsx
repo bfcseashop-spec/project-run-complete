@@ -5,7 +5,8 @@ import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Printer } from "lucide-react";
+import { printRecordReport } from "@/lib/printUtils";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
@@ -62,9 +63,25 @@ const OPDPage = () => {
     { key: "status", header: "Status", render: (p: OPDPatient) => <StatusBadge status={p.status} /> },
     {
       key: "actions", header: "Actions", render: (p: OPDPatient) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
-          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeletePatient(p)}><Trash2 className="w-4 h-4" /></Button>
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: p.id, sectionTitle: "OPD Patient Record", fields: [
+              { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
+              { label: "Gender", value: p.gender }, { label: "Complaint", value: p.complaint },
+              { label: "Doctor", value: p.doctor }, { label: "Time", value: p.time },
+              { label: "Status", value: p.status },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: p.id, sectionTitle: "OPD Report", fields: [
+              { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
+              { label: "Gender", value: p.gender }, { label: "Complaint", value: p.complaint },
+              { label: "Doctor", value: p.doctor }, { label: "Time", value: p.time },
+              { label: "Status", value: p.status },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
         </div>
       ),
     },

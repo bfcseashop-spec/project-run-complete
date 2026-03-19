@@ -25,8 +25,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
-  Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X,
+  Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
   labReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
@@ -216,17 +217,25 @@ const LabReportsPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: LabReport) => (
-        <div className="flex items-center gap-1">
-          {r.status === "completed" && (
-            <Button variant="ghost" size="icon" title="View Report" onClick={() => openView(r)}>
-              <Eye className="w-4 h-4 text-primary" />
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
-            <Pencil className="w-4 h-4" />
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View Report" onClick={() => openView(r)}>
+            <Eye className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteReport(r)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Lab Report", fields: [
+              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
+              { label: "Doctor", value: r.doctor }, { label: "Date", value: r.date },
+              { label: "Status", value: r.status }, { label: "Report Date", value: r.resultDate || "" },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteReport(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),

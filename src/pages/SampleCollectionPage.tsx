@@ -24,8 +24,9 @@ import {
 import {
   Plus, Pencil, Trash2, Pipette, Clock, CheckCircle, PackageCheck,
   Search, AlertTriangle, Truck, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, XCircle,
+  Droplets, FlaskConical, TestTube, ClipboardList, XCircle, Eye, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
   sampleRecords as initialRecords, type SampleRecord, sampleTypes,
   storageTempOptions, collectors, rejectionReasons,
@@ -252,7 +253,15 @@ const SampleCollectionPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: SampleRecord) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Sample Record", fields: [
+              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
+              { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
+              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
+              { label: "Lab", value: r.notes || "" }, { label: "Notes", value: r.notes || "" },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
           {statusFlowLabel[r.status] && (
             <Button variant="ghost" size="sm" className="text-xs h-7 px-2 text-primary" onClick={() => advanceStatus(r.id)}>
               {statusFlowLabel[r.status]}
@@ -260,14 +269,24 @@ const SampleCollectionPage = () => {
           )}
           {r.status !== "rejected" && r.status !== "received" && (
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Reject" onClick={() => openReject(r)}>
-              <XCircle className="w-4 h-4 text-destructive" />
+              <XCircle className="w-3.5 h-3.5 text-destructive" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(r)}>
-            <Pencil className="w-4 h-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Sample Collection Report", fields: [
+              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
+              { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
+              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),

@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, ScanLine, Clock, CheckCircle, Activity,
-  Search, Bone, Brain, Heart, Hand, Skull,
+  Search, Bone, Brain, Heart, Hand, Skull, Eye, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, bodyParts, examinationNames } from "@/data/xrayRecords";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
@@ -129,12 +130,33 @@ const XRayPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: XRayRecord) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
-            <Pencil className="w-4 h-4" />
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "X-Ray Record", fields: [
+              { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
+              { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
+              { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
+              { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
+              { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
+            ],
+          })}><Eye className="w-3.5 h-3.5" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-4 h-4 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "X-Ray Report", fields: [
+              { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
+              { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
+              { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
+              { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
+              { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
+            ],
+          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),
