@@ -161,7 +161,7 @@ const LabReportsPage = () => {
   const filtered = reports.filter((r) => {
     const matchSearch = searchTerm === "" ||
       r.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.testNameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.testName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = filterStatus === "all" || r.status === filterStatus;
     const matchCategory = filterCategory === "all" || r.category === filterCategory;
