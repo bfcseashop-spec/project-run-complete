@@ -182,12 +182,10 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
     setLineItems((prev) => [...prev, { id: nextId(), type: "PKG", name: pkg.name, price: pkg.price, qty: 1 }]);
   };
 
-  const addMedicine = () => {
-    if (!medicineDraft.name) return;
-    const med = medicineOptions.find((m) => m.name === medicineDraft.name);
-    const price = med?.price || 0;
-    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: medicineDraft.name, price, qty: medicineDraft.qty }]);
-    setMedicineDraft({ name: "", qty: 1 });
+  const addMedicineByName = (name: string) => {
+    const med = medicineOptions.find((m) => m.name === name);
+    if (!med) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: med.name, price: med.price, qty: 1 }]);
   };
 
   const addCustomItem = () => {
@@ -347,21 +345,12 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 <span>Scan barcode to add medicine</span>
               </div>
 
-              <div className="flex gap-2">
-                <Select value={medicineDraft.name} onValueChange={(v) => setMedicineDraft((d) => ({ ...d, name: v }))}>
-                  <SelectTrigger className="flex-1"><SelectValue placeholder="Select Medicine" /></SelectTrigger>
-                  <SelectContent>
-                    {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatDualPrice(m.price)}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-muted-foreground">Qty</span>
-                  <Input type="number" min={1} value={medicineDraft.qty} onChange={(e) => setMedicineDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16" />
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={addMedicine} className="px-3">
-                  <Plus className="w-3 h-3" />
-                </Button>
-              </div>
+              <Select value="" onValueChange={(v) => { addMedicineByName(v); }}>
+                <SelectTrigger><SelectValue placeholder="Select Medicine" /></SelectTrigger>
+                <SelectContent>
+                  {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatDualPrice(m.price)}</SelectItem>)}
+                </SelectContent>
+              </Select>
 
               <p className="text-xs text-muted-foreground">Selling price per piece. Quantity is always in pieces.</p>
             </div>
