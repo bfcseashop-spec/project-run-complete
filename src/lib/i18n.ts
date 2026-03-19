@@ -14,7 +14,7 @@ type TranslationKey =
   | "clearAll" | "selectAll" | "prescribedTests" | "clinicProfile"
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
-  | "frequency" | "duration" | "dosage" | "injection";
+  | "frequency" | "duration" | "dosage" | "injection" | "systemManage";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {
