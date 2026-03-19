@@ -1,6 +1,6 @@
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
-  ClipboardList, TrendingUp, Calendar
+  ClipboardList, TrendingUp, Calendar, Syringe, ScanLine, Heart, FileText,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import PageHeader from "@/components/PageHeader";
@@ -31,12 +31,13 @@ const COLORS = [
   "hsl(152, 60%, 40%)", "hsl(215, 25%, 60%)",
 ];
 
-const recentPatients = [
-  { id: "P-1024", name: "Sarah Johnson", type: "OPD Visit", doctor: "Dr. Smith", time: "10 min ago" },
-  { id: "P-1025", name: "Michael Chen", type: "Lab Test", doctor: "Dr. Patel", time: "25 min ago" },
-  { id: "P-1026", name: "Emily Davis", type: "X-Ray", doctor: "Dr. Williams", time: "1 hr ago" },
-  { id: "P-1027", name: "James Wilson", type: "Ultrasound", doctor: "Dr. Brown", time: "2 hrs ago" },
-  { id: "P-1028", name: "Maria Garcia", type: "Follow-up", doctor: "Dr. Lee", time: "3 hrs ago" },
+const recentActivity = [
+  { id: "BIL-001", type: "Billing", description: "Invoice created for Sarah Johnson", time: "5 min ago", icon: DollarSign },
+  { id: "LT-501", type: "Lab Test", description: "CBC test ordered for Michael Chen", time: "12 min ago", icon: TestTube },
+  { id: "RX-201", type: "Prescription", description: "Prescription issued by Dr. Smith", time: "20 min ago", icon: FileText },
+  { id: "SC-3001", type: "Sample", description: "Blood sample collected from Sarah Johnson", time: "30 min ago", icon: ClipboardList },
+  { id: "XR-2001", type: "X-Ray", description: "Chest PA ordered for James Wilson", time: "45 min ago", icon: ScanLine },
+  { id: "INJ-001", type: "Injection", description: "Ceftriaxone administered to Emily Davis", time: "1 hr ago", icon: Syringe },
 ];
 
 const upcomingAppointments = [
@@ -50,12 +51,20 @@ const Dashboard = () => {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your clinic's performance and activity" />
 
-      {/* Stats */}
+      {/* Stats row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users} title="Total Patients" value="1,284" change="+12% from last month" changeType="positive" />
         <StatCard icon={Stethoscope} title="Today's OPD" value="47" change="8 in queue" changeType="neutral" />
         <StatCard icon={TestTube} title="Pending Tests" value="23" change="-5 from yesterday" changeType="positive" />
         <StatCard icon={DollarSign} title="Revenue (MTD)" value="$67,450" change="+18% from last month" changeType="positive" />
+      </div>
+
+      {/* Stats row 2 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={Pill} title="Medicines" value="6" change="2 low stock" changeType="negative" />
+        <StatCard icon={Syringe} title="Injections" value="10" change="1 out of stock" changeType="negative" />
+        <StatCard icon={ScanLine} title="X-Ray Orders" value="8" change="3 pending" changeType="neutral" />
+        <StatCard icon={Heart} title="Health Services" value="7" change="5 active" changeType="positive" />
       </div>
 
       {/* Charts */}
@@ -89,7 +98,7 @@ const Dashboard = () => {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent patients */}
+        {/* Pie Chart */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border shadow-card p-5">
           <h3 className="text-sm font-semibold text-card-foreground mb-4">Department Distribution</h3>
           <ResponsiveContainer width="100%" height={200}>
@@ -104,23 +113,27 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
+        {/* Recent Activity */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border shadow-card p-5">
           <h3 className="text-sm font-semibold text-card-foreground mb-4 flex items-center gap-2">
-            <ClipboardList className="w-4 h-4 text-primary" /> Recent Patients
+            <ClipboardList className="w-4 h-4 text-primary" /> Recent Activity
           </h3>
           <div className="space-y-3">
-            {recentPatients.map((p) => (
-              <div key={p.id} className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-card-foreground">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.type} • {p.doctor}</p>
+            {recentActivity.map((a) => (
+              <div key={a.id} className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <a.icon className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <span className="text-xs text-muted-foreground">{p.time}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-card-foreground truncate">{a.description}</p>
+                  <p className="text-xs text-muted-foreground">{a.type} • {a.time}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
+        {/* Upcoming */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border shadow-card p-5">
           <h3 className="text-sm font-semibold text-card-foreground mb-4 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary" /> Upcoming Appointments
