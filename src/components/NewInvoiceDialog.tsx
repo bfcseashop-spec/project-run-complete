@@ -109,6 +109,7 @@ interface NewInvoiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: InvoiceFormData, action: "draft" | "print" | "payment") => void;
+  editData?: InvoiceFormData | null;
 }
 
 let lineIdCounter = 0;
@@ -130,7 +131,7 @@ const typeLabels: Record<LineItemType, string> = {
   CUSTOM: "Custom",
 };
 
-const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProps) => {
+const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoiceDialogProps) => {
   const { settings } = useSettings();
   const lang = settings.language;
   const appSettings = getSettings();
@@ -155,14 +156,26 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { unsub(); }; }, []);
 
   useEffect(() => {
-    if (open) {
+    if (open && editData) {
+      // Pre-fill from edit data
+      setPatient(editData.patient);
+      setDoctor(editData.doctor);
+      setDate(editData.date);
+      setLineItems(editData.lineItems || []);
+      setDiscount(editData.discount);
+      setDiscountType(editData.discountType);
+      setPaidAmount(editData.paidAmount);
+      setPaymentMethod(editData.paymentMethod);
+      setCustomDraft({ name: "", price: 0, qty: 1 });
+      setShowPreview(false);
+    } else if (open) {
       setPatient(""); setDoctor(""); setDate(today);
       setLineItems([]); setDiscount(0); setDiscountType("flat");
       setPaidAmount(0); setPaymentMethod("Cash");
       setCustomDraft({ name: "", price: 0, qty: 1 });
       setShowPreview(false);
     }
-  }, [open]);
+  }, [open, editData]);
 
   const addService = (name: string) => {
     const svc = serviceOptions.find((s) => s.name === name);
@@ -337,9 +350,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl flex items-center gap-2">
               <ShoppingCart className="w-6 h-6 text-primary" />
-              Create Bill
+              {editData ? "Edit Bill" : "Create Bill"}
             </DialogTitle>
-            <p className="text-sm text-muted-foreground">Create and manage patient bills</p>
+            <p className="text-sm text-muted-foreground">{editData ? "Update invoice details" : "Create and manage patient bills"}</p>
           </DialogHeader>
         </div>
 
