@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Syringe } from "lucide-react";
 import { formatDualPrice } from "@/lib/currency";
