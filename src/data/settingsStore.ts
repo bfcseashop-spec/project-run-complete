@@ -83,8 +83,8 @@ let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const persistToDb = async () => {
   try {
-    await supabase
-      .from("app_settings")
+    await (supabase
+      .from("app_settings") as any)
       .update({ value: JSON.parse(JSON.stringify(settings)), updated_at: new Date().toISOString() })
       .eq("key", "global");
   } catch {
