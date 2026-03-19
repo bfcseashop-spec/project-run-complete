@@ -24,6 +24,7 @@ import XRayPage from "@/pages/XRayPage";
 import HealthServicesPage from "@/pages/HealthServicesPage";
 import InjectionsPage from "@/pages/InjectionsPage";
 import SettingsPage from "@/pages/SettingsPage";
+import SystemManagePage from "@/pages/SystemManagePage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
