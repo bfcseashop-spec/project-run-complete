@@ -28,7 +28,7 @@ const PlaceholderPage = ({ title, description, icon: Icon }: PlaceholderPageProp
   );
 };
 
-export const UltrasoundPage = () => <PlaceholderPage title="Ultrasound" description="Manage ultrasound procedures and results" icon={MonitorSpeaker} />;
+
 export const HRMPage = () => <PlaceholderPage title="HRM" description="Human resource management and payroll" icon={Users} />;
 export const RolesPage = () => <PlaceholderPage title="Roles & Permissions" description="Manage user roles and access control" icon={UserCog} />;
 export const ExpensesPage = () => <PlaceholderPage title="Expenses" description="Track and categorize clinic expenditures" icon={DollarSign} />;
