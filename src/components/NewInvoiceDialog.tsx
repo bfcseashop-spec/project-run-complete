@@ -11,7 +11,7 @@ import {
 import {
   Hash, Calendar, User, Stethoscope, Briefcase, Syringe, Package,
   Tag, DollarSign, Percent, CreditCard, Printer, Receipt, Save, Pill,
-  Barcode, Trash2, ShoppingCart, FileText, Eye,
+  Barcode, Trash2, ShoppingCart, FileText, Eye, Plus, X,
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
@@ -123,14 +123,6 @@ const typeBadgeStyles: Record<LineItemType, string> = {
   CUSTOM: "bg-muted text-muted-foreground",
 };
 
-const typeLabels: Record<LineItemType, string> = {
-  SVC: "Service",
-  MED: "Medicine",
-  INJ: "Injection",
-  PKG: "Package",
-  CUSTOM: "Custom",
-};
-
 const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoiceDialogProps) => {
   const { settings } = useSettings();
   const lang = settings.language;
@@ -157,23 +149,15 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 
   useEffect(() => {
     if (open && editData) {
-      // Pre-fill from edit data
-      setPatient(editData.patient);
-      setDoctor(editData.doctor);
-      setDate(editData.date);
-      setLineItems(editData.lineItems || []);
-      setDiscount(editData.discount);
-      setDiscountType(editData.discountType);
-      setPaidAmount(editData.paidAmount);
+      setPatient(editData.patient); setDoctor(editData.doctor); setDate(editData.date);
+      setLineItems(editData.lineItems || []); setDiscount(editData.discount);
+      setDiscountType(editData.discountType); setPaidAmount(editData.paidAmount);
       setPaymentMethod(editData.paymentMethod);
-      setCustomDraft({ name: "", price: 0, qty: 1 });
-      setShowPreview(false);
+      setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
     } else if (open) {
-      setPatient(""); setDoctor(""); setDate(today);
-      setLineItems([]); setDiscount(0); setDiscountType("flat");
-      setPaidAmount(0); setPaymentMethod("Cash");
-      setCustomDraft({ name: "", price: 0, qty: 1 });
-      setShowPreview(false);
+      setPatient(""); setDoctor(""); setDate(today); setLineItems([]);
+      setDiscount(0); setDiscountType("flat"); setPaidAmount(0); setPaymentMethod("Cash");
+      setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
     }
   }, [open, editData]);
 
@@ -203,7 +187,6 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     setLineItems((prev) => prev.map((li) => li.id === id ? { ...li, qty: Math.max(1, qty) } : li));
   };
 
-  // Totals
   const subtotal = lineItems.reduce((s, li) => s + li.price * li.qty, 0);
   const discountAmount = discountType === "percent" ? (subtotal * discount) / 100 : discount;
   const afterDiscount = Math.max(0, subtotal - discountAmount);
@@ -212,17 +195,13 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
   const grandTotal = afterDiscount + taxAmount;
   const dueAmount = Math.max(0, grandTotal - paidAmount);
 
-  // Medication grouping for preview/print
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
 
-  // Preview line items: group all meds into single "Medication" row
   const previewItems = useMemo(() => {
     const items = nonMedicineItems.map((li) => ({
-      name: li.name,
-      type: li.type,
-      total: li.price * li.qty,
+      name: li.name, type: li.type, total: li.price * li.qty,
     }));
     if (medicationItems.length > 0) {
       items.push({ name: "Medication", type: "MED" as LineItemType, total: medicationTotal });
@@ -230,40 +209,94 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     return items;
   }, [lineItems]);
 
+  const buildFormData = (): InvoiceFormData => ({
+    patient, doctor, date,
+    service: lineItems.filter((li) => li.type === "SVC").map((li) => li.name).join(", "),
+    injection: lineItems.filter((li) => li.type === "INJ").map((li) => li.name).join(", "),
+    packageItem: lineItems.filter((li) => li.type === "PKG").map((li) => li.name).join(", "),
+    customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
+    medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
+    discount, discountType, paidAmount, paymentMethod, lineItems, medicationTotal,
+  });
+
   const handleAction = (action: "draft" | "print" | "payment") => {
     if (!patient) { toast.error("Please select a patient"); return; }
-    const formData: InvoiceFormData = {
-      patient, doctor, date,
-      service: lineItems.filter((li) => li.type === "SVC").map((li) => li.name).join(", "),
-      injection: lineItems.filter((li) => li.type === "INJ").map((li) => li.name).join(", "),
-      packageItem: lineItems.filter((li) => li.type === "PKG").map((li) => li.name).join(", "),
-      customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
-      medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
-      discount, discountType, paidAmount, paymentMethod,
-      lineItems, medicationTotal,
-    };
-    onSubmit(formData, action);
+    onSubmit(buildFormData(), action);
   };
 
-  const itemCount = lineItems.length;
+  const handlePrintInvoice = () => {
+    if (!patient) { toast.error("Please select a patient"); return; }
+    // Build invoice HTML and print
+    const s = appSettings;
+    const rows = previewItems.map((item, i) =>
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(item.total)}</td></tr>`
+    ).join("");
 
-  // ─── PREVIEW / PRINT VIEW ───
+    let totalsHtml = `
+      <div style="margin-left:auto;width:260px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
+    if (paidAmount > 0) {
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:#6b7280">Paid</span><span>${formatPrice(paidAmount)}</span></div>`;
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Due</span><span style="color:${dueAmount > 0 ? '#dc2626' : '#059669'}">${formatPrice(dueAmount)}</span></div>`;
+    }
+    totalsHtml += `</div>`;
+
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;padding:32px 40px}
+@media print{@page{margin:15mm}body{padding:20px 30px}}</style></head><body>
+<div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px">
+  <h1 style="font-size:22px;font-weight:700;color:#0f766e">${s.clinicName}</h1>
+  <p style="font-size:12px;color:#666;margin-top:2px">${s.clinicTagline}</p>
+  <p style="font-size:11px;color:#888;margin-top:6px">${s.clinicAddress} • ${s.clinicPhone}</p>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
+  <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
+  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${paymentMethod}</strong></p></div>
+</div>
+<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
+  <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
+  <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Description</th>
+  <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Amount</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+${totalsHtml}
+<p style="text-align:center;font-size:11px;color:#888;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px">Thank you for choosing ${s.clinicName}. Get well soon!</p>
+</body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 400);
+    onSubmit(buildFormData(), "print");
+  };
+
+  const handlePayment = () => {
+    if (!patient) { toast.error("Please select a patient"); return; }
+    if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
+    // Auto-fill paid amount to grand total for POS
+    setPaidAmount(grandTotal);
+    onSubmit({ ...buildFormData(), paidAmount: grandTotal }, "payment");
+  };
+
+  // ─── PREVIEW VIEW ───
   if (showPreview) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0">
           <div className="p-8 space-y-6" id="invoice-print-area">
-            {/* Clinic Header */}
-            <div className="text-center border-b border-border pb-4">
-              <h2 className="text-xl font-bold text-foreground">{appSettings.clinicName}</h2>
+            <div className="text-center border-b-2 border-primary/30 pb-4">
+              <h2 className="text-xl font-bold text-primary">{appSettings.clinicName}</h2>
               <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
-              <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
+              <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} • {appSettings.clinicPhone}</p>
             </div>
 
-            {/* Invoice Info */}
             <div className="flex justify-between text-sm">
               <div className="space-y-1">
-                <p><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{patient}</span></p>
+                <p><span className="text-muted-foreground">Patient:</span> <span className="font-semibold">{patient}</span></p>
                 {doctor && <p><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{doctor}</span></p>}
               </div>
               <div className="text-right space-y-1">
@@ -272,54 +305,31 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
               </div>
             </div>
 
-            {/* Invoice Items — Medicines grouped as "Medication" */}
             <div className="border border-border rounded-lg overflow-hidden">
-              <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2.5 bg-muted/60 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                <span className="w-8">#</span>
-                <span>Description</span>
-                <span className="text-right">Amount</span>
+              <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span>#</span><span>Description</span><span className="text-right">Amount</span>
               </div>
               {previewItems.map((item, i) => (
-                <div key={i} className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-3 border-t border-border items-center text-sm">
-                  <span className="w-8 text-muted-foreground">{i + 1}</span>
-                  <span className="font-medium text-foreground">{item.name}</span>
+                <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                  <span className="text-muted-foreground">{i + 1}</span>
+                  <span className="font-medium">{item.name}</span>
                   <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
                 </div>
               ))}
             </div>
 
-            {/* Totals */}
             <div className="ml-auto w-64 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums">{formatPrice(subtotal)}</span>
-              </div>
-              {discountAmount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span>
-                </div>
-              )}
-              {taxRate > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax ({taxRate}%)</span>
-                  <span className="tabular-nums">{formatPrice(taxAmount)}</span>
-                </div>
-              )}
-              <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(subtotal)}</span></div>
+              {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span></div>}
+              {taxRate > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatPrice(taxAmount)}</span></div>}
+              <div className="border-t-2 border-primary/30 pt-2 flex justify-between font-bold text-lg">
                 <span>Grand Total</span>
                 <span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span>
               </div>
               {paidAmount > 0 && (
                 <>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Paid</span>
-                    <span className="tabular-nums">{formatPrice(paidAmount)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span className="text-muted-foreground">Due</span>
-                    <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span>
-                  </div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(paidAmount)}</span></div>
+                  <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
                 </>
               )}
             </div>
@@ -327,12 +337,11 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
             <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
           </div>
 
-          {/* Action bar */}
           <div className="px-6 pb-6 flex gap-3">
             <Button variant="outline" onClick={() => setShowPreview(false)} className="flex-1 gap-2">
               <FileText className="w-4 h-4" /> Back to Edit
             </Button>
-            <Button onClick={() => { window.print(); }} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
+            <Button onClick={() => { window.print(); }} className="flex-1 gap-2">
               <Printer className="w-4 h-4" /> Print
             </Button>
           </div>
@@ -341,44 +350,44 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     );
   }
 
-  // ─── MAIN FORM VIEW ───
+  // ─── MAIN FORM ───
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-0">
-        {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-4 border-b border-border">
+        {/* Header */}
+        <div className="bg-primary px-6 py-5 text-primary-foreground">
           <DialogHeader>
-            <DialogTitle className="font-heading text-2xl flex items-center gap-2">
-              <ShoppingCart className="w-6 h-6 text-primary" />
+            <DialogTitle className="text-xl font-bold flex items-center gap-2.5 text-primary-foreground">
+              <ShoppingCart className="w-5 h-5" />
               {editData ? "Edit Bill" : "Create Bill"}
             </DialogTitle>
-            <p className="text-sm text-muted-foreground">{editData ? "Update invoice details" : "Create and manage patient bills"}</p>
+            <p className="text-primary-foreground/70 text-sm mt-0.5">Create and manage patient bills</p>
           </DialogHeader>
         </div>
 
         <div className="px-6 pb-6 space-y-5 pt-5">
-          {/* Invoice # + Date */}
-          <div className="flex items-center justify-between bg-muted/40 rounded-lg px-4 py-3">
+          {/* Invoice # + Date row */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <Hash className="w-4 h-4 text-primary" />
-              <span className="font-medium">Invoice</span>
-              <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">Auto</span>
+              <span className="font-semibold">Invoice</span>
+              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">Auto</span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[160px] h-9 bg-background" />
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[160px] h-9" />
             </div>
           </div>
 
           {/* Patient + Doctor */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+              <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                 <User className="w-4 h-4 text-primary" />
                 {t("patient", lang)} <span className="text-destructive">*</span>
               </Label>
               <Select value={patient} onValueChange={setPatient}>
-                <SelectTrigger className="h-10"><SelectValue placeholder={t("selectPatient", lang)} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("selectPatient", lang)} /></SelectTrigger>
                 <SelectContent>
                   {patients.map((p) => (
                     <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>
@@ -387,12 +396,12 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
               </Select>
             </div>
             <div>
-              <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+              <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                 <Stethoscope className="w-4 h-4 text-primary" />
                 Doctor / Refer Name
               </Label>
               <Select value={doctor} onValueChange={setDoctor}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select or type doctor / refer name..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select or type doctor / refer name..." /></SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
@@ -400,48 +409,44 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
             </div>
           </div>
 
-          {/* Main 2-column selectors */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* LEFT: Services / Injection / Packages / Custom */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
+          {/* Two-column: Services/Injections/Packages/Custom + Medicines */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* LEFT */}
+            <div className="border border-border rounded-xl p-4 space-y-4 bg-card">
               <div>
-                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                   <Briefcase className="w-4 h-4 text-primary" /> Services
                 </Label>
                 <Select value="" onValueChange={addService}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Service" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Service" /></SelectTrigger>
                   <SelectContent>
                     {serviceOptions.map((s) => (
-                      <SelectItem key={s.name} value={s.name}>
-                        <span className="flex justify-between w-full">{s.name} <span className="text-muted-foreground ml-2">{formatPrice(s.price)}</span></span>
-                      </SelectItem>
+                      <SelectItem key={s.name} value={s.name}>{s.name} — {formatPrice(s.price)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                   <Syringe className="w-4 h-4 text-amber-500" /> Injection
                 </Label>
                 <Select value="" onValueChange={addInjection}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Injection" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Injection" /></SelectTrigger>
                   <SelectContent>
                     {injectionsList.filter((inj) => inj.status !== "out-of-stock").map((inj) => (
-                      <SelectItem key={inj.id} value={inj.name}>
-                        {inj.name} {inj.strength} — {formatDualPrice(inj.price)}
-                      </SelectItem>
+                      <SelectItem key={inj.id} value={inj.name}>{inj.name} {inj.strength} — {formatDualPrice(inj.price)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                   <Package className="w-4 h-4 text-violet-500" /> Packages
                 </Label>
                 <Select value="" onValueChange={addPackage}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select Package" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Package" /></SelectTrigger>
                   <SelectContent>
                     {packageOptions.map((p) => (
                       <SelectItem key={p.name} value={p.name}>{p.name} — {formatPrice(p.price)}</SelectItem>
@@ -451,32 +456,30 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
               </div>
 
               <div>
-                <Label className="flex items-center gap-1.5 mb-2 text-sm font-semibold">
+                <Label className="flex items-center gap-1.5 mb-1.5 text-sm font-semibold">
                   <Tag className="w-4 h-4 text-muted-foreground" /> Custom Item
                 </Label>
                 <div className="flex gap-2">
-                  <Input placeholder="Item name" value={customDraft.name} onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))} className="flex-1 h-10" />
-                  <Input type="number" placeholder="Price" value={customDraft.price || ""} onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))} className="w-20 h-10" />
-                  <Input type="number" min={1} value={customDraft.qty} onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16 h-10" />
-                  <Button type="button" variant="outline" onClick={addCustomItem} className="h-10 px-4">Add</Button>
+                  <Input placeholder="Item name" value={customDraft.name} onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))} className="flex-1" />
+                  <Input type="number" placeholder="Price" value={customDraft.price || ""} onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))} className="w-20" />
+                  <Input type="number" min={1} value={customDraft.qty} onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16" />
+                  <Button type="button" variant="outline" onClick={addCustomItem} size="sm" className="h-10 px-3">Add</Button>
                 </div>
               </div>
             </div>
 
             {/* RIGHT: Medicines */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
+            <div className="border border-border rounded-xl p-4 space-y-4 bg-card">
               <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <Pill className="w-4 h-4 text-emerald-500" />
-                Medicines <span className="text-muted-foreground text-xs font-normal">(pieces)</span>
+                <Pill className="w-4 h-4 text-emerald-500" /> Medicines <span className="text-muted-foreground text-xs font-normal">(pieces)</span>
               </Label>
 
-              <div className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2.5 text-sm text-muted-foreground bg-muted/20">
-                <Barcode className="w-4 h-4" />
-                <span>Scan barcode to add medicine</span>
+              <div className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2.5 text-sm text-muted-foreground bg-muted/30">
+                <Barcode className="w-4 h-4" /> Scan barcode to add medicine
               </div>
 
               <Select value="" onValueChange={addMedicineByName}>
-                <SelectTrigger className="h-10"><SelectValue placeholder="Select Medicine" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select Medicine" /></SelectTrigger>
                 <SelectContent>
                   {medicineOptions.map((m) => (
                     <SelectItem key={m.name} value={m.name}>{m.name} — {formatPrice(m.price)}</SelectItem>
@@ -486,17 +489,15 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 
               <p className="text-xs text-muted-foreground">Selling price per piece. Quantity is always in pieces.</p>
 
-              {/* Medicine count badge */}
               {medicationItems.length > 0 && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-sm">
+                <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg p-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 font-medium text-emerald-700">
-                      <Pill className="w-3.5 h-3.5" />
-                      {medicationItems.length} medicine{medicationItems.length > 1 ? "s" : ""} added
+                    <span className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
+                      <Pill className="w-3.5 h-3.5" /> {medicationItems.length} medicine{medicationItems.length > 1 ? "s" : ""} added
                     </span>
-                    <span className="font-bold text-emerald-700">{formatPrice(medicationTotal)}</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatPrice(medicationTotal)}</span>
                   </div>
-                  <p className="text-xs text-emerald-600/80 mt-1">Shown as "Medication" on customer invoice</p>
+                  <p className="text-xs text-emerald-600/80 dark:text-emerald-400/60 mt-1">Shown as "Medication" on customer invoice</p>
                 </div>
               )}
             </div>
@@ -504,56 +505,39 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 
           {/* LINE ITEMS TABLE */}
           {lineItems.length > 0 && (
-            <div className="rounded-xl border border-border overflow-hidden shadow-sm">
-              <div className="grid grid-cols-[1fr_90px_70px_90px_40px] gap-2 px-4 py-3 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
-                <span>Item</span>
-                <span className="text-right">Price</span>
-                <span className="text-center">Qty</span>
-                <span className="text-right">Total</span>
-                <span></span>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[1fr_80px_60px_80px_36px] gap-2 px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
+                <span>Item</span><span className="text-right">Price</span><span className="text-center">Qty</span><span className="text-right">Total</span><span></span>
               </div>
               <div className="divide-y divide-border">
                 {lineItems.map((li) => (
-                  <div key={li.id} className="grid grid-cols-[1fr_90px_70px_90px_40px] gap-2 px-4 py-2.5 items-center text-sm hover:bg-muted/20 transition-colors">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${typeBadgeStyles[li.type]}`}>
-                        {li.type}
-                      </span>
+                  <div key={li.id} className="grid grid-cols-[1fr_80px_60px_80px_36px] gap-2 px-4 py-2 items-center text-sm hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full ${typeBadgeStyles[li.type]}`}>{li.type}</span>
                       <span className="truncate font-medium">{li.name}</span>
                     </div>
                     <span className="text-right text-muted-foreground tabular-nums">{formatPrice(li.price)}</span>
                     <div className="flex justify-center">
-                      <Input
-                        type="number" min={1} value={li.qty}
-                        onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
-                        className="w-14 h-7 text-center text-sm px-1"
-                      />
+                      <Input type="number" min={1} value={li.qty} onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)} className="w-12 h-7 text-center text-sm px-1" />
                     </div>
-                    <span className="text-right font-bold text-primary tabular-nums">
-                      {formatPrice(li.price * li.qty)}
-                    </span>
+                    <span className="text-right font-semibold text-primary tabular-nums">{formatPrice(li.price * li.qty)}</span>
                     <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive/60 hover:text-destructive" onClick={() => removeItem(li.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <X className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 ))}
-              </div>
-              {/* Item count row */}
-              <div className="px-4 py-2 bg-muted/30 border-t border-border flex justify-between text-xs text-muted-foreground">
-                <span>{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
-                <span className="font-semibold text-foreground">Subtotal: {formatDualPrice(subtotal)}</span>
               </div>
             </div>
           )}
 
           {/* Discount + Payment */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
               <Label className="flex items-center gap-1.5 text-sm font-semibold">
                 <Tag className="w-4 h-4 text-primary" /> Discount
               </Label>
               <div className="flex gap-1.5">
-                <Input type="number" min={0} value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0" className="flex-1 h-10" />
+                <Input type="number" min={0} value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0" className="flex-1" />
                 <Button type="button" size="sm" variant={discountType === "flat" ? "default" : "outline"} onClick={() => setDiscountType("flat")} className="h-10 w-10 p-0">
                   <DollarSign className="w-4 h-4" />
                 </Button>
@@ -567,7 +551,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
                 <CreditCard className="w-4 h-4 text-primary" /> Payment Method
               </Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((m) => (
                     <SelectItem key={m.value} value={m.value}>
@@ -576,42 +560,36 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
                   ))}
                 </SelectContent>
               </Select>
-
               <div>
                 <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
-                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0.00" className="h-10" />
+                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0" />
               </div>
-
               <Button type="button" variant="outline" className="w-full text-sm h-9">Split Bill</Button>
             </div>
           </div>
 
           {/* Summary */}
-          <div className="rounded-xl border border-border bg-gradient-to-br from-muted/40 to-muted/20 p-5 space-y-2">
+          <div className="rounded-xl border-2 border-primary/20 bg-primary/[0.03] p-5 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="tabular-nums font-medium">{formatDualPrice(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Discount</span>
-              <span className="text-destructive tabular-nums font-medium">-{formatDualPrice(discountAmount)}</span>
-            </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Discount</span>
+                <span className="text-destructive tabular-nums font-medium">-{formatDualPrice(discountAmount)}</span>
+              </div>
+            )}
             {taxRate > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tax ({taxRate}%)</span>
                 <span className="tabular-nums font-medium">{formatDualPrice(taxAmount)}</span>
               </div>
             )}
-            <div className="border-t border-border pt-3 mt-2 flex justify-between font-bold text-lg">
+            <div className="border-t-2 border-primary/20 pt-3 mt-2 flex justify-between font-bold text-lg">
               <span>Grand Total</span>
               <span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span>
             </div>
-            {settings.dualCurrencyEnabled && (
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Grand Total</span>
-                <span className="tabular-nums">{formatDualPrice(grandTotal)}</span>
-              </div>
-            )}
             {paidAmount > 0 && (
               <div className="flex justify-between text-sm pt-1 font-semibold">
                 <span className="text-muted-foreground">Due Balance</span>
@@ -620,18 +598,18 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
             )}
           </div>
 
-          {/* Footer buttons */}
-          <div className="grid grid-cols-4 gap-3 pt-2">
-            <Button variant="outline" onClick={() => handleAction("draft")} className="gap-2 h-11">
+          {/* Footer Buttons */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+            <Button variant="outline" onClick={() => handleAction("draft")} className="gap-2 h-11 border-border">
               <Save className="w-4 h-4" /> Save Draft
             </Button>
-            <Button variant="outline" onClick={() => setShowPreview(true)} className="gap-2 h-11" disabled={lineItems.length === 0}>
+            <Button variant="outline" onClick={() => { if (!patient) { toast.error("Please select a patient"); return; } setShowPreview(true); }} className="gap-2 h-11">
               <Eye className="w-4 h-4" /> Preview
             </Button>
-            <Button onClick={() => handleAction("print")} className="gap-2 h-11 bg-primary hover:bg-primary/90">
+            <Button onClick={handlePrintInvoice} className="gap-2 h-11">
               <Printer className="w-4 h-4" /> Print Invoice
             </Button>
-            <Button onClick={() => handleAction("payment")} className="gap-2 h-11 bg-[hsl(30,90%,50%)] hover:bg-[hsl(30,90%,45%)] text-white">
+            <Button onClick={handlePayment} className="gap-2 h-11 bg-orange-500 hover:bg-orange-600 text-white">
               <Receipt className="w-4 h-4" /> Payment (POS)
             </Button>
           </div>
