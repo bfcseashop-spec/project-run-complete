@@ -11,7 +11,7 @@ import {
 import {
   Hash, Calendar, User, Stethoscope, Briefcase, Syringe, Package,
   Tag, DollarSign, Percent, CreditCard, Printer, Receipt, Save, Pill,
-  Plus, Barcode,
+  Plus, Barcode, Trash2,
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
@@ -25,20 +25,41 @@ import { getSettings } from "@/data/settingsStore";
 initPatients(opdPatients);
 
 const serviceOptions = [
-  "Consultation", "Lab Test", "X-Ray", "Ultrasound", "Health Checkup",
-  "Minor Surgery", "Dressing", "ECG", "Vaccination", "Physiotherapy",
+  { name: "Consultation", price: 10 },
+  { name: "Lab Test", price: 10 },
+  { name: "X-Ray", price: 15 },
+  { name: "Ultrasound", price: 20 },
+  { name: "Health Checkup", price: 25 },
+  { name: "Minor Surgery", price: 50 },
+  { name: "Dressing", price: 5 },
+  { name: "ECG", price: 12 },
+  { name: "Vaccination", price: 8 },
+  { name: "Physiotherapy", price: 15 },
+  { name: "CBC", price: 10 },
+  { name: "HBsAb", price: 8 },
+  { name: "HBsAg", price: 7 },
+  { name: "HIV", price: 7 },
+  { name: "2 HABS", price: 4 },
 ];
 
 const packageOptions = [
-  "Basic Health Checkup", "Full Body Checkup", "Diabetes Panel",
-  "Cardiac Panel", "Prenatal Package",
+  { name: "Basic Health Checkup", price: 50 },
+  { name: "Full Body Checkup", price: 120 },
+  { name: "Diabetes Panel", price: 35 },
+  { name: "Cardiac Panel", price: 80 },
+  { name: "Prenatal Package", price: 60 },
 ];
 
 const medicineOptions = [
-  "Amoxicillin 500mg", "Paracetamol 650mg", "Metformin 500mg",
-  "Omeprazole 20mg", "Cetirizine 10mg", "Azithromycin 250mg",
-  "Ibuprofen 400mg", "Prednisolone 5mg", "Diclofenac 50mg",
-  "Pantoprazole 40mg", "Atorvastatin 10mg",
+  { name: "Amoxicillin 500mg", price: 2.50 },
+  { name: "Paracetamol 650mg", price: 0.50 },
+  { name: "Metformin 500mg", price: 1.00 },
+  { name: "Omeprazole 20mg", price: 1.50 },
+  { name: "Cetirizine 10mg", price: 0.75 },
+  { name: "Azithromycin 250mg", price: 3.00 },
+  { name: "10% GS 500ml", price: 10.00 },
+  { name: "Ace", price: 0.25 },
+  { name: "Ibuprofen 400mg", price: 1.00 },
 ];
 
 const paymentMethods = [
@@ -53,6 +74,16 @@ const doctors = [
   "Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams",
   "Dr. Mark Brown", "Dr. Lisa Lee",
 ];
+
+type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
+
+interface LineItem {
+  id: string;
+  type: LineItemType;
+  name: string;
+  price: number;
+  qty: number;
+}
 
 interface CustomItem {
   name: string;
@@ -86,78 +117,112 @@ interface NewInvoiceDialogProps {
   onSubmit: (data: InvoiceFormData, action: "draft" | "print" | "payment") => void;
 }
 
+let lineIdCounter = 0;
+const nextId = () => `li-${++lineIdCounter}`;
+
+const typeBadgeColors: Record<LineItemType, string> = {
+  SVC: "bg-muted text-muted-foreground",
+  MED: "bg-muted text-muted-foreground",
+  INJ: "bg-muted text-muted-foreground",
+  PKG: "bg-muted text-muted-foreground",
+  CUSTOM: "bg-muted text-muted-foreground",
+};
+
 const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProps) => {
   const { settings } = useSettings();
   const lang = settings.language;
   const appSettings = getSettings();
 
   const [patients, setPatients] = useState(getPatients());
-  const [injections, setInjections] = useState(getInjections());
+  const [injectionsList, setInjectionsList] = useState(getInjections());
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const [form, setForm] = useState<InvoiceFormData>({
-    patient: "", doctor: "", date: today,
-    service: "", injection: "", packageItem: "",
-    customItems: [],
-    medicines: [],
-    discount: 0, discountType: "flat",
-    paidAmount: 0, paymentMethod: "Cash",
-  });
+  const [patient, setPatient] = useState("");
+  const [doctor, setDoctor] = useState("");
+  const [date, setDate] = useState(today);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [discount, setDiscount] = useState(0);
+  const [discountType, setDiscountType] = useState<"flat" | "percent">("flat");
+  const [paidAmount, setPaidAmount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
 
   const [customDraft, setCustomDraft] = useState<CustomItem>({ name: "", price: 0, qty: 1 });
-  const [medicineDraft, setMedicineDraft] = useState<MedicineItem>({ name: "", qty: 1 });
+  const [medicineDraft, setMedicineDraft] = useState({ name: "", qty: 1 });
 
   useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
-  useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
+  useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return unsub; }, []);
 
   useEffect(() => {
     if (open) {
-      setForm({
-        patient: "", doctor: "", date: today,
-        service: "", injection: "", packageItem: "",
-        customItems: [], medicines: [],
-        discount: 0, discountType: "flat",
-        paidAmount: 0, paymentMethod: "Cash",
-      });
+      setPatient(""); setDoctor(""); setDate(today);
+      setLineItems([]); setDiscount(0); setDiscountType("flat");
+      setPaidAmount(0); setPaymentMethod("Cash");
       setCustomDraft({ name: "", price: 0, qty: 1 });
       setMedicineDraft({ name: "", qty: 1 });
     }
   }, [open]);
 
-  // Price lookups
-  const servicePrice = form.service ? 100 : 0; // placeholder prices
-  const injectionPrice = form.injection
-    ? (injections.find((inj) => inj.name === form.injection)?.price || 0)
-    : 0;
-  const packagePrice = form.packageItem ? 500 : 0;
-  const customTotal = form.customItems.reduce((s, c) => s + c.price * c.qty, 0);
-  const medicineTotal = form.medicines.length * 50; // placeholder per-piece price
+  // Add helpers
+  const addService = (name: string) => {
+    const svc = serviceOptions.find((s) => s.name === name);
+    if (!svc) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "SVC", name: svc.name, price: svc.price, qty: 1 }]);
+  };
 
-  const subtotal = servicePrice + injectionPrice + packagePrice + customTotal + medicineTotal;
-  const discountAmount = form.discountType === "percent"
-    ? (subtotal * form.discount) / 100
-    : form.discount;
+  const addInjection = (name: string) => {
+    const inj = injectionsList.find((i) => i.name === name);
+    if (!inj) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "INJ", name: inj.name, price: inj.price, qty: 1 }]);
+  };
+
+  const addPackage = (name: string) => {
+    const pkg = packageOptions.find((p) => p.name === name);
+    if (!pkg) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "PKG", name: pkg.name, price: pkg.price, qty: 1 }]);
+  };
+
+  const addMedicine = () => {
+    if (!medicineDraft.name) return;
+    const med = medicineOptions.find((m) => m.name === medicineDraft.name);
+    const price = med?.price || 0;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "MED", name: medicineDraft.name, price, qty: medicineDraft.qty }]);
+    setMedicineDraft({ name: "", qty: 1 });
+  };
+
+  const addCustomItem = () => {
+    if (!customDraft.name) return;
+    setLineItems((prev) => [...prev, { id: nextId(), type: "CUSTOM", name: customDraft.name, price: customDraft.price, qty: customDraft.qty }]);
+    setCustomDraft({ name: "", price: 0, qty: 1 });
+  };
+
+  const removeItem = (id: string) => setLineItems((prev) => prev.filter((li) => li.id !== id));
+
+  const updateItemQty = (id: string, qty: number) => {
+    setLineItems((prev) => prev.map((li) => li.id === id ? { ...li, qty: Math.max(1, qty) } : li));
+  };
+
+  // Totals
+  const subtotal = lineItems.reduce((s, li) => s + li.price * li.qty, 0);
+  const discountAmount = discountType === "percent" ? (subtotal * discount) / 100 : discount;
   const afterDiscount = Math.max(0, subtotal - discountAmount);
   const taxRate = appSettings.taxEnabled ? parseFloat(appSettings.taxRate) || 0 : 0;
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
 
-  const addCustomItem = () => {
-    if (!customDraft.name) return;
-    setForm((f) => ({ ...f, customItems: [...f.customItems, { ...customDraft }] }));
-    setCustomDraft({ name: "", price: 0, qty: 1 });
-  };
-
-  const addMedicine = () => {
-    if (!medicineDraft.name) return;
-    setForm((f) => ({ ...f, medicines: [...f.medicines, { ...medicineDraft }] }));
-    setMedicineDraft({ name: "", qty: 1 });
-  };
-
   const handleAction = (action: "draft" | "print" | "payment") => {
-    if (!form.patient) { toast.error("Please select a patient"); return; }
-    onSubmit(form, action);
+    if (!patient) { toast.error("Please select a patient"); return; }
+    // Convert lineItems back to InvoiceFormData shape for backward compat
+    const formData: InvoiceFormData = {
+      patient, doctor, date,
+      service: lineItems.filter((li) => li.type === "SVC").map((li) => li.name).join(", "),
+      injection: lineItems.filter((li) => li.type === "INJ").map((li) => li.name).join(", "),
+      packageItem: lineItems.filter((li) => li.type === "PKG").map((li) => li.name).join(", "),
+      customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
+      medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
+      discount, discountType, paidAmount, paymentMethod,
+    };
+    onSubmit(formData, action);
   };
 
   return (
@@ -179,11 +244,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-muted-foreground" />
-              <Input
-                type="date" value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-                className="w-[160px] h-9"
-              />
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-[160px] h-9" />
             </div>
           </div>
 
@@ -194,7 +255,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 <User className="w-3.5 h-3.5 text-muted-foreground" />
                 {t("patient", lang)} *
               </Label>
-              <Select value={form.patient} onValueChange={(v) => setForm((f) => ({ ...f, patient: v }))}>
+              <Select value={patient} onValueChange={setPatient}>
                 <SelectTrigger><SelectValue placeholder={t("selectPatient", lang)} /></SelectTrigger>
                 <SelectContent>
                   {patients.map((p) => (
@@ -208,7 +269,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 <Stethoscope className="w-3.5 h-3.5 text-muted-foreground" />
                 Doctor / Refer Name
               </Label>
-              <Select value={form.doctor} onValueChange={(v) => setForm((f) => ({ ...f, doctor: v }))}>
+              <Select value={doctor} onValueChange={setDoctor}>
                 <SelectTrigger><SelectValue placeholder="Select or type doctor / refer name..." /></SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
@@ -221,30 +282,26 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
           <div className="grid grid-cols-2 gap-4">
             {/* LEFT COLUMN */}
             <div className="rounded-lg border border-border p-4 space-y-4">
-              {/* Services */}
               <div>
                 <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-primary" />
-                  Services
+                  <Briefcase className="w-3.5 h-3.5 text-primary" /> Services
                 </Label>
-                <Select value={form.service} onValueChange={(v) => setForm((f) => ({ ...f, service: v }))}>
+                <Select value="" onValueChange={(v) => { addService(v); }}>
                   <SelectTrigger><SelectValue placeholder="Select Service" /></SelectTrigger>
                   <SelectContent>
-                    {serviceOptions.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    {serviceOptions.map((s) => <SelectItem key={s.name} value={s.name}>{s.name} — {formatDualPrice(s.price)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Injection */}
               <div>
                 <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Syringe className="w-3.5 h-3.5 text-primary" />
-                  Injection
+                  <Syringe className="w-3.5 h-3.5 text-primary" /> Injection
                 </Label>
-                <Select value={form.injection} onValueChange={(v) => setForm((f) => ({ ...f, injection: v }))}>
+                <Select value="" onValueChange={(v) => { addInjection(v); }}>
                   <SelectTrigger><SelectValue placeholder="Select Injection" /></SelectTrigger>
                   <SelectContent>
-                    {injections.filter((inj) => inj.status !== "out-of-stock").map((inj) => (
+                    {injectionsList.filter((inj) => inj.status !== "out-of-stock").map((inj) => (
                       <SelectItem key={inj.id} value={inj.name}>
                         {inj.name} {inj.strength} — {formatDualPrice(inj.price)}
                       </SelectItem>
@@ -253,56 +310,28 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 </Select>
               </div>
 
-              {/* Packages */}
               <div>
                 <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Package className="w-3.5 h-3.5 text-primary" />
-                  Packages
+                  <Package className="w-3.5 h-3.5 text-primary" /> Packages
                 </Label>
-                <Select value={form.packageItem} onValueChange={(v) => setForm((f) => ({ ...f, packageItem: v }))}>
+                <Select value="" onValueChange={(v) => { addPackage(v); }}>
                   <SelectTrigger><SelectValue placeholder="Select Package" /></SelectTrigger>
                   <SelectContent>
-                    {packageOptions.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    {packageOptions.map((p) => <SelectItem key={p.name} value={p.name}>{p.name} — {formatDualPrice(p.price)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Custom Item */}
               <div>
                 <Label className="flex items-center gap-1.5 mb-1.5">
-                  <Tag className="w-3.5 h-3.5 text-primary" />
-                  Custom Item
+                  <Tag className="w-3.5 h-3.5 text-primary" /> Custom Item
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="Item name" value={customDraft.name}
-                    onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))}
-                    className="flex-1"
-                  />
-                  <Input
-                    type="number" placeholder="Price" value={customDraft.price || ""}
-                    onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))}
-                    className="w-20"
-                  />
-                  <Input
-                    type="number" min={1} value={customDraft.qty}
-                    onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))}
-                    className="w-16"
-                  />
-                  <Button type="button" variant="outline" size="sm" onClick={addCustomItem} className="px-3">
-                    Add
-                  </Button>
+                  <Input placeholder="Item name" value={customDraft.name} onChange={(e) => setCustomDraft((d) => ({ ...d, name: e.target.value }))} className="flex-1" />
+                  <Input type="number" placeholder="Price" value={customDraft.price || ""} onChange={(e) => setCustomDraft((d) => ({ ...d, price: parseFloat(e.target.value) || 0 }))} className="w-20" />
+                  <Input type="number" min={1} value={customDraft.qty} onChange={(e) => setCustomDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16" />
+                  <Button type="button" variant="outline" size="sm" onClick={addCustomItem} className="px-3">Add</Button>
                 </div>
-                {form.customItems.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {form.customItems.map((c, i) => (
-                      <div key={i} className="flex justify-between text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1">
-                        <span>{c.name} × {c.qty}</span>
-                        <span>{formatDualPrice(c.price * c.qty)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -313,27 +342,21 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
                 Medicines <span className="text-muted-foreground text-xs">(pieces)</span>
               </Label>
 
-              {/* Barcode placeholder */}
               <div className="flex items-center gap-2 border border-border rounded-md px-3 py-2 text-sm text-muted-foreground bg-muted/30">
                 <Barcode className="w-4 h-4" />
                 <span>Scan barcode to add medicine</span>
               </div>
 
-              {/* Medicine select + qty */}
               <div className="flex gap-2">
                 <Select value={medicineDraft.name} onValueChange={(v) => setMedicineDraft((d) => ({ ...d, name: v }))}>
                   <SelectTrigger className="flex-1"><SelectValue placeholder="Select Medicine" /></SelectTrigger>
                   <SelectContent>
-                    {medicineOptions.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatDualPrice(m.price)}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground">Qty</span>
-                  <Input
-                    type="number" min={1} value={medicineDraft.qty}
-                    onChange={(e) => setMedicineDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))}
-                    className="w-16"
-                  />
+                  <Input type="number" min={1} value={medicineDraft.qty} onChange={(e) => setMedicineDraft((d) => ({ ...d, qty: Math.max(1, parseInt(e.target.value) || 1) }))} className="w-16" />
                 </div>
                 <Button type="button" variant="outline" size="sm" onClick={addMedicine} className="px-3">
                   <Plus className="w-3 h-3" />
@@ -341,65 +364,74 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
               </div>
 
               <p className="text-xs text-muted-foreground">Selling price per piece. Quantity is always in pieces.</p>
-
-              {/* Added medicines list */}
-              {form.medicines.length > 0 && (
-                <div className="space-y-1 mt-2">
-                  {form.medicines.map((m, i) => (
-                    <div key={i} className="flex justify-between text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1">
-                      <span>{m.name} × {m.qty}</span>
-                      <span>{formatDualPrice(50 * m.qty)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
+
+          {/* ===== LINE ITEMS TABLE ===== */}
+          {lineItems.length > 0 && (
+            <div className="rounded-lg border border-border overflow-hidden">
+              {/* Table header */}
+              <div className="grid grid-cols-[1fr_80px_70px_80px_40px] gap-2 px-4 py-2.5 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <span>Item</span>
+                <span className="text-right">Price</span>
+                <span className="text-center">Qty</span>
+                <span className="text-right">Total</span>
+                <span></span>
+              </div>
+              {/* Table rows */}
+              {lineItems.map((li) => (
+                <div key={li.id} className="grid grid-cols-[1fr_80px_70px_80px_40px] gap-2 px-4 py-2.5 border-t border-border items-center text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${typeBadgeColors[li.type]}`}>
+                      {li.type}
+                    </span>
+                    <span className="truncate">{li.name}</span>
+                  </div>
+                  <span className="text-right tabular-nums">{formatDualPrice(li.price)}</span>
+                  <div className="flex justify-center">
+                    <Input
+                      type="number" min={1} value={li.qty}
+                      onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
+                      className="w-14 h-7 text-center text-sm px-1"
+                    />
+                  </div>
+                  <span className="text-right font-semibold text-primary tabular-nums">
+                    {formatDualPrice(li.price * li.qty)}
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => removeItem(li.id)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Discount + Payment Method row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="flex items-center gap-1.5 mb-1.5">
-                <Tag className="w-3.5 h-3.5 text-primary" />
-                Discount
+                <Tag className="w-3.5 h-3.5 text-primary" /> Discount
               </Label>
               <div className="flex gap-1">
-                <Input
-                  type="number" min={0} value={form.discount}
-                  onChange={(e) => setForm((f) => ({ ...f, discount: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0" className="flex-1"
-                />
-                <Button
-                  type="button" size="sm"
-                  variant={form.discountType === "flat" ? "default" : "outline"}
-                  onClick={() => setForm((f) => ({ ...f, discountType: "flat" }))}
-                  className="px-3"
-                >
+                <Input type="number" min={0} value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0" className="flex-1" />
+                <Button type="button" size="sm" variant={discountType === "flat" ? "default" : "outline"} onClick={() => setDiscountType("flat")} className="px-3">
                   <DollarSign className="w-3.5 h-3.5" />
                 </Button>
-                <Button
-                  type="button" size="sm"
-                  variant={form.discountType === "percent" ? "default" : "outline"}
-                  onClick={() => setForm((f) => ({ ...f, discountType: "percent" }))}
-                  className="px-3"
-                >
+                <Button type="button" size="sm" variant={discountType === "percent" ? "default" : "outline"} onClick={() => setDiscountType("percent")} className="px-3">
                   <Percent className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
             <div>
               <Label className="flex items-center gap-1.5 mb-1.5">
-                <CreditCard className="w-3.5 h-3.5 text-primary" />
-                Payment Method
+                <CreditCard className="w-3.5 h-3.5 text-primary" /> Payment Method
               </Label>
-              <Select value={form.paymentMethod} onValueChange={(v) => setForm((f) => ({ ...f, paymentMethod: v }))}>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((m) => (
                     <SelectItem key={m.value} value={m.value}>
-                      <span className="flex items-center gap-2">
-                        <m.icon className="w-3.5 h-3.5" /> {m.label}
-                      </span>
+                      <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -407,16 +439,10 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
 
               <div className="mt-3">
                 <Label className="text-sm mb-1.5 block">Amount Paid</Label>
-                <Input
-                  type="number" min={0} value={form.paidAmount}
-                  onChange={(e) => setForm((f) => ({ ...f, paidAmount: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
-                />
+                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0.00" />
               </div>
 
-              <Button type="button" variant="outline" className="w-full mt-2 text-sm">
-                Split Bill
-              </Button>
+              <Button type="button" variant="outline" className="w-full mt-2 text-sm">Split Bill</Button>
             </div>
           </div>
 
@@ -448,21 +474,15 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
             )}
           </div>
 
-          {/* Footer buttons — 3 actions like reference */}
+          {/* Footer buttons */}
           <div className="grid grid-cols-3 gap-3 pt-2">
             <Button variant="outline" onClick={() => handleAction("draft")} className="gap-2">
               <Save className="w-4 h-4" /> Save as Draft
             </Button>
-            <Button
-              onClick={() => handleAction("print")}
-              className="gap-2 bg-primary hover:bg-primary/90"
-            >
+            <Button onClick={() => handleAction("print")} className="gap-2 bg-primary hover:bg-primary/90">
               <Printer className="w-4 h-4" /> Print Invoice
             </Button>
-            <Button
-              onClick={() => handleAction("payment")}
-              className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
-            >
+            <Button onClick={() => handleAction("payment")} className="gap-2 bg-orange-500 hover:bg-orange-600 text-white">
               <Receipt className="w-4 h-4" /> Make Payment (POS)
             </Button>
           </div>
