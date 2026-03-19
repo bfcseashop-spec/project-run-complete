@@ -109,6 +109,7 @@ interface NewInvoiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: InvoiceFormData, action: "draft" | "print" | "payment") => void;
+  editData?: InvoiceFormData | null;
 }
 
 let lineIdCounter = 0;
