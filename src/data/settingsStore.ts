@@ -61,14 +61,14 @@ export const isSettingsLoaded = (): boolean => loaded;
 
 export const loadSettings = async () => {
   try {
-    const { data, error } = await supabase
-      .from("app_settings")
+    const { data, error } = await (supabase
+      .from("app_settings") as any)
       .select("value")
       .eq("key", "global")
       .maybeSingle();
 
     if (!error && data && data.value) {
-      settings = { ...defaultSettings, ...(data.value as unknown as Partial<AppSettings>) };
+      settings = { ...defaultSettings, ...(data.value as Partial<AppSettings>) };
       loaded = true;
       notify();
     } else {
