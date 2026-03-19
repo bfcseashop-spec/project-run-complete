@@ -213,6 +213,12 @@ const UltrasoundPage = () => {
       key: "actions", header: "Actions",
       render: (r: UltrasoundRecord) => (
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" title="Print Report" onClick={() => printReport(r, {
+            name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
+            email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
+          })}>
+            <Printer className="w-4 h-4 text-primary" />
+          </Button>
           <Button variant="ghost" size="icon" onClick={() => openEdit(r)}>
             <Pencil className="w-4 h-4" />
           </Button>
