@@ -125,6 +125,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;padding:0;backgro
 }
 
 const UltrasoundPage = () => {
+  const { settings } = useSettings();
   const [records, setRecords] = useState<UltrasoundRecord[]>(ultrasoundRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<UltrasoundRecord | null>(null);
