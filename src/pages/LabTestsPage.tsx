@@ -1,8 +1,11 @@
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -227,11 +230,33 @@ const LabTestsPage = () => {
     },
   ];
 
+  const labToolbar = useDataToolbar({ data: tests as unknown as Record<string, unknown>[], dateKey: "date", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "Lab_Tests" });
+
+  const handleImportTests = async (file: File) => {
+    const rows = await labToolbar.handleImport(file);
+    if (rows.length > 0) {
+      const nextNum = tests.length > 0 ? Math.max(...tests.map(t => parseInt(t.id.split("-")[1]))) + 1 : 501;
+      const newTests: LabTest[] = rows.map((row, i) => ({
+        id: `LT-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+        age: Number(row.age) || 0, gender: (row.gender as LabTest["gender"]) || "Male",
+        test: String(row.test || ""), doctor: String(row.doctor || ""),
+        date: String(row.date || new Date().toISOString().split("T")[0]), completedDate: "",
+        status: "pending", priority: (row.priority as LabTest["priority"]) || "routine",
+        sampleType: (row.sampleType as LabTest["sampleType"]) || "blood",
+        sampleStatus: "not-collected", result: "", normalRange: "", unit: "",
+        abnormal: false, notes: "", technicianAssigned: "",
+      }));
+      setTests((prev) => [...newTests, ...prev]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Tests" description="Order, track, and manage laboratory tests with sample tracking and result entry">
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Order Test</Button>
       </PageHeader>
+
+      <DataToolbar dateFilter={labToolbar.dateFilter} onDateFilterChange={labToolbar.setDateFilter} viewMode={labToolbar.viewMode} onViewModeChange={labToolbar.setViewMode} onExportExcel={labToolbar.handleExportExcel} onExportPDF={labToolbar.handleExportPDF} onImport={handleImportTests} onDownloadSample={labToolbar.handleDownloadSample} />
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -274,7 +299,11 @@ const LabTestsPage = () => {
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <DataTable columns={columns} data={filtered} keyExtractor={(t) => t.id} />
+          {labToolbar.viewMode === "list" ? (
+            <DataTable columns={columns} data={filtered} keyExtractor={(t) => t.id} />
+          ) : (
+            <DataGridView columns={columns} data={filtered} keyExtractor={(t) => t.id} />
+          )}
         </TabsContent>
       </Tabs>
 

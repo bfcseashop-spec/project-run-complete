@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -230,11 +233,32 @@ const LabReportsPage = () => {
     },
   ];
 
+  const reportToolbar = useDataToolbar({ data: reports as unknown as Record<string, unknown>[], dateKey: "date", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "Lab_Reports" });
+
+  const handleImportReports = async (file: File) => {
+    const rows = await reportToolbar.handleImport(file);
+    if (rows.length > 0) {
+      const nextNum = reports.length > 0 ? Math.max(...reports.map(r => parseInt(r.id.split("-")[1]))) + 1 : 1001;
+      const newReports: LabReport[] = rows.map((row, i) => ({
+        id: `LR-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+        age: Number(row.age) || 0, gender: (row.gender as LabReport["gender"]) || "Male",
+        testName: String(row.testName || ""), doctor: String(row.doctor || ""),
+        date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
+        status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
+        sampleType: "Blood", collectedAt: "", reportedAt: "",
+        technician: "", pathologist: "", instrument: "", sections: [],
+      }));
+      setReports((prev) => [...newReports, ...prev]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
+
+      <DataToolbar dateFilter={reportToolbar.dateFilter} onDateFilterChange={reportToolbar.setDateFilter} viewMode={reportToolbar.viewMode} onViewModeChange={reportToolbar.setViewMode} onExportExcel={reportToolbar.handleExportExcel} onExportPDF={reportToolbar.handleExportPDF} onImport={handleImportReports} onDownloadSample={reportToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Reports" value={String(totalReports)} icon={FileText} />
@@ -268,7 +292,11 @@ const LabReportsPage = () => {
         </Select>
       </div>
 
-      <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      {reportToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      ) : (
+        <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      )}
 
       {/* Report View */}
       <LabReportView report={viewReport} open={viewOpen} onOpenChange={setViewOpen} />

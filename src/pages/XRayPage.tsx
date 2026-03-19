@@ -1,8 +1,11 @@
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,11 +141,29 @@ const XRayPage = () => {
     },
   ];
 
+  const xrayToolbar = useDataToolbar({ data: records as unknown as Record<string, unknown>[], dateKey: "date", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "X-Ray" });
+
+  const handleImportXray = async (file: File) => {
+    const rows = await xrayToolbar.handleImport(file);
+    if (rows.length > 0) {
+      const nextId = 2000 + records.length + 1;
+      const newRecords: XRayRecord[] = rows.map((row, i) => ({
+        id: `XR-${nextId + i}`, patient: String(row.patient || ""), examination: String(row.examination || ""),
+        doctor: String(row.doctor || ""), date: String(row.date || new Date().toISOString().split("T")[0]),
+        reportDate: "", status: "pending", bodyPart: (row.bodyPart as XRayRecord["bodyPart"]) || "chest",
+        findings: "", impression: "", remarks: "",
+      }));
+      setRecords((prev) => [...newRecords, ...prev]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="X-Ray" description="Manage X-ray orders, imaging results, and radiology reports">
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New X-Ray</Button>
       </PageHeader>
+
+      <DataToolbar dateFilter={xrayToolbar.dateFilter} onDateFilterChange={xrayToolbar.setDateFilter} viewMode={xrayToolbar.viewMode} onViewModeChange={xrayToolbar.setViewMode} onExportExcel={xrayToolbar.handleExportExcel} onExportPDF={xrayToolbar.handleExportPDF} onImport={handleImportXray} onDownloadSample={xrayToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total X-Rays" value={String(totalRecords)} icon={ScanLine} />
@@ -176,7 +197,11 @@ const XRayPage = () => {
         </Select>
       </div>
 
-      <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      {xrayToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      ) : (
+        <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+      )}
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

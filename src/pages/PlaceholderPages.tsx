@@ -1,5 +1,7 @@
 import PageHeader from "@/components/PageHeader";
-import { FileText, TestTube, Scan, MonitorSpeaker, Heart, Users, UserCog, DollarSign, CreditCard, TrendingUp, Pipette } from "lucide-react";
+import DataToolbar from "@/components/DataToolbar";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
+import { MonitorSpeaker, Users, UserCog, DollarSign, CreditCard, TrendingUp } from "lucide-react";
 
 interface PlaceholderPageProps {
   title: string;
@@ -7,26 +9,26 @@ interface PlaceholderPageProps {
   icon: React.ElementType;
 }
 
-const PlaceholderPage = ({ title, description, icon: Icon }: PlaceholderPageProps) => (
-  <div className="space-y-6">
-    <PageHeader title={title} description={description} />
-    <div className="bg-card rounded-xl border border-border shadow-card p-12 flex flex-col items-center justify-center text-center">
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-        <Icon className="w-8 h-8 text-primary" />
+const PlaceholderPage = ({ title, description, icon: Icon }: PlaceholderPageProps) => {
+  const toolbar = useDataToolbar({ data: [], dateKey: "", columns: [], title });
+  return (
+    <div className="space-y-6">
+      <PageHeader title={title} description={description} />
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={() => {}} onDownloadSample={toolbar.handleDownloadSample} />
+      <div className="bg-card rounded-xl border border-border shadow-card p-12 flex flex-col items-center justify-center text-center">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+          <Icon className="w-8 h-8 text-primary" />
+        </div>
+        <h3 className="text-lg font-semibold text-card-foreground font-heading mb-2">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-md">
+          This module is ready to be configured. Add records and manage your {title.toLowerCase()} data here.
+        </p>
       </div>
-      <h3 className="text-lg font-semibold text-card-foreground font-heading mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-md">
-        This module is ready to be configured. Add records and manage your {title.toLowerCase()} data here.
-      </p>
     </div>
-  </div>
-);
-
-
+  );
+};
 
 export const UltrasoundPage = () => <PlaceholderPage title="Ultrasound" description="Manage ultrasound procedures and results" icon={MonitorSpeaker} />;
-
-
 export const HRMPage = () => <PlaceholderPage title="HRM" description="Human resource management and payroll" icon={Users} />;
 export const RolesPage = () => <PlaceholderPage title="Roles & Permissions" description="Manage user roles and access control" icon={UserCog} />;
 export const ExpensesPage = () => <PlaceholderPage title="Expenses" description="Track and categorize clinic expenditures" icon={DollarSign} />;

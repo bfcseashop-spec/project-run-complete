@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
@@ -60,16 +63,29 @@ const OPDPage = () => {
     {
       key: "actions", header: "Actions", render: (p: OPDPatient) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}>
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeletePatient(p)}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeletePatient(p)}><Trash2 className="w-4 h-4" /></Button>
         </div>
       ),
     },
   ];
+
+  const opdToolbar = useDataToolbar({ data: patients as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "OPD" });
+
+  const handleImportOPD = async (file: File) => {
+    const rows = await opdToolbar.handleImport(file);
+    if (rows.length > 0) {
+      rows.forEach((row) => {
+        addPatient({
+          id: `OPD-${nextToken}`,
+          name: String(row.name || ""), age: Number(row.age) || 0,
+          gender: String(row.gender || "Male"), complaint: String(row.complaint || ""),
+          doctor: String(row.doctor || ""), time: String(row.time || ""),
+          status: "waiting",
+        } as unknown as OPDPatient);
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -78,7 +94,12 @@ const OPDPage = () => {
           <Plus className="w-4 h-4 mr-2" /> Register Patient
         </Button>
       </PageHeader>
-      <DataTable columns={columns} data={patients} keyExtractor={(p) => p.id} />
+      <DataToolbar dateFilter={opdToolbar.dateFilter} onDateFilterChange={opdToolbar.setDateFilter} viewMode={opdToolbar.viewMode} onViewModeChange={opdToolbar.setViewMode} onExportExcel={opdToolbar.handleExportExcel} onExportPDF={opdToolbar.handleExportPDF} onImport={handleImportOPD} onDownloadSample={opdToolbar.handleDownloadSample} />
+      {opdToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={patients} keyExtractor={(p) => p.id} />
+      ) : (
+        <DataGridView columns={columns} data={patients} keyExtractor={(p) => p.id} />
+      )}
       <RegisterPatientDialog
         open={dialogOpen}
         onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditPatient(null); }}

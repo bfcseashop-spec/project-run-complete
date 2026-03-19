@@ -1,8 +1,11 @@
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +48,20 @@ const emptyForm: Omit<SampleRecord, "id"> = {
   storageTemp: "room", barcode: "", rejectionReason: "", notes: "",
 };
 
+const sampleColumns = [
+  { key: "id", header: "Sample ID" },
+  { key: "patient", header: "Patient" },
+  { key: "testName", header: "Test" },
+  { key: "sampleType", header: "Sample Type" },
+  { key: "priority", header: "Priority" },
+  { key: "barcode", header: "Barcode" },
+  { key: "collectionDate", header: "Collection Date" },
+  { key: "storageTemp", header: "Storage" },
+  { key: "collectedBy", header: "Collector" },
+  { key: "status", header: "Status" },
+  { key: "actions", header: "Actions" },
+];
+
 const SampleCollectionPage = () => {
   const [records, setRecords] = useState<SampleRecord[]>(initialRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,6 +75,26 @@ const SampleCollectionPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
+
+  const toolbar = useDataToolbar({ data: records as unknown as Record<string, unknown>[], dateKey: "collectionDate", columns: sampleColumns, title: "Sample_Collection" });
+
+  const handleImportSamples = async (file: File) => {
+    const rows = await toolbar.handleImport(file);
+    if (rows.length > 0) {
+      const nextNum = records.length > 0 ? Math.max(...records.map(r => parseInt(r.id.split("-")[1]))) + 1 : 3001;
+      const newRecords: SampleRecord[] = rows.map((row, i) => ({
+        id: `SC-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+        age: Number(row.age) || 0, gender: (row.gender as SampleRecord["gender"]) || "Male",
+        testName: String(row.testName || ""), doctor: String(row.doctor || ""),
+        collectionDate: String(row.collectionDate || new Date().toISOString().split("T")[0]),
+        collectionTime: String(row.collectionTime || ""), sampleType: (row.sampleType as SampleRecord["sampleType"]) || "blood",
+        status: "scheduled", priority: (row.priority as SampleRecord["priority"]) || "routine",
+        collectedBy: String(row.collectedBy || ""), storageTemp: (row.storageTemp as SampleRecord["storageTemp"]) || "room",
+        barcode: `BC-${90000 + records.length + i + 1}`, rejectionReason: "", notes: String(row.notes || ""),
+      }));
+      setRecords((prev) => [...newRecords, ...prev]);
+    }
+  };
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (r: SampleRecord) => {
@@ -243,6 +280,8 @@ const SampleCollectionPage = () => {
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Sample</Button>
       </PageHeader>
 
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImportSamples} onDownloadSample={toolbar.handleDownloadSample} />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Total Samples" value={String(total)} icon={Pipette} />
         <StatCard title="Scheduled" value={String(scheduled)} icon={Clock} />
@@ -275,7 +314,11 @@ const SampleCollectionPage = () => {
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          {toolbar.viewMode === "list" ? (
+            <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          ) : (
+            <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+          )}
         </TabsContent>
       </Tabs>
 

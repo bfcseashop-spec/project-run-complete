@@ -1,8 +1,11 @@
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
   Plus, Eye, Printer, TestTube, Pencil, Trash2, Barcode, Syringe,
 } from "lucide-react";
@@ -292,15 +295,34 @@ const PrescriptionPage = () => {
     },
   ];
 
+  const rxToolbar = useDataToolbar({ data: prescriptions as unknown as Record<string, unknown>[], dateKey: "date", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "Prescriptions" });
+
+  const handleImportRx = async (file: File) => {
+    const rows = await rxToolbar.handleImport(file);
+    if (rows.length > 0) {
+      const newRx: Prescription[] = rows.map((row, i) => ({
+        id: `RX-${200 + prescriptions.length + i + 1}`,
+        patient: String(row.patient || ""), doctor: String(row.doctor || ""),
+        date: String(row.date || new Date().toISOString().split("T")[0]),
+        medicines: String(row.medicines || ""),
+      }));
+      setPrescriptions((prev) => [...newRx, ...prev]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Prescriptions" description="Create and manage patient prescriptions">
-        <Button onClick={openNew}>
-          <Plus className="w-4 h-4 mr-2" /> New Prescription
-        </Button>
+        <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> New Prescription</Button>
       </PageHeader>
 
-      <DataTable columns={columns} data={prescriptions} keyExtractor={(p) => p.id} />
+      <DataToolbar dateFilter={rxToolbar.dateFilter} onDateFilterChange={rxToolbar.setDateFilter} viewMode={rxToolbar.viewMode} onViewModeChange={rxToolbar.setViewMode} onExportExcel={rxToolbar.handleExportExcel} onExportPDF={rxToolbar.handleExportPDF} onImport={handleImportRx} onDownloadSample={rxToolbar.handleDownloadSample} />
+
+      {rxToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={prescriptions} keyExtractor={(p) => p.id} />
+      ) : (
+        <DataGridView columns={columns} data={prescriptions} keyExtractor={(p) => p.id} />
+      )}
 
       <NewPrescriptionDialog
         open={dialogOpen}

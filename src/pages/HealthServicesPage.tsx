@@ -3,6 +3,9 @@ import PageHeader from "@/components/PageHeader";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
+import DataGridView from "@/components/DataGridView";
+import DataToolbar from "@/components/DataToolbar";
+import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import StatCard from "@/components/StatCard";
 import DataTable from "@/components/DataTable";
 import StatusBadge from "@/components/StatusBadge";
@@ -143,11 +146,26 @@ const HealthServicesPage = () => {
     },
   ];
 
+  const hsToolbar = useDataToolbar({ data: services as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "Health_Services" });
+
+  const handleImportHS = async (file: File) => {
+    const rows = await hsToolbar.handleImport(file);
+    if (rows.length > 0) {
+      const newItems: HealthService[] = rows.map((row, i) => ({
+        id: `HS-${100 + services.length + i + 1}`, name: String(row.name || ""), category: String(row.category || "General Consultation"),
+        price: Number(row.price) || 0, duration: String(row.duration || ""), status: "active" as const, description: String(row.description || ""),
+      }));
+      setServices((prev) => [...newItems, ...prev]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Health Services" description="Manage clinic health services, packages, and consultations">
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Service</Button>
       </PageHeader>
+
+      <DataToolbar dateFilter={hsToolbar.dateFilter} onDateFilterChange={hsToolbar.setDateFilter} viewMode={hsToolbar.viewMode} onViewModeChange={hsToolbar.setViewMode} onExportExcel={hsToolbar.handleExportExcel} onExportPDF={hsToolbar.handleExportPDF} onImport={handleImportHS} onDownloadSample={hsToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Services" value={String(services.length)} icon={Heart} change="All categories" />
@@ -156,7 +174,11 @@ const HealthServicesPage = () => {
         <StatCard title="Avg. Price" value={formatDualPrice(Math.round(totalRevenue / services.length))} icon={Users} change="Per service" />
       </div>
 
-      <DataTable columns={columns} data={services} keyExtractor={(s) => s.id} />
+      {hsToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={services} keyExtractor={(s) => s.id} />
+      ) : (
+        <DataGridView columns={columns} data={services} keyExtractor={(s) => s.id} />
+      )}
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditService(null); }}>
