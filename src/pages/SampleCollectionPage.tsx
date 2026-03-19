@@ -48,6 +48,20 @@ const emptyForm: Omit<SampleRecord, "id"> = {
   storageTemp: "room", barcode: "", rejectionReason: "", notes: "",
 };
 
+const sampleColumns = [
+  { key: "id", header: "Sample ID" },
+  { key: "patient", header: "Patient" },
+  { key: "testName", header: "Test" },
+  { key: "sampleType", header: "Sample Type" },
+  { key: "priority", header: "Priority" },
+  { key: "barcode", header: "Barcode" },
+  { key: "collectionDate", header: "Collection Date" },
+  { key: "storageTemp", header: "Storage" },
+  { key: "collectedBy", header: "Collector" },
+  { key: "status", header: "Status" },
+  { key: "actions", header: "Actions" },
+];
+
 const SampleCollectionPage = () => {
   const [records, setRecords] = useState<SampleRecord[]>(initialRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,6 +75,26 @@ const SampleCollectionPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
+
+  const toolbar = useDataToolbar({ data: records as unknown as Record<string, unknown>[], dateKey: "collectionDate", columns: sampleColumns, title: "Sample_Collection" });
+
+  const handleImportSamples = async (file: File) => {
+    const rows = await toolbar.handleImport(file);
+    if (rows.length > 0) {
+      const nextNum = records.length > 0 ? Math.max(...records.map(r => parseInt(r.id.split("-")[1]))) + 1 : 3001;
+      const newRecords: SampleRecord[] = rows.map((row, i) => ({
+        id: `SC-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+        age: Number(row.age) || 0, gender: (row.gender as SampleRecord["gender"]) || "Male",
+        testName: String(row.testName || ""), doctor: String(row.doctor || ""),
+        collectionDate: String(row.collectionDate || new Date().toISOString().split("T")[0]),
+        collectionTime: String(row.collectionTime || ""), sampleType: (row.sampleType as SampleRecord["sampleType"]) || "blood",
+        status: "scheduled", priority: (row.priority as SampleRecord["priority"]) || "routine",
+        collectedBy: String(row.collectedBy || ""), storageTemp: (row.storageTemp as SampleRecord["storageTemp"]) || "room",
+        barcode: `BC-${90000 + records.length + i + 1}`, rejectionReason: "", notes: String(row.notes || ""),
+      }));
+      setRecords((prev) => [...newRecords, ...prev]);
+    }
+  };
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (r: SampleRecord) => {
