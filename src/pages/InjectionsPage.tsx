@@ -102,51 +102,57 @@ const InjectionsPage = () => {
     },
   ];
 
+  const injToolbar = useDataToolbar({ data: injections as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "Injections" });
+
+  const handleImportInj = async (file: File) => {
+    const rows = await injToolbar.handleImport(file);
+    if (rows.length > 0) {
+      rows.forEach((row, i) => {
+        const nextId = `INJ-${String(getInjections().length + i + 1).padStart(3, "0")}`;
+        addInjection({
+          id: nextId, name: String(row.name || ""), category: String(row.category || ""),
+          strength: String(row.strength || ""), route: String(row.route || "IV"),
+          stock: Number(row.stock) || 0, unit: String(row.unit || "Vials"),
+          price: Number(row.price) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
+        });
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Injections" description="Manage injection inventory, stock levels, and routes">
-        <Button onClick={openNew}>
-          <Plus className="w-4 h-4 mr-2" /> Add Injection
-        </Button>
+        <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
       </PageHeader>
+
+      <DataToolbar dateFilter={injToolbar.dateFilter} onDateFilterChange={injToolbar.setDateFilter} viewMode={injToolbar.viewMode} onViewModeChange={injToolbar.setViewMode} onExportExcel={injToolbar.handleExportExcel} onExportPDF={injToolbar.handleExportPDF} onImport={handleImportInj} onDownloadSample={injToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Syringe className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{injections.length}</p>
-              <p className="text-xs text-muted-foreground">Total Injections</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Syringe className="w-5 h-5 text-primary" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{injections.length}</p><p className="text-xs text-muted-foreground">Total Injections</p></div>
           </div>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-              <Syringe className="w-5 h-5 text-accent-foreground" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{lowStockCount}</p>
-              <p className="text-xs text-muted-foreground">Low Stock</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center"><Syringe className="w-5 h-5 text-accent-foreground" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{lowStockCount}</p><p className="text-xs text-muted-foreground">Low Stock</p></div>
           </div>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <Syringe className="w-5 h-5 text-destructive" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{outOfStockCount}</p>
-              <p className="text-xs text-muted-foreground">Out of Stock</p>
-            </div>
+            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center"><Syringe className="w-5 h-5 text-destructive" /></div>
+            <div><p className="text-2xl font-bold text-foreground">{outOfStockCount}</p><p className="text-xs text-muted-foreground">Out of Stock</p></div>
           </div>
         </div>
       </div>
 
-      <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} />
+      {injToolbar.viewMode === "list" ? (
+        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} />
+      ) : (
+        <DataGridView columns={columns} data={injections} keyExtractor={(i) => i.id} />
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
