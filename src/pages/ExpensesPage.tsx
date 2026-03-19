@@ -41,7 +41,7 @@ const emptyForm: Omit<ExpenseRecord, "id"> = {
 };
 
 const ExpensesPage = () => {
-  const { settings } = useSettings();
+  
   const [records, setRecords] = useState<ExpenseRecord[]>(expenseRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<ExpenseRecord | null>(null);
