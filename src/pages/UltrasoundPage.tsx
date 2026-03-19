@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSettings } from "@/hooks/use-settings";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
