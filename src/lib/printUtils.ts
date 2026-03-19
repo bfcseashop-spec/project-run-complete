@@ -4,7 +4,7 @@ import { getSettings } from "@/data/settingsStore";
 /** Open a generic record detail view in a new print window */
 export function printRecordReport(opts: {
   id: string;
-  title: string;
+  title?: string;
   fields: { label: string; value: string }[];
   sectionTitle?: string;
 }) {
