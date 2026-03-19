@@ -1,7 +1,7 @@
 import PageHeader from "@/components/PageHeader";
 import DataToolbar from "@/components/DataToolbar";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { MonitorSpeaker, Users, UserCog, DollarSign, CreditCard, TrendingUp } from "lucide-react";
+import { Users, UserCog, CreditCard, TrendingUp } from "lucide-react";
 
 interface PlaceholderPageProps {
   title: string;
