@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
-import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import {

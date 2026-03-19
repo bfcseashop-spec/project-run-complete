@@ -256,10 +256,10 @@ const SampleCollectionPage = () => {
         <div className="flex items-center gap-0.5">
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
             id: r.id, sectionTitle: "Sample Record", fields: [
-              { label: "Patient", value: r.patient }, { label: "Test", value: r.test },
+              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
               { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
-              { label: "Collected At", value: r.collectedAt }, { label: "Status", value: r.status },
-              { label: "Lab", value: r.lab || "" }, { label: "Notes", value: r.notes || "" },
+              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
+              { label: "Lab", value: r.notes || "" }, { label: "Notes", value: r.notes || "" },
             ],
           })}><Eye className="w-3.5 h-3.5" /></Button>
           {statusFlowLabel[r.status] && (
@@ -277,9 +277,9 @@ const SampleCollectionPage = () => {
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
             id: r.id, sectionTitle: "Sample Collection Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Test", value: r.test },
+              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
               { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
-              { label: "Collected At", value: r.collectedAt }, { label: "Status", value: r.status },
+              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
             ],
           })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
