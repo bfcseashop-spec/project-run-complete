@@ -150,7 +150,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit }: NewInvoiceDialogProp
   const [customDraft, setCustomDraft] = useState<CustomItem>({ name: "", price: 0, qty: 1 });
   const [medicineDraft, setMedicineDraft] = useState({ name: "", qty: 1 });
 
-  useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
+  useEffect(() => { const unsub = subscribe(() => setPatients([...getPatients()])); return unsub; }, []);
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return unsub; }, []);
 
   useEffect(() => {
