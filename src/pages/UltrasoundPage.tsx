@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, MonitorSpeaker, Clock, CheckCircle, Activity,
-  Search, Heart, Baby, Scan, CircleDot, Waves, Printer,
+  Search, Heart, Baby, Scan, CircleDot, Waves, Printer, Eye, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
   ultrasoundRecords, type UltrasoundRecord, regions, examinationNames,
 } from "@/data/ultrasoundRecords";

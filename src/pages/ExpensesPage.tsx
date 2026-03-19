@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, DollarSign, Clock, CheckCircle, AlertTriangle,
-  Search, Home, Zap, Package, Users, Wrench, Megaphone, HelpCircle, Monitor,
+  Search, Home, Zap, Package, Users, Wrench, Megaphone, HelpCircle, Monitor, Eye, Printer,
 } from "lucide-react";
+import { printRecordReport } from "@/lib/printUtils";
 import {
   expenseRecords, type ExpenseRecord, expenseCategories, paymentMethods,
 } from "@/data/expenseRecords";

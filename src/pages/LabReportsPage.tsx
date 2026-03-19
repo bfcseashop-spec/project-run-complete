@@ -25,8 +25,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
-  Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X,
+  Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
   labReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,

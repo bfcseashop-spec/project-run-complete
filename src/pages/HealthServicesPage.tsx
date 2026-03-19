@@ -21,7 +21,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Heart, Plus, Stethoscope, Syringe, Baby, Eye,
+  Heart, Plus, Stethoscope, Syringe, Baby, Eye, Printer,
   Pencil, Trash2, Activity, Users, CalendarCheck,
 } from "lucide-react";
 import {

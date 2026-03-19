@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Plus, Pencil, Trash2, ScanLine, Clock, CheckCircle, Activity,
-  Search, Bone, Brain, Heart, Hand, Skull,
+  Search, Bone, Brain, Heart, Hand, Skull, Eye, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
+import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, bodyParts, examinationNames } from "@/data/xrayRecords";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
