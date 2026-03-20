@@ -74,7 +74,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.doctor || !form.complaint) return;
+    // Allow saving with partial data — no required fields enforced
     const now = new Date();
     const timeStr = form.time || now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
     const patient: OPDPatient = {
