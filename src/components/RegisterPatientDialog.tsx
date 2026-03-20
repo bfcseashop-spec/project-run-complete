@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import { Camera, X } from "lucide-react";
 import type { OPDPatient, BloodType, PatientType } from "@/data/opdPatients";
 
 interface RegisterPatientDialogProps {
@@ -33,6 +34,8 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
     bloodType: "", patientType: "", phone: "", medicalHistory: "",
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editPatient) {
@@ -48,13 +51,27 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         phone: editPatient.phone || "",
         medicalHistory: editPatient.medicalHistory || "",
       });
+      setImagePreview(editPatient.photo || null);
     } else {
       setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
+      setImagePreview(null);
     }
   }, [editPatient, open]);
 
   const update = (field: string, value: string) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        return; // silently reject files > 5MB
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = () => {
     if (!form.name || !form.doctor || !form.complaint) return;
@@ -73,9 +90,11 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       patientType: (form.patientType as PatientType) || undefined,
       phone: form.phone || undefined,
       medicalHistory: form.medicalHistory || undefined,
+      photo: imagePreview || undefined,
     };
     onSubmit(patient);
     setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
+    setImagePreview(null);
   };
 
   return (
@@ -87,6 +106,36 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
+          {/* Photo Upload */}
+          <div className="flex items-center gap-4">
+            <div
+              className="relative w-20 h-20 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary/50 transition-colors bg-muted/30"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Patient" className="w-full h-full object-cover" />
+              ) : (
+                <Camera className="w-6 h-6 text-muted-foreground" />
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">Patient Photo</span>
+              <span className="text-xs text-muted-foreground">Click to upload (max 5MB)</span>
+              {imagePreview && (
+                <Button variant="ghost" size="sm" className="h-6 w-fit px-2 text-xs text-destructive" onClick={(e) => { e.stopPropagation(); setImagePreview(null); }}>
+                  <X className="w-3 h-3 mr-1" /> Remove
+                </Button>
+              )}
+            </div>
+          </div>
+
           {/* Row 1: Name, Age */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
