@@ -75,8 +75,17 @@ const InjectionsPage = () => {
     if (deleteInj) {
       deleteInjection(deleteInj.id);
       setDeleteInj(null);
+      selectedIds.delete(deleteInj.id);
+      setSelectedIds(new Set(selectedIds));
       toast.success("Injection deleted");
     }
+  };
+
+  const handleBulkDelete = () => {
+    selectedIds.forEach((id) => deleteInjection(id));
+    toast.success(`Deleted ${selectedIds.size} injection(s)`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const lowStockCount = injections.filter((i) => i.status === "low-stock").length;
