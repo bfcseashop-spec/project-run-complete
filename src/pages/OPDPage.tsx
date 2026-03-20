@@ -56,34 +56,33 @@ const OPDPage = () => {
   const columns = [
     { key: "id", header: "Token" },
     { key: "name", header: "Patient Name" },
-    { key: "age", header: "Age", render: (p: OPDPatient) => `${p.age} / ${p.gender}` },
+    { key: "age", header: "Age/Gender", render: (p: OPDPatient) => `${p.age} / ${p.gender}` },
+    { key: "phone", header: "Phone", render: (p: OPDPatient) => p.phone || "—" },
+    { key: "bloodType", header: "Blood", render: (p: OPDPatient) => p.bloodType || "—" },
+    { key: "patientType", header: "Type", render: (p: OPDPatient) => p.patientType || "—" },
     { key: "complaint", header: "Complaint" },
     { key: "doctor", header: "Doctor" },
     { key: "time", header: "Time" },
     { key: "status", header: "Status", render: (p: OPDPatient) => <StatusBadge status={p.status} /> },
     {
-      key: "actions", header: "Actions", render: (p: OPDPatient) => (
-        <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: p.id, sectionTitle: "OPD Patient Record", fields: [
-              { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
-              { label: "Gender", value: p.gender }, { label: "Complaint", value: p.complaint },
-              { label: "Doctor", value: p.doctor }, { label: "Time", value: p.time },
-              { label: "Status", value: p.status },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
-            id: p.id, sectionTitle: "OPD Report", fields: [
-              { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
-              { label: "Gender", value: p.gender }, { label: "Complaint", value: p.complaint },
-              { label: "Doctor", value: p.doctor }, { label: "Time", value: p.time },
-              { label: "Status", value: p.status },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
-        </div>
-      ),
+      key: "actions", header: "Actions", render: (p: OPDPatient) => {
+        const fields = [
+          { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
+          { label: "Gender", value: p.gender }, { label: "Blood Type", value: p.bloodType || "N/A" },
+          { label: "Patient Type", value: p.patientType || "N/A" }, { label: "Phone", value: p.phone || "N/A" },
+          { label: "Complaint", value: p.complaint }, { label: "Doctor", value: p.doctor },
+          { label: "Time", value: p.time }, { label: "Status", value: p.status },
+          { label: "Medical History", value: p.medicalHistory || "N/A" },
+        ];
+        return (
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Patient Record", fields })}><Eye className="w-3.5 h-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
+          </div>
+        );
+      },
     },
   ];
 
