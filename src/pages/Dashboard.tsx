@@ -5,6 +5,9 @@ import {
 import StatCard from "@/components/StatCard";
 import PageHeader from "@/components/PageHeader";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { formatDualPrice, convertToSecondary } from "@/lib/currency";
+import { getSettings } from "@/data/settingsStore";
+import { useSettings } from "@/hooks/use-settings";
 
 const patientData = [
   { month: "Jan", patients: 120 }, { month: "Feb", patients: 145 },
