@@ -357,12 +357,20 @@ ${totalsHtml}
                 <span>Grand Total</span>
                 <span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span>
               </div>
-              {paidAmount > 0 && (
+              {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
                 <>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(paidAmount)}</span></div>
+                  {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                    <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                  ))}
+                  <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatPrice(splitTotal)}</span></div>
                   <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
                 </>
-              )}
+              ) : effectivePaid > 0 ? (
+                <>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(effectivePaid)}</span></div>
+                  <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
+                </>
+              ) : null}
             </div>
 
             <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
