@@ -158,11 +158,31 @@ const BillingPage = () => {
     }
   };
 
+  const today = new Date().toISOString().split("T")[0];
+  const todayStats = useMemo(() => {
+    const todayRecords = billingData.filter((r) => r.date === today);
+    return {
+      revenue: todayRecords.reduce((s, r) => s + r.paid, 0),
+      total: todayRecords.reduce((s, r) => s + r.total, 0),
+      due: todayRecords.reduce((s, r) => s + r.due, 0),
+      count: todayRecords.length,
+      completed: todayRecords.filter((r) => r.status === "completed").length,
+      pending: todayRecords.filter((r) => r.status === "pending" || r.status === "critical").length,
+    };
+  }, [billingData, today]);
+
   return (
     <div className="space-y-6">
       <PageHeader title={t("billing", lang)} description="Create invoices, track payments and manage billing records">
         <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
       </PageHeader>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="Today's Revenue" value={formatPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
+        <StatCard title="Today's Total" value={formatPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
+        <StatCard title="Outstanding Due" value={formatPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
+        <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} changeType={todayStats.pending > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
+      </div>
 
       <DataToolbar
         dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter}
