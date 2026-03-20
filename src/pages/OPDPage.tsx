@@ -113,7 +113,7 @@ const OPDPage = () => {
     },
   ];
 
-  const opdToolbar = useDataToolbar({ data: patients as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "OPD" });
+  const opdToolbar = useDataToolbar({ data: filteredPatients as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "OPD" });
 
   const handleImportOPD = async (file: File) => {
     const rows = await opdToolbar.handleImport(file);
@@ -137,11 +137,43 @@ const OPDPage = () => {
           <Plus className="w-4 h-4 mr-2" /> Register Patient
         </Button>
       </PageHeader>
+
+      {/* Search & Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search name, token, complaint..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
+        </div>
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-[150px] h-9 text-xs">
+            <SelectValue placeholder="Patient Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {patientTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filterBlood} onValueChange={setFilterBlood}>
+          <SelectTrigger className="w-[130px] h-9 text-xs">
+            <SelectValue placeholder="Blood Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Blood</SelectItem>
+            {bloodTypes.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(search || filterBlood !== "all" || filterType !== "all") && (
+          <Button variant="ghost" size="sm" className="h-9 text-xs text-muted-foreground" onClick={() => { setSearch(""); setFilterBlood("all"); setFilterType("all"); }}>
+            Clear filters
+          </Button>
+        )}
+      </div>
+
       <DataToolbar dateFilter={opdToolbar.dateFilter} onDateFilterChange={opdToolbar.setDateFilter} viewMode={opdToolbar.viewMode} onViewModeChange={opdToolbar.setViewMode} onExportExcel={opdToolbar.handleExportExcel} onExportPDF={opdToolbar.handleExportPDF} onImport={handleImportOPD} onDownloadSample={opdToolbar.handleDownloadSample} />
       {opdToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={patients} keyExtractor={(p) => p.id} />
+        <DataTable columns={columns} data={filteredPatients} keyExtractor={(p) => p.id} />
       ) : (
-        <DataGridView columns={columns} data={patients} keyExtractor={(p) => p.id} />
+        <DataGridView columns={columns} data={filteredPatients} keyExtractor={(p) => p.id} />
       )}
       <RegisterPatientDialog
         open={dialogOpen}
