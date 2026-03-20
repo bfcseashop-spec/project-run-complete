@@ -10,7 +10,7 @@ import {
   Calendar, User, Stethoscope, Briefcase, Syringe, Package,
   Tag, DollarSign, Percent, CreditCard, Printer, Receipt, Save, Pill,
   Barcode, Trash2, FileText, Eye, Plus, X, ShoppingCart, Layers,
-  ArrowLeft, CircleDollarSign, SplitSquareHorizontal, ChevronRight,
+  ArrowLeft, CircleDollarSign, SplitSquareHorizontal, ChevronRight, CheckCircle,
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
