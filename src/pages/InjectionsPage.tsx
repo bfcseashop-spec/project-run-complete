@@ -39,12 +39,14 @@ const routes = ["IV", "IM", "SC", "ID", "IV/IM"];
 const units = ["Vials", "Amps", "Pre-filled Syringes"];
 
 const InjectionsPage = () => {
-  useSettings(); // subscribe to currency changes
+  useSettings();
   const [injections, setInjections] = useState<InjectionItem[]>(getInjections());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editInj, setEditInj] = useState<InjectionItem | null>(null);
   const [deleteInj, setDeleteInj] = useState<InjectionItem | null>(null);
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
@@ -73,8 +75,17 @@ const InjectionsPage = () => {
     if (deleteInj) {
       deleteInjection(deleteInj.id);
       setDeleteInj(null);
+      selectedIds.delete(deleteInj.id);
+      setSelectedIds(new Set(selectedIds));
       toast.success("Injection deleted");
     }
+  };
+
+  const handleBulkDelete = () => {
+    selectedIds.forEach((id) => deleteInjection(id));
+    toast.success(`Deleted ${selectedIds.size} injection(s)`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const lowStockCount = injections.filter((i) => i.status === "low-stock").length;
@@ -142,6 +153,11 @@ const InjectionsPage = () => {
     <div className="space-y-6">
       <PageHeader title="Injections" description="Manage injection inventory, stock levels, and routes">
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
       </PageHeader>
 
       <DataToolbar dateFilter={injToolbar.dateFilter} onDateFilterChange={injToolbar.setDateFilter} viewMode={injToolbar.viewMode} onViewModeChange={injToolbar.setViewMode} onExportExcel={injToolbar.handleExportExcel} onExportPDF={injToolbar.handleExportPDF} onImport={handleImportInj} onDownloadSample={injToolbar.handleDownloadSample} />
@@ -168,7 +184,7 @@ const InjectionsPage = () => {
       </div>
 
       {injToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} />
+        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={injections} keyExtractor={(i) => i.id} />
       )}
@@ -243,6 +259,21 @@ const InjectionsPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Injection(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{selectedIds.size}</strong> selected injection(s)? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
