@@ -190,6 +190,11 @@ const XRayPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="X-Ray" description="Manage X-ray orders, imaging results, and radiology reports">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New X-Ray</Button>
       </PageHeader>
 
