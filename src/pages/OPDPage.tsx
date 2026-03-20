@@ -73,7 +73,14 @@ const OPDPage = () => {
 
   const columns = [
     { key: "id", header: "Token" },
-    { key: "name", header: "Patient Name" },
+    { key: "name", header: "Patient Name", render: (p: OPDPatient) => (
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 text-xs font-medium text-muted-foreground">
+          {p.photo ? <img src={p.photo} alt={p.name} className="w-full h-full object-cover" /> : p.name.charAt(0).toUpperCase()}
+        </div>
+        <span className="font-medium">{p.name}</span>
+      </div>
+    )},
     { key: "age", header: "Age/Gender", render: (p: OPDPatient) => `${p.age} / ${p.gender}` },
     { key: "phone", header: "Phone", render: (p: OPDPatient) => p.phone || "—" },
     { key: "bloodType", header: "Blood", render: (p: OPDPatient) => p.bloodType || "—" },
