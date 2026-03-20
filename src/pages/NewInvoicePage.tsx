@@ -197,13 +197,13 @@ const NewInvoicePage = () => {
     const rows = previewItems.map((item, i) =>
       `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(item.total)}</td></tr>`
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
-    let totalsHtml = `<div style="margin-left:auto;width:260px;font-size:14px">
-        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div></div>`;
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatDualPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatDualPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatDualPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div></div>`;
     const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
@@ -265,17 +265,17 @@ ${totalsHtml}
     const rows = invoiceItems.map((item, i) =>
       `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
        <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(item.total)}</td></tr>`
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
-    let totalsHtml = `<div style="margin-left:auto;width:260px;font-size:14px">
-        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
-    const paidLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(grandTotal)}</span></div>`;
-    const dueLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Due</span><span style="font-weight:600">${formatPrice(0)}</span></div>`;
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatDualPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatDualPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatDualPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
+    const paidLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Paid</span><span style="color:#16a34a;font-weight:600">${formatDualPrice(grandTotal)}</span></div>`;
+    const dueLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Due</span><span style="font-weight:600">${formatDualPrice(0)}</span></div>`;
     totalsHtml += paidLine + dueLine + `</div>`;
-    const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatPrice(sp.amount)}`).join(", ") : paymentMethod;
+    const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatDualPrice(sp.amount)}`).join(", ") : paymentMethod;
     const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
@@ -484,12 +484,12 @@ ${totalsHtml}
                       {li.type}
                     </span>
                     <span className="truncate font-medium text-foreground">{li.name}</span>
-                    <span className="text-xs text-muted-foreground tabular-nums text-right">{formatPrice(li.price)}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums text-right">{formatDualPrice(li.price)}</span>
                     <span className="text-muted-foreground text-xs text-center">×</span>
                     <Input type="number" min={1} value={li.qty}
                       onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
                       className="w-14 h-7 text-center text-xs px-1 border-border mx-auto" />
-                    <span className="text-sm font-semibold text-primary tabular-nums text-right">{formatPrice(li.price * li.qty)}</span>
+                    <span className="text-sm font-semibold text-primary tabular-nums text-right">{formatDualPrice(li.price * li.qty)}</span>
                     <Button variant="ghost" size="sm"
                       className="h-6 w-6 p-0 ml-auto text-destructive/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => removeItem(li.id)}>
@@ -501,7 +501,7 @@ ${totalsHtml}
               {/* Table Footer */}
               <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-3 bg-muted/30 border-t border-border text-sm font-semibold shrink-0">
                 <span></span><span className="text-muted-foreground">Subtotal</span><span></span><span></span><span></span>
-                <span className="text-right text-primary tabular-nums">{formatPrice(subtotal)}</span><span></span>
+                <span className="text-right text-primary tabular-nums">{formatDualPrice(subtotal)}</span><span></span>
               </div>
             </div>
           ) : (
@@ -633,7 +633,7 @@ ${totalsHtml}
               </div>
               <Button onClick={handlePayment}
                 className="w-full h-11 gap-2 text-sm font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md">
-                <CircleDollarSign className="w-4 h-4" /> Payment (POS) — {formatPrice(grandTotal)}
+                <CircleDollarSign className="w-4 h-4" /> Payment (POS) — {formatDualPrice(grandTotal)}
               </Button>
             </div>
           </div>
@@ -671,27 +671,27 @@ ${totalsHtml}
                   <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
                     <span className="text-muted-foreground">{i + 1}</span>
                     <span className="font-medium">{item.name}</span>
-                    <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                    <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                   </div>
                 ))}
               </div>
               {/* Totals */}
               <div className="ml-auto w-64 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(subtotal)}</span></div>
-                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span></div>}
-                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatPrice(taxAmount)}</span></div>}
-                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(subtotal)}</span></div>
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(discountAmount)}</span></div>}
+                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatDualPrice(taxAmount)}</span></div>}
+                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span></div>
                 {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
                   <>
                     {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
-                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
                     ))}
-                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(grandTotal)}</span></div>
                   </>
                 ) : (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(grandTotal)}</span></div>
                 )}
-                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatPrice(0)}</span></div>
+                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
               <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
             </div>
