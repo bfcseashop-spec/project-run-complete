@@ -290,7 +290,7 @@ ${totalsHtml}
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT — Full-width Items Section */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
           {/* Patient & Doctor */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="sm:col-span-1 lg:col-span-2">
