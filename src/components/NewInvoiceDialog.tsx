@@ -308,9 +308,20 @@ ${totalsHtml}
   const handlePayment = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
-    // Auto-fill paid amount to grand total for POS
-    setPaidAmount(grandTotal);
-    onSubmit({ ...buildFormData(), paidAmount: grandTotal }, "payment");
+    if (splitMode) {
+      // Auto-fill remaining to first split method
+      const currentSplitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
+      const remaining = Math.max(0, grandTotal - currentSplitTotal);
+      if (remaining > 0) {
+        const updated = [...splitPayments];
+        updated[0] = { ...updated[0], amount: updated[0].amount + remaining };
+        setSplitPayments(updated);
+      }
+      onSubmit({ ...buildFormData(), paidAmount: grandTotal, splitPayments: splitPayments.map((sp, i) => i === 0 && remaining > 0 ? { ...sp, amount: sp.amount + remaining } : sp).filter(sp => sp.amount > 0) }, "payment");
+    } else {
+      setPaidAmount(grandTotal);
+      onSubmit({ ...buildFormData(), paidAmount: grandTotal }, "payment");
+    }
   };
 
   // ─── PREVIEW VIEW ───
