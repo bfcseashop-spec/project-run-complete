@@ -4,9 +4,13 @@ import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const medicines = [
   { id: "M001", name: "Amoxicillin 500mg", category: "Antibiotic", stock: 240, unit: "Caps", expiry: "2025-12-15", status: "in-stock" as const },
@@ -28,6 +32,8 @@ const columns = [
 
 const MedicinePage = () => {
   const [data, setData] = useState(medicines);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns, title: "Medicines" });
   const display = toolbar.filteredByDate as unknown as typeof medicines;
 
@@ -44,13 +50,39 @@ const MedicinePage = () => {
     }
   };
 
+  const handleBulkDelete = () => {
+    setData((prev) => prev.filter((m) => !selectedIds.has(m.id)));
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Medicine Management" description="Track inventory, stock levels, and expiry dates">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
       </PageHeader>
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
-      {toolbar.viewMode === "list" ? <DataTable columns={columns} data={display} keyExtractor={(m) => m.id} /> : <DataGridView columns={columns} data={display} keyExtractor={(m) => m.id} />}
+      {toolbar.viewMode === "list" ? <DataTable columns={columns} data={display} keyExtractor={(m) => m.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} /> : <DataGridView columns={columns} data={display} keyExtractor={(m) => m.id} />}
+
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Medicine(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected medicine(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
