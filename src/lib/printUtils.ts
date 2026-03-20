@@ -7,6 +7,7 @@ export function printRecordReport(opts: {
   title?: string;
   fields: { label: string; value: string }[];
   sectionTitle?: string;
+  photo?: string;
 }) {
   const s = getSettings();
   const win = window.open("", "_blank", "width=800,height=900");
@@ -18,6 +19,10 @@ export function printRecordReport(opts: {
         `<div class="info-cell"><div class="lbl">${f.label}</div><div class="val">${f.value || "—"}</div></div>`
     )
     .join("");
+
+  const photoHtml = opts.photo
+    ? `<div class="photo-section"><img src="${opts.photo}" class="patient-photo" alt="Patient Photo" /></div>`
+    : "";
 
   win.document.write(`<!DOCTYPE html><html><head><title>${opts.sectionTitle || "Report"} - ${opts.id}</title>
 <style>
@@ -31,6 +36,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff}
 .report-title{text-align:center;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:6px;padding:10px;margin-bottom:20px}
 .report-title h2{font-size:16px;font-weight:600;color:#0f766e;text-transform:uppercase;letter-spacing:1px}
 .report-title .id{font-size:11px;color:#888;margin-top:2px}
+.photo-section{text-align:center;margin-bottom:16px}
+.patient-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #0f766e}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;margin-bottom:20px}
 .info-cell{padding:10px 14px;border-bottom:1px solid #e5e7eb}
 .info-cell:nth-child(odd){border-right:1px solid #e5e7eb}
@@ -50,6 +57,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff}
     <h2>${opts.sectionTitle || "Report"}</h2>
     <div class="id">ID: ${opts.id}</div>
   </div>
+  ${photoHtml}
   <div class="info-grid">${rows}</div>
   <div class="stamp">Printed on ${new Date().toLocaleDateString()} from ${s.clinicName}</div>
 </div>
