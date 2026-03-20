@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Eye, Printer } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Pencil, Trash2, Eye, Printer, Search } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { opdPatients, type OPDPatient } from "@/data/opdPatients";
+import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
 import {
@@ -19,13 +21,29 @@ import {
 
 initPatients(opdPatients);
 
+const bloodTypes: BloodType[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+const patientTypes: PatientType[] = ["Walk In", "Indoor", "Outdoor", "Emergency"];
+
 const OPDPage = () => {
   const [patients, setPatients] = useState<OPDPatient[]>(getPatients());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
+  const [search, setSearch] = useState("");
+  const [filterBlood, setFilterBlood] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
 
   useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
+
+  const filteredPatients = useMemo(() => {
+    return patients.filter((p) => {
+      const q = search.toLowerCase();
+      const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.complaint.toLowerCase().includes(q) || p.doctor.toLowerCase().includes(q) || (p.phone || "").includes(q);
+      const matchesBlood = filterBlood === "all" || p.bloodType === filterBlood;
+      const matchesType = filterType === "all" || p.patientType === filterType;
+      return matchesSearch && matchesBlood && matchesType;
+    });
+  }, [patients, search, filterBlood, filterType]);
 
   const handleRegister = (patient: OPDPatient) => {
     if (editPatient) {
@@ -95,7 +113,7 @@ const OPDPage = () => {
     },
   ];
 
-  const opdToolbar = useDataToolbar({ data: patients as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "OPD" });
+  const opdToolbar = useDataToolbar({ data: filteredPatients as unknown as Record<string, unknown>[], dateKey: "", columns: columns.map(c => ({ key: c.key, header: c.header })), title: "OPD" });
 
   const handleImportOPD = async (file: File) => {
     const rows = await opdToolbar.handleImport(file);
@@ -119,11 +137,43 @@ const OPDPage = () => {
           <Plus className="w-4 h-4 mr-2" /> Register Patient
         </Button>
       </PageHeader>
+
+      {/* Search & Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search name, token, complaint..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
+        </div>
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-[150px] h-9 text-xs">
+            <SelectValue placeholder="Patient Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {patientTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filterBlood} onValueChange={setFilterBlood}>
+          <SelectTrigger className="w-[130px] h-9 text-xs">
+            <SelectValue placeholder="Blood Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Blood</SelectItem>
+            {bloodTypes.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {(search || filterBlood !== "all" || filterType !== "all") && (
+          <Button variant="ghost" size="sm" className="h-9 text-xs text-muted-foreground" onClick={() => { setSearch(""); setFilterBlood("all"); setFilterType("all"); }}>
+            Clear filters
+          </Button>
+        )}
+      </div>
+
       <DataToolbar dateFilter={opdToolbar.dateFilter} onDateFilterChange={opdToolbar.setDateFilter} viewMode={opdToolbar.viewMode} onViewModeChange={opdToolbar.setViewMode} onExportExcel={opdToolbar.handleExportExcel} onExportPDF={opdToolbar.handleExportPDF} onImport={handleImportOPD} onDownloadSample={opdToolbar.handleDownloadSample} />
       {opdToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={patients} keyExtractor={(p) => p.id} />
+        <DataTable columns={columns} data={filteredPatients} keyExtractor={(p) => p.id} />
       ) : (
-        <DataGridView columns={columns} data={patients} keyExtractor={(p) => p.id} />
+        <DataGridView columns={columns} data={filteredPatients} keyExtractor={(p) => p.id} />
       )}
       <RegisterPatientDialog
         open={dialogOpen}
