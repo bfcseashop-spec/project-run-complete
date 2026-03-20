@@ -235,7 +235,7 @@ const BillingPage = () => {
                         <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
                           <span className="text-muted-foreground">{i + 1}</span>
                           <span className="font-medium">{item.name}</span>
-                          <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                          <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                         </div>
                       ));
                     }
