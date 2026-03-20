@@ -149,6 +149,11 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
   const [paidAmount, setPaidAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [customDraft, setCustomDraft] = useState<CustomItem>({ name: "", price: 0, qty: 1 });
+  const [splitMode, setSplitMode] = useState(false);
+  const [splitPayments, setSplitPayments] = useState<SplitPayment[]>([
+    { method: "Cash", amount: 0 },
+    { method: "Card", amount: 0 },
+  ]);
 
   useEffect(() => { const unsub = subscribe(() => setPatients([...getPatients()])); return () => { unsub(); }; }, []);
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { unsub(); }; }, []);
