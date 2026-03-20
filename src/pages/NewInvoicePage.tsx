@@ -48,8 +48,12 @@ const medicineOptions = [
 ];
 const paymentMethods = [
   { value: "Cash", label: "Cash", icon: DollarSign },
+  { value: "ABA", label: "ABA", icon: CreditCard },
+  { value: "ACleda", label: "ACleda", icon: CreditCard },
   { value: "Card", label: "Card", icon: CreditCard },
-  { value: "Mobile Pay", label: "Mobile Pay", icon: CreditCard },
+  { value: "Wing", label: "Wing", icon: CreditCard },
+  { value: "True Money", label: "True Money", icon: CreditCard },
+  { value: "Due", label: "Due", icon: CreditCard },
   { value: "Bank Transfer", label: "Bank Transfer", icon: CreditCard },
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
