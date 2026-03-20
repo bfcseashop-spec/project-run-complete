@@ -165,10 +165,16 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
       setDiscountType(editData.discountType); setPaidAmount(editData.paidAmount);
       setPaymentMethod(editData.paymentMethod);
       setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
+      if (editData.splitPayments && editData.splitPayments.length > 0) {
+        setSplitMode(true); setSplitPayments(editData.splitPayments);
+      } else {
+        setSplitMode(false); setSplitPayments([{ method: "Cash", amount: 0 }, { method: "Card", amount: 0 }]);
+      }
     } else if (open) {
       setPatient(""); setDoctor(""); setDate(today); setLineItems([]);
       setDiscount(0); setDiscountType("flat"); setPaidAmount(0); setPaymentMethod("Cash");
       setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
+      setSplitMode(false); setSplitPayments([{ method: "Cash", amount: 0 }, { method: "Card", amount: 0 }]);
     }
   }, [open, editData]);
 
