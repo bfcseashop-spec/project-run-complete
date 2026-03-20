@@ -178,9 +178,9 @@ const BillingPage = () => {
       </PageHeader>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Today's Revenue" value={formatPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
-        <StatCard title="Today's Total" value={formatPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
-        <StatCard title="Outstanding Due" value={formatPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
+        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
+        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
+        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
         <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} changeType={todayStats.pending > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
       </div>
 
