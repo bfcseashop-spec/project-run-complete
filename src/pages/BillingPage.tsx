@@ -178,9 +178,9 @@ const BillingPage = () => {
       </PageHeader>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Today's Revenue" value={formatPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
-        <StatCard title="Today's Total" value={formatPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
-        <StatCard title="Outstanding Due" value={formatPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
+        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
+        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
+        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
         <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} changeType={todayStats.pending > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
       </div>
 
@@ -235,7 +235,7 @@ const BillingPage = () => {
                         <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
                           <span className="text-muted-foreground">{i + 1}</span>
                           <span className="font-medium">{item.name}</span>
-                          <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                          <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                         </div>
                       ));
                     }
@@ -249,21 +249,21 @@ const BillingPage = () => {
                   })()}
                 </div>
                 <div className="ml-auto w-64 space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(viewRecord.amount)}</span></div>
-                  {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(viewRecord.discount)}</span></div>}
-                  {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums">{formatPrice(viewRecord.tax)}</span></div>}
-                  <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(viewRecord.total)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(viewRecord.amount)}</span></div>
+                  {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(viewRecord.discount)}</span></div>}
+                  {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums">{formatDualPrice(viewRecord.tax)}</span></div>}
+                  <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(viewRecord.total)}</span></div>
                   {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
                     <>
                       {viewRecord.formData.splitPayments.map((sp, i) => (
-                        <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                        <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
                       ))}
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatPrice(viewRecord.paid)}</span></div>
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
                     </>
                   ) : (
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(viewRecord.paid)}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
                   )}
-                  <div className="flex justify-between text-sm font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(viewRecord.due)}</span></div>
+                  <div className="flex justify-between text-sm font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(viewRecord.due)}</span></div>
                 </div>
                 <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
               </div>
