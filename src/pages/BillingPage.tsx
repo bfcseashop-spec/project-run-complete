@@ -11,7 +11,7 @@ import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import NewInvoiceDialog, { InvoiceFormData } from "@/components/NewInvoiceDialog";
+import NewInvoiceDialog, { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent,
@@ -234,7 +234,16 @@ const BillingPage = () => {
                   {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(viewRecord.discount)}</span></div>}
                   {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums">{formatPrice(viewRecord.tax)}</span></div>}
                   <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(viewRecord.total)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(viewRecord.paid)}</span></div>
+                  {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
+                    <>
+                      {viewRecord.formData.splitPayments.map((sp, i) => (
+                        <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                      ))}
+                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatPrice(viewRecord.paid)}</span></div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(viewRecord.paid)}</span></div>
+                  )}
                   <div className="flex justify-between text-sm font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(viewRecord.due)}</span></div>
                 </div>
                 <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>

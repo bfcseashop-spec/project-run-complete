@@ -88,6 +88,11 @@ interface LineItem {
 interface CustomItem { name: string; price: number; qty: number; }
 interface MedicineItem { name: string; qty: number; }
 
+export interface SplitPayment {
+  method: string;
+  amount: number;
+}
+
 export interface InvoiceFormData {
   patient: string;
   doctor: string;
@@ -103,6 +108,7 @@ export interface InvoiceFormData {
   paymentMethod: string;
   lineItems: LineItem[];
   medicationTotal: number;
+  splitPayments?: SplitPayment[];
 }
 
 interface NewInvoiceDialogProps {
@@ -143,6 +149,11 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
   const [paidAmount, setPaidAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [customDraft, setCustomDraft] = useState<CustomItem>({ name: "", price: 0, qty: 1 });
+  const [splitMode, setSplitMode] = useState(false);
+  const [splitPayments, setSplitPayments] = useState<SplitPayment[]>([
+    { method: "Cash", amount: 0 },
+    { method: "Card", amount: 0 },
+  ]);
 
   useEffect(() => { const unsub = subscribe(() => setPatients([...getPatients()])); return () => { unsub(); }; }, []);
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { unsub(); }; }, []);
@@ -154,10 +165,16 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
       setDiscountType(editData.discountType); setPaidAmount(editData.paidAmount);
       setPaymentMethod(editData.paymentMethod);
       setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
+      if (editData.splitPayments && editData.splitPayments.length > 0) {
+        setSplitMode(true); setSplitPayments(editData.splitPayments);
+      } else {
+        setSplitMode(false); setSplitPayments([{ method: "Cash", amount: 0 }, { method: "Card", amount: 0 }]);
+      }
     } else if (open) {
       setPatient(""); setDoctor(""); setDate(today); setLineItems([]);
       setDiscount(0); setDiscountType("flat"); setPaidAmount(0); setPaymentMethod("Cash");
       setCustomDraft({ name: "", price: 0, qty: 1 }); setShowPreview(false);
+      setSplitMode(false); setSplitPayments([{ method: "Cash", amount: 0 }, { method: "Card", amount: 0 }]);
     }
   }, [open, editData]);
 
@@ -193,7 +210,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
   const taxRate = appSettings.taxEnabled ? parseFloat(appSettings.taxRate) || 0 : 0;
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
-  const dueAmount = Math.max(0, grandTotal - paidAmount);
+  const splitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
+  const effectivePaid = splitMode ? splitTotal : paidAmount;
+  const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
@@ -216,7 +235,11 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     packageItem: lineItems.filter((li) => li.type === "PKG").map((li) => li.name).join(", "),
     customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
     medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
-    discount, discountType, paidAmount, paymentMethod, lineItems, medicationTotal,
+    discount, discountType,
+    paidAmount: effectivePaid,
+    paymentMethod: splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod,
+    lineItems, medicationTotal,
+    splitPayments: splitMode ? splitPayments.filter(sp => sp.amount > 0) : undefined,
   });
 
   const handleAction = (action: "draft" | "print" | "payment") => {
@@ -240,8 +263,16 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
     if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
-    if (paidAmount > 0) {
-      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:#6b7280">Paid</span><span>${formatPrice(paidAmount)}</span></div>`;
+    if (splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0) {
+      totalsHtml += `<div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:6px">`;
+      splitPayments.filter(sp => sp.amount > 0).forEach(sp => {
+        totalsHtml += `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:13px"><span style="color:#6b7280">${sp.method}</span><span>${formatPrice(sp.amount)}</span></div>`;
+      });
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Total Paid</span><span>${formatPrice(splitTotal)}</span></div>`;
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Due</span><span style="color:${dueAmount > 0 ? '#dc2626' : '#059669'}">${formatPrice(dueAmount)}</span></div>`;
+      totalsHtml += `</div>`;
+    } else if (effectivePaid > 0) {
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:#6b7280">Paid</span><span>${formatPrice(effectivePaid)}</span></div>`;
       totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Due</span><span style="color:${dueAmount > 0 ? '#dc2626' : '#059669'}">${formatPrice(dueAmount)}</span></div>`;
     }
     totalsHtml += `</div>`;
@@ -258,7 +289,7 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 </div>
 <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
   <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
-  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${paymentMethod}</strong></p></div>
+  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</strong></p></div>
 </div>
 <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
   <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
@@ -277,9 +308,20 @@ ${totalsHtml}
   const handlePayment = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
-    // Auto-fill paid amount to grand total for POS
-    setPaidAmount(grandTotal);
-    onSubmit({ ...buildFormData(), paidAmount: grandTotal }, "payment");
+    if (splitMode) {
+      // Auto-fill remaining to first split method
+      const currentSplitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
+      const remaining = Math.max(0, grandTotal - currentSplitTotal);
+      if (remaining > 0) {
+        const updated = [...splitPayments];
+        updated[0] = { ...updated[0], amount: updated[0].amount + remaining };
+        setSplitPayments(updated);
+      }
+      onSubmit({ ...buildFormData(), paidAmount: grandTotal, splitPayments: splitPayments.map((sp, i) => i === 0 && remaining > 0 ? { ...sp, amount: sp.amount + remaining } : sp).filter(sp => sp.amount > 0) }, "payment");
+    } else {
+      setPaidAmount(grandTotal);
+      onSubmit({ ...buildFormData(), paidAmount: grandTotal }, "payment");
+    }
   };
 
   // ─── PREVIEW VIEW ───
@@ -301,7 +343,7 @@ ${totalsHtml}
               </div>
               <div className="text-right space-y-1">
                 <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
-                <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{paymentMethod}</span></p>
+                <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
               </div>
             </div>
 
@@ -326,12 +368,20 @@ ${totalsHtml}
                 <span>Grand Total</span>
                 <span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span>
               </div>
-              {paidAmount > 0 && (
+              {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
                 <>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(paidAmount)}</span></div>
+                  {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                    <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                  ))}
+                  <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatPrice(splitTotal)}</span></div>
                   <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
                 </>
-              )}
+              ) : effectivePaid > 0 ? (
+                <>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatPrice(effectivePaid)}</span></div>
+                  <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
+                </>
+              ) : null}
             </div>
 
             <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
@@ -547,24 +597,79 @@ ${totalsHtml}
               </div>
             </div>
             <div className="space-y-3">
-              <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <CreditCard className="w-4 h-4 text-primary" /> Payment Method
-              </Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {paymentMethods.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div>
-                <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
-                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0" />
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                  <CreditCard className="w-4 h-4 text-primary" /> Payment
+                </Label>
+                <Button
+                  type="button"
+                  variant={splitMode ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 text-xs gap-1.5 px-3"
+                  onClick={() => setSplitMode(!splitMode)}
+                >
+                  <CreditCard className="w-3 h-3" />
+                  {splitMode ? "Single Pay" : "Split Bill"}
+                </Button>
               </div>
-              <Button type="button" variant="outline" className="w-full text-sm h-9">Split Bill</Button>
+
+              {splitMode ? (
+                <div className="space-y-2.5 rounded-lg border border-border bg-muted/30 p-3">
+                  {splitPayments.map((sp, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Select value={sp.method} onValueChange={(v) => {
+                        const updated = [...splitPayments]; updated[i] = { ...sp, method: v }; setSplitPayments(updated);
+                      }}>
+                        <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {paymentMethods.map((m) => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number" min={0} placeholder="0"
+                        value={sp.amount || ""}
+                        onChange={(e) => {
+                          const updated = [...splitPayments]; updated[i] = { ...sp, amount: parseFloat(e.target.value) || 0 }; setSplitPayments(updated);
+                        }}
+                        className="flex-1 h-9"
+                      />
+                      {splitPayments.length > 2 && (
+                        <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive/60 hover:text-destructive"
+                          onClick={() => setSplitPayments(splitPayments.filter((_, j) => j !== i))}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="w-full h-8 text-xs gap-1"
+                    onClick={() => setSplitPayments([...splitPayments, { method: "Cash", amount: 0 }])}>
+                    <Plus className="w-3 h-3" /> Add Method
+                  </Button>
+                  {splitTotal > 0 && (
+                    <div className="flex justify-between text-xs font-semibold pt-1 border-t border-border">
+                      <span className="text-muted-foreground">Split Total</span>
+                      <span className={splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}>{formatPrice(splitTotal)}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {paymentMethods.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div>
+                    <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
+                    <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0" />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -590,12 +695,25 @@ ${totalsHtml}
               <span>Grand Total</span>
               <span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span>
             </div>
-            {paidAmount > 0 && (
+            {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
+              <div className="space-y-1 pt-1">
+                {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">{sp.method}</span>
+                    <span className="tabular-nums">{formatDualPrice(sp.amount)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm font-semibold">
+                  <span className="text-muted-foreground">Due Balance</span>
+                  <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(dueAmount)}</span>
+                </div>
+              </div>
+            ) : effectivePaid > 0 ? (
               <div className="flex justify-between text-sm pt-1 font-semibold">
                 <span className="text-muted-foreground">Due Balance</span>
                 <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(dueAmount)}</span>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Footer Buttons */}
