@@ -135,6 +135,8 @@ const UltrasoundPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRegion, setFilterRegion] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (r: UltrasoundRecord) => {
@@ -160,6 +162,12 @@ const UltrasoundPage = () => {
       setRecords((prev) => prev.filter((r) => r.id !== deleteRecord.id));
       setDeleteRecord(null);
     }
+  };
+
+  const handleBulkDelete = () => {
+    setRecords((prev) => prev.filter((r) => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const filtered = records.filter((r) => {
@@ -260,6 +268,11 @@ const UltrasoundPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Ultrasound" description="Manage ultrasound orders, imaging results, and sonography reports">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Ultrasound</Button>
       </PageHeader>
 
@@ -298,7 +311,7 @@ const UltrasoundPage = () => {
       </div>
 
       {toolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
       )}
@@ -396,6 +409,22 @@ const UltrasoundPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Ultrasound Record(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected ultrasound record(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

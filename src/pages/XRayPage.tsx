@@ -49,6 +49,8 @@ const XRayPage = () => {
   const [editRecord, setEditRecord] = useState<XRayRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<XRayRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
@@ -77,6 +79,12 @@ const XRayPage = () => {
       setRecords((prev) => prev.filter((r) => r.id !== deleteRecord.id));
       setDeleteRecord(null);
     }
+  };
+
+  const handleBulkDelete = () => {
+    setRecords((prev) => prev.filter((r) => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const filtered = records.filter((r) => {
@@ -182,6 +190,11 @@ const XRayPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="X-Ray" description="Manage X-ray orders, imaging results, and radiology reports">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New X-Ray</Button>
       </PageHeader>
 
@@ -220,7 +233,7 @@ const XRayPage = () => {
       </div>
 
       {xrayToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
       )}
@@ -318,6 +331,22 @@ const XRayPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} X-Ray Record(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected X-ray record(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
