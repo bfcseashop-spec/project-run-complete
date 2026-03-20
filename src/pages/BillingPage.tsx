@@ -11,7 +11,7 @@ import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import NewInvoiceDialog, { InvoiceFormData } from "@/components/NewInvoiceDialog";
+import NewInvoiceDialog, { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent,
