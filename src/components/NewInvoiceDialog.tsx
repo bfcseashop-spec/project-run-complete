@@ -684,12 +684,25 @@ ${totalsHtml}
               <span>Grand Total</span>
               <span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span>
             </div>
-            {paidAmount > 0 && (
+            {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
+              <div className="space-y-1 pt-1">
+                {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">{sp.method}</span>
+                    <span className="tabular-nums">{formatDualPrice(sp.amount)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm font-semibold">
+                  <span className="text-muted-foreground">Due Balance</span>
+                  <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(dueAmount)}</span>
+                </div>
+              </div>
+            ) : effectivePaid > 0 ? (
               <div className="flex justify-between text-sm pt-1 font-semibold">
                 <span className="text-muted-foreground">Due Balance</span>
                 <span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(dueAmount)}</span>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Footer Buttons */}
