@@ -1,8 +1,9 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
-import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check } from "lucide-react";
+import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages } from "lucide-react";
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
+import { useSettings } from "@/hooks/use-settings";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const availableLanguages = [
+  { id: "English", label: "English", flag: "🇺🇸" },
+  { id: "Khmer", label: "ខ្មែរ", flag: "🇰🇭" },
+  { id: "Bengali", label: "বাংলা", flag: "🇧🇩" },
+];
 
 const colorThemes = [
   { name: "Teal", primary: "168 80% 30%", id: "teal" },
@@ -74,6 +81,9 @@ const LayoutInner = () => {
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
   const [currentMode, setCurrentMode] = useState(() => getStoredSettings().mode || "light");
 
+  const { settings, update: updateAppSettings } = useSettings();
+  const currentLang = availableLanguages.find(l => l.id === settings.language) || availableLanguages[0];
+
   const dateStr = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
@@ -102,7 +112,30 @@ const LayoutInner = () => {
               <span className="hidden md:inline text-xs font-medium">Billing</span>
             </Button>
 
-            {/* Theme Shortcut */}
+            {/* Language Shortcut */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
+                  <Languages className="w-4 h-4" />
+                  <span className="hidden md:inline text-xs font-medium">{currentLang.flag} {currentLang.id}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Language</DropdownMenuLabel>
+                {availableLanguages.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.id}
+                    className="gap-2 cursor-pointer"
+                    onClick={() => updateAppSettings({ language: lang.id })}
+                  >
+                    <span className="text-base">{lang.flag}</span>
+                    <span className="text-sm">{lang.label}</span>
+                    {settings.language === lang.id && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
