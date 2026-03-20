@@ -15,6 +15,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
+const availableLanguages = [
+  { id: "English", label: "English", flag: "🇺🇸" },
+  { id: "Khmer", label: "ខ្មែរ", flag: "🇰🇭" },
+  { id: "Bengali", label: "বাংলা", flag: "🇧🇩" },
+];
+
 const colorThemes = [
   { name: "Teal", primary: "168 80% 30%", id: "teal" },
   { name: "Blue", primary: "220 80% 45%", id: "blue" },
