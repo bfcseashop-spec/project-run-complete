@@ -633,7 +633,7 @@ ${totalsHtml}
               </div>
               <Button onClick={handlePayment}
                 className="w-full h-11 gap-2 text-sm font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md">
-                <CircleDollarSign className="w-4 h-4" /> Payment (POS) — {formatPrice(grandTotal)}
+                <CircleDollarSign className="w-4 h-4" /> Payment (POS) — {formatDualPrice(grandTotal)}
               </Button>
             </div>
           </div>
