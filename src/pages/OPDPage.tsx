@@ -59,7 +59,16 @@ const OPDPage = () => {
     { key: "age", header: "Age/Gender", render: (p: OPDPatient) => `${p.age} / ${p.gender}` },
     { key: "phone", header: "Phone", render: (p: OPDPatient) => p.phone || "—" },
     { key: "bloodType", header: "Blood", render: (p: OPDPatient) => p.bloodType || "—" },
-    { key: "patientType", header: "Type", render: (p: OPDPatient) => p.patientType || "—" },
+    { key: "patientType", header: "Type", render: (p: OPDPatient) => {
+      if (!p.patientType) return "—";
+      const typeStyles: Record<string, string> = {
+        "Walk In": "bg-primary/10 text-primary",
+        "Indoor": "bg-blue-500/10 text-blue-600",
+        "Outdoor": "bg-emerald-500/10 text-emerald-600",
+        "Emergency": "bg-destructive/10 text-destructive",
+      };
+      return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeStyles[p.patientType] || "bg-muted text-muted-foreground"}`}>{p.patientType}</span>;
+    }},
     { key: "complaint", header: "Complaint" },
     { key: "doctor", header: "Doctor" },
     { key: "time", header: "Time" },
