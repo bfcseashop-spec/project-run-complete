@@ -81,6 +81,9 @@ const LayoutInner = () => {
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
   const [currentMode, setCurrentMode] = useState(() => getStoredSettings().mode || "light");
 
+  const { settings, update: updateAppSettings } = useSettings();
+  const currentLang = availableLanguages.find(l => l.id === settings.language) || availableLanguages[0];
+
   const dateStr = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
