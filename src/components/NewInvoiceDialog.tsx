@@ -235,7 +235,11 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     packageItem: lineItems.filter((li) => li.type === "PKG").map((li) => li.name).join(", "),
     customItems: lineItems.filter((li) => li.type === "CUSTOM").map((li) => ({ name: li.name, price: li.price, qty: li.qty })),
     medicines: lineItems.filter((li) => li.type === "MED").map((li) => ({ name: li.name, qty: li.qty })),
-    discount, discountType, paidAmount, paymentMethod, lineItems, medicationTotal,
+    discount, discountType,
+    paidAmount: effectivePaid,
+    paymentMethod: splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod,
+    lineItems, medicationTotal,
+    splitPayments: splitMode ? splitPayments.filter(sp => sp.amount > 0) : undefined,
   });
 
   const handleAction = (action: "draft" | "print" | "payment") => {
