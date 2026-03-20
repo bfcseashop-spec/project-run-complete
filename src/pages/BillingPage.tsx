@@ -51,15 +51,32 @@ const initialData: BillingRecord[] = [
 ];
 
 const BillingPage = () => {
+  const navigate = useNavigate();
   const { settings } = useSettings();
   const lang = settings.language;
   const appSettings = getSettings();
   const [billingData, setBillingData] = useState<BillingRecord[]>(initialData);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editRecord, setEditRecord] = useState<BillingRecord | null>(null);
   const [viewRecord, setViewRecord] = useState<BillingRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+
+  // Pick up submitted invoice from the full-page form
+  useEffect(() => {
+    const raw = sessionStorage.getItem("invoiceSubmit");
+    if (!raw) return;
+    sessionStorage.removeItem("invoiceSubmit");
+    try {
+      const { data, action, isEdit } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean };
+      if (isEdit) {
+        // For edits we'd need the ID — simplified: just add as new
+      }
+      const prefix = appSettings.invoicePrefix || "BIL";
+      const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
+      const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
+      const record = buildRecord(data, id);
+      setBillingData((prev) => [record, ...prev]);
+    } catch { /* ignore */ }
+  }, []);
 
   const columns = [
     { key: "id", header: "Invoice" },
