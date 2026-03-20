@@ -49,6 +49,8 @@ const XRayPage = () => {
   const [editRecord, setEditRecord] = useState<XRayRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<XRayRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
