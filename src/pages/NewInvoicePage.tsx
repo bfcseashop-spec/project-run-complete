@@ -677,21 +677,21 @@ ${totalsHtml}
               </div>
               {/* Totals */}
               <div className="ml-auto w-64 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(subtotal)}</span></div>
-                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span></div>}
-                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatPrice(taxAmount)}</span></div>}
-                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(subtotal)}</span></div>
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(discountAmount)}</span></div>}
+                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatDualPrice(taxAmount)}</span></div>}
+                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span></div>
                 {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
                   <>
                     {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
-                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
                     ))}
-                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(grandTotal)}</span></div>
                   </>
                 ) : (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(grandTotal)}</span></div>
                 )}
-                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatPrice(0)}</span></div>
+                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
               <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
             </div>
