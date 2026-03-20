@@ -501,7 +501,7 @@ ${totalsHtml}
               {/* Table Footer */}
               <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-3 bg-muted/30 border-t border-border text-sm font-semibold shrink-0">
                 <span></span><span className="text-muted-foreground">Subtotal</span><span></span><span></span><span></span>
-                <span className="text-right text-primary tabular-nums">{formatPrice(subtotal)}</span><span></span>
+                <span className="text-right text-primary tabular-nums">{formatDualPrice(subtotal)}</span><span></span>
               </div>
             </div>
           ) : (
