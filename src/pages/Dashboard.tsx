@@ -93,8 +93,8 @@ const Dashboard = () => {
             <LineChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(210, 18%, 90%)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" />
-              <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" />
-              <Tooltip />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" tickFormatter={(v) => formatDualPrice(v)} />
+              <Tooltip formatter={(value: number) => [formatDualPrice(value), "Revenue"]} />
               <Line type="monotone" dataKey="revenue" stroke="hsl(200, 80%, 45%)" strokeWidth={2} dot={{ fill: "hsl(200, 80%, 45%)" }} />
             </LineChart>
           </ResponsiveContainer>
