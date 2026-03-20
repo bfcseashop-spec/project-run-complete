@@ -639,6 +639,77 @@ ${totalsHtml}
           </div>
         )}
       </div>
+
+      {/* Invoice Preview Overlay after Payment */}
+      {showInvoice && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-card rounded-2xl shadow-2xl border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div ref={invoiceRef} className="p-8 space-y-6 overflow-y-auto flex-1">
+              {/* Header */}
+              <div className="text-center border-b border-border pb-4">
+                <h2 className="text-xl font-bold text-primary">{appSettings.clinicName}</h2>
+                <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
+                <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
+              </div>
+              {/* Patient/Date row */}
+              <div className="flex justify-between text-sm">
+                <div className="space-y-1">
+                  <p><span className="text-muted-foreground">Patient:</span> <span className="font-semibold">{patient}</span></p>
+                  {doctor && <p><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{doctor}</span></p>}
+                </div>
+                <div className="text-right space-y-1">
+                  <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
+                  <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
+                </div>
+              </div>
+              {/* Items Table */}
+              <div className="border border-border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>#</span><span>Description</span><span className="text-right">Amount</span>
+                </div>
+                {previewItems.map((item, i) => (
+                  <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                    <span className="text-muted-foreground">{i + 1}</span>
+                    <span className="font-medium">{item.name}</span>
+                    <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Totals */}
+              <div className="ml-auto w-64 space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(subtotal)}</span></div>
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span></div>}
+                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatPrice(taxAmount)}</span></div>}
+                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span></div>
+                {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
+                  <>
+                    {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                    ))}
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                  </>
+                ) : (
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                )}
+                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatPrice(0)}</span></div>
+              </div>
+              <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
+            </div>
+            {/* Actions */}
+            <div className="px-6 pb-6 pt-2 flex gap-3 border-t border-border bg-muted/30">
+              <Button variant="outline" onClick={() => { setShowInvoice(false); }} className="flex-1">
+                <Eye className="w-4 h-4 mr-2" /> Back to Edit
+              </Button>
+              <Button variant="outline" onClick={handlePrintFromInvoice} className="flex-1 gap-2">
+                <Printer className="w-4 h-4" /> Print Invoice
+              </Button>
+              <Button onClick={handleConfirmAndSave} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
+                <CheckCircle className="w-4 h-4" /> Save & Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
