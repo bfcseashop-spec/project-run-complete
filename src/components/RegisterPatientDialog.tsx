@@ -139,11 +139,11 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
           {/* Row 1: Name, Age */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <Label>Patient Name *</Label>
-              <Input placeholder="Full name" value={form.name} onChange={(e) => update("name", e.target.value)} />
+              <Label className="flex items-center gap-1.5">Patient Name <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
+              <Input placeholder="Full name" value={form.name} onChange={(e) => update("name", e.target.value)} className={!form.name ? "border-amber-300/50" : "border-green-400/50"} />
             </div>
             <div>
-              <Label>Age</Label>
+              <Label className="flex items-center gap-1.5">Age <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
               <Input placeholder="e.g. 34" type="number" value={form.age} onChange={(e) => update("age", e.target.value)} />
             </div>
           </div>
@@ -151,7 +151,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
           {/* Row 2: Gender, Blood Type, Patient Type */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label>Gender</Label>
+              <Label className="flex items-center gap-1.5">Gender <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
               <Select value={form.gender} onValueChange={(v) => update("gender", v)}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
@@ -162,7 +162,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
               </Select>
             </div>
             <div>
-              <Label>Blood Type</Label>
+              <Label className="flex items-center gap-1.5">Blood Type <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
               <Select value={form.bloodType} onValueChange={(v) => update("bloodType", v)}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
@@ -173,7 +173,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
               </Select>
             </div>
             <div>
-              <Label>Patient Type</Label>
+              <Label className="flex items-center gap-1.5">Patient Type <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
               <Select value={form.patientType} onValueChange={(v) => update("patientType", v)}>
                 <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
@@ -188,9 +188,9 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
           {/* Row 3: Doctor, Phone */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Doctor *</Label>
+              <Label className="flex items-center gap-1.5">Doctor <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
               <Select value={form.doctor} onValueChange={(v) => update("doctor", v)}>
-                <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                <SelectTrigger className={!form.doctor ? "border-amber-300/50" : "border-green-400/50"}><SelectValue placeholder="Select doctor" /></SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => (
                     <SelectItem key={d} value={d}>{d}</SelectItem>
@@ -199,20 +199,20 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
               </Select>
             </div>
             <div>
-              <Label>Phone Number</Label>
+              <Label className="flex items-center gap-1.5">Phone Number <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
               <Input placeholder="e.g. 012 345 678" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
             </div>
           </div>
 
           {/* Row 4: Complaint */}
           <div>
-            <Label>Complaint *</Label>
-            <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} />
+            <Label className="flex items-center gap-1.5">Complaint <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
+            <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} className={!form.complaint ? "border-amber-300/50" : "border-green-400/50"} />
           </div>
 
           {/* Row 5: Medical History */}
           <div>
-            <Label>Medical History</Label>
+            <Label className="flex items-center gap-1.5">Medical History <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
             <Textarea placeholder="e.g. Diabetes, Hypertension, Previous surgeries..." value={form.medicalHistory} onChange={(e) => update("medicalHistory", e.target.value)} rows={3} />
           </div>
         </div>
