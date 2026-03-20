@@ -100,8 +100,8 @@ const NewInvoicePage = () => {
   const [activeTab, setActiveTab] = useState<"services" | "medicines">("services");
   const [showSummary, setShowSummary] = useState(true);
 
-  useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
-  useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return u; }, []);
+  useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
 
   useEffect(() => {
     if (editData) {
