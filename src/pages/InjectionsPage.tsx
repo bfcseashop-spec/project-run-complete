@@ -39,12 +39,14 @@ const routes = ["IV", "IM", "SC", "ID", "IV/IM"];
 const units = ["Vials", "Amps", "Pre-filled Syringes"];
 
 const InjectionsPage = () => {
-  useSettings(); // subscribe to currency changes
+  useSettings();
   const [injections, setInjections] = useState<InjectionItem[]>(getInjections());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editInj, setEditInj] = useState<InjectionItem | null>(null);
   const [deleteInj, setDeleteInj] = useState<InjectionItem | null>(null);
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
