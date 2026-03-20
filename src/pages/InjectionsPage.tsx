@@ -153,6 +153,11 @@ const InjectionsPage = () => {
     <div className="space-y-6">
       <PageHeader title="Injections" description="Manage injection inventory, stock levels, and routes">
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
       </PageHeader>
 
       <DataToolbar dateFilter={injToolbar.dateFilter} onDateFilterChange={injToolbar.setDateFilter} viewMode={injToolbar.viewMode} onViewModeChange={injToolbar.setViewMode} onExportExcel={injToolbar.handleExportExcel} onExportPDF={injToolbar.handleExportPDF} onImport={handleImportInj} onDownloadSample={injToolbar.handleDownloadSample} />
