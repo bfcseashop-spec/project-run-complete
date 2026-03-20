@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -11,7 +12,7 @@ import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import NewInvoiceDialog, { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
+import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent,
