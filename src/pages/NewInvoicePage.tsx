@@ -484,7 +484,7 @@ ${totalsHtml}
                       {li.type}
                     </span>
                     <span className="truncate font-medium text-foreground">{li.name}</span>
-                    <span className="text-xs text-muted-foreground tabular-nums text-right">{formatPrice(li.price)}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums text-right">{formatDualPrice(li.price)}</span>
                     <span className="text-muted-foreground text-xs text-center">×</span>
                     <Input type="number" min={1} value={li.qty}
                       onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
