@@ -268,6 +268,11 @@ const UltrasoundPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Ultrasound" description="Manage ultrasound orders, imaging results, and sonography reports">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Ultrasound</Button>
       </PageHeader>
 
