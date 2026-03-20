@@ -332,7 +332,7 @@ ${totalsHtml}
               </div>
               <div className="text-right space-y-1">
                 <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
-                <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{paymentMethod}</span></p>
+                <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
               </div>
             </div>
 
