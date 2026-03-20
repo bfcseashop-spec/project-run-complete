@@ -130,27 +130,9 @@ const BillingPage = () => {
     return { id, patient: data.patient, service: serviceNames, amount: subtotal, discount: discountAmt, tax: taxAmt, total, paid: data.paidAmount, due, date: data.date, status, method: data.paymentMethod, formData: data };
   };
 
-  const handleSubmit = (data: InvoiceFormData, action: "draft" | "print" | "payment") => {
-    if (editRecord) {
-      const updated = buildRecord(data, editRecord.id);
-      setBillingData((prev) => prev.map((r) => r.id === editRecord.id ? updated : r));
-      setDialogOpen(false);
-      setEditRecord(null);
-      toast.success(`Invoice ${editRecord.id} updated`);
-    } else {
-      const prefix = appSettings.invoicePrefix || "BIL";
-      const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
-      const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
-      const record = buildRecord(data, id);
-      setBillingData((prev) => [record, ...prev]);
-      setDialogOpen(false);
-      if (action === "draft") toast.success(`Invoice ${id} saved as draft`);
-      else if (action === "print") toast.success(`Invoice ${id} created — printing...`);
-      else toast.success(`Payment received for ${id}`);
-    }
+  const handleEdit = (record: BillingRecord) => {
+    navigate("/billing/edit", { state: { editData: record.formData } });
   };
-
-  const handleEdit = (record: BillingRecord) => { setEditRecord(record); setDialogOpen(true); };
   const handleDelete = () => { if (deleteRecord) { setBillingData((prev) => prev.filter((r) => r.id !== deleteRecord.id)); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const handlePrint = (record: BillingRecord) => { setViewRecord(record); setTimeout(() => window.print(), 300); };
 
@@ -178,7 +160,7 @@ const BillingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title={t("billing", lang)} description="Create invoices, track payments and manage billing records">
-        <Button onClick={() => { setEditRecord(null); setDialogOpen(true); }}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+        <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
       </PageHeader>
 
       <DataToolbar
@@ -193,8 +175,6 @@ const BillingPage = () => {
       ) : (
         <DataGridView columns={columns} data={displayData} keyExtractor={(d) => d.id} />
       )}
-
-      <NewInvoiceDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditRecord(null); }} onSubmit={handleSubmit} editData={editRecord?.formData || null} />
 
       <Dialog open={!!viewRecord} onOpenChange={() => setViewRecord(null)}>
         <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0">
