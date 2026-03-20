@@ -184,7 +184,7 @@ const InjectionsPage = () => {
       </div>
 
       {injToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} />
+        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={injections} keyExtractor={(i) => i.id} />
       )}
