@@ -135,6 +135,8 @@ const UltrasoundPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRegion, setFilterRegion] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (r: UltrasoundRecord) => {
