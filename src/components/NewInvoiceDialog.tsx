@@ -210,7 +210,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
   const taxRate = appSettings.taxEnabled ? parseFloat(appSettings.taxRate) || 0 : 0;
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
-  const dueAmount = Math.max(0, grandTotal - paidAmount);
+  const splitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
+  const effectivePaid = splitMode ? splitTotal : paidAmount;
+  const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
