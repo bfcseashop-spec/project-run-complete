@@ -11,6 +11,7 @@ import PrescriptionPage from "@/pages/PrescriptionPage";
 import DoctorPage from "@/pages/DoctorPage";
 import DuesPage from "@/pages/DuesPage";
 import BillingPage from "@/pages/BillingPage";
+import NewInvoicePage from "@/pages/NewInvoicePage";
 import LabTestsPage from "@/pages/LabTestsPage";
 import AddTestPage from "@/pages/AddTestPage";
 import TestNamePage from "@/pages/TestNamePage";
@@ -40,6 +41,8 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/billing" element={<BillingPage />} />
+            <Route path="/billing/new" element={<NewInvoicePage />} />
+            <Route path="/billing/edit" element={<NewInvoicePage />} />
             <Route path="/medicine" element={<MedicinePage />} />
             <Route path="/opd" element={<OPDPage />} />
             <Route path="/prescriptions" element={<PrescriptionPage />} />
