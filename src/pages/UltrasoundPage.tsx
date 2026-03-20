@@ -164,6 +164,12 @@ const UltrasoundPage = () => {
     }
   };
 
+  const handleBulkDelete = () => {
+    setRecords((prev) => prev.filter((r) => !selectedIds.has(r.id)));
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   const filtered = records.filter((r) => {
     const matchSearch = searchTerm === "" ||
       r.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
