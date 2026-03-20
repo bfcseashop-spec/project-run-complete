@@ -586,24 +586,79 @@ ${totalsHtml}
               </div>
             </div>
             <div className="space-y-3">
-              <Label className="flex items-center gap-1.5 text-sm font-semibold">
-                <CreditCard className="w-4 h-4 text-primary" /> Payment Method
-              </Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {paymentMethods.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div>
-                <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
-                <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0" />
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                  <CreditCard className="w-4 h-4 text-primary" /> Payment
+                </Label>
+                <Button
+                  type="button"
+                  variant={splitMode ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 text-xs gap-1.5 px-3"
+                  onClick={() => setSplitMode(!splitMode)}
+                >
+                  <CreditCard className="w-3 h-3" />
+                  {splitMode ? "Single Pay" : "Split Bill"}
+                </Button>
               </div>
-              <Button type="button" variant="outline" className="w-full text-sm h-9">Split Bill</Button>
+
+              {splitMode ? (
+                <div className="space-y-2.5 rounded-lg border border-border bg-muted/30 p-3">
+                  {splitPayments.map((sp, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Select value={sp.method} onValueChange={(v) => {
+                        const updated = [...splitPayments]; updated[i] = { ...sp, method: v }; setSplitPayments(updated);
+                      }}>
+                        <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {paymentMethods.map((m) => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number" min={0} placeholder="0"
+                        value={sp.amount || ""}
+                        onChange={(e) => {
+                          const updated = [...splitPayments]; updated[i] = { ...sp, amount: parseFloat(e.target.value) || 0 }; setSplitPayments(updated);
+                        }}
+                        className="flex-1 h-9"
+                      />
+                      {splitPayments.length > 2 && (
+                        <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive/60 hover:text-destructive"
+                          onClick={() => setSplitPayments(splitPayments.filter((_, j) => j !== i))}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="w-full h-8 text-xs gap-1"
+                    onClick={() => setSplitPayments([...splitPayments, { method: "Cash", amount: 0 }])}>
+                    <Plus className="w-3 h-3" /> Add Method
+                  </Button>
+                  {splitTotal > 0 && (
+                    <div className="flex justify-between text-xs font-semibold pt-1 border-t border-border">
+                      <span className="text-muted-foreground">Split Total</span>
+                      <span className={splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}>{formatPrice(splitTotal)}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {paymentMethods.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div>
+                    <Label className="text-sm font-medium mb-1.5 block">Amount Paid</Label>
+                    <Input type="number" min={0} value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} placeholder="0" />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
