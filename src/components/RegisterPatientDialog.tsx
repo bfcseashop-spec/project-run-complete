@@ -5,10 +5,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
-import type { OPDPatient } from "@/data/opdPatients";
+import type { OPDPatient, BloodType, PatientType } from "@/data/opdPatients";
 
 interface RegisterPatientDialogProps {
   open: boolean;
@@ -22,11 +23,15 @@ const doctors = [
   "Dr. Smith", "Dr. Patel", "Dr. Williams", "Dr. Brown", "Dr. Lee",
 ];
 
+const bloodTypes: BloodType[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+const patientTypes: PatientType[] = ["Walk In", "Indoor", "Outdoor", "Emergency"];
+
 const genderToLabel = (g: string) => (g === "F" ? "Female" : g === "M" ? "Male" : "Other");
 
 const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, editPatient }: RegisterPatientDialogProps) => {
   const [form, setForm] = useState({
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
+    bloodType: "", patientType: "", phone: "", medicalHistory: "",
   });
 
   useEffect(() => {
@@ -38,9 +43,13 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         doctor: editPatient.doctor,
         complaint: editPatient.complaint,
         time: editPatient.time,
+        bloodType: editPatient.bloodType || "",
+        patientType: editPatient.patientType || "",
+        phone: editPatient.phone || "",
+        medicalHistory: editPatient.medicalHistory || "",
       });
     } else {
-      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "" });
+      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
     }
   }, [editPatient, open]);
 
@@ -60,22 +69,27 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       status: editPatient?.status || "pending",
       time: timeStr,
       complaint: form.complaint,
+      bloodType: (form.bloodType as BloodType) || undefined,
+      patientType: (form.patientType as PatientType) || undefined,
+      phone: form.phone || undefined,
+      medicalHistory: form.medicalHistory || undefined,
     };
     onSubmit(patient);
-    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "" });
+    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading text-xl">
             {editPatient ? "Edit Patient" : "Register New Patient"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
+          {/* Row 1: Name, Age */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-3 sm:col-span-2">
+            <div className="col-span-2">
               <Label>Patient Name *</Label>
               <Input placeholder="Full name" value={form.name} onChange={(e) => update("name", e.target.value)} />
             </div>
@@ -84,7 +98,9 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
               <Input placeholder="e.g. 34" type="number" value={form.age} onChange={(e) => update("age", e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          {/* Row 2: Gender, Blood Type, Patient Type */}
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Gender</Label>
               <Select value={form.gender} onValueChange={(v) => update("gender", v)}>
@@ -97,6 +113,32 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
               </Select>
             </div>
             <div>
+              <Label>Blood Type</Label>
+              <Select value={form.bloodType} onValueChange={(v) => update("bloodType", v)}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {bloodTypes.map((bt) => (
+                    <SelectItem key={bt} value={bt}>{bt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Patient Type</Label>
+              <Select value={form.patientType} onValueChange={(v) => update("patientType", v)}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {patientTypes.map((pt) => (
+                    <SelectItem key={pt} value={pt}>{pt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Row 3: Doctor, Phone */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
               <Label>Doctor *</Label>
               <Select value={form.doctor} onValueChange={(v) => update("doctor", v)}>
                 <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
@@ -107,10 +149,22 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label>Phone Number</Label>
+              <Input placeholder="e.g. 012 345 678" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+            </div>
           </div>
+
+          {/* Row 4: Complaint */}
           <div>
             <Label>Complaint *</Label>
             <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} />
+          </div>
+
+          {/* Row 5: Medical History */}
+          <div>
+            <Label>Medical History</Label>
+            <Textarea placeholder="e.g. Diabetes, Hypertension, Previous surgeries..." value={form.medicalHistory} onChange={(e) => update("medicalHistory", e.target.value)} rows={3} />
           </div>
         </div>
         <DialogFooter>
