@@ -406,8 +406,8 @@ ${totalsHtml}
 
           {/* Line Items Table — Full Width */}
           {lineItems.length > 0 ? (
-            <div className="rounded-xl border border-border overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-3 bg-muted/40 border-b border-border">
+            <div className="rounded-xl border border-border overflow-hidden flex flex-col flex-1 min-h-0">
+              <div className="flex items-center justify-between px-5 py-3 bg-muted/40 border-b border-border shrink-0">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Items ({itemCount})
                 </span>
@@ -419,10 +419,10 @@ ${totalsHtml}
                 </div>
               </div>
               {/* Table Header */}
-              <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-2 bg-muted/20 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+              <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-2 bg-muted/20 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border shrink-0">
                 <span>Type</span><span>Item Name</span><span className="text-right">Unit Price</span><span></span><span className="text-center">Qty</span><span className="text-right">Total</span><span></span>
               </div>
-              <div className="divide-y divide-border max-h-[400px] overflow-y-auto">
+              <div className="divide-y divide-border flex-1 overflow-y-auto">
                 {lineItems.map((li) => (
                   <div key={li.id} className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] items-center px-5 py-2.5 text-sm hover:bg-muted/20 transition-colors group">
                     <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded w-fit ${typeConfig[li.type].bg} ${typeConfig[li.type].color}`}>
@@ -444,13 +444,13 @@ ${totalsHtml}
                 ))}
               </div>
               {/* Table Footer */}
-              <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-3 bg-muted/30 border-t border-border text-sm font-semibold">
+              <div className="grid grid-cols-[60px_1fr_100px_40px_70px_110px_40px] px-5 py-3 bg-muted/30 border-t border-border text-sm font-semibold shrink-0">
                 <span></span><span className="text-muted-foreground">Subtotal</span><span></span><span></span><span></span>
                 <span className="text-right text-primary tabular-nums">{formatPrice(subtotal)}</span><span></span>
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <div className="rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center flex-1 min-h-[200px] text-muted-foreground">
               <ShoppingCart className="w-10 h-10 mb-3 opacity-40" />
               <p className="text-sm font-medium">No items added yet</p>
               <p className="text-xs mt-1">Select services or medicines above to begin</p>
