@@ -14,6 +14,7 @@ export interface OPDPatient {
   patientType?: PatientType;
   phone?: string;
   medicalHistory?: string;
+  photo?: string;
 }
 
 export const opdPatients: OPDPatient[] = [
