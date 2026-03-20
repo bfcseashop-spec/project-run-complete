@@ -5,6 +5,9 @@ import {
 import StatCard from "@/components/StatCard";
 import PageHeader from "@/components/PageHeader";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { formatDualPrice, convertToSecondary } from "@/lib/currency";
+import { getSettings } from "@/data/settingsStore";
+import { useSettings } from "@/hooks/use-settings";
 
 const patientData = [
   { month: "Jan", patients: 120 }, { month: "Feb", patients: 145 },
@@ -47,6 +50,8 @@ const upcomingAppointments = [
 ];
 
 const Dashboard = () => {
+  const settings = useSettings();
+  
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your clinic's performance and activity" />
@@ -56,7 +61,7 @@ const Dashboard = () => {
         <StatCard icon={Users} title="Total Patients" value="1,284" change="+12% from last month" changeType="positive" />
         <StatCard icon={Stethoscope} title="Today's OPD" value="47" change="8 in queue" changeType="neutral" />
         <StatCard icon={TestTube} title="Pending Tests" value="23" change="-5 from yesterday" changeType="positive" />
-        <StatCard icon={DollarSign} title="Revenue (MTD)" value="$67,450" change="+18% from last month" changeType="positive" />
+        <StatCard icon={DollarSign} title="Revenue (MTD)" value={formatDualPrice(67450)} change="+18% from last month" changeType="positive" />
       </div>
 
       {/* Stats row 2 */}
@@ -88,8 +93,8 @@ const Dashboard = () => {
             <LineChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(210, 18%, 90%)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" />
-              <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" />
-              <Tooltip />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(215, 12%, 50%)" tickFormatter={(v) => formatDualPrice(v)} />
+              <Tooltip formatter={(value: number) => [formatDualPrice(value), "Revenue"]} />
               <Line type="monotone" dataKey="revenue" stroke="hsl(200, 80%, 45%)" strokeWidth={2} dot={{ fill: "hsl(200, 80%, 45%)" }} />
             </LineChart>
           </ResponsiveContainer>
