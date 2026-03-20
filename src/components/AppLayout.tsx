@@ -112,7 +112,30 @@ const LayoutInner = () => {
               <span className="hidden md:inline text-xs font-medium">Billing</span>
             </Button>
 
-            {/* Theme Shortcut */}
+            {/* Language Shortcut */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
+                  <Languages className="w-4 h-4" />
+                  <span className="hidden md:inline text-xs font-medium">{currentLang.flag} {currentLang.id}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Language</DropdownMenuLabel>
+                {availableLanguages.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.id}
+                    className="gap-2 cursor-pointer"
+                    onClick={() => updateAppSettings({ language: lang.id })}
+                  >
+                    <span className="text-base">{lang.flag}</span>
+                    <span className="text-sm">{lang.label}</span>
+                    {settings.language === lang.id && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
