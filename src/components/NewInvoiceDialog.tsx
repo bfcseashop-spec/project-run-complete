@@ -88,6 +88,11 @@ interface LineItem {
 interface CustomItem { name: string; price: number; qty: number; }
 interface MedicineItem { name: string; qty: number; }
 
+export interface SplitPayment {
+  method: string;
+  amount: number;
+}
+
 export interface InvoiceFormData {
   patient: string;
   doctor: string;
@@ -103,6 +108,7 @@ export interface InvoiceFormData {
   paymentMethod: string;
   lineItems: LineItem[];
   medicationTotal: number;
+  splitPayments?: SplitPayment[];
 }
 
 interface NewInvoiceDialogProps {
