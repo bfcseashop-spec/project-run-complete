@@ -103,6 +103,8 @@ const NewInvoicePage = () => {
   ]);
   const [activeTab, setActiveTab] = useState<"services" | "medicines">("services");
   const [showSummary, setShowSummary] = useState(true);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
