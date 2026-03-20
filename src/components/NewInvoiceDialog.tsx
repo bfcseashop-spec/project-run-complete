@@ -263,8 +263,16 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
     if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
     if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
-    if (paidAmount > 0) {
-      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:#6b7280">Paid</span><span>${formatPrice(paidAmount)}</span></div>`;
+    if (splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0) {
+      totalsHtml += `<div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:6px">`;
+      splitPayments.filter(sp => sp.amount > 0).forEach(sp => {
+        totalsHtml += `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:13px"><span style="color:#6b7280">${sp.method}</span><span>${formatPrice(sp.amount)}</span></div>`;
+      });
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Total Paid</span><span>${formatPrice(splitTotal)}</span></div>`;
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Due</span><span style="color:${dueAmount > 0 ? '#dc2626' : '#059669'}">${formatPrice(dueAmount)}</span></div>`;
+      totalsHtml += `</div>`;
+    } else if (effectivePaid > 0) {
+      totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:#6b7280">Paid</span><span>${formatPrice(effectivePaid)}</span></div>`;
       totalsHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600"><span style="color:#6b7280">Due</span><span style="color:${dueAmount > 0 ? '#dc2626' : '#059669'}">${formatPrice(dueAmount)}</span></div>`;
     }
     totalsHtml += `</div>`;
