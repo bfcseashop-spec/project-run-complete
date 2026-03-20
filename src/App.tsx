@@ -11,6 +11,7 @@ import PrescriptionPage from "@/pages/PrescriptionPage";
 import DoctorPage from "@/pages/DoctorPage";
 import DuesPage from "@/pages/DuesPage";
 import BillingPage from "@/pages/BillingPage";
+import NewInvoicePage from "@/pages/NewInvoicePage";
 import LabTestsPage from "@/pages/LabTestsPage";
 import AddTestPage from "@/pages/AddTestPage";
 import TestNamePage from "@/pages/TestNamePage";
