@@ -50,6 +50,8 @@ const upcomingAppointments = [
 ];
 
 const Dashboard = () => {
+  const settings = useSettings();
+  
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your clinic's performance and activity" />
@@ -59,7 +61,7 @@ const Dashboard = () => {
         <StatCard icon={Users} title="Total Patients" value="1,284" change="+12% from last month" changeType="positive" />
         <StatCard icon={Stethoscope} title="Today's OPD" value="47" change="8 in queue" changeType="neutral" />
         <StatCard icon={TestTube} title="Pending Tests" value="23" change="-5 from yesterday" changeType="positive" />
-        <StatCard icon={DollarSign} title="Revenue (MTD)" value="$67,450" change="+18% from last month" changeType="positive" />
+        <StatCard icon={DollarSign} title="Revenue (MTD)" value={formatDualPrice(67450)} change="+18% from last month" changeType="positive" />
       </div>
 
       {/* Stats row 2 */}
