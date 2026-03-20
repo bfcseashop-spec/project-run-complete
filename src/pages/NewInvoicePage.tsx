@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   Calendar, User, Stethoscope, Briefcase, Syringe, Package,
   Tag, DollarSign, Percent, CreditCard, Printer, Receipt, Save, Pill,
   Barcode, Trash2, FileText, Eye, Plus, X, ShoppingCart, Layers,
-  ArrowLeft, CircleDollarSign, SplitSquareHorizontal, ChevronRight,
+  ArrowLeft, CircleDollarSign, SplitSquareHorizontal, ChevronRight, CheckCircle,
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
@@ -48,8 +48,12 @@ const medicineOptions = [
 ];
 const paymentMethods = [
   { value: "Cash", label: "Cash", icon: DollarSign },
+  { value: "ABA", label: "ABA", icon: CreditCard },
+  { value: "ACleda", label: "ACleda", icon: CreditCard },
   { value: "Card", label: "Card", icon: CreditCard },
-  { value: "Mobile Pay", label: "Mobile Pay", icon: CreditCard },
+  { value: "Wing", label: "Wing", icon: CreditCard },
+  { value: "True Money", label: "True Money", icon: CreditCard },
+  { value: "Due", label: "Due", icon: CreditCard },
   { value: "Bank Transfer", label: "Bank Transfer", icon: CreditCard },
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
@@ -99,6 +103,8 @@ const NewInvoicePage = () => {
   ]);
   const [activeTab, setActiveTab] = useState<"services" | "medicines">("services");
   const [showSummary, setShowSummary] = useState(true);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
@@ -239,13 +245,62 @@ ${totalsHtml}
     } else {
       setPaidAmount(grandTotal);
     }
+    // Show the invoice preview instead of navigating away
+    setShowInvoice(true);
+    toast.success("Payment received — Invoice ready");
+  };
+
+  const handleConfirmAndSave = () => {
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",
       isEdit: !!editData,
     }));
-    toast.success("Payment received");
     goBack();
+  };
+
+  const handlePrintFromInvoice = () => {
+    const s = appSettings;
+    const invoiceItems = previewItems;
+    const rows = invoiceItems.map((item, i) =>
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(item.total)}</td></tr>`
+    ).join("");
+    let totalsHtml = `<div style="margin-left:auto;width:260px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
+    const paidLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(grandTotal)}</span></div>`;
+    const dueLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Due</span><span style="font-weight:600">${formatPrice(0)}</span></div>`;
+    totalsHtml += paidLine + dueLine + `</div>`;
+    const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatPrice(sp.amount)}`).join(", ") : paymentMethod;
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;padding:32px 40px}
+@media print{@page{margin:15mm}body{padding:20px 30px}}</style></head><body>
+<div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px">
+  <h1 style="font-size:22px;font-weight:700;color:#0f766e">${s.clinicName}</h1>
+  <p style="font-size:12px;color:#666;margin-top:2px">${s.clinicTagline}</p>
+  <p style="font-size:11px;color:#888;margin-top:6px">${s.clinicAddress} • ${s.clinicPhone}</p>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
+  <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
+  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${payMethodStr}</strong></p></div>
+</div>
+<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
+  <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
+  <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Description</th>
+  <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Amount</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+${totalsHtml}
+<p style="text-align:center;font-size:11px;color:#888;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px">Thank you for choosing ${s.clinicName}. Get well soon!</p>
+</body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 400);
   };
 
   const itemCount = lineItems.length;
@@ -584,6 +639,77 @@ ${totalsHtml}
           </div>
         )}
       </div>
+
+      {/* Invoice Preview Overlay after Payment */}
+      {showInvoice && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="bg-card rounded-2xl shadow-2xl border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div ref={invoiceRef} className="p-8 space-y-6 overflow-y-auto flex-1">
+              {/* Header */}
+              <div className="text-center border-b border-border pb-4">
+                <h2 className="text-xl font-bold text-primary">{appSettings.clinicName}</h2>
+                <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
+                <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
+              </div>
+              {/* Patient/Date row */}
+              <div className="flex justify-between text-sm">
+                <div className="space-y-1">
+                  <p><span className="text-muted-foreground">Patient:</span> <span className="font-semibold">{patient}</span></p>
+                  {doctor && <p><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{doctor}</span></p>}
+                </div>
+                <div className="text-right space-y-1">
+                  <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
+                  <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
+                </div>
+              </div>
+              {/* Items Table */}
+              <div className="border border-border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>#</span><span>Description</span><span className="text-right">Amount</span>
+                </div>
+                {previewItems.map((item, i) => (
+                  <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                    <span className="text-muted-foreground">{i + 1}</span>
+                    <span className="font-medium">{item.name}</span>
+                    <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Totals */}
+              <div className="ml-auto w-64 space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatPrice(subtotal)}</span></div>
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatPrice(discountAmount)}</span></div>}
+                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatPrice(taxAmount)}</span></div>}
+                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatPrice(grandTotal)}</span></div>
+                {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
+                  <>
+                    {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
+                      <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
+                    ))}
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                  </>
+                ) : (
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                )}
+                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatPrice(0)}</span></div>
+              </div>
+              <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
+            </div>
+            {/* Actions */}
+            <div className="px-6 pb-6 pt-2 flex gap-3 border-t border-border bg-muted/30">
+              <Button variant="outline" onClick={() => { setShowInvoice(false); }} className="flex-1">
+                <Eye className="w-4 h-4 mr-2" /> Back to Edit
+              </Button>
+              <Button variant="outline" onClick={handlePrintFromInvoice} className="flex-1 gap-2">
+                <Printer className="w-4 h-4" /> Print Invoice
+              </Button>
+              <Button onClick={handleConfirmAndSave} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
+                <CheckCircle className="w-4 h-4" /> Save & Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
