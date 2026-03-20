@@ -245,13 +245,62 @@ ${totalsHtml}
     } else {
       setPaidAmount(grandTotal);
     }
+    // Show the invoice preview instead of navigating away
+    setShowInvoice(true);
+    toast.success("Payment received — Invoice ready");
+  };
+
+  const handleConfirmAndSave = () => {
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",
       isEdit: !!editData,
     }));
-    toast.success("Payment received");
     goBack();
+  };
+
+  const handlePrintFromInvoice = () => {
+    const s = appSettings;
+    const invoiceItems = previewItems;
+    const rows = invoiceItems.map((item, i) =>
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(item.total)}</td></tr>`
+    ).join("");
+    let totalsHtml = `<div style="margin-left:auto;width:260px;font-size:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatPrice(grandTotal)}</span></div>`;
+    const paidLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(grandTotal)}</span></div>`;
+    const dueLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Due</span><span style="font-weight:600">${formatPrice(0)}</span></div>`;
+    totalsHtml += paidLine + dueLine + `</div>`;
+    const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatPrice(sp.amount)}`).join(", ") : paymentMethod;
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;padding:32px 40px}
+@media print{@page{margin:15mm}body{padding:20px 30px}}</style></head><body>
+<div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px">
+  <h1 style="font-size:22px;font-weight:700;color:#0f766e">${s.clinicName}</h1>
+  <p style="font-size:12px;color:#666;margin-top:2px">${s.clinicTagline}</p>
+  <p style="font-size:11px;color:#888;margin-top:6px">${s.clinicAddress} • ${s.clinicPhone}</p>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
+  <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
+  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${payMethodStr}</strong></p></div>
+</div>
+<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
+  <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
+  <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Description</th>
+  <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Amount</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+${totalsHtml}
+<p style="text-align:center;font-size:11px;color:#888;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px">Thank you for choosing ${s.clinicName}. Get well soon!</p>
+</body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 400);
   };
 
   const itemCount = lineItems.length;
