@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Eye, Printer } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Pencil, Trash2, Eye, Printer, Search } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { opdPatients, type OPDPatient } from "@/data/opdPatients";
+import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
 import {
@@ -19,13 +21,29 @@ import {
 
 initPatients(opdPatients);
 
+const bloodTypes: BloodType[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+const patientTypes: PatientType[] = ["Walk In", "Indoor", "Outdoor", "Emergency"];
+
 const OPDPage = () => {
   const [patients, setPatients] = useState<OPDPatient[]>(getPatients());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
+  const [search, setSearch] = useState("");
+  const [filterBlood, setFilterBlood] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
 
   useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
+
+  const filteredPatients = useMemo(() => {
+    return patients.filter((p) => {
+      const q = search.toLowerCase();
+      const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.complaint.toLowerCase().includes(q) || p.doctor.toLowerCase().includes(q) || (p.phone || "").includes(q);
+      const matchesBlood = filterBlood === "all" || p.bloodType === filterBlood;
+      const matchesType = filterType === "all" || p.patientType === filterType;
+      return matchesSearch && matchesBlood && matchesType;
+    });
+  }, [patients, search, filterBlood, filterType]);
 
   const handleRegister = (patient: OPDPatient) => {
     if (editPatient) {
