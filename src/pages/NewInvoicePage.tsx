@@ -489,7 +489,7 @@ ${totalsHtml}
                     <Input type="number" min={1} value={li.qty}
                       onChange={(e) => updateItemQty(li.id, parseInt(e.target.value) || 1)}
                       className="w-14 h-7 text-center text-xs px-1 border-border mx-auto" />
-                    <span className="text-sm font-semibold text-primary tabular-nums text-right">{formatPrice(li.price * li.qty)}</span>
+                    <span className="text-sm font-semibold text-primary tabular-nums text-right">{formatDualPrice(li.price * li.qty)}</span>
                     <Button variant="ghost" size="sm"
                       className="h-6 w-6 p-0 ml-auto text-destructive/40 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => removeItem(li.id)}>
