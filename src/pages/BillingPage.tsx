@@ -192,7 +192,7 @@ const BillingPage = () => {
         `<tr><td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
          <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
          <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:11px;color:#94a3b8">${sub.qty}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
          <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
          <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
       ).join("");
