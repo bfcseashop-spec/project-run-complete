@@ -253,7 +253,6 @@ const LabTestsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Tests" description="Order, track, and manage laboratory tests with sample tracking and result entry">
-        <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Order Test</Button>
       </PageHeader>
 
       <DataToolbar dateFilter={labToolbar.dateFilter} onDateFilterChange={labToolbar.setDateFilter} viewMode={labToolbar.viewMode} onViewModeChange={labToolbar.setViewMode} onExportExcel={labToolbar.handleExportExcel} onExportPDF={labToolbar.handleExportPDF} onImport={handleImportTests} onDownloadSample={labToolbar.handleDownloadSample} />
