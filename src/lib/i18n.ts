@@ -44,6 +44,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     frequency: "Frequency", duration: "Duration", dosage: "Dosage", injection: "Injection",
     systemManage: "System Manage",
     refund: "Refund",
+    addService: "Add Service",
+    healthPackages: "Packages",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
