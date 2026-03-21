@@ -94,7 +94,7 @@ const BillingPage = () => {
       const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
-      setBillingData((prev) => [record, ...prev]);
+      addBillingRecord(record);
     } catch { /* ignore */ }
   }, []);
 
