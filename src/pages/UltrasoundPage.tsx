@@ -48,7 +48,7 @@ const regionIcons: Record<string, React.ElementType> = {
 const emptyForm: Omit<UltrasoundRecord, "id"> = {
   patient: "", examination: "", doctor: "", date: new Date().toISOString().split("T")[0],
   reportDate: "", status: "pending", region: "abdomen", findings: "",
-  impression: "", remarks: "",
+  impression: "", remarks: "", images: [],
 };
 
 function printReport(r: UltrasoundRecord, clinic: { name: string; tagline: string; phone: string; email: string; address: string; regNumber: string }) {
