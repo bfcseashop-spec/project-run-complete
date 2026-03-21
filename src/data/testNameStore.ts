@@ -1,4 +1,4 @@
-import { labTestNames, sampleTypes } from "@/data/labTests";
+import { labTestNames, sampleTypes as defaultSampleTypes } from "@/data/labTests";
 
 export interface TestNameEntry {
   id: string;
@@ -11,10 +11,13 @@ export interface TestNameEntry {
   active: boolean;
 }
 
-export const testCategories = [
+export const defaultCategories = [
   "Hematology", "Biochemistry", "Microbiology", "Immunology",
   "Radiology", "Cardiology", "Urology", "Endocrinology", "General",
 ];
+
+// Keep backward compat export
+export const testCategories = defaultCategories;
 
 const initialTests: TestNameEntry[] = labTestNames.map((name, i) => ({
   id: `TN-${(i + 1).toString().padStart(3, "0")}`,
@@ -29,6 +32,8 @@ const initialTests: TestNameEntry[] = labTestNames.map((name, i) => ({
 
 // Simple module-level mutable store so all pages share the same list
 let _tests: TestNameEntry[] = [...initialTests];
+let _categories: string[] = [...defaultCategories];
+let _sampleTypes: string[] = [...defaultSampleTypes];
 let _listeners: Array<() => void> = [];
 
 function notify() {
@@ -57,6 +62,32 @@ export const testNameStore = {
 
   removeTest: (id: string) => {
     _tests = _tests.filter((t) => t.id !== id);
+    notify();
+  },
+
+  // Category management
+  getCategories: () => _categories,
+  addCategory: (name: string) => {
+    if (!_categories.includes(name)) {
+      _categories = [..._categories, name];
+      notify();
+    }
+  },
+  removeCategory: (name: string) => {
+    _categories = _categories.filter((c) => c !== name);
+    notify();
+  },
+
+  // Sample type management
+  getSampleTypes: () => _sampleTypes,
+  addSampleType: (name: string) => {
+    if (!_sampleTypes.includes(name)) {
+      _sampleTypes = [..._sampleTypes, name];
+      notify();
+    }
+  },
+  removeSampleType: (name: string) => {
+    _sampleTypes = _sampleTypes.filter((s) => s !== name);
     notify();
   },
 
