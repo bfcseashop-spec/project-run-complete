@@ -94,36 +94,36 @@ const Dashboard = () => {
   }, [filteredBilling]);
 
   return (
-    <div className="space-y-6 w-full">
-      {/* ── Bold Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-6 text-primary-foreground">
+    <div className="space-y-7 w-full">
+      {/* ── Welcome Banner ── */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-7 text-primary-foreground">
         <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/5" />
         <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
-            <p className="text-primary-foreground/60 text-sm mt-1">
+            <h1 className="text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
+            <p className="text-primary-foreground/60 text-base mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Activity className="w-4 h-4" />
-              <span className="text-base font-bold font-number">47</span>
-              <span className="text-xs opacity-70">patients</span>
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 backdrop-blur-sm">
+              <Activity className="w-5 h-5" />
+              <span className="text-xl font-bold font-number">47</span>
+              <span className="text-sm opacity-70">patients</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Clock className="w-4 h-4" />
-              <span className="text-base font-bold font-number">8</span>
-              <span className="text-xs opacity-70">in queue</span>
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 backdrop-blur-sm">
+              <Clock className="w-5 h-5" />
+              <span className="text-xl font-bold font-number">8</span>
+              <span className="text-sm opacity-70">in queue</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Today's Data ── */}
+      {/* ── Today's Data (includes stats + payment methods) ── */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-black font-heading text-foreground">📊 Today's Data</h2>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-black font-heading text-foreground">📊 Today's Data</h2>
           <DashboardDateFilter
             preset={filterPreset}
             customRange={customRange}
@@ -137,19 +137,22 @@ const Dashboard = () => {
           <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 50%, 38%)" />
           <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(260, 45%, 50%)" />
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 70%, 48%)" />
           <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 50%, 50%)" />
           <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 50%, 42%)" />
           <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 50%, 50%)" />
         </div>
+
+        {/* Payment Methods — inside Today's Data, shares the same date filter */}
+        <PaymentMethodChart data={paymentData} />
       </div>
 
-      {/* ── Quick Actions (colorful icon buttons) ── */}
+      {/* ── Quick Actions ── */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-black font-heading text-foreground">⚡ Quick Actions</h2>
-          <a href="/system" className="text-xs font-bold text-primary hover:underline">View All →</a>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-black font-heading text-foreground">⚡ Quick Actions</h2>
+          <a href="/system" className="text-sm font-bold text-primary hover:underline">View All →</a>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {operationsData.map((op, i) => (
@@ -159,14 +162,14 @@ const Dashboard = () => {
               className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
                 style={{ background: op.bg }}
               >
-                <op.icon className="w-5 h-5 text-white" />
+                <op.icon className="w-5.5 h-5.5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-bold text-card-foreground group-hover:text-primary transition-colors">{op.label}</p>
-                <p className="text-[10px] text-muted-foreground">{op.desc}</p>
+                <p className="text-sm font-bold text-card-foreground group-hover:text-primary transition-colors">{op.label}</p>
+                <p className="text-xs text-muted-foreground">{op.desc}</p>
               </div>
               <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
             </a>
@@ -179,28 +182,28 @@ const Dashboard = () => {
         {/* Live Activity */}
         <div className="bg-card rounded-2xl border border-border/40 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black text-card-foreground font-heading flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <Zap className="w-3.5 h-3.5 text-emerald-500" />
+            <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-success/20 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-success" />
               </span>
               Live Activity
             </h3>
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
             </span>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {recentActivity.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/50 transition-colors">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm" style={{ background: `${a.color}20` }}>
-                  <a.icon className="w-4 h-4" style={{ color: a.color }} />
+              <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm" style={{ background: `${a.color}20` }}>
+                  <a.icon className="w-4.5 h-4.5" style={{ color: a.color }} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-semibold text-card-foreground truncate">{a.description}</p>
+                  <p className="text-sm font-semibold text-card-foreground truncate">{a.description}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{ background: `${a.color}15`, color: a.color }}>{a.type}</span>
-                    <span className="text-[10px] text-muted-foreground">{a.time}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{ background: `${a.color}15`, color: a.color }}>{a.type}</span>
+                    <span className="text-xs text-muted-foreground">{a.time}</span>
                   </div>
                 </div>
               </div>
@@ -211,30 +214,30 @@ const Dashboard = () => {
         {/* Schedule */}
         <div className="bg-card rounded-2xl border border-border/40 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black text-card-foreground font-heading flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Calendar className="w-3.5 h-3.5 text-primary" />
+            <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-primary" />
               </span>
               Schedule
             </h3>
-            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-lg">TODAY</span>
+            <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">TODAY</span>
           </div>
           <div className="space-y-2.5">
             {upcomingAppointments.map((a, i) => (
               <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors" style={{ background: `${a.color}08` }}>
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0 shadow-sm"
                   style={{ background: a.color }}
                 >
                   {a.avatar}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-bold text-card-foreground truncate">{a.patient}</p>
-                  <p className="text-[10px] text-muted-foreground">{a.doctor}</p>
+                  <p className="text-sm font-bold text-card-foreground truncate">{a.patient}</p>
+                  <p className="text-xs text-muted-foreground">{a.doctor}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-[12px] font-black font-number" style={{ color: a.color }}>{a.time}</p>
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">{a.type}</p>
+                  <p className="text-sm font-bold font-number" style={{ color: a.color }}>{a.time}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">{a.type}</p>
                 </div>
               </div>
             ))}
@@ -244,9 +247,9 @@ const Dashboard = () => {
         {/* Weekly + Department */}
         <div className="flex flex-col gap-4">
           <div className="bg-card rounded-2xl border border-border/40 p-5">
-            <h3 className="text-sm font-black text-card-foreground font-heading mb-3">📈 This Week</h3>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={weeklyData} barSize={22}>
+            <h3 className="text-base font-bold text-card-foreground font-heading mb-3">📈 This Week</h3>
+            <ResponsiveContainer width="100%" height={130}>
+              <BarChart data={weeklyData} barSize={24}>
                 <defs>
                   <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
@@ -254,28 +257,28 @@ const Dashboard = () => {
                   </linearGradient>
                 </defs>
                 <Bar dataKey="visits" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "11px", fontWeight: 700 }} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           <div className="bg-card rounded-2xl border border-border/40 p-5 flex-1">
-            <h3 className="text-sm font-black text-card-foreground font-heading mb-3">🏥 Departments</h3>
+            <h3 className="text-base font-bold text-card-foreground font-heading mb-3">🏥 Departments</h3>
             <div className="flex items-center gap-4">
-              <ResponsiveContainer width={100} height={100}>
+              <ResponsiveContainer width={110} height={110}>
                 <PieChart>
-                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={30} outerRadius={48} dataKey="value" paddingAngle={3} strokeWidth={0}>
+                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={32} outerRadius={52} dataKey="value" paddingAngle={3} strokeWidth={0}>
                     {departmentData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-              <div className="space-y-2 flex-1">
+              <div className="space-y-2.5 flex-1">
                 {departmentData.map((d, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-md" style={{ backgroundColor: d.fill }} />
-                    <span className="text-[11px] font-semibold text-card-foreground flex-1">{d.name}</span>
-                    <span className="text-[11px] font-bold font-number" style={{ color: d.fill }}>{d.value}%</span>
+                    <span className="text-sm font-semibold text-card-foreground flex-1">{d.name}</span>
+                    <span className="text-sm font-bold font-number" style={{ color: d.fill }}>{d.value}%</span>
                   </div>
                 ))}
               </div>
@@ -283,9 +286,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* ── Payment Methods ── */}
-      <PaymentMethodChart data={paymentData} />
     </div>
   );
 };
