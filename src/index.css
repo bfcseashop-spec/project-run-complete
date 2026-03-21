@@ -106,6 +106,11 @@
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
   }
+
+  .font-number {
+    font-family: var(--font-number);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @layer utilities {
