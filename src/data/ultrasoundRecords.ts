@@ -1,3 +1,7 @@
+import { type XRayImage } from "@/data/xrayRecords";
+
+export type UltrasoundImage = XRayImage;
+
 export interface UltrasoundRecord {
   id: string;
   patient: string;
@@ -10,17 +14,18 @@ export interface UltrasoundRecord {
   findings: string;
   impression: string;
   remarks: string;
+  images: UltrasoundImage[];
 }
 
 export const ultrasoundRecords: UltrasoundRecord[] = [
-  { id: "US-3001", patient: "Sarah Johnson", examination: "Whole Abdomen USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "2026-03-19", status: "completed", region: "abdomen", findings: "Normal liver, GB, pancreas, spleen, kidneys", impression: "Normal study", remarks: "No focal lesion seen" },
-  { id: "US-3002", patient: "Michael Chen", examination: "Obstetric USG (2nd Trimester)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "pending", region: "obstetric", findings: "", impression: "", remarks: "" },
-  { id: "US-3003", patient: "Emily Davis", examination: "Thyroid USG", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "2026-03-18", status: "completed", region: "thyroid", findings: "Small nodule right lobe", impression: "Benign thyroid nodule (TIRADS 2)", remarks: "6mm hypoechoic nodule, follow-up in 6 months" },
-  { id: "US-3004", patient: "James Wilson", examination: "Pelvic USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "", status: "in-progress", region: "pelvis", findings: "", impression: "", remarks: "Scan in progress" },
-  { id: "US-3005", patient: "Maria Garcia", examination: "Breast USG (Bilateral)", doctor: "Dr. Smith", date: "2026-03-17", reportDate: "2026-03-18", status: "completed", region: "breast", findings: "Normal bilateral breast parenchyma", impression: "BIRADS 1 - Normal", remarks: "No mass or cyst identified" },
-  { id: "US-3006", patient: "Robert Brown", examination: "Carotid Doppler", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "", status: "pending", region: "vascular", findings: "", impression: "", remarks: "" },
-  { id: "US-3007", patient: "Linda Martinez", examination: "Echocardiography", doctor: "Dr. Patel", date: "2026-03-18", reportDate: "2026-03-19", status: "completed", region: "cardiac", findings: "Normal LV function, EF 60%", impression: "Normal echocardiogram", remarks: "No valvular abnormality" },
-  { id: "US-3008", patient: "David Kim", examination: "Musculoskeletal USG (Right Shoulder)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "in-progress", region: "musculoskeletal", findings: "", impression: "", remarks: "Evaluating rotator cuff" },
+  { id: "US-3001", patient: "Sarah Johnson", examination: "Whole Abdomen USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "2026-03-19", status: "completed", region: "abdomen", findings: "Normal liver, GB, pancreas, spleen, kidneys", impression: "Normal study", remarks: "No focal lesion seen", images: [] },
+  { id: "US-3002", patient: "Michael Chen", examination: "Obstetric USG (2nd Trimester)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "pending", region: "obstetric", findings: "", impression: "", remarks: "", images: [] },
+  { id: "US-3003", patient: "Emily Davis", examination: "Thyroid USG", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "2026-03-18", status: "completed", region: "thyroid", findings: "Small nodule right lobe", impression: "Benign thyroid nodule (TIRADS 2)", remarks: "6mm hypoechoic nodule, follow-up in 6 months", images: [] },
+  { id: "US-3004", patient: "James Wilson", examination: "Pelvic USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "", status: "in-progress", region: "pelvis", findings: "", impression: "", remarks: "Scan in progress", images: [] },
+  { id: "US-3005", patient: "Maria Garcia", examination: "Breast USG (Bilateral)", doctor: "Dr. Smith", date: "2026-03-17", reportDate: "2026-03-18", status: "completed", region: "breast", findings: "Normal bilateral breast parenchyma", impression: "BIRADS 1 - Normal", remarks: "No mass or cyst identified", images: [] },
+  { id: "US-3006", patient: "Robert Brown", examination: "Carotid Doppler", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "", status: "pending", region: "vascular", findings: "", impression: "", remarks: "", images: [] },
+  { id: "US-3007", patient: "Linda Martinez", examination: "Echocardiography", doctor: "Dr. Patel", date: "2026-03-18", reportDate: "2026-03-19", status: "completed", region: "cardiac", findings: "Normal LV function, EF 60%", impression: "Normal echocardiogram", remarks: "No valvular abnormality", images: [] },
+  { id: "US-3008", patient: "David Kim", examination: "Musculoskeletal USG (Right Shoulder)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "in-progress", region: "musculoskeletal", findings: "", impression: "", remarks: "Evaluating rotator cuff", images: [] },
 ];
 
 export const regions = [
