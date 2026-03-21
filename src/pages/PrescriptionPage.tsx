@@ -57,7 +57,8 @@ const initialPrescriptions: Prescription[] = [
 ];
 
 const PrescriptionPage = () => {
-  useSettings(); // subscribe to currency/language changes
+  useSettings();
+  const s = getSettings();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>(initialPrescriptions);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRx, setViewRx] = useState<Prescription | null>(null);
