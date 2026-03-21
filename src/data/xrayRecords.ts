@@ -1,3 +1,11 @@
+export interface XRayImage {
+  id: string;
+  name: string;
+  url: string;
+  type: "image" | "pdf";
+  size: number;
+}
+
 export interface XRayRecord {
   id: string;
   patient: string;
@@ -10,6 +18,7 @@ export interface XRayRecord {
   findings: string;
   impression: string;
   remarks: string;
+  images: XRayImage[];
 }
 
 export const xrayRecords: XRayRecord[] = [
