@@ -60,7 +60,8 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
     .map(([, g]) => {
       const total = g.items.reduce((s, li) => s + li.price * li.qty, 0);
       const qty = g.items.reduce((s, li) => s + li.qty, 0);
-      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total };
+      const subItems = g.items.map((li) => ({ name: li.name, price: li.price, qty: li.qty, total: li.price * li.qty }));
+      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total, subItems };
     });
 };
 

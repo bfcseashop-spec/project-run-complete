@@ -186,13 +186,14 @@ const NewInvoicePage = () => {
       CUSTOM: { items: [], label: "Custom Items" },
     };
     lineItems.forEach((li) => groups[li.type].items.push(li));
-    const result: { name: string; type: LineItemType; description: string; price: number; qty: number; total: number }[] = [];
+    const result: { name: string; type: LineItemType; description: string; price: number; qty: number; total: number; subItems: { name: string; price: number; qty: number; total: number }[] }[] = [];
     (Object.keys(groups) as LineItemType[]).forEach((type) => {
       const { items, label } = groups[type];
       if (items.length === 0) return;
       const total = items.reduce((s, li) => s + li.price * li.qty, 0);
       const totalQty = items.reduce((s, li) => s + li.qty, 0);
-      result.push({ name: label, type, description: `${items.length} item(s)`, price: total, qty: totalQty, total });
+      const subItems = items.map((li) => ({ name: li.name, price: li.price, qty: li.qty, total: li.price * li.qty }));
+      result.push({ name: label, type, description: `${items.length} item(s)`, price: total, qty: totalQty, total, subItems });
     });
     return result;
   }, [lineItems]);
