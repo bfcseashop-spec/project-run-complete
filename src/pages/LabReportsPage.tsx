@@ -247,17 +247,17 @@ const LabReportsPage = () => {
   const handleImportReports = async (file: File) => {
     const rows = await reportToolbar.handleImport(file);
     if (rows.length > 0) {
-      const nextNum = reports.length > 0 ? Math.max(...reports.map(r => parseInt(r.id.split("-")[1]))) + 1 : 1001;
-      const newReports: LabReport[] = rows.map((row, i) => ({
-        id: `LR-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
-        age: Number(row.age) || 0, gender: (row.gender as LabReport["gender"]) || "Male",
-        testName: String(row.testName || ""), doctor: String(row.doctor || ""),
-        date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
-        status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
-        sampleType: "Blood", collectedAt: "", reportedAt: "",
-        technician: "", pathologist: "", instrument: "", sections: [],
-      }));
-      setReports((prev) => [...newReports, ...prev]);
+      rows.forEach((row) => {
+        addLabReport({
+          patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+          age: Number(row.age) || 0, gender: (row.gender as LabReport["gender"]) || "Male",
+          testName: String(row.testName || ""), doctor: String(row.doctor || ""),
+          date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
+          status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
+          sampleType: "Blood", collectedAt: "", reportedAt: "",
+          technician: "", pathologist: "", instrument: "", sections: [],
+        });
+      });
     }
   };
 
