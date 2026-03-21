@@ -12,6 +12,19 @@ import { Paintbrush, Type, Palette, Sun, Moon, Monitor, Check } from "lucide-rea
 import { toast } from "sonner";
 
 /* ── Font options ── */
+const numberFontFamilies = [
+  { label: "Same as Body Font", value: "__same__", import: "" },
+  { label: "Inter (Default)", value: "'Inter', system-ui, sans-serif", import: "Inter:wght@300;400;500;600;700" },
+  { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", import: "JetBrains+Mono:wght@400;500;600;700" },
+  { label: "Roboto Mono", value: "'Roboto Mono', monospace", import: "Roboto+Mono:wght@400;500;600;700" },
+  { label: "Space Grotesk", value: "'Space Grotesk', sans-serif", import: "Space+Grotesk:wght@400;500;600;700" },
+  { label: "Outfit", value: "'Outfit', sans-serif", import: "Outfit:wght@400;500;600;700" },
+  { label: "DM Sans", value: "'DM Sans', sans-serif", import: "DM+Sans:wght@400;500;700" },
+  { label: "Barlow", value: "'Barlow', sans-serif", import: "Barlow:wght@400;500;600;700" },
+  { label: "Oswald", value: "'Oswald', sans-serif", import: "Oswald:wght@400;500;600;700" },
+  { label: "Bebas Neue", value: "'Bebas Neue', sans-serif", import: "Bebas+Neue" },
+  { label: "Orbitron", value: "'Orbitron', sans-serif", import: "Orbitron:wght@400;500;600;700" },
+];
 const fontFamilies = [
   { label: "Inter (Default)", value: "'Inter', system-ui, sans-serif", import: "Inter:wght@300;400;500;600;700" },
   { label: "Spectral", value: "'Spectral', serif", import: "Spectral:wght@300;400;500;600;700" },
