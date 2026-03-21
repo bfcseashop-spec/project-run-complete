@@ -464,7 +464,7 @@ const XRayPage = () => {
               {formImages.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                   {formImages.map((img) => (
-                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30">
+                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30 cursor-pointer" onClick={() => openLightbox(formImages, formImages.indexOf(img))}>
                       {img.type === "image" ? (
                         <img src={img.url} alt={img.name} className="w-full h-24 object-cover" />
                       ) : (
