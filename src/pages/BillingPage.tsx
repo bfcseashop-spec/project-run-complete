@@ -60,7 +60,8 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
     .map(([, g]) => {
       const total = g.items.reduce((s, li) => s + li.price * li.qty, 0);
       const qty = g.items.reduce((s, li) => s + li.qty, 0);
-      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total };
+      const subItems = g.items.map((li) => ({ name: li.name, price: li.price, qty: li.qty, total: li.price * li.qty }));
+      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total, subItems };
     });
 };
 
@@ -179,15 +180,24 @@ const BillingPage = () => {
     const p = patients.find((pt) => pt.name === record.patient);
     const d = doctors.find((doc) => doc.name === record.formData?.doctor);
     const items = record.formData?.lineItems;
-    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
-    const rows = grouped.map((item, i) =>
-      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0, subItems: [] as { name: string; price: number; qty: number; total: number }[] }));
+    const rows = grouped.map((item, i) => {
+      const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:13px">${item.name}</td>
        <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px">${item.qty}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.price)}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`
-    ).join("");
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px;font-weight:600">${item.qty}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600">${formatPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
+      const subRows = (item.subItems || []).map((sub: any) =>
+        `<tr><td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:11px;color:#94a3b8">${sub.qty}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
+      ).join("");
+      return mainRow + subRows;
+    }).join("");
     let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
       <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(record.amount)}</span></div>`;
     if (record.discount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(record.discount)}</span></div>`;
@@ -317,7 +327,7 @@ const BillingPage = () => {
             const items = viewRecord.formData?.lineItems;
             const grouped = items && items.length > 0
               ? groupLineItems(items)
-              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0, subItems: [] as { name: string; price: number; qty: number; total: number }[] }));
             return (
               <>
                 <div className="p-8 space-y-5 relative" ref={printRef}>
@@ -356,13 +366,25 @@ const BillingPage = () => {
                       <span>#</span><span>Item</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Total</span>
                     </div>
                     {grouped.map((item, i) => (
-                      <div key={i} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
-                        <span className="text-muted-foreground">{i + 1}</span>
-                        <span className="font-medium">{item.name}</span>
-                        <span className="text-xs text-muted-foreground">{item.description}</span>
-                        <span className="text-center">{item.qty}</span>
-                        <span className="text-right tabular-nums">{formatPrice(item.price)}</span>
-                        <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                      <div key={i}>
+                        <div className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm bg-muted/30">
+                          <span className="text-muted-foreground">{i + 1}</span>
+                          <span className="font-semibold">{item.name}</span>
+                          <span className="text-xs text-muted-foreground">{item.description}</span>
+                          <span className="text-center font-medium">{item.qty}</span>
+                          <span className="text-right tabular-nums font-medium">{formatPrice(item.price)}</span>
+                          <span className="text-right font-bold tabular-nums">{formatPrice(item.total)}</span>
+                        </div>
+                        {(item.subItems || []).map((sub: any, j: number) => (
+                          <div key={j} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-1.5 border-t border-border/40 items-center text-xs text-muted-foreground/70">
+                            <span></span>
+                            <span className="pl-3">↳ {sub.name}</span>
+                            <span></span>
+                            <span className="text-center">{sub.qty}</span>
+                            <span className="text-right tabular-nums">{formatPrice(sub.price)}</span>
+                            <span className="text-right tabular-nums">{formatPrice(sub.total)}</span>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
