@@ -1,6 +1,6 @@
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText } from "lucide-react";
 import { sampleTypes } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { testCategories, type TestNameEntry } from "@/data/testNameStore";
 import { encodeCode128B, barcodeSVG } from "@/lib/barcode";
+import { exportToExcel, exportToPDF, generateSampleExcel, importFromExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 
 const TestNamePage = () => {
   useSettings();
   const store = useTestNameStore();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -151,6 +154,68 @@ const TestNamePage = () => {
 
   const activeCount = store.tests.filter((t) => t.active).length;
 
+  const exportColumns = [
+    { key: "id", header: "ID" },
+    { key: "name", header: "Test Name" },
+    { key: "category", header: "Category" },
+    { key: "sampleType", header: "Sample Type" },
+    { key: "normalRange", header: "Normal Range" },
+    { key: "unit", header: "Unit" },
+    { key: "price", header: "Price" },
+    { key: "active", header: "Active" },
+  ];
+
+  const handleExportExcel = () => {
+    exportToExcel(filtered as unknown as Record<string, unknown>[], exportColumns, "Test_Names");
+    toast.success(`Exported ${filtered.length} tests to Excel`);
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF(filtered as unknown as Record<string, unknown>[], exportColumns, "Test Name Management");
+  };
+
+  const handleDownloadSample = () => {
+    generateSampleExcel(exportColumns, "Test_Names");
+    toast.success("Sample template downloaded");
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const rows = await importFromExcel(file, exportColumns);
+      let added = 0;
+      rows.forEach((row) => {
+        const name = String(row.name || "").trim();
+        if (!name) return;
+        if (store.findByName(name)) return; // skip duplicates
+        store.addTest({
+          name,
+          category: String(row.category || "General"),
+          sampleType: String(row.sampleType || "blood"),
+          normalRange: String(row.normalRange || "-"),
+          unit: String(row.unit || ""),
+          price: Number(row.price) || 0,
+          active: row.active !== false && row.active !== "false" && row.active !== "Inactive",
+        });
+        added++;
+      });
+      toast.success(`Imported ${added} new tests (${rows.length - added} skipped as duplicates)`);
+    } catch {
+      toast.error("Failed to import file. Please check the format.");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls") && !file.name.endsWith(".csv")) {
+        toast.error("Please upload an Excel (.xlsx/.xls) or CSV file");
+        return;
+      }
+      handleImportFile(file);
+      e.target.value = "";
+    }
+  };
+
   return (
     <div>
       <PageHeader title="Test Name Management" description="Manage available lab test names, pricing, and categories" />
@@ -191,6 +256,35 @@ const TestNamePage = () => {
                 </SelectContent>
               </Select>
               <Button onClick={openAdd} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Test</Button>
+              {/* Import */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5"><Upload className="w-3.5 h-3.5" /> Import</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => fileRef.current?.click()}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Import Excel File
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadSample}>
+                    <Download className="w-4 h-4 mr-2" /> Download Sample File
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
+              {/* Export */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5"><Download className="w-3.5 h-3.5" /> Export</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Export as Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileText className="w-4 h-4 mr-2" /> Export as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               {selectedIds.size > 0 && (
                 <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
                   <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
