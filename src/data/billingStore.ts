@@ -16,7 +16,8 @@ export interface BillingRecord {
   formData?: InvoiceFormData;
 }
 
-const li = (id: string, type: string, name: string, price: number, qty: number) => ({ id, type, name, price, qty });
+type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
+const li = (id: string, type: LineItemType, name: string, price: number, qty: number) => ({ id, type, name, price, qty });
 
 const initialData: BillingRecord[] = [
   { id: "BIL-001", patient: "Sarah Johnson", service: "Lab Test + Consultation", amount: 350, discount: 20, tax: 16.5, total: 346.5, paid: 346.5, due: 0, date: "2026-03-19", status: "completed", method: "Cash",
