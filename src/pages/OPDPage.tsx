@@ -13,6 +13,7 @@ import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
+import ViewPatientDialog from "@/components/ViewPatientDialog";
 import PatientVisitSummary from "@/components/PatientVisitSummary";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -29,6 +30,7 @@ const OPDPage = () => {
   const [patients, setPatients] = useState<OPDPatient[]>(getPatients());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
+  const [viewPatient, setViewPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
   const [summaryPatient, setSummaryPatient] = useState<OPDPatient | null>(null);
   const [search, setSearch] = useState("");
@@ -113,7 +115,7 @@ const OPDPage = () => {
         return (
           <div className="flex items-center gap-0.5">
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Visit Summary" onClick={() => setSummaryPatient(p)}><ClipboardList className="w-3.5 h-3.5 text-primary" /></Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Patient Record", fields, photo: p.photo })}><Eye className="w-3.5 h-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewPatient(p)}><Eye className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields, photo: p.photo })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
@@ -208,6 +210,11 @@ const OPDPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ViewPatientDialog
+        open={!!viewPatient}
+        onOpenChange={(open) => { if (!open) setViewPatient(null); }}
+        patient={viewPatient}
+      />
       <PatientVisitSummary
         open={!!summaryPatient}
         onOpenChange={(open) => { if (!open) setSummaryPatient(null); }}
