@@ -329,14 +329,7 @@ const RefundPage = () => {
       render: (r: RefundRecord) => (
         <div className="flex items-center gap-0.5">
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" onClick={() => setViewRecord(r)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Refund Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Invoice", value: r.invoiceId },
-              { label: "Items", value: r.items.map(i => `${i.name} x${i.qty}`).join(", ") },
-              { label: "Total Refund", value: formatDualPrice(r.totalRefund) }, { label: "Method", value: r.method },
-              { label: "Reason", value: r.reason }, { label: "Date", value: r.date },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" onClick={() => printRefundReceiptForRecord(r)}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" onClick={() => setDeleteRecord(r)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
         </div>
       ),
