@@ -75,6 +75,13 @@ const PrescriptionPage = () => {
       : [{ name: "", dosage: "", frequency: "", duration: "" }],
     injections: rx.injections || [],
     tests: rx.tests || [],
+    chiefComplaint: rx.chiefComplaint || "",
+    onExamination: rx.onExamination || "",
+    investigation: rx.investigation || "",
+    diagnosis: rx.diagnosis || "",
+    treatmentPlan: rx.treatmentPlan || "",
+    advices: rx.advices || "",
+    followUp: rx.followUp || "",
   });
 
   const handleSubmit = (data: PrescriptionFormData) => {
