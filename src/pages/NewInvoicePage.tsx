@@ -247,9 +247,9 @@ const NewInvoicePage = () => {
       return mainRow + subRows;
     }).join("");
     let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatDualPrice(taxAmount)}</span></div>`;
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div></div>`;
     const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod;
     const win = window.open("", "_blank", "width=800,height=900");
