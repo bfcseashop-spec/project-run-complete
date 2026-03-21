@@ -332,10 +332,14 @@ const XRayPage = () => {
               )}
               {viewRecord.images && viewRecord.images.length > 0 && (
                 <div>
-                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length})</p>
+                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length}) — click to view fullscreen</p>
                   <div className="grid grid-cols-3 gap-2">
-                    {viewRecord.images.map((img) => (
-                      <div key={img.id} className="border border-border rounded-md overflow-hidden">
+                    {viewRecord.images.map((img, idx) => (
+                      <div
+                        key={img.id}
+                        className="border border-border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        onClick={() => openLightbox(viewRecord.images, idx)}
+                      >
                         {img.type === "image" ? (
                           <img src={img.url} alt={img.name} className="w-full h-20 object-cover" />
                         ) : (
