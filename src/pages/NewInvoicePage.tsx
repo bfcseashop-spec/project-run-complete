@@ -178,8 +178,8 @@ const NewInvoicePage = () => {
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
 
   const previewItems = useMemo(() => {
-    const items = nonMedicineItems.map((li) => ({ name: li.name, type: li.type, total: li.price * li.qty }));
-    if (medicationItems.length > 0) items.push({ name: "Medication", type: "MED" as LineItemType, total: medicationTotal });
+    const items = nonMedicineItems.map((li) => ({ name: li.name, type: li.type, description: typeConfig[li.type].label, price: li.price, qty: li.qty, total: li.price * li.qty }));
+    if (medicationItems.length > 0) items.push({ name: "Medication", type: "MED" as LineItemType, description: `${medicationItems.length} item(s)`, price: medicationTotal, qty: 1, total: medicationTotal });
     return items;
   }, [lineItems]);
 
