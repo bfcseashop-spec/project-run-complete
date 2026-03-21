@@ -46,6 +46,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     refund: "Refund",
     addService: "Add Service",
     healthPackages: "Packages",
+    inventoryList: "Inventory List",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
