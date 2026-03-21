@@ -108,8 +108,30 @@ const AddTestPage = () => {
       toast.error("Please add at least one test");
       return;
     }
-    toast.success(`${validTests.length} test(s) ordered successfully for ${form.patient}`);
-    navigate("/lab-tests");
+
+    // Add each test as a pending sample record
+    const sampleEntries = validTests.map((t) => ({
+      patient: form.patient,
+      patientId: form.patientId,
+      age: parseInt(form.age) || 0,
+      gender: form.gender,
+      testName: t.test,
+      doctor: form.doctor,
+      collectionDate: form.date,
+      collectionTime: "",
+      sampleType: t.sampleType,
+      status: "pending" as const,
+      priority: form.priority,
+      collectedBy: form.technicianAssigned || "",
+      storageTemp: "room" as const,
+      barcode: "",
+      rejectionReason: "",
+      notes: form.notes,
+    }));
+    addSampleRecords(sampleEntries);
+
+    toast.success(`${validTests.length} test(s) ordered — check Sample Collection for pickup`);
+    navigate("/sample-collection");
   };
 
   return (
