@@ -21,6 +21,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
+import { qrcodeSVG } from "@/lib/qrcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 
