@@ -380,7 +380,7 @@ const BillingPage = () => {
                             <span></span>
                             <span className="pl-3">↳ {sub.name}</span>
                             <span></span>
-                            <span className="text-center">{sub.qty}</span>
+                            <span></span>
                             <span className="text-right tabular-nums">{formatPrice(sub.price)}</span>
                             <span className="text-right tabular-nums">{formatPrice(sub.total)}</span>
                           </div>
