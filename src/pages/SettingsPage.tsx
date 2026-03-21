@@ -22,9 +22,52 @@ import { currencies, getCurrencySymbol } from "@/lib/currency";
 /* ─── Clinic Profile ─── */
 const ClinicProfileTab = () => {
   const { settings, update } = useSettings();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500_000) {
+      toast.error("Logo must be under 500 KB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      update({ clinicLogo: reader.result as string });
+      toast.success("Logo uploaded");
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="space-y-6">
+      {/* Logo Upload */}
+      <div className="flex items-center gap-6">
+        <div className="relative w-20 h-20 rounded-xl border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden">
+          {settings.clinicLogo ? (
+            <>
+              <img src={settings.clinicLogo} alt="Clinic Logo" className="w-full h-full object-contain" />
+              <button
+                onClick={() => update({ clinicLogo: "" })}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </>
+          ) : (
+            <span className="text-3xl">🏥</span>
+          )}
+        </div>
+        <div>
+          <Label className="text-sm font-semibold">Clinic Logo</Label>
+          <p className="text-xs text-muted-foreground mb-2">PNG, JPG or SVG. Max 500 KB. Shows on reports &amp; invoices.</p>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+            <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Logo
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="col-span-2 sm:col-span-1">
           <Label>Clinic Name</Label>
