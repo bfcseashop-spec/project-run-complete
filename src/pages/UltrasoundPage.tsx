@@ -516,6 +516,54 @@ const UltrasoundPage = () => {
               <Label>Remarks</Label>
               <Textarea value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} rows={2} />
             </div>
+
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label>Ultrasound Images / Documents</Label>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm font-medium text-foreground">Click to upload ultrasound images</p>
+                <p className="text-xs text-muted-foreground mt-1">Supports JPG, PNG, WEBP, PDF — multiple files allowed</p>
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*,.pdf" multiple className="hidden" onChange={handleFileUpload} />
+              {formImages.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  {formImages.map((img) => (
+                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30 cursor-pointer" onClick={() => openLightbox(formImages, formImages.indexOf(img))}>
+                      {img.type === "image" ? (
+                        <img src={img.url} alt={img.name} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div className="w-full h-24 flex flex-col items-center justify-center gap-1 bg-muted/50">
+                          <FileText className="w-8 h-8 text-destructive/70" />
+                          <span className="text-[10px] text-muted-foreground">PDF</span>
+                        </div>
+                      )}
+                      <div className="p-2 flex items-center justify-between">
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{img.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{formatFileSize(img.size)}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); removeImage(img.id); }}>
+                          <X className="w-3 h-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {formImages.length > 0 && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>{formImages.length} file(s) attached</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    <ImageIcon className="w-3 h-3 mr-1" />
+                    {formImages.filter(i => i.type === "image").length} images, {formImages.filter(i => i.type === "pdf").length} PDFs
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
