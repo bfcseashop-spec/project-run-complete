@@ -37,7 +37,7 @@ import {
   getRefunds, getAuditLog, addRefund,
   deleteRefund, subscribeRefunds, RefundRecord, RefundItem,
 } from "@/data/refundStore";
-import { getBillingRecords, BillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getBillingRecords, BillingRecord, subscribeBilling, updateBillingRecord } from "@/data/billingStore";
 import { getInjections, updateInjection, computeInjectionStatus, subscribeInjections } from "@/data/injectionStore";
 import { getMedicines, restockMedicine, deductMedicine, subscribeMedicines, Medicine } from "@/data/medicineStore";
 
