@@ -70,6 +70,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     code: "កូដ", route: "ផ្លូវ", strength: "កម្លាំង",
     frequency: "ប្រេកង់", duration: "រយៈពេល", dosage: "កម្រិត", injection: "ថ្នាំចាក់",
     systemManage: "គ្រប់គ្រងប្រព័ន្ធ",
+    refund: "បង្វិលសង",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
