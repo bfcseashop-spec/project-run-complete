@@ -75,6 +75,7 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "finance",
     items: [
+      { icon: RotateCcw, labelKey: "refund", path: "/refund" },
       { icon: Receipt, labelKey: "dueManagement", path: "/dues" },
       { icon: DollarSign, labelKey: "expenses", path: "/expenses" },
       { icon: CreditCard, labelKey: "bankTransactions", path: "/bank" },
