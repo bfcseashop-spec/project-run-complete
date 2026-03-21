@@ -107,7 +107,7 @@
     font-family: var(--font-heading);
   }
 
-  .font-number {
+  .font-number, .tabular-nums {
     font-family: var(--font-number);
     font-variant-numeric: tabular-nums;
   }
