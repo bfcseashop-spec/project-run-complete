@@ -14,12 +14,22 @@ import { toast } from "sonner";
 /* ── Font options ── */
 const fontFamilies = [
   { label: "Inter (Default)", value: "'Inter', system-ui, sans-serif", import: "Inter:wght@300;400;500;600;700" },
-  { label: "Poppins", value: "'Poppins', sans-serif", import: "Poppins:wght@300;400;500;600;700" },
+  { label: "Spectral", value: "'Spectral', serif", import: "Spectral:wght@300;400;500;600;700" },
+  { label: "Lexend", value: "'Lexend', sans-serif", import: "Lexend:wght@300;400;500;600;700" },
+  { label: "Arial", value: "Arial, Helvetica, sans-serif", import: "" },
   { label: "Roboto", value: "'Roboto', sans-serif", import: "Roboto:wght@300;400;500;700" },
+  { label: "Times New Roman", value: "'Times New Roman', Times, serif", import: "" },
   { label: "Open Sans", value: "'Open Sans', sans-serif", import: "Open+Sans:wght@300;400;600;700" },
+  { label: "Noto Sans", value: "'Noto Sans', sans-serif", import: "Noto+Sans:wght@300;400;500;600;700" },
   { label: "Lato", value: "'Lato', sans-serif", import: "Lato:wght@300;400;700" },
+  { label: "Source Sans Pro", value: "'Source Sans 3', sans-serif", import: "Source+Sans+3:wght@300;400;600;700" },
+  { label: "PT Sans", value: "'PT Sans', sans-serif", import: "PT+Sans:wght@400;700" },
+  { label: "Merriweather", value: "'Merriweather', serif", import: "Merriweather:wght@300;400;700" },
+  { label: "Georgia", value: "Georgia, 'Times New Roman', serif", import: "" },
+  { label: "Helvetica", value: "Helvetica, Arial, sans-serif", import: "" },
+  { label: "Fira Sans", value: "'Fira Sans', sans-serif", import: "Fira+Sans:wght@300;400;500;600;700" },
+  { label: "Poppins", value: "'Poppins', sans-serif", import: "Poppins:wght@300;400;500;600;700" },
   { label: "Nunito", value: "'Nunito', sans-serif", import: "Nunito:wght@300;400;600;700" },
-  { label: "Source Sans 3", value: "'Source Sans 3', sans-serif", import: "Source+Sans+3:wght@300;400;600;700" },
   { label: "DM Sans", value: "'DM Sans', sans-serif", import: "DM+Sans:wght@300;400;500;700" },
 ];
 
