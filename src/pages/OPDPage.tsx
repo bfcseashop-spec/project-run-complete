@@ -114,11 +114,11 @@ const OPDPage = () => {
         ];
         return (
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="Visit Summary" onClick={() => setSummaryPatient(p)}><ClipboardList className="w-3.5 h-3.5 text-primary" /></Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewPatient(p)}><Eye className="w-3.5 h-3.5" /></Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields, photo: p.photo })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Visit Summary" onClick={() => setSummaryPatient(p)}><ClipboardList className="w-3.5 h-3.5 text-accent-foreground" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewPatient(p)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5 text-warning" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields, photo: p.photo })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeletePatient(p)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
           </div>
         );
       },

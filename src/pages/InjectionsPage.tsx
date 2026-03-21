@@ -44,6 +44,7 @@ const InjectionsPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editInj, setEditInj] = useState<InjectionItem | null>(null);
   const [deleteInj, setDeleteInj] = useState<InjectionItem | null>(null);
+  const [viewInj, setViewInj] = useState<InjectionItem | null>(null);
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -103,29 +104,26 @@ const InjectionsPage = () => {
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: i.id, sectionTitle: "Injection Details", fields: [
-              { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
-              { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
-              { label: "Status", value: i.status },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(i)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewInj(i)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: i.id, sectionTitle: "Injection Report", fields: [
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
               { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
               { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
             ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(i.id, i.name)}>
-            <Barcode className="w-3.5 h-3.5" />
+          })}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteInj(i)}>
-            <Trash2 className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(i.id, i.name)}>
+            <Barcode className="w-3.5 h-3.5 text-accent-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteInj(i)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),
@@ -244,6 +242,46 @@ const InjectionsPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit}>{editInj ? "Update" : "Add"} Injection</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog (Read-Only) */}
+      <Dialog open={!!viewInj} onOpenChange={() => setViewInj(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl flex items-center gap-2">
+              <Syringe className="w-5 h-5 text-primary" /> Injection Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewInj && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
+                <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
+                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
+                <div><p className="text-xs text-muted-foreground">Strength</p><p className="font-medium text-foreground">{viewInj.strength || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Route</p><Badge variant="outline">{viewInj.route}</Badge></div>
+                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock} {viewInj.unit}</p></div>
+                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewInj(null)}>Close</Button>
+            <Button variant="ghost" className="text-warning" onClick={() => { const i = viewInj; setViewInj(null); if (i) openEdit(i); }}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
+              id: viewInj.id, sectionTitle: "Injection Report", fields: [
+                { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
+                { label: "Strength", value: viewInj.strength }, { label: "Route", value: viewInj.route },
+                { label: "Stock", value: `${viewInj.stock} ${viewInj.unit}` }, { label: "Price", value: formatDualPrice(viewInj.price) },
+              ],
+            }); }}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
