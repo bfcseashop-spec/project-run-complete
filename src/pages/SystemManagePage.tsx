@@ -138,6 +138,7 @@ function applyStyles(s: SystemSettings) {
   // CSS vars
   root.style.setProperty("--font-body", s.bodyFont);
   root.style.setProperty("--font-heading", s.headingFont === "__same__" ? s.bodyFont : s.headingFont);
+  root.style.setProperty("--font-number", s.numberFont === "__same__" ? s.bodyFont : s.numberFont);
   root.style.fontSize = s.fontSize;
   root.style.setProperty("--radius", s.borderRadius);
 
