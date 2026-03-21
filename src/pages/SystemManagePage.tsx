@@ -182,11 +182,13 @@ const SystemManagePage = () => {
   }, [settings]);
 
   const update = (partial: Partial<SystemSettings>) => {
-    setSettings(prev => {
-      const next = { ...prev, ...partial };
-      saveSystemSettings(next);
-      return next;
-    });
+    setSettings(prev => ({ ...prev, ...partial }));
+  };
+
+  const handleSave = () => {
+    saveSystemSettings(settings);
+    toast.success("Settings saved! Refreshing...");
+    setTimeout(() => window.location.reload(), 600);
   };
 
   const resetAll = () => {
