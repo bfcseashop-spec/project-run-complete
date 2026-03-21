@@ -8,7 +8,7 @@ import {
 import StatCard from "@/components/StatCard";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, RadialBarChart, RadialBar,
+  PieChart, Pie, Cell,
 } from "recharts";
 import { formatDualPrice, formatPrice, convertToSecondary } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
