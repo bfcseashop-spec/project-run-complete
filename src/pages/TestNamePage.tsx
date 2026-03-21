@@ -11,10 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText } from "lucide-react";
-import { sampleTypes } from "@/data/labTests";
+import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText, LayoutList, LayoutGrid, FolderPlus, Droplets, X } from "lucide-react";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
-import { testCategories, type TestNameEntry } from "@/data/testNameStore";
+import { type TestNameEntry } from "@/data/testNameStore";
 import { encodeCode128B, barcodeSVG } from "@/lib/barcode";
 import { exportToExcel, exportToPDF, generateSampleExcel, importFromExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
@@ -30,6 +29,11 @@ const TestNamePage = () => {
   const [viewTest, setViewTest] = useState<TestNameEntry | null>(null);
   const [barcodeTest, setBarcodeTest] = useState<TestNameEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [categoryDialog, setCategoryDialog] = useState(false);
+  const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [newSampleType, setNewSampleType] = useState("");
   const [form, setForm] = useState<Omit<TestNameEntry, "id">>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
@@ -64,7 +68,7 @@ const TestNamePage = () => {
         <div class="meta">${t.category} · ${t.sampleType.charAt(0).toUpperCase() + t.sampleType.slice(1)} · ${formatPrice(t.price)}</div>
         <div class="barcode-wrap">${svg}</div>
         <div class="code">${t.id}</div>
-        <div class="ref">Ref: ${t.normalRange} ${t.unit}</div>
+        <div class="ref">Ref: ${t.normalRange}</div>
       </div>`;
     }).join("");
     printWin.document.write(`<!DOCTYPE html><html><head><title>Batch Barcodes</title>
@@ -138,7 +142,7 @@ const TestNamePage = () => {
       <table>
         <tr><td>Category</td><td>${t.category}</td></tr>
         <tr><td>Sample Type</td><td style="text-transform:capitalize">${t.sampleType}</td></tr>
-        <tr><td>Normal Range</td><td>${t.normalRange} ${t.unit}</td></tr>
+        <tr><td>Normal Range</td><td>${t.normalRange}</td></tr>
         <tr><td>Price</td><td>${formatPrice(t.price)}</td></tr>
         <tr><td>Status</td><td>${t.active ? "Active" : "Inactive"}</td></tr>
       </table></body></html>
@@ -160,7 +164,6 @@ const TestNamePage = () => {
     { key: "category", header: "Category" },
     { key: "sampleType", header: "Sample Type" },
     { key: "normalRange", header: "Normal Range" },
-    { key: "unit", header: "Unit" },
     { key: "price", header: "Price" },
     { key: "active", header: "Active" },
   ];
@@ -186,7 +189,7 @@ const TestNamePage = () => {
       rows.forEach((row) => {
         const name = String(row.name || "").trim();
         if (!name) return;
-        if (store.findByName(name)) return; // skip duplicates
+        if (store.findByName(name)) return;
         store.addTest({
           name,
           category: String(row.category || "General"),
@@ -216,9 +219,34 @@ const TestNamePage = () => {
     }
   };
 
+  const handleAddCategory = () => {
+    const name = newCategory.trim();
+    if (!name) return;
+    if (store.categories.includes(name)) { toast.error("Category already exists"); return; }
+    store.addCategory(name);
+    setNewCategory("");
+    toast.success(`Category "${name}" added`);
+  };
+
+  const handleAddSampleType = () => {
+    const name = newSampleType.trim().toLowerCase();
+    if (!name) return;
+    if (store.sampleTypes.includes(name)) { toast.error("Sample type already exists"); return; }
+    store.addSampleType(name);
+    setNewSampleType("");
+    toast.success(`Sample type "${name}" added`);
+  };
+
   return (
     <div>
-      <PageHeader title="Test Name Management" description="Manage available lab test names, pricing, and categories" />
+      <PageHeader title="Test Name Management" description="Manage available lab test names, pricing, and categories">
+        <Button variant="outline" size="sm" onClick={() => setCategoryDialog(true)}>
+          <FolderPlus className="w-4 h-4 mr-1" /> Categories
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setSampleTypeDialog(true)}>
+          <Droplets className="w-4 h-4 mr-1" /> Sample Types
+        </Button>
+      </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card><CardContent className="pt-5 flex items-center gap-3">
@@ -235,7 +263,7 @@ const TestNamePage = () => {
         </CardContent></Card>
         <Card><CardContent className="pt-5 flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Beaker className="w-5 h-5 text-primary" /></div>
-          <div><p className="text-2xl font-bold">{new Set(store.tests.map((t) => t.category)).size}</p><p className="text-xs text-muted-foreground">Categories</p></div>
+          <div><p className="text-2xl font-bold">{store.categories.length}</p><p className="text-xs text-muted-foreground">Categories</p></div>
         </CardContent></Card>
       </div>
 
@@ -243,7 +271,7 @@ const TestNamePage = () => {
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg">Test Directory</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Search tests..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8 w-[220px]" />
@@ -252,11 +280,19 @@ const TestNamePage = () => {
                 <SelectTrigger className="w-[160px]"><SelectValue placeholder="Category" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {testCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {/* View toggle */}
+              <div className="flex border border-border rounded-md">
+                <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-r-none" onClick={() => setViewMode("list")}>
+                  <LayoutList className="w-4 h-4" />
+                </Button>
+                <Button variant={viewMode === "grid" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-l-none" onClick={() => setViewMode("grid")}>
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+              </div>
               <Button onClick={openAdd} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Test</Button>
-              {/* Import */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5"><Upload className="w-3.5 h-3.5" /> Import</Button>
@@ -271,7 +307,6 @@ const TestNamePage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
-              {/* Export */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5"><Download className="w-3.5 h-3.5" /> Export</Button>
@@ -294,72 +329,117 @@ const TestNamePage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40px]">
-                    <Checkbox
-                      checked={filtered.length > 0 && selectedIds.size === filtered.length}
-                      onCheckedChange={toggleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead className="w-[80px]">ID</TableHead>
-                  <TableHead>Test Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Sample</TableHead>
-                  <TableHead>Normal Range</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((t) => (
-                  <TableRow key={t.id} className={`${!t.active ? "opacity-50" : ""} ${selectedIds.has(t.id) ? "bg-primary/5" : ""}`}>
-                    <TableCell>
+          {viewMode === "list" ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[40px]">
                       <Checkbox
-                        checked={selectedIds.has(t.id)}
-                        onCheckedChange={() => toggleSelect(t.id)}
+                        checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                        onCheckedChange={toggleSelectAll}
                       />
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{t.id}</TableCell>
-                    <TableCell className="font-medium">{t.name}</TableCell>
-                    <TableCell><Badge variant="outline">{t.category}</Badge></TableCell>
-                    <TableCell className="capitalize">{t.sampleType}</TableCell>
-                    <TableCell className="text-xs">{t.normalRange}</TableCell>
-                    <TableCell className="text-xs">{t.unit}</TableCell>
-                    <TableCell className="text-right font-medium">{formatDualPrice(t.price)}</TableCell>
-                    <TableCell>
+                    </TableHead>
+                    <TableHead className="w-[80px]">ID</TableHead>
+                    <TableHead>Test Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Sample</TableHead>
+                    <TableHead>Normal Range</TableHead>
+                    <TableHead className="text-right">Price</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((t) => (
+                    <TableRow key={t.id} className={`${!t.active ? "opacity-50" : ""} ${selectedIds.has(t.id) ? "bg-primary/5" : ""}`}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.has(t.id)}
+                          onCheckedChange={() => toggleSelect(t.id)}
+                        />
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{t.id}</TableCell>
+                      <TableCell className="font-medium">{t.name}</TableCell>
+                      <TableCell><Badge variant="outline">{t.category}</Badge></TableCell>
+                      <TableCell className="capitalize">{t.sampleType}</TableCell>
+                      <TableCell className="text-xs">{t.normalRange}</TableCell>
+                      <TableCell className="text-right font-medium">{formatDualPrice(t.price)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className="cursor-pointer"
+                          variant={t.active ? "default" : "secondary"}
+                          onClick={() => toggleActive(t.id)}
+                        >
+                          {t.active ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-0.5">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No tests found</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            /* Grid View */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filtered.map((t) => (
+                <Card key={t.id} className={`relative ${!t.active ? "opacity-50" : ""}`}>
+                  <CardContent className="pt-5 pb-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <TestTube className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm truncate">{t.name}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{t.id}</p>
+                        </div>
+                      </div>
                       <Badge
-                        className="cursor-pointer"
+                        className="cursor-pointer shrink-0 text-[10px]"
                         variant={t.active ? "default" : "secondary"}
                         onClick={() => toggleActive(t.id)}
                       >
                         {t.active ? "Active" : "Inactive"}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-0.5">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filtered.length === 0 && (
-                  <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No tests found</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div><span className="text-muted-foreground">Category:</span> <span className="font-medium">{t.category}</span></div>
+                      <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
+                      <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
+                      <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatDualPrice(t.price)}</span></div>
+                    </div>
+                    <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {filtered.length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">No tests found</div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
+      {/* Add/Edit Test Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editingTest ? "Edit Test" : "Add New Test"}</DialogTitle></DialogHeader>
@@ -373,25 +453,21 @@ const TestNamePage = () => {
                 <label className="text-sm font-medium">Category</label>
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{testCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  <SelectContent>{store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <label className="text-sm font-medium">Sample Type</label>
                 <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+                  <SelectContent>{store.sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm font-medium">Normal Range</label>
                 <Input value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="e.g. 70-100" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Unit</label>
-                <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="e.g. mg/dL" />
               </div>
               <div>
                 <label className="text-sm font-medium">Price</label>
@@ -427,7 +503,7 @@ const TestNamePage = () => {
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div><p className="text-muted-foreground text-xs">Category</p><p className="font-medium">{viewTest.category}</p></div>
                 <div><p className="text-muted-foreground text-xs">Sample Type</p><p className="font-medium capitalize">{viewTest.sampleType}</p></div>
-                <div><p className="text-muted-foreground text-xs">Normal Range</p><p className="font-medium">{viewTest.normalRange} {viewTest.unit}</p></div>
+                <div><p className="text-muted-foreground text-xs">Normal Range</p><p className="font-medium">{viewTest.normalRange}</p></div>
                 <div><p className="text-muted-foreground text-xs">Price</p><p className="font-medium text-primary">{formatDualPrice(viewTest.price)}</p></div>
               </div>
             </div>
@@ -445,7 +521,6 @@ const TestNamePage = () => {
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Barcode className="w-5 h-5" /> Test Barcode Label</DialogTitle></DialogHeader>
           {barcodeTest && (
             <div className="flex flex-col items-center gap-4 py-2">
-              {/* Label preview */}
               <div className="bg-white border border-border rounded-lg p-6 w-full shadow-sm" id="barcode-label">
                 <div className="text-center mb-4">
                   <p className="text-[10px] text-gray-400 uppercase tracking-widest">ClinicPOS Laboratory</p>
@@ -457,10 +532,9 @@ const TestNamePage = () => {
                 <div className="flex justify-center" dangerouslySetInnerHTML={{ __html: barcodeSVG(barcodeTest.id, 260, 60) }} />
                 <div className="text-center mt-2">
                   <p className="font-mono text-xs tracking-[0.25em] text-gray-800 font-semibold">{barcodeTest.id}</p>
-                  <p className="text-[9px] text-gray-400 mt-1">Ref: {barcodeTest.normalRange} {barcodeTest.unit}</p>
+                  <p className="text-[9px] text-gray-400 mt-1">Ref: {barcodeTest.normalRange}</p>
                 </div>
               </div>
-
               <div className="flex gap-2 w-full">
                 <Button className="flex-1" variant="outline" onClick={() => setBarcodeTest(null)}>Close</Button>
                 <Button className="flex-1" onClick={() => {
@@ -487,7 +561,7 @@ const TestNamePage = () => {
                       <div class="meta">${barcodeTest.category} · ${barcodeTest.sampleType.charAt(0).toUpperCase() + barcodeTest.sampleType.slice(1)} · ${formatPrice(barcodeTest.price)}</div>
                       <div class="barcode-wrap">${svg}</div>
                       <div class="code">${barcodeTest.id}</div>
-                      <div class="ref">Ref: ${barcodeTest.normalRange} ${barcodeTest.unit}</div>
+                      <div class="ref">Ref: ${barcodeTest.normalRange}</div>
                     </div></body></html>`);
                   printWin.document.close();
                   setTimeout(() => printWin.print(), 200);
@@ -497,6 +571,90 @@ const TestNamePage = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={categoryDialog} onOpenChange={setCategoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><FolderPlus className="w-5 h-5" /> Manage Categories</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name..."
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+              />
+              <Button onClick={handleAddCategory} size="sm"><Plus className="w-4 h-4 mr-1" /> Add</Button>
+            </div>
+            <div className="space-y-1 max-h-[300px] overflow-y-auto">
+              {store.categories.map((cat) => {
+                const count = store.tests.filter((t) => t.category === cat).length;
+                return (
+                  <div key={cat} className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted/50 group">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">{cat}</Badge>
+                      <span className="text-xs text-muted-foreground">{count} test{count !== 1 ? "s" : ""}</span>
+                    </div>
+                    <Button
+                      variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive"
+                      onClick={() => {
+                        if (count > 0) { toast.error(`Cannot delete "${cat}" — ${count} test(s) using it`); return; }
+                        store.removeCategory(cat);
+                        toast.success(`Category "${cat}" removed`);
+                      }}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setCategoryDialog(false)}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sample Type Management Dialog */}
+      <Dialog open={sampleTypeDialog} onOpenChange={setSampleTypeDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Droplets className="w-5 h-5" /> Manage Sample Types</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New sample type name..."
+                value={newSampleType}
+                onChange={(e) => setNewSampleType(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddSampleType()}
+              />
+              <Button onClick={handleAddSampleType} size="sm"><Plus className="w-4 h-4 mr-1" /> Add</Button>
+            </div>
+            <div className="space-y-1 max-h-[300px] overflow-y-auto">
+              {store.sampleTypes.map((st) => {
+                const count = store.tests.filter((t) => t.sampleType === st).length;
+                return (
+                  <div key={st} className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted/50 group">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs capitalize">{st}</Badge>
+                      <span className="text-xs text-muted-foreground">{count} test{count !== 1 ? "s" : ""}</span>
+                    </div>
+                    <Button
+                      variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive"
+                      onClick={() => {
+                        if (count > 0) { toast.error(`Cannot delete "${st}" — ${count} test(s) using it`); return; }
+                        store.removeSampleType(st);
+                        toast.success(`Sample type "${st}" removed`);
+                      }}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setSampleTypeDialog(false)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
