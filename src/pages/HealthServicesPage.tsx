@@ -253,7 +253,68 @@ const HealthServicesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* View Dialog (Read-Only) */}
+      <Dialog open={!!viewService} onOpenChange={() => setViewService(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl flex items-center gap-2">
+              {(() => { const Icon = categoryIcons[viewService?.category || ""] || Heart; return <Icon className="w-5 h-5 text-primary" />; })()}
+              Service Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewService && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Service ID</p>
+                  <p className="font-medium text-foreground">{viewService.id}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <StatusBadge status={viewService.status} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Service Name</p>
+                  <p className="font-medium text-foreground">{viewService.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Category</p>
+                  <p className="font-medium text-foreground">{viewService.category}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Price</p>
+                  <p className="font-semibold text-foreground">{formatDualPrice(viewService.price)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Duration</p>
+                  <p className="font-medium text-foreground">{viewService.duration || "—"}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Description</p>
+                <p className="text-sm text-foreground mt-1">{viewService.description || "No description provided."}</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewService(null)}>Close</Button>
+            <Button variant="ghost" className="text-warning" onClick={() => { const s = viewService; setViewService(null); if (s) openEdit(s); }}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewService) printRecordReport({
+              id: viewService.id, sectionTitle: "Health Service Report", fields: [
+                { label: "Service Name", value: viewService.name }, { label: "Category", value: viewService.category },
+                { label: "Price", value: formatDualPrice(viewService.price) }, { label: "Duration", value: viewService.duration },
+                { label: "Status", value: viewService.status }, { label: "Description", value: viewService.description },
+              ],
+            }); }}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
       <AlertDialog open={!!deleteService} onOpenChange={() => setDeleteService(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
