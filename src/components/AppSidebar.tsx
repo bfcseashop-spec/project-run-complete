@@ -55,12 +55,12 @@ const menuSections: MenuSection[] = [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
           { icon: List, labelKey: "labTests", path: "/lab-tests" },
           { icon: TestTube, labelKey: "name", path: "/lab-tests/names" },
+          { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection" },
         ],
       },
       { icon: FileText, labelKey: "labReports", path: "/lab-reports" },
       { icon: Scan, labelKey: "xray", path: "/xray" },
       { icon: MonitorSpeaker, labelKey: "ultrasound", path: "/ultrasound" },
-      { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection" },
     ],
   },
   {
