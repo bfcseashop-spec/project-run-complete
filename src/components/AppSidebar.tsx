@@ -5,7 +5,7 @@ import {
   MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
   Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
-  RotateCcw,
+  RotateCcw, Package,
 } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/use-settings";
