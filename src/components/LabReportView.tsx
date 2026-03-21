@@ -245,8 +245,8 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           <div className="bg-destructive px-6 py-4 rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center text-lg">
-                  🏥
+                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center text-lg overflow-hidden">
+                  {s.clinicLogo ? <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain" /> : '🏥'}
                 </div>
                 <div>
                   <h2 className="text-xl font-extrabold text-destructive-foreground tracking-tight">
