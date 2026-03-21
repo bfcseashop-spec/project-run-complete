@@ -128,11 +128,18 @@ const AddTestPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Patient Name <span className="text-destructive">*</span></Label>
-                  <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} placeholder="Full name" />
+                  <Select value={form.patientId} onValueChange={handlePatientSelect}>
+                    <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                    <SelectContent>
+                      {patients.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Patient ID</Label>
-                  <Input value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} placeholder="P-XXX" />
+                  <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -153,7 +160,14 @@ const AddTestPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Referring Doctor <span className="text-destructive">*</span></Label>
-                  <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} placeholder="Dr." />
+                  <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                    <SelectContent>
+                      {doctors.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
