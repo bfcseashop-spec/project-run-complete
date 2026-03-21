@@ -18,18 +18,14 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Plus, Pencil, Trash2, Pipette, Clock, CheckCircle, PackageCheck,
-  Search, AlertTriangle, Truck, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, XCircle, Eye, Printer, Barcode as BarcodeIcon,
+  Plus, Pencil, Pipette, Clock, CheckCircle, PackageCheck,
+  Search, AlertTriangle, Snowflake, Thermometer, ThermometerSun,
+  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
   sampleRecords as initialRecords, type SampleRecord, sampleTypes,
-  storageTempOptions, collectors, rejectionReasons,
+  storageTempOptions, collectors,
 } from "@/data/sampleRecords";
 import { labTestNames } from "@/data/labTests";
 
@@ -45,7 +41,7 @@ const storageTempIcons: Record<string, React.ElementType> = {
 const emptyForm: Omit<SampleRecord, "id"> = {
   patient: "", patientId: "", age: 0, gender: "Male", testName: "", doctor: "",
   collectionDate: new Date().toISOString().split("T")[0], collectionTime: "",
-  sampleType: "blood", status: "scheduled", priority: "routine", collectedBy: "",
+  sampleType: "blood", status: "pending", priority: "routine", collectedBy: "",
   storageTemp: "room", barcode: "", rejectionReason: "", notes: "",
 };
 
@@ -56,9 +52,9 @@ const sampleColumns = [
   { key: "sampleType", header: "Sample Type" },
   { key: "priority", header: "Priority" },
   { key: "barcode", header: "Barcode" },
-  { key: "collectionDate", header: "Collection Date" },
+  { key: "collectionDate", header: "Collected" },
   { key: "storageTemp", header: "Storage" },
-  { key: "collectedBy", header: "Collector" },
+  { key: "collectedBy", header: "Collect By" },
   { key: "status", header: "Status" },
   { key: "actions", header: "Actions" },
 ];
@@ -66,14 +62,10 @@ const sampleColumns = [
 const SampleCollectionPage = () => {
   const [records, setRecords] = useState<SampleRecord[]>(initialRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
-  const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [rejectRecord, setRejectRecord] = useState<SampleRecord | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
 
@@ -89,7 +81,7 @@ const SampleCollectionPage = () => {
         testName: String(row.testName || ""), doctor: String(row.doctor || ""),
         collectionDate: String(row.collectionDate || new Date().toISOString().split("T")[0]),
         collectionTime: String(row.collectionTime || ""), sampleType: (row.sampleType as SampleRecord["sampleType"]) || "blood",
-        status: "scheduled", priority: (row.priority as SampleRecord["priority"]) || "routine",
+        status: "pending" as const, priority: (row.priority as SampleRecord["priority"]) || "routine",
         collectedBy: String(row.collectedBy || ""), storageTemp: (row.storageTemp as SampleRecord["storageTemp"]) || "room",
         barcode: `BC-${90000 + records.length + i + 1}`, rejectionReason: "", notes: String(row.notes || ""),
       }));
@@ -117,47 +109,8 @@ const SampleCollectionPage = () => {
     setDialogOpen(false);
   };
 
-  const handleDelete = () => {
-    if (deleteRecord) {
-      setRecords((prev) => prev.filter((r) => r.id !== deleteRecord.id));
-      setDeleteRecord(null);
-    }
-  };
-
-  const advanceStatus = (id: string) => {
-    setRecords((prev) => prev.map((r) => {
-      if (r.id !== id) return r;
-      const flow: Record<string, SampleRecord["status"]> = {
-        scheduled: "collected", collected: "in-transit", "in-transit": "received",
-      };
-      const next = flow[r.status];
-      if (!next) return r;
-      const updates: Partial<SampleRecord> = { status: next };
-      if (next === "collected" && !r.collectionTime) {
-        updates.collectionTime = new Date().toTimeString().slice(0, 5);
-      }
-      return { ...r, ...updates };
-    }));
-  };
-
-  const openReject = (r: SampleRecord) => {
-    setRejectRecord(r);
-    setRejectReason("");
-    setRejectDialogOpen(true);
-  };
-
-  const handleReject = () => {
-    if (rejectRecord && rejectReason) {
-      setRecords((prev) => prev.map((r) =>
-        r.id === rejectRecord.id ? { ...r, status: "rejected" as const, rejectionReason: rejectReason } : r
-      ));
-      setRejectDialogOpen(false);
-    }
-  };
-
   const tabFilter = (r: SampleRecord) => {
     if (activeTab === "all") return true;
-    if (activeTab === "active") return r.status === "collected" || r.status === "in-transit";
     return r.status === activeTab;
   };
 
@@ -167,20 +120,15 @@ const SampleCollectionPage = () => {
       r.testName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.barcode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "all" || r.status === filterStatus;
     const matchSample = filterSampleType === "all" || r.sampleType === filterSampleType;
-    return matchSearch && matchStatus && matchSample && tabFilter(r);
+    return matchSearch && matchSample && tabFilter(r);
   });
 
   const total = records.length;
-  const scheduled = records.filter((r) => r.status === "scheduled").length;
-  const collected = records.filter((r) => r.status === "collected" || r.status === "in-transit").length;
-  const received = records.filter((r) => r.status === "received").length;
+  const pending = records.filter((r) => r.status === "pending").length;
+  const collected = records.filter((r) => r.status === "collected").length;
   const rejected = records.filter((r) => r.status === "rejected").length;
-
-  const statusFlowLabel: Record<string, string> = {
-    scheduled: "Mark Collected", collected: "Mark In-Transit", "in-transit": "Mark Received",
-  };
+  const failed = records.filter((r) => r.status === "failed").length;
 
   const columns = [
     { key: "id", header: "Sample ID" },
@@ -240,13 +188,13 @@ const SampleCollectionPage = () => {
       },
     },
     {
-      key: "collectedBy", header: "Collector",
+      key: "collectedBy", header: "Collect By",
       render: (r: SampleRecord) => r.collectedBy || <span className="text-muted-foreground italic text-xs">Unassigned</span>,
     },
     {
       key: "status", header: "Status",
       render: (r: SampleRecord) => {
-        const mapped = r.status === "in-transit" ? "active" : r.status === "scheduled" ? "pending" : r.status;
+        const mapped = r.status === "failed" ? "rejected" : r.status;
         return <StatusBadge status={mapped as any} />;
       },
     },
@@ -254,39 +202,26 @@ const SampleCollectionPage = () => {
       key: "actions", header: "Actions",
       render: (r: SampleRecord) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Sample Record", fields: [
-              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
-              { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
-              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
-              { label: "Lab", value: r.notes || "" }, { label: "Notes", value: r.notes || "" },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          {statusFlowLabel[r.status] && (
-            <Button variant="ghost" size="sm" className="text-xs h-7 px-2 text-primary" onClick={() => advanceStatus(r.id)}>
-              {statusFlowLabel[r.status]}
-            </Button>
-          )}
-          {r.status !== "rejected" && r.status !== "received" && (
-            <Button variant="ghost" size="icon" className="h-7 w-7" title="Reject" onClick={() => openReject(r)}>
-              <XCircle className="w-3.5 h-3.5 text-destructive" />
-            </Button>
-          )}
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewRecord(r)}>
+            <Eye className="w-3.5 h-3.5" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
             <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Sample Collection Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
-              { label: "Sample Type", value: r.sampleType }, { label: "Collected By", value: r.collectedBy },
-              { label: "Collected At", value: r.collectionDate }, { label: "Status", value: r.status },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
             <BarcodeIcon className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+            id: r.id, sectionTitle: "Sample Collection Report", fields: [
+              { label: "Patient", value: r.patient }, { label: "Patient ID", value: r.patientId },
+              { label: "Test", value: r.testName }, { label: "Sample Type", value: r.sampleType },
+              { label: "Priority", value: r.priority }, { label: "Barcode", value: r.barcode },
+              { label: "Collection Date", value: r.collectionDate }, { label: "Collection Time", value: r.collectionTime || "N/A" },
+              { label: "Storage", value: r.storageTemp }, { label: "Collected By", value: r.collectedBy || "Unassigned" },
+              { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
+            ],
+          })}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
         </div>
       ),
@@ -303,19 +238,19 @@ const SampleCollectionPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Total Samples" value={String(total)} icon={Pipette} />
-        <StatCard title="Scheduled" value={String(scheduled)} icon={Clock} />
-        <StatCard title="In Process" value={String(collected)} icon={Truck} />
-        <StatCard title="Received" value={String(received)} icon={PackageCheck} />
+        <StatCard title="Pending" value={String(pending)} icon={Clock} />
+        <StatCard title="Collected" value={String(collected)} icon={CheckCircle} />
         <StatCard title="Rejected" value={String(rejected)} icon={AlertTriangle} />
+        <StatCard title="Failed" value={String(failed)} icon={XCircle} />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All Samples</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-          <TabsTrigger value="active">In Process</TabsTrigger>
-          <TabsTrigger value="received">Received</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="collected">Collected</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="failed">Failed</TabsTrigger>
         </TabsList>
 
         <div className="flex flex-col sm:flex-row gap-3 mt-4">
@@ -340,6 +275,45 @@ const SampleCollectionPage = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* View Dialog */}
+      <Dialog open={!!viewRecord} onOpenChange={(open) => !open && setViewRecord(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Sample Details — {viewRecord?.id}</DialogTitle>
+            <DialogDescription>View sample collection record details.</DialogDescription>
+          </DialogHeader>
+          {viewRecord && (
+            <div className="grid grid-cols-2 gap-3 py-2 text-sm">
+              <div><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{viewRecord.patient}</span></div>
+              <div><span className="text-muted-foreground">Patient ID:</span> <span className="font-medium">{viewRecord.patientId}</span></div>
+              <div><span className="text-muted-foreground">Age/Gender:</span> <span className="font-medium">{viewRecord.age}y / {viewRecord.gender}</span></div>
+              <div><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{viewRecord.doctor}</span></div>
+              <div><span className="text-muted-foreground">Test:</span> <span className="font-medium">{viewRecord.testName}</span></div>
+              <div><span className="text-muted-foreground">Sample Type:</span> <span className="font-medium capitalize">{viewRecord.sampleType}</span></div>
+              <div><span className="text-muted-foreground">Priority:</span> <span className="font-medium capitalize">{viewRecord.priority}</span></div>
+              <div><span className="text-muted-foreground">Barcode:</span> <span className="font-mono font-medium">{viewRecord.barcode}</span></div>
+              <div><span className="text-muted-foreground">Collection Date:</span> <span className="font-medium">{viewRecord.collectionDate}</span></div>
+              <div><span className="text-muted-foreground">Collection Time:</span> <span className="font-medium">{viewRecord.collectionTime || "Not yet"}</span></div>
+              <div><span className="text-muted-foreground">Storage:</span> <span className="font-medium capitalize">{viewRecord.storageTemp}</span></div>
+              <div><span className="text-muted-foreground">Collected By:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
+              <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={viewRecord.status === "failed" ? "rejected" : viewRecord.status as any} /></div>
+              {viewRecord.rejectionReason && <div className="col-span-2"><span className="text-muted-foreground">Rejection Reason:</span> <span className="font-medium text-destructive">{viewRecord.rejectionReason}</span></div>}
+              {viewRecord.notes && <div className="col-span-2"><span className="text-muted-foreground">Notes:</span> <span className="font-medium">{viewRecord.notes}</span></div>}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
+            <Button onClick={() => { if (viewRecord) printRecordReport({ id: viewRecord.id, sectionTitle: "Sample Collection Report", fields: [
+              { label: "Patient", value: viewRecord.patient }, { label: "Test", value: viewRecord.testName },
+              { label: "Sample Type", value: viewRecord.sampleType }, { label: "Status", value: viewRecord.status },
+              { label: "Barcode", value: viewRecord.barcode }, { label: "Collected By", value: viewRecord.collectedBy || "Unassigned" },
+            ]}); }}>
+              <Printer className="w-4 h-4 mr-2" /> Print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -443,11 +417,10 @@ const SampleCollectionPage = () => {
                 <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as SampleRecord["status"] })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="collected">Collected</SelectItem>
-                    <SelectItem value="in-transit">In Transit</SelectItem>
-                    <SelectItem value="received">Received</SelectItem>
                     <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="failed">Failed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -463,49 +436,6 @@ const SampleCollectionPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reject Sample</DialogTitle>
-            <DialogDescription>
-              Rejecting sample {rejectRecord?.id} for {rejectRecord?.patient}. Select a reason below.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Rejection Reason *</Label>
-              <Select value={rejectReason} onValueChange={setRejectReason}>
-                <SelectTrigger><SelectValue placeholder="Select reason" /></SelectTrigger>
-                <SelectContent>
-                  {rejectionReasons.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleReject} disabled={!rejectReason}>Reject Sample</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteRecord} onOpenChange={(open) => !open && setDeleteRecord(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Sample Record</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete sample {deleteRecord?.id} for {deleteRecord?.patient}? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
