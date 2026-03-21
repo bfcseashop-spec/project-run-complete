@@ -799,10 +799,16 @@ const NewInvoicePage = () => {
                 <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
 
-              {/* Barcode */}
-              <div className="text-center pt-4 border-t border-dashed border-border">
-                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+              {/* Barcode & QR */}
+              <div className="flex items-center justify-center gap-6 pt-4 border-t border-dashed border-border">
+                <div className="text-center">
+                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
+                  <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                </div>
+                <div className="text-center">
+                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: qrcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 80) }} />
+                  <p className="text-[9px] text-muted-foreground mt-0.5">Scan QR</p>
+                </div>
               </div>
 
               {/* Footer */}
