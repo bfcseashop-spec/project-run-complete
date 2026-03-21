@@ -71,7 +71,7 @@ export const deleteMedicine = (id: string) => {
   notify();
 };
 
-export const subscribeMedicines = (fn: Listener) => {
+export const subscribeMedicines = (fn: Listener): (() => void) => {
   listeners.add(fn);
-  return () => listeners.delete(fn);
+  return () => { listeners.delete(fn); };
 };
