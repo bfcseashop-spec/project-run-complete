@@ -27,13 +27,13 @@ import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printBarcode } from "@/lib/printUtils";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
-import LabReportView from "@/components/LabReportView";
+import LabReportView, { printLabReport } from "@/components/LabReportView";
 
 const categoryIcons: Record<string, React.ElementType> = {
   hematology: Droplets, biochemistry: FlaskConical, microbiology: Bug,
