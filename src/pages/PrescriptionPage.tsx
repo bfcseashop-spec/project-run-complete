@@ -210,6 +210,14 @@ const PrescriptionPage = () => {
           ${rx.notes ? `<p class="section-title">Notes</p><p class="section-text">${rx.notes}</p>` : ""}
         </div>
       </div>
+      <div style="display:flex;justify-content:flex-end;padding:20px 24px">
+        <div style="text-align:center;width:180px">
+          <div style="border-bottom:1px dashed #999;height:40px;margin-bottom:4px"></div>
+          <p style="font-size:12px;font-weight:600;margin:0">${rx.doctor}</p>
+          <p style="font-size:10px;color:#888;margin:2px 0 0">Signature</p>
+          <p style="font-size:10px;color:#888;margin:2px 0 0">${rx.date}</p>
+        </div>
+      </div>
     </body></html>`);
     printWin.document.close();
     setTimeout(() => printWin.print(), 200);
@@ -532,6 +540,15 @@ const PrescriptionPage = () => {
                       <p className="text-sm text-foreground">{viewRx.notes}</p>
                     </div>
                   )}
+                </div>
+              </div>
+              {/* Signature */}
+              <div className="px-6 py-4 flex justify-end">
+                <div className="text-center w-48">
+                  <div className="border-b border-dashed border-foreground/40 mb-1 h-10" />
+                  <p className="text-xs font-semibold text-foreground">{viewRx.doctor}</p>
+                  <p className="text-[10px] text-muted-foreground">Signature</p>
+                  <p className="text-[10px] text-muted-foreground">{viewRx.date}</p>
                 </div>
               </div>
               <div className="bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)] px-6 py-3 flex items-center justify-between text-white text-xs">
