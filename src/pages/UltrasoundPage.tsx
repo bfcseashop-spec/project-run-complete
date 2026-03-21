@@ -401,6 +401,29 @@ const UltrasoundPage = () => {
               {viewRecord.remarks && (
                 <div className="text-sm"><p className="text-muted-foreground text-xs">Remarks</p><p className="font-medium">{viewRecord.remarks}</p></div>
               )}
+              {viewRecord.images && viewRecord.images.length > 0 && (
+                <div>
+                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length}) — click to view fullscreen</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {viewRecord.images.map((img, idx) => (
+                      <div
+                        key={img.id}
+                        className="border border-border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        onClick={() => openLightbox(viewRecord.images, idx)}
+                      >
+                        {img.type === "image" ? (
+                          <img src={img.url} alt={img.name} className="w-full h-20 object-cover" />
+                        ) : (
+                          <div className="w-full h-20 bg-muted flex items-center justify-center">
+                            <FileText className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <p className="text-[10px] p-1 truncate text-muted-foreground">{img.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
