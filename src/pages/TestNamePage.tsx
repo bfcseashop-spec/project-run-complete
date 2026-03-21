@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText, LayoutList, LayoutGrid, FolderPlus, Droplets, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText, LayoutList, LayoutGrid, FolderPlus, Droplets, X, FlaskConical, Layers } from "lucide-react";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { type TestNameEntry } from "@/data/testNameStore";
 import { encodeCode128B, barcodeSVG } from "@/lib/barcode";
@@ -34,6 +34,40 @@ const TestNamePage = () => {
   const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [newSampleType, setNewSampleType] = useState("");
+  const categoryColors: Record<string, string> = {
+    Hematology: "bg-destructive/10 text-destructive border-destructive/30",
+    Biochemistry: "bg-warning/10 text-warning border-warning/30",
+    Microbiology: "bg-success/10 text-success border-success/30",
+    Immunology: "bg-info/10 text-info border-info/30",
+    Radiology: "bg-accent/10 text-accent border-accent/30",
+    Cardiology: "bg-destructive/15 text-destructive border-destructive/30",
+    Urology: "bg-primary/10 text-primary border-primary/30",
+    Endocrinology: "bg-warning/15 text-warning border-warning/30",
+    General: "bg-muted text-muted-foreground border-border",
+  };
+  const categoryBorder: Record<string, string> = {
+    Hematology: "border-l-destructive",
+    Biochemistry: "border-l-warning",
+    Microbiology: "border-l-success",
+    Immunology: "border-l-info",
+    Radiology: "border-l-accent",
+    Cardiology: "border-l-destructive",
+    Urology: "border-l-primary",
+    Endocrinology: "border-l-warning",
+    General: "border-l-muted-foreground",
+  };
+  const catIcon: Record<string, string> = {
+    Hematology: "bg-destructive/10 text-destructive",
+    Biochemistry: "bg-warning/10 text-warning",
+    Microbiology: "bg-success/10 text-success",
+    Immunology: "bg-info/10 text-info",
+    Radiology: "bg-accent/10 text-accent",
+    Cardiology: "bg-destructive/10 text-destructive",
+    Urology: "bg-primary/10 text-primary",
+    Endocrinology: "bg-warning/10 text-warning",
+    General: "bg-muted text-muted-foreground",
+  };
+
   const [form, setForm] = useState<Omit<TestNameEntry, "id">>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
@@ -249,21 +283,21 @@ const TestNamePage = () => {
       </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card><CardContent className="pt-5 flex items-center gap-3">
+        <Card className="border-l-4 border-l-primary"><CardContent className="pt-5 flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><TestTube className="w-5 h-5 text-primary" /></div>
           <div><p className="text-2xl font-bold">{store.tests.length}</p><p className="text-xs text-muted-foreground">Total Tests</p></div>
         </CardContent></Card>
-        <Card><CardContent className="pt-5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Beaker className="w-5 h-5 text-primary" /></div>
-          <div><p className="text-2xl font-bold">{activeCount}</p><p className="text-xs text-muted-foreground">Active Tests</p></div>
+        <Card className="border-l-4 border-l-success"><CardContent className="pt-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center"><Beaker className="w-5 h-5 text-success" /></div>
+          <div><p className="text-2xl font-bold text-success">{activeCount}</p><p className="text-xs text-muted-foreground">Active Tests</p></div>
         </CardContent></Card>
-        <Card><CardContent className="pt-5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center"><TestTube className="w-5 h-5 text-muted-foreground" /></div>
-          <div><p className="text-2xl font-bold">{store.tests.length - activeCount}</p><p className="text-xs text-muted-foreground">Inactive Tests</p></div>
+        <Card className="border-l-4 border-l-warning"><CardContent className="pt-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center"><FlaskConical className="w-5 h-5 text-warning" /></div>
+          <div><p className="text-2xl font-bold text-warning">{store.tests.length - activeCount}</p><p className="text-xs text-muted-foreground">Inactive Tests</p></div>
         </CardContent></Card>
-        <Card><CardContent className="pt-5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Beaker className="w-5 h-5 text-primary" /></div>
-          <div><p className="text-2xl font-bold">{store.categories.length}</p><p className="text-xs text-muted-foreground">Categories</p></div>
+        <Card className="border-l-4 border-l-info"><CardContent className="pt-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center"><Layers className="w-5 h-5 text-info" /></div>
+          <div><p className="text-2xl font-bold text-info">{store.categories.length}</p><p className="text-xs text-muted-foreground">Categories</p></div>
         </CardContent></Card>
       </div>
 
@@ -361,14 +395,14 @@ const TestNamePage = () => {
                       </TableCell>
                       <TableCell className="font-mono text-xs">{t.id}</TableCell>
                       <TableCell className="font-medium">{t.name}</TableCell>
-                      <TableCell><Badge variant="outline">{t.category}</Badge></TableCell>
+                      <TableCell><Badge variant="outline" className={categoryColors[t.category] || categoryColors.General}>{t.category}</Badge></TableCell>
                       <TableCell className="capitalize">{t.sampleType}</TableCell>
                       <TableCell className="text-xs">{t.normalRange}</TableCell>
                       <TableCell className="text-right font-medium">{formatDualPrice(t.price)}</TableCell>
                       <TableCell>
                         <Badge
-                          className="cursor-pointer"
-                          variant={t.active ? "default" : "secondary"}
+                          className={`cursor-pointer ${t.active ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}`}
+                          variant="outline"
                           onClick={() => toggleActive(t.id)}
                         >
                           {t.active ? "Active" : "Inactive"}
@@ -376,11 +410,11 @@ const TestNamePage = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-0.5">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5 text-warning" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5 text-accent" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -395,12 +429,12 @@ const TestNamePage = () => {
             /* Grid View */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map((t) => (
-                <Card key={t.id} className={`relative ${!t.active ? "opacity-50" : ""}`}>
+                <Card key={t.id} className={`relative border-l-4 ${categoryBorder[t.category] || categoryBorder.General} ${!t.active ? "opacity-50" : ""}`}>
                   <CardContent className="pt-5 pb-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <TestTube className="w-4 h-4 text-primary" />
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${catIcon[t.category] || catIcon.General}`}>
+                          <TestTube className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-sm truncate">{t.name}</p>
@@ -408,25 +442,26 @@ const TestNamePage = () => {
                         </div>
                       </div>
                       <Badge
-                        className="cursor-pointer shrink-0 text-[10px]"
-                        variant={t.active ? "default" : "secondary"}
+                        className={`cursor-pointer shrink-0 text-[10px] ${t.active ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}`}
+                        variant="outline"
                         onClick={() => toggleActive(t.id)}
                       >
                         {t.active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div><span className="text-muted-foreground">Category:</span> <span className="font-medium">{t.category}</span></div>
+                      <div><span className="text-muted-foreground">Category:</span> <Badge variant="outline" className={`ml-1 text-[10px] px-1.5 py-0 ${categoryColors[t.category] || categoryColors.General}`}>{t.category}</Badge></div>
                       <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
                       <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
                       <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatDualPrice(t.price)}</span></div>
                     </div>
                     <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5 text-warning" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5 text-accent" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
                     </div>
                   </CardContent>
                 </Card>
