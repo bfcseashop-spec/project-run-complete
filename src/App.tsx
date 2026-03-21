@@ -27,6 +27,7 @@ import HealthServicesPage from "@/pages/HealthServicesPage";
 import InjectionsPage from "@/pages/InjectionsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import SystemManagePage from "@/pages/SystemManagePage";
+import RefundPage from "@/pages/RefundPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/investments" element={<InvestmentsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/system-manage" element={<SystemManagePage />} />
+            <Route path="/refund" element={<RefundPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
