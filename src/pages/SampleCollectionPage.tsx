@@ -24,11 +24,11 @@ import {
 import {
   Plus, Pencil, Pipette, Clock, CheckCircle, PackageCheck,
   Search, AlertTriangle, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal,
+  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "@/data/sampleRecords";
-import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
+import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
 import { toast } from "sonner";
@@ -69,6 +69,7 @@ const SampleCollectionPage = () => {
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
   const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
+  const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
@@ -258,6 +259,9 @@ const SampleCollectionPage = () => {
               <SendHorizonal className="w-3.5 h-3.5 text-primary" />
             </Button>
           )}
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+          </Button>
         </div>
       ),
     },
@@ -486,6 +490,28 @@ const SampleCollectionPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCollected}>Confirm & Send</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteRecord} onOpenChange={(open) => !open && setDeleteRecord(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Sample Record</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete sample <strong>{deleteRecord?.id}</strong> for {deleteRecord?.patient}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+              if (deleteRecord) {
+                removeSampleRecord(deleteRecord.id);
+                toast.success(`Sample ${deleteRecord.id} deleted`);
+                setDeleteRecord(null);
+              }
+            }}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
