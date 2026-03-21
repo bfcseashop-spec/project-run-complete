@@ -51,6 +51,19 @@ const DataToolbar = ({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {/* Search */}
+      {onSearchChange && (
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            value={searchQuery || ""}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder || "Search..."}
+            className="h-9 w-[200px] pl-8 text-xs"
+          />
+        </div>
+      )}
+
       {/* Date Filter */}
       <Select value={dateFilter} onValueChange={(v) => onDateFilterChange(v as DatePreset)}>
         <SelectTrigger className="w-[140px] h-9 text-xs">

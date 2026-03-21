@@ -58,7 +58,8 @@ export function useDataToolbar<T extends Record<string, unknown>>({ data, dateKe
   return {
     dateFilter, setDateFilter,
     viewMode, setViewMode,
-    filteredByDate,
+    searchQuery, setSearchQuery,
+    filteredByDate: filteredBySearch,
     handleExportExcel, handleExportPDF,
     handleDownloadSample, handleImport,
   };
