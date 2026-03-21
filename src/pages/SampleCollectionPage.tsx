@@ -69,6 +69,7 @@ const SampleCollectionPage = () => {
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
   const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
+  const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
