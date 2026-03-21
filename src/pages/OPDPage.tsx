@@ -30,6 +30,7 @@ const OPDPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
+  const [summaryPatient, setSummaryPatient] = useState<OPDPatient | null>(null);
   const [search, setSearch] = useState("");
   const [filterBlood, setFilterBlood] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
