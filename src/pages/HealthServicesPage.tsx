@@ -76,6 +76,7 @@ const HealthServicesPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editService, setEditService] = useState<HealthService | null>(null);
   const [deleteService, setDeleteService] = useState<HealthService | null>(null);
+  const [viewService, setViewService] = useState<HealthService | null>(null);
   const [form, setForm] = useState(emptyForm);
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
