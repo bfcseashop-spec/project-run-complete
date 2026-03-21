@@ -37,7 +37,7 @@ import {
   getRefunds, getAuditLog, addRefund,
   deleteRefund, subscribeRefunds, RefundRecord, RefundItem,
 } from "@/data/refundStore";
-import { getBillingRecords, BillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getBillingRecords, BillingRecord, subscribeBilling, updateBillingRecord } from "@/data/billingStore";
 import { getInjections, updateInjection, computeInjectionStatus, subscribeInjections } from "@/data/injectionStore";
 import { getMedicines, restockMedicine, deductMedicine, subscribeMedicines, Medicine } from "@/data/medicineStore";
 
@@ -240,10 +240,22 @@ const RefundPage = () => {
       processedBy: "Admin",
     });
 
+    // Update the billing record — reduce total by refund, adjust paid/due
+    if (foundInvoice) {
+      const newTotal = Math.max(0, foundInvoice.total - totalReturnValue);
+      const newPaid = Math.max(0, foundInvoice.paid - refundAmount);
+      const newDue = Math.max(0, newTotal - newPaid);
+      updateBillingRecord(foundInvoice.id, {
+        total: newTotal,
+        paid: newPaid,
+        due: newDue,
+      });
+    }
+
     if (refundMode === "money") {
-      toast.success(`Refund of ${formatPrice(totalReturnValue)} processed. Inventory updated.`);
+      toast.success(`Refund of ${formatPrice(totalReturnValue)} processed. Billing & inventory updated.`);
     } else {
-      toast.success(`Medicine replaced successfully.${balanceDiff > 0 ? ` Balance ${formatPrice(balanceDiff)} refunded via ${refundMethod}.` : ""} Inventory updated.`);
+      toast.success(`Medicine replaced successfully.${balanceDiff > 0 ? ` Balance ${formatPrice(balanceDiff)} refunded via ${refundMethod}.` : ""} Billing & inventory updated.`);
     }
     resetAll();
   };

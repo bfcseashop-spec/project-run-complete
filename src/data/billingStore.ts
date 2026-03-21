@@ -57,6 +57,23 @@ export function addBillingRecord(record: BillingRecord) { records = [record, ...
 
 export function removeBillingRecord(id: string) { records = records.filter((r) => r.id !== id); notify(); }
 
+export function updateBillingRecord(id: string, updates: Partial<BillingRecord>) {
+  records = records.map((r) => {
+    if (r.id !== id) return r;
+    const updated = { ...r, ...updates };
+    // Auto-compute status based on paid/due
+    if (updates.paid !== undefined || updates.total !== undefined || updates.due !== undefined) {
+      const due = updated.due;
+      const paid = updated.paid;
+      if (due <= 0) updated.status = "completed";
+      else if (paid > 0) updated.status = "pending";
+      else updated.status = "critical";
+    }
+    return updated;
+  });
+  notify();
+}
+
 export function subscribeBilling(fn: Listener): () => void {
   listeners.add(fn);
   return () => listeners.delete(fn);
