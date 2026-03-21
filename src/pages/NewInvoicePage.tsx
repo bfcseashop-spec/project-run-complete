@@ -21,7 +21,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
-import { qrcodeSVG } from "@/lib/qrcode";
+// QR code removed per user request
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 
@@ -60,7 +60,13 @@ const paymentMethods = [
   { value: "Bank Transfer", label: "Bank Transfer", icon: CreditCard },
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
-const doctors = ["Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams", "Dr. Mark Brown", "Dr. Lisa Lee"];
+const doctors = [
+  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
+  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
+  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
+  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
+  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
+];
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 interface LineItem { id: string; type: LineItemType; name: string; price: number; qty: number; }
@@ -162,14 +168,18 @@ const NewInvoicePage = () => {
 
   const selectedPatient = patients.find((p) => p.name === patient);
   const patientPhone = selectedPatient?.phone || "";
+  const patientAge = selectedPatient?.age || "";
+  const patientGender = selectedPatient?.gender || "";
+  const selectedDoctor = doctors.find((d) => d.name === doctor);
+  const doctorDegree = selectedDoctor?.degree || "";
 
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
 
   const previewItems = useMemo(() => {
-    const items = nonMedicineItems.map((li) => ({ name: li.name, type: li.type, total: li.price * li.qty }));
-    if (medicationItems.length > 0) items.push({ name: "Medication", type: "MED" as LineItemType, total: medicationTotal });
+    const items = nonMedicineItems.map((li) => ({ name: li.name, type: li.type, description: typeConfig[li.type].label, price: li.price, qty: li.qty, total: li.price * li.qty }));
+    if (medicationItems.length > 0) items.push({ name: "Medication", type: "MED" as LineItemType, description: `${medicationItems.length} item(s)`, price: medicationTotal, qty: 1, total: medicationTotal });
     return items;
   }, [lineItems]);
 
@@ -206,8 +216,10 @@ const NewInvoicePage = () => {
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
     const rows = previewItems.map((item, i) =>
       `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:13px">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
     let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
         <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
@@ -239,35 +251,33 @@ const NewInvoicePage = () => {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
         <p><strong>${patient}</strong></p>
+        ${patientAge || patientGender ? `<p style="color:#64748b;margin-top:2px">${patientAge ? `Age: ${patientAge}` : ''}${patientAge && patientGender ? ' · ' : ''}${patientGender ? `Gender: ${patientGender}` : ''}</p>` : ''}
         ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
-        ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Invoice Details</p>
-        <p>Date: <strong>${dateTimeStr}</strong></p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${doctor ? `<p><strong>${doctor}</strong></p>` : ''}
+        ${doctorDegree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${doctorDegree}</p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${dateTimeStr}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
       </div>
     </div>
     <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
       <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
-        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Amount</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="text-align:center">
-        <div style="display:inline-block">${barcodeStr}</div>
-        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
-      </div>
-      <div style="text-align:center">
-        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
-        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
-      </div>
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
     </div>
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
       <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
@@ -317,8 +327,10 @@ const NewInvoicePage = () => {
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
     const rows = invoiceItems.map((item, i) =>
       `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:13px">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
     let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
         <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
@@ -340,7 +352,6 @@ const NewInvoicePage = () => {
 <div class="page">
   <img src="${clinicLogo}" class="watermark" alt="" />
   <div class="content">
-    <!-- Colorful Header -->
     <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
       <div>
         <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
@@ -352,42 +363,36 @@ const NewInvoicePage = () => {
         <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${invoiceId}</p>
       </div>
     </div>
-    <!-- Info Bar -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
         <p><strong>${patient}</strong></p>
+        ${patientAge || patientGender ? `<p style="color:#64748b;margin-top:2px">${patientAge ? `Age: ${patientAge}` : ''}${patientAge && patientGender ? ' · ' : ''}${patientGender ? `Gender: ${patientGender}` : ''}</p>` : ''}
         ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
-        ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Invoice Details</p>
-        <p>Date: <strong>${dateTimeStr}</strong></p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${doctor ? `<p><strong>${doctor}</strong></p>` : ''}
+        ${doctorDegree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${doctorDegree}</p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${dateTimeStr}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
       </div>
     </div>
-    <!-- Items Table -->
     <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
       <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
-        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Amount</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <!-- Barcode & QR -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="text-align:center">
-        <div style="display:inline-block">${barcodeStr}</div>
-        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
-      </div>
-      <div style="text-align:center">
-        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
-        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
-      </div>
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
     </div>
-    <!-- Footer -->
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
       <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
       <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
@@ -462,7 +467,7 @@ const NewInvoicePage = () => {
               <Select value={doctor} onValueChange={setDoctor}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select doctor..." /></SelectTrigger>
                 <SelectContent>
-                  {doctors.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  {doctors.map((d) => <SelectItem key={d.name} value={d.name}>{d.name} — {d.degree}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -760,27 +765,31 @@ const NewInvoicePage = () => {
               {/* Info Cards */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient & Doctor</p>
+                  <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient Info</p>
                   <p className="font-semibold text-sm">{patient}</p>
+                  {(patientAge || patientGender) && <p className="text-xs text-muted-foreground mt-0.5">{patientAge ? `Age: ${patientAge}` : ''}{patientAge && patientGender ? ' · ' : ''}{patientGender ? `Gender: ${patientGender}` : ''}</p>}
                   {patientPhone && <p className="text-xs text-muted-foreground mt-0.5">📞 {patientPhone}</p>}
-                  {doctor && <p className="text-xs text-muted-foreground mt-0.5">Dr. {doctor}</p>}
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Invoice Details</p>
-                  <p className="text-sm">Date: <span className="font-semibold">{date} {new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></p>
+                  <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
+                  {doctor && <p className="font-semibold text-sm">{doctor}</p>}
+                  {doctorDegree && <p className="text-[11px] text-muted-foreground">{doctorDegree}</p>}
+                  <p className="text-sm mt-1">Date: <span className="font-semibold">{date} {new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></p>
                   <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
                 </div>
               </div>
 
               {/* Items Table */}
               <div className="border border-border rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <span>#</span><span>Description</span><span className="text-right">Amount</span>
+                <div className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>#</span><span>Item</span><span>Description</span><span className="text-right">Price</span><span className="text-right">Total</span>
                 </div>
                 {previewItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                  <div key={i} className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
                     <span className="text-muted-foreground">{i + 1}</span>
                     <span className="font-medium">{item.name}</span>
+                    <span className="text-xs text-muted-foreground">{item.description}</span>
+                    <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
                     <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                   </div>
                 ))}
@@ -805,16 +814,10 @@ const NewInvoicePage = () => {
                 <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
 
-              {/* Barcode & QR */}
-              <div className="flex items-center justify-center gap-6 pt-4 border-t border-dashed border-border">
-                <div className="text-center">
-                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                  <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
-                </div>
-                <div className="text-center">
-                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: qrcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 80) }} />
-                  <p className="text-[9px] text-muted-foreground mt-0.5">Scan QR</p>
-                </div>
+              {/* Barcode */}
+              <div className="text-center pt-4 border-t border-dashed border-border">
+                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
+                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
               </div>
 
               {/* Footer */}
