@@ -442,15 +442,15 @@ const TestNamePage = () => {
                         </div>
                       </div>
                       <Badge
-                        className="cursor-pointer shrink-0 text-[10px]"
-                        variant={t.active ? "default" : "secondary"}
+                        className={`cursor-pointer shrink-0 text-[10px] ${t.active ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}`}
+                        variant="outline"
                         onClick={() => toggleActive(t.id)}
                       >
                         {t.active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div><span className="text-muted-foreground">Category:</span> <span className="font-medium">{t.category}</span></div>
+                      <div><span className="text-muted-foreground">Category:</span> <Badge variant="outline" className={`ml-1 text-[10px] px-1.5 py-0 ${categoryColors[t.category] || categoryColors.General}`}>{t.category}</Badge></div>
                       <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
                       <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
                       <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatDualPrice(t.price)}</span></div>
