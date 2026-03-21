@@ -34,6 +34,40 @@ const TestNamePage = () => {
   const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [newSampleType, setNewSampleType] = useState("");
+  const categoryColors: Record<string, string> = {
+    Hematology: "bg-destructive/10 text-destructive border-destructive/30",
+    Biochemistry: "bg-warning/10 text-warning border-warning/30",
+    Microbiology: "bg-success/10 text-success border-success/30",
+    Immunology: "bg-info/10 text-info border-info/30",
+    Radiology: "bg-accent/10 text-accent border-accent/30",
+    Cardiology: "bg-destructive/15 text-destructive border-destructive/30",
+    Urology: "bg-primary/10 text-primary border-primary/30",
+    Endocrinology: "bg-warning/15 text-warning border-warning/30",
+    General: "bg-muted text-muted-foreground border-border",
+  };
+  const categoryBorder: Record<string, string> = {
+    Hematology: "border-l-destructive",
+    Biochemistry: "border-l-warning",
+    Microbiology: "border-l-success",
+    Immunology: "border-l-info",
+    Radiology: "border-l-accent",
+    Cardiology: "border-l-destructive",
+    Urology: "border-l-primary",
+    Endocrinology: "border-l-warning",
+    General: "border-l-muted-foreground",
+  };
+  const catIcon: Record<string, string> = {
+    Hematology: "bg-destructive/10 text-destructive",
+    Biochemistry: "bg-warning/10 text-warning",
+    Microbiology: "bg-success/10 text-success",
+    Immunology: "bg-info/10 text-info",
+    Radiology: "bg-accent/10 text-accent",
+    Cardiology: "bg-destructive/10 text-destructive",
+    Urology: "bg-primary/10 text-primary",
+    Endocrinology: "bg-warning/10 text-warning",
+    General: "bg-muted text-muted-foreground",
+  };
+
   const [form, setForm] = useState<Omit<TestNameEntry, "id">>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
