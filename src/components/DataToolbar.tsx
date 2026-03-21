@@ -31,6 +31,7 @@ interface DataToolbarProps {
 const DataToolbar = ({
   dateFilter, onDateFilterChange,
   viewMode, onViewModeChange,
+  searchQuery, onSearchChange, searchPlaceholder,
   onExportExcel, onExportPDF,
   onImport, onDownloadSample,
 }: DataToolbarProps) => {
