@@ -18,6 +18,9 @@ try {
     if (s.headingFont) {
       root.style.setProperty("--font-heading", s.headingFont === "__same__" ? (s.bodyFont || "") : s.headingFont);
     }
+    if (s.numberFont) {
+      root.style.setProperty("--font-number", s.numberFont === "__same__" ? (s.bodyFont || "'Inter', system-ui, sans-serif") : s.numberFont);
+    }
 
     // Load Google Fonts
     const imports: string[] = [];
