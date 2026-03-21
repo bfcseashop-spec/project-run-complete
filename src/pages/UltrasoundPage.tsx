@@ -166,12 +166,46 @@ const UltrasoundPage = () => {
   const handleSubmit = () => {
     if (!form.patient || !form.examination || !form.doctor) return;
     if (editRecord) {
-      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form } : r));
+      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form, images: formImages } : r));
     } else {
       const nextId = `US-${3000 + records.length + 1}`;
-      setRecords((prev) => [...prev, { id: nextId, ...form }]);
+      setRecords((prev) => [...prev, { id: nextId, ...form, images: formImages }]);
     }
     setDialogOpen(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newImages: UltrasoundImage[] = [];
+    Array.from(files).forEach((file) => {
+      const isImage = file.type.startsWith("image/");
+      const isPdf = file.type === "application/pdf";
+      if (!isImage && !isPdf) {
+        toast.error(`"${file.name}" is not supported. Use images or PDF.`);
+        return;
+      }
+      newImages.push({
+        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type: isPdf ? "pdf" : "image",
+        size: file.size,
+      });
+    });
+    setFormImages((prev) => [...prev, ...newImages]);
+    if (newImages.length > 0) toast.success(`${newImages.length} file(s) added`);
+    e.target.value = "";
+  };
+
+  const removeImage = (imgId: string) => {
+    setFormImages((prev) => prev.filter((img) => img.id !== imgId));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const handleDelete = () => {
