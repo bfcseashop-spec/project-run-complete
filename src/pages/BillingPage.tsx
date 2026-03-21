@@ -15,6 +15,10 @@ import { getSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
+import { barcodeSVG } from "@/lib/barcode";
+import clinicLogo from "@/assets/clinic-logo.png";
+import { initPatients, getPatients, subscribe } from "@/data/patientStore";
+import { opdPatients } from "@/data/opdPatients";
 import {
   Dialog, DialogContent,
 } from "@/components/ui/dialog";
@@ -26,6 +30,39 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+initPatients(opdPatients);
+
+const doctors = [
+  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
+  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
+  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
+  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
+  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
+];
+
+type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
+
+const groupLineItems = (lineItems: { type: string; name: string; price: number; qty: number }[]) => {
+  const groups: Record<string, { label: string; items: typeof lineItems }> = {
+    SVC: { label: "Services", items: [] },
+    INJ: { label: "Injections", items: [] },
+    PKG: { label: "Packages", items: [] },
+    MED: { label: "Medication", items: [] },
+    CUSTOM: { label: "Custom Items", items: [] },
+  };
+  lineItems.forEach((li) => {
+    const g = groups[li.type];
+    if (g) g.items.push(li);
+  });
+  return Object.entries(groups)
+    .filter(([, g]) => g.items.length > 0)
+    .map(([, g]) => {
+      const total = g.items.reduce((s, li) => s + li.price * li.qty, 0);
+      const qty = g.items.reduce((s, li) => s + li.qty, 0);
+      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total };
+    });
+};
 
 interface BillingRecord {
   id: string;
@@ -60,6 +97,8 @@ const BillingPage = () => {
   const [viewRecord, setViewRecord] = useState<BillingRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const [patients, setPatients] = useState(getPatients());
+  useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
 
   // Pick up submitted invoice from the full-page form
   useEffect(() => {
@@ -135,7 +174,80 @@ const BillingPage = () => {
     navigate("/billing/edit", { state: { editData: record.formData } });
   };
   const handleDelete = () => { if (deleteRecord) { setBillingData((prev) => prev.filter((r) => r.id !== deleteRecord.id)); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
-  const handlePrint = (record: BillingRecord) => { setViewRecord(record); setTimeout(() => window.print(), 300); };
+  const printInvoiceWindow = (record: BillingRecord) => {
+    const s = appSettings;
+    const p = patients.find((pt) => pt.name === record.patient);
+    const d = doctors.find((doc) => doc.name === record.formData?.doctor);
+    const items = record.formData?.lineItems;
+    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+    const rows = grouped.map((item, i) =>
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px">${item.qty}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
+    ).join("");
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(record.amount)}</span></div>`;
+    if (record.discount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(record.discount)}</span></div>`;
+    if (record.tax > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax</span><span style="font-weight:500">${formatDualPrice(record.tax)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(record.total)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatDualPrice(record.paid)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${record.due > 0 ? '#ef4444' : '#16a34a'}">${formatDualPrice(record.due)}</span></div></div>`;
+    const barcodeStr = barcodeSVG(record.id, 220, 50);
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${record.patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff}.page{padding:32px 40px;position:relative;overflow:hidden}.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}.content{position:relative;z-index:1}@media print{@page{margin:15mm}.page{padding:20px 30px}}</style></head><body>
+<div class="page">
+  <img src="${clinicLogo}" class="watermark" alt="" />
+  <div class="content">
+    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div><h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1><p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p><p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p></div>
+      <div style="text-align:right"><p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Invoice</p><p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${record.id}</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
+        <p><strong>${record.patient}</strong></p>
+        ${p?.age || p?.gender ? `<p style="color:#64748b;margin-top:2px">${p.age ? `Age: ${p.age}` : ''}${p.age && p.gender ? ' · ' : ''}${p.gender ? `Gender: ${p.gender}` : ''}</p>` : ''}
+        ${p?.phone ? `<p style="color:#64748b;margin-top:2px">📞 ${p.phone}</p>` : ''}
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${record.formData?.doctor ? `<p><strong>${record.formData.doctor}</strong></p>` : ''}
+        ${d?.degree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.degree}</p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${record.date}</strong></p>
+        <p style="margin-top:2px">Payment: <strong>${record.method}</strong></p>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
+        <th style="padding:10px 14px;text-align:center;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Qty</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${totalsHtml}
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${record.id}</p>
+    </div>
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
+      <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
+      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
+    </div>
+  </div>
+</div></body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 400);
+  };
+  const handlePrint = (record: BillingRecord) => { printInvoiceWindow(record); };
 
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
@@ -199,80 +311,97 @@ const BillingPage = () => {
 
       <Dialog open={!!viewRecord} onOpenChange={() => setViewRecord(null)}>
         <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0">
-          {viewRecord && (
-            <>
-              <div className="p-8 space-y-6" id="invoice-print-area" ref={printRef}>
-                <div className="text-center border-b border-border pb-4">
-                  <h2 className="text-xl font-bold text-foreground">{appSettings.clinicName}</h2>
-                  <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <div className="space-y-1">
-                    <p><span className="text-muted-foreground">Invoice:</span> <span className="font-semibold">{viewRecord.id}</span></p>
-                    <p><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{viewRecord.patient}</span></p>
+          {viewRecord && (() => {
+            const pt = patients.find((p) => p.name === viewRecord.patient);
+            const dr = doctors.find((doc) => doc.name === viewRecord.formData?.doctor);
+            const items = viewRecord.formData?.lineItems;
+            const grouped = items && items.length > 0
+              ? groupLineItems(items)
+              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+            return (
+              <>
+                <div className="p-8 space-y-5 relative" ref={printRef}>
+                  <img src={clinicLogo} alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 opacity-[0.04] pointer-events-none" />
+
+                  <div className="bg-gradient-to-r from-primary to-primary/70 rounded-xl px-6 py-5 text-primary-foreground flex justify-between items-center">
+                    <div>
+                      <h2 className="text-xl font-extrabold">{appSettings.clinicName}</h2>
+                      <p className="text-sm opacity-80">{appSettings.clinicTagline}</p>
+                      <p className="text-[10px] opacity-60 mt-1">{appSettings.clinicAddress} · {appSettings.clinicPhone}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase tracking-widest opacity-60">Invoice</p>
+                      <p className="text-base font-bold font-mono tracking-wider">{viewRecord.id}</p>
+                    </div>
                   </div>
-                  <div className="text-right space-y-1">
-                    <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{viewRecord.date}</span></p>
-                    <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{viewRecord.method}</span></p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient Info</p>
+                      <p className="font-semibold text-sm">{viewRecord.patient}</p>
+                      {(pt?.age || pt?.gender) && <p className="text-xs text-muted-foreground mt-0.5">{pt.age ? `Age: ${pt.age}` : ''}{pt.age && pt.gender ? ' · ' : ''}{pt.gender ? `Gender: ${pt.gender}` : ''}</p>}
+                      {pt?.phone && <p className="text-xs text-muted-foreground mt-0.5">📞 {pt.phone}</p>}
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
+                      {viewRecord.formData?.doctor && <p className="font-semibold text-sm">{viewRecord.formData.doctor}</p>}
+                      {dr?.degree && <p className="text-[11px] text-muted-foreground">{dr.degree}</p>}
+                      <p className="text-sm mt-1">Date: <span className="font-semibold">{viewRecord.date}</span></p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{viewRecord.method}</span></p>
+                    </div>
                   </div>
-                </div>
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    <span>#</span><span>Description</span><span className="text-right">Amount</span>
-                  </div>
-                  {(() => {
-                    const items = viewRecord.formData?.lineItems;
-                    if (items && items.length > 0) {
-                      const nonMed = items.filter(li => li.type !== "MED");
-                      const meds = items.filter(li => li.type === "MED");
-                      const medTotal = meds.reduce((s, li) => s + li.price * li.qty, 0);
-                      const display = [
-                        ...nonMed.map(li => ({ name: li.name, total: li.price * li.qty })),
-                        ...(meds.length > 0 ? [{ name: "Medication", total: medTotal }] : []),
-                      ];
-                      return display.map((item, i) => (
-                        <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
-                          <span className="text-muted-foreground">{i + 1}</span>
-                          <span className="font-medium">{item.name}</span>
-                          <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
-                        </div>
-                      ));
-                    }
-                    return viewRecord.service.split(" + ").map((svc, i) => (
-                      <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      <span>#</span><span>Item</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Total</span>
+                    </div>
+                    {grouped.map((item, i) => (
+                      <div key={i} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
                         <span className="text-muted-foreground">{i + 1}</span>
-                        <span className="font-medium">{svc}</span>
-                        <span className="text-right tabular-nums">—</span>
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-xs text-muted-foreground">{item.description}</span>
+                        <span className="text-center">{item.qty}</span>
+                        <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
+                        <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                       </div>
-                    ));
-                  })()}
+                    ))}
+                  </div>
+
+                  <div className="ml-auto w-72 space-y-1.5 text-sm">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums font-medium">{formatDualPrice(viewRecord.amount)}</span></div>
+                    {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums font-medium">-{formatDualPrice(viewRecord.discount)}</span></div>}
+                    {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums font-medium">{formatDualPrice(viewRecord.tax)}</span></div>}
+                    <div className="border-t-2 border-primary pt-2 flex justify-between font-extrabold text-lg"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(viewRecord.total)}</span></div>
+                    {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
+                      <>
+                        {viewRecord.formData.splitPayments.map((sp, i) => (
+                          <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
+                        ))}
+                        <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(viewRecord.paid)}</span></div>
+                      </>
+                    ) : (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(viewRecord.paid)}</span></div>
+                    )}
+                    <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(viewRecord.due)}</span></div>
+                  </div>
+
+                  <div className="text-center pt-4 border-t border-dashed border-border">
+                    <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(viewRecord.id, 220, 50) }} />
+                    <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{viewRecord.id}</p>
+                  </div>
+
+                  <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg py-3 mt-2">
+                    <p className="text-xs text-primary font-medium">Thank you for choosing {appSettings.clinicName}. Get well soon! 🙏</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{appSettings.clinicWebsite} · {appSettings.clinicEmail}</p>
+                  </div>
                 </div>
-                <div className="ml-auto w-64 space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(viewRecord.amount)}</span></div>
-                  {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(viewRecord.discount)}</span></div>}
-                  {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums">{formatDualPrice(viewRecord.tax)}</span></div>}
-                  <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(viewRecord.total)}</span></div>
-                  {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
-                    <>
-                      {viewRecord.formData.splitPayments.map((sp, i) => (
-                        <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
-                      ))}
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
-                  )}
-                  <div className="flex justify-between text-sm font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(viewRecord.due)}</span></div>
+                <div className="px-6 pb-6 flex gap-3">
+                  <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">Close</Button>
+                  <Button onClick={() => printInvoiceWindow(viewRecord)} className="flex-1 gap-2 bg-primary hover:bg-primary/90"><Printer className="w-4 h-4" /> Print Invoice</Button>
                 </div>
-                <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
-              </div>
-              <div className="px-6 pb-6 flex gap-3">
-                <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">Close</Button>
-                <Button onClick={() => window.print()} className="flex-1 gap-2 bg-primary hover:bg-primary/90"><Printer className="w-4 h-4" /> Print Invoice</Button>
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
