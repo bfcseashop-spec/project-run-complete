@@ -130,6 +130,7 @@ const UltrasoundPage = () => {
   const [records, setRecords] = useState<UltrasoundRecord[]>(ultrasoundRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<UltrasoundRecord | null>(null);
+  const [viewRecord, setViewRecord] = useState<UltrasoundRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<UltrasoundRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
