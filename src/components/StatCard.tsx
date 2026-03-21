@@ -28,10 +28,10 @@ const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, ac
 
       <div className="relative flex items-start justify-between">
         <div className="space-y-1.5">
-          <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color }}>{title}</p>
-          <p className="text-3xl font-black text-card-foreground font-number tracking-tight leading-none">{value}</p>
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color }}>{title}</p>
+          <p className="text-2xl font-black text-card-foreground font-number tracking-tight leading-none">{value}</p>
           {change && (
-            <p className="text-[11px] text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Yesterday <span className="font-bold font-number">{change}</span>
             </p>
           )}
