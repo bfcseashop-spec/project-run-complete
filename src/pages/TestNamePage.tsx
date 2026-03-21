@@ -1,6 +1,6 @@
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText } from "lucide-react";
 import { sampleTypes } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { testCategories, type TestNameEntry } from "@/data/testNameStore";
 import { encodeCode128B, barcodeSVG } from "@/lib/barcode";
+import { exportToExcel, exportToPDF, generateSampleExcel, importFromExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 
 const TestNamePage = () => {
