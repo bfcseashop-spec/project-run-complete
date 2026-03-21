@@ -24,6 +24,7 @@ import SampleCollectionPage from "@/pages/SampleCollectionPage";
 import LabReportsPage from "@/pages/LabReportsPage";
 import XRayPage from "@/pages/XRayPage";
 import HealthServicesPage from "@/pages/HealthServicesPage";
+import HealthPackagesPage from "@/pages/HealthPackagesPage";
 import InjectionsPage from "@/pages/InjectionsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import SystemManagePage from "@/pages/SystemManagePage";
