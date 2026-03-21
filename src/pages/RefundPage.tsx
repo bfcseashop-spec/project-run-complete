@@ -31,7 +31,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { printRecordReport } from "@/lib/printUtils";
+import { printRecordReport, printRefundReceipt } from "@/lib/printUtils";
 import { toast } from "sonner";
 import {
   getRefunds, getAuditLog, addRefund,
@@ -270,6 +270,24 @@ const RefundPage = () => {
     if (deleteRecord) { deleteRefund(deleteRecord.id); toast.success(`Refund ${deleteRecord.id} deleted`); setDeleteRecord(null); }
   };
 
+  const printRefundReceiptForRecord = (r: RefundRecord) => {
+    const invoice = billingRecords.find((b) => b.id === r.invoiceId);
+    const originalTotal = invoice ? invoice.total + r.totalRefund : r.totalRefund;
+    printRefundReceipt({
+      refundId: r.id,
+      invoiceId: r.invoiceId,
+      patient: r.patient,
+      date: r.date,
+      items: r.items.map((i) => ({ name: i.name, type: i.type, qty: i.qty, unitPrice: i.unitPrice, total: i.total })),
+      originalTotal,
+      refundAmount: r.totalRefund,
+      newBalance: Math.max(0, originalTotal - r.totalRefund),
+      method: r.method,
+      reason: r.reason,
+      processedBy: r.processedBy,
+    });
+  };
+
   // Stats
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayRefunds = refunds.filter((r) => r.date === todayStr);
@@ -311,14 +329,7 @@ const RefundPage = () => {
       render: (r: RefundRecord) => (
         <div className="flex items-center gap-0.5">
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" onClick={() => setViewRecord(r)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Refund Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Invoice", value: r.invoiceId },
-              { label: "Items", value: r.items.map(i => `${i.name} x${i.qty}`).join(", ") },
-              { label: "Total Refund", value: formatDualPrice(r.totalRefund) }, { label: "Method", value: r.method },
-              { label: "Reason", value: r.reason }, { label: "Date", value: r.date },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" onClick={() => printRefundReceiptForRecord(r)}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" onClick={() => setDeleteRecord(r)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
         </div>
       ),
@@ -692,14 +703,7 @@ const RefundPage = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewRecord) printRecordReport({
-              id: viewRecord.id, sectionTitle: "Refund Report", fields: [
-                { label: "Patient", value: viewRecord.patient }, { label: "Invoice", value: viewRecord.invoiceId },
-                { label: "Items", value: viewRecord.items.map(i => `${i.name} x${i.qty}`).join(", ") },
-                { label: "Total", value: formatDualPrice(viewRecord.totalRefund) }, { label: "Method", value: viewRecord.method },
-                { label: "Reason", value: viewRecord.reason }, { label: "Date", value: viewRecord.date },
-              ],
-            }); }}><Printer className="w-4 h-4 mr-1" /> Print</Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewRecord) printRefundReceiptForRecord(viewRecord); }}><Printer className="w-4 h-4 mr-1" /> Print Receipt</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
