@@ -144,10 +144,9 @@ const LabReportsPage = () => {
     const finalForm = { ...form, sections: cleanedSections };
 
     if (editReport) {
-      setReports((prev) => prev.map((r) => r.id === editReport.id ? { ...editReport, ...finalForm } : r));
+      updateLabReport(editReport.id, finalForm);
     } else {
-      const nextNum = reports.length > 0 ? Math.max(...reports.map(r => parseInt(r.id.split("-")[1]))) + 1 : 1001;
-      setReports((prev) => [...prev, { id: `LR-${nextNum}`, ...finalForm }]);
+      addLabReport(finalForm);
     }
     setDialogOpen(false);
   };
