@@ -195,6 +195,7 @@ const SystemManagePage = () => {
     const root = document.documentElement;
     root.style.removeProperty("--font-body");
     root.style.removeProperty("--font-heading");
+    root.style.removeProperty("--font-number");
     root.style.removeProperty("--primary");
     root.style.removeProperty("--ring");
     root.style.removeProperty("--accent");
