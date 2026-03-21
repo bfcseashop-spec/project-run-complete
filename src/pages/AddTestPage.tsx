@@ -1,6 +1,6 @@
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
-import { useState } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { toast } from "sonner";
 
 interface TestEntry {
@@ -32,6 +33,12 @@ const AddTestPage = () => {
   useSettings();
   const navigate = useNavigate();
   const { activeTests, findByName } = useTestNameStore();
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+
+  const doctors = useMemo(() => {
+    const set = new Set(patients.map((p) => p.doctor).filter(Boolean));
+    return Array.from(set).sort();
+  }, [patients]);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
@@ -40,6 +47,20 @@ const AddTestPage = () => {
     technicianAssigned: "",
     notes: "",
   });
+
+  const handlePatientSelect = (patientId: string) => {
+    const p = patients.find((pt) => pt.id === patientId);
+    if (p) {
+      setForm({
+        ...form,
+        patient: p.name,
+        patientId: p.id,
+        age: String(p.age),
+        gender: (p.gender === "F" ? "Female" : p.gender === "M" ? "Male" : p.gender) as LabTest["gender"],
+        doctor: p.doctor,
+      });
+    }
+  };
 
   const [tests, setTests] = useState<TestEntry[]>([
     { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 },
@@ -107,11 +128,18 @@ const AddTestPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Patient Name <span className="text-destructive">*</span></Label>
-                  <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} placeholder="Full name" />
+                  <Select value={form.patientId} onValueChange={handlePatientSelect}>
+                    <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                    <SelectContent>
+                      {patients.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Patient ID</Label>
-                  <Input value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} placeholder="P-XXX" />
+                  <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -132,7 +160,14 @@ const AddTestPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Referring Doctor <span className="text-destructive">*</span></Label>
-                  <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} placeholder="Dr." />
+                  <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                    <SelectContent>
+                      {doctors.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
