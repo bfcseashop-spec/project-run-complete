@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import clinicLogo from "@/assets/clinic-logo.png";
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
+import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
 
 interface Prescription {
@@ -56,7 +57,8 @@ const initialPrescriptions: Prescription[] = [
 ];
 
 const PrescriptionPage = () => {
-  useSettings(); // subscribe to currency/language changes
+  useSettings();
+  const s = getSettings();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>(initialPrescriptions);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRx, setViewRx] = useState<Prescription | null>(null);
@@ -173,7 +175,12 @@ const PrescriptionPage = () => {
     if (!printWin) return;
     printWin.document.write(`<!DOCTYPE html><html><head><title>Prescription ${rx.id}</title><style>
       body{font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:20px}
-      .header{background:linear-gradient(135deg,hsl(170,60%,40%),hsl(210,60%,30%));color:#fff;padding:20px;border-radius:8px 8px 0 0}
+      .header{background:linear-gradient(135deg,hsl(170,60%,40%),hsl(210,60%,30%));color:#fff;padding:20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:flex-start}
+      .header-left h2{margin:0;font-size:18px}
+      .header-left small{opacity:0.7}
+      .header-right{text-align:right}
+      .header-right h3{margin:0;font-size:16px}
+      .header-right small{opacity:0.6;font-size:10px}
       .patient-bar{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #ddd;border-top:none}
       .patient-bar div{padding:8px 12px;border-right:1px solid #ddd;font-size:12px}
       .patient-bar div:last-child{border-right:none}
@@ -189,8 +196,12 @@ const PrescriptionPage = () => {
       h3{margin:16px 0 4px;font-size:14px;color:hsl(170,60%,35%)}
       .total{text-align:right;font-weight:700;padding:8px;border-top:2px solid #333;font-size:13px}
       .rx-symbol{font-size:28px;font-weight:bold;color:hsl(170,60%,35%);font-style:italic;margin-bottom:12px}
+      .footer{background:hsl(170,60%,40%);color:#fff;padding:8px 20px;display:flex;justify-content:space-between;font-size:10px;border-radius:0 0 8px 8px}
     </style></head><body>
-      <div class="header"><h2 style="margin:0">${rx.doctor}</h2><small>Prescription ID: ${rx.id}</small></div>
+      <div class="header">
+        <div class="header-left"><h2>${rx.doctor}</h2><small>Prescription ID: ${rx.id}</small></div>
+        <div class="header-right"><h3>${s.clinicName}</h3><small>${s.clinicTagline}</small>${s.clinicRegNumber ? `<br><small style="font-size:9px;opacity:0.5">Reg: ${s.clinicRegNumber}</small>` : ""}</div>
+      </div>
       <div class="patient-bar"><div><span>Patient: </span><strong>${rx.patient}</strong></div><div><span>Age/Gender: </span>${rx.age || "—"}, ${rx.gender || "—"}</div><div><span>Date: </span>${rx.date}</div></div>
       <div class="two-col">
         <div class="left-col">
@@ -218,6 +229,7 @@ const PrescriptionPage = () => {
           <p style="font-size:10px;color:#888;margin:2px 0 0">${rx.date}</p>
         </div>
       </div>
+      <div class="footer"><span>📞 ${s.clinicPhone}</span><span>📍 ${s.clinicAddress}</span><span>🌐 ${s.clinicWebsite}</span></div>
     </body></html>`);
     printWin.document.close();
     setTimeout(() => printWin.print(), 200);
@@ -402,10 +414,11 @@ const PrescriptionPage = () => {
                   </div>
                   <div className="flex items-center gap-3 text-right">
                     <div>
-                      <h3 className="text-lg font-bold text-white">Prime Poly Clinic</h3>
-                      <p className="text-xs text-white/70">Healthcare & Wellness</p>
+                      <h3 className="text-lg font-bold text-white">{s.clinicName}</h3>
+                      <p className="text-xs text-white/70">{s.clinicTagline}</p>
+                      {s.clinicRegNumber && <p className="text-[10px] text-white/50 mt-0.5">Reg: {s.clinicRegNumber}</p>}
                     </div>
-                    <img src={clinicLogo} alt="Prime Poly Clinic" className="w-12 h-12 rounded-lg bg-white/10 p-1" />
+                    <img src={clinicLogo} alt={s.clinicName} className="w-12 h-12 rounded-lg bg-white/10 p-1" />
                   </div>
                 </div>
               </div>
@@ -552,9 +565,9 @@ const PrescriptionPage = () => {
                 </div>
               </div>
               <div className="bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)] px-6 py-3 flex items-center justify-between text-white text-xs">
-                <span>📞 000 12345 6149</span>
-                <span>📍 Clinic Address Here</span>
-                <span>🌐 www.clinic.com</span>
+                <span>📞 {s.clinicPhone}</span>
+                <span>📍 {s.clinicAddress}</span>
+                <span>🌐 {s.clinicWebsite}</span>
               </div>
               <div className="flex justify-end p-4 border-t border-border">
                 <Button variant="outline" size="sm" onClick={() => window.print()}>
