@@ -56,6 +56,15 @@ const XRayPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<XRayImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images: XRayImage[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setFormImages([]); setDialogOpen(true); };
   const openEdit = (r: XRayRecord) => {
