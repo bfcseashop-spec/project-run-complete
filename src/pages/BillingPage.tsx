@@ -15,6 +15,10 @@ import { getSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
+import { barcodeSVG } from "@/lib/barcode";
+import clinicLogo from "@/assets/clinic-logo.png";
+import { initPatients, getPatients, subscribe } from "@/data/patientStore";
+import { opdPatients } from "@/data/opdPatients";
 import {
   Dialog, DialogContent,
 } from "@/components/ui/dialog";
@@ -26,6 +30,39 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+initPatients(opdPatients);
+
+const doctors = [
+  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
+  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
+  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
+  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
+  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
+];
+
+type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
+
+const groupLineItems = (lineItems: { type: string; name: string; price: number; qty: number }[]) => {
+  const groups: Record<string, { label: string; items: typeof lineItems }> = {
+    SVC: { label: "Services", items: [] },
+    INJ: { label: "Injections", items: [] },
+    PKG: { label: "Packages", items: [] },
+    MED: { label: "Medication", items: [] },
+    CUSTOM: { label: "Custom Items", items: [] },
+  };
+  lineItems.forEach((li) => {
+    const g = groups[li.type];
+    if (g) g.items.push(li);
+  });
+  return Object.entries(groups)
+    .filter(([, g]) => g.items.length > 0)
+    .map(([, g]) => {
+      const total = g.items.reduce((s, li) => s + li.price * li.qty, 0);
+      const qty = g.items.reduce((s, li) => s + li.qty, 0);
+      return { name: g.label, description: `${g.items.length} item(s)`, qty, price: total, total };
+    });
+};
 
 interface BillingRecord {
   id: string;
