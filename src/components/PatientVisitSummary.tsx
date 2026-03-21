@@ -249,7 +249,7 @@ export default function PatientVisitSummary({ open, onOpenChange, patient }: Pro
                         onClick={() => setExpandedVisit(isExpanded ? null : visit.id)}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="text-xs text-muted-foreground font-mono w-16 shrink-0">{visit.date}</div>
+                          <div className="text-xs text-muted-foreground font-mono w-[5.5rem] shrink-0">{fmt(visit.date)}</div>
                           <Badge variant="outline" className="text-[10px] shrink-0">{visit.id}</Badge>
                           <span className="text-sm truncate">{visit.formData?.doctor || "—"}</span>
                           <span className="text-xs text-muted-foreground truncate hidden md:inline">{visit.service}</span>
