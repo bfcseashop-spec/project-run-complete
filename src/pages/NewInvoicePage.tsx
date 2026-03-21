@@ -178,9 +178,23 @@ const NewInvoicePage = () => {
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
 
   const previewItems = useMemo(() => {
-    const items = nonMedicineItems.map((li) => ({ name: li.name, type: li.type, description: typeConfig[li.type].label, price: li.price, qty: li.qty, total: li.price * li.qty }));
-    if (medicationItems.length > 0) items.push({ name: "Medication", type: "MED" as LineItemType, description: `${medicationItems.length} item(s)`, price: medicationTotal, qty: 1, total: medicationTotal });
-    return items;
+    const groups: Record<LineItemType, { items: LineItem[]; label: string }> = {
+      SVC: { items: [], label: "Services" },
+      INJ: { items: [], label: "Injections" },
+      PKG: { items: [], label: "Packages" },
+      MED: { items: [], label: "Medication" },
+      CUSTOM: { items: [], label: "Custom Items" },
+    };
+    lineItems.forEach((li) => groups[li.type].items.push(li));
+    const result: { name: string; type: LineItemType; description: string; price: number; qty: number; total: number }[] = [];
+    (Object.keys(groups) as LineItemType[]).forEach((type) => {
+      const { items, label } = groups[type];
+      if (items.length === 0) return;
+      const total = items.reduce((s, li) => s + li.price * li.qty, 0);
+      const totalQty = items.reduce((s, li) => s + li.qty, 0);
+      result.push({ name: label, type, description: `${items.length} item(s)`, price: total, qty: totalQty, total });
+    });
+    return result;
   }, [lineItems]);
 
   const buildFormData = (): InvoiceFormData => ({
