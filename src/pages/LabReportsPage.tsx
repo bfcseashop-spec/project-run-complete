@@ -231,12 +231,35 @@ const LabReportsPage = () => {
           label = `${diffWeeks.toFixed(1)}w`;
           colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
         }
+
+        // Check if overdue based on expectedTAT
+        let isOverdue = false;
+        if (r.expectedTAT && !r.resultDate) {
+          const tatMatch = r.expectedTAT.match(/^(\d+)(h|d|w)$/);
+          if (tatMatch) {
+            const tatVal = parseInt(tatMatch[1]);
+            const tatUnit = tatMatch[2];
+            const tatHrs = tatUnit === "h" ? tatVal : tatUnit === "d" ? tatVal * 24 : tatVal * 168;
+            if (diffHrs > tatHrs) {
+              isOverdue = true;
+              colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
+            }
+          }
+        }
+
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
-            <Clock className="w-3 h-3" />
-            {label}
-            {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
-          </span>
+          <div className="flex flex-col gap-0.5">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
+              <Clock className="w-3 h-3" />
+              {label}
+              {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
+            </span>
+            {r.expectedTAT && (
+              <span className={`text-[10px] ml-1 ${isOverdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                {isOverdue ? "⚠ Overdue" : `ETA: ${r.expectedTAT}`}
+              </span>
+            )}
+          </div>
         );
       },
     },
