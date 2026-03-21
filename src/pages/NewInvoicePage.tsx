@@ -371,10 +371,16 @@ const NewInvoicePage = () => {
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <!-- Barcode -->
-    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="display:inline-block">${barcodeStr}</div>
-      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+    <!-- Barcode & QR -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="text-align:center">
+        <div style="display:inline-block">${barcodeStr}</div>
+        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+      </div>
+      <div style="text-align:center">
+        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
+        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
+      </div>
     </div>
     <!-- Footer -->
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
