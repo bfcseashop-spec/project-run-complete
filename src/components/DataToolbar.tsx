@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
-  Download, Upload, FileSpreadsheet, FileText, List, LayoutGrid, Calendar,
+  Download, Upload, FileSpreadsheet, FileText, List, LayoutGrid, Calendar, Search,
 } from "lucide-react";
 import { DatePreset, datePresets } from "@/lib/dateFilters";
 import { toast } from "sonner";
