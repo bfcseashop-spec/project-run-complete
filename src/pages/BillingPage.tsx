@@ -99,18 +99,27 @@ const BillingPage = () => {
   }, []);
 
   const getMedQty = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return 0;
-    return r.formData.lineItems.filter(li => li.type === "MED").reduce((s, li) => s + li.qty, 0);
+    if (r.formData?.lineItems) {
+      return r.formData.lineItems.filter(li => li.type === "MED").reduce((s, li) => s + li.qty, 0);
+    }
+    // Fallback: check service string for medicine-related keywords
+    if (r.service.toLowerCase().includes("medicine") || r.service.toLowerCase().includes("prescription")) return 1;
+    return 0;
   };
   const getInjection = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return r.service.includes("Injection") ? "Yes" : "—";
-    const inj = r.formData.lineItems.filter(li => li.type === "INJ");
-    return inj.length > 0 ? inj.map(li => li.name).join(", ") : "—";
+    if (r.formData?.lineItems) {
+      const inj = r.formData.lineItems.filter(li => li.type === "INJ");
+      return inj.length > 0 ? inj.map(li => li.name).join(", ") : "—";
+    }
+    return r.service.toLowerCase().includes("injection") ? "Yes" : "—";
   };
   const getPackages = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return r.service.includes("Checkup") ? "Yes" : "—";
-    const pkg = r.formData.lineItems.filter(li => li.type === "PKG");
-    return pkg.length > 0 ? pkg.map(li => li.name).join(", ") : "—";
+    if (r.formData?.lineItems) {
+      const pkg = r.formData.lineItems.filter(li => li.type === "PKG");
+      return pkg.length > 0 ? pkg.map(li => li.name).join(", ") : "—";
+    }
+    if (r.service.toLowerCase().includes("checkup") || r.service.toLowerCase().includes("package")) return "Yes";
+    return "—";
   };
 
   const columns = [
@@ -298,10 +307,10 @@ const BillingPage = () => {
       </PageHeader>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
-        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} changeType="positive" icon={TrendingUp} iconBg="bg-success/10" />
-        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} changeType={todayStats.due > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
-        <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} changeType={todayStats.pending > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
+        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} icon={DollarSign} accentColor="hsl(160, 50%, 38%)" />
+        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} icon={TrendingUp} accentColor="hsl(200, 60%, 45%)" />
+        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} icon={AlertTriangle} accentColor="hsl(350, 50%, 50%)" />
+        <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} icon={CheckCircle} accentColor="hsl(142, 50%, 42%)" />
       </div>
 
       <DataToolbar
