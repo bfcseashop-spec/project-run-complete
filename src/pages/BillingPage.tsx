@@ -78,6 +78,7 @@ const BillingPage = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
+  useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
 
   // Pick up submitted invoice from the full-page form
   useEffect(() => {
