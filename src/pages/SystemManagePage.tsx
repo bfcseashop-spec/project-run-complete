@@ -269,6 +269,40 @@ const SystemManagePage = () => {
             </Card>
           </div>
 
+          {/* Number Font */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Number / Stats Font</CardTitle>
+              <CardDescription>Used for numeric values, prices, stats, and counters throughout the system</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Select value={settings.numberFont} onValueChange={v => update({ numberFont: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {numberFontFamilies.map(f => (
+                    <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value === "__same__" ? settings.bodyFont : f.value }}>{f.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="p-4 rounded-lg bg-muted/50 border border-border" style={{ fontFamily: settings.numberFont === "__same__" ? settings.bodyFont : settings.numberFont, fontVariantNumeric: "tabular-nums" }}>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Revenue</p>
+                    <p className="text-3xl font-extrabold mt-1">$67,450</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patients</p>
+                    <p className="text-3xl font-extrabold mt-1">1,284</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tests</p>
+                    <p className="text-3xl font-extrabold mt-1">23</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">0123456789 — $12,345.67 — 99.9%</p>
+              </div>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Font Size</CardTitle>
