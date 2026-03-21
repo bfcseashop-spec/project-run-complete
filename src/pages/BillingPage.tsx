@@ -65,41 +65,20 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
     });
 };
 
-interface BillingRecord {
-  id: string;
-  patient: string;
-  service: string;
-  amount: number;
-  discount: number;
-  tax: number;
-  total: number;
-  paid: number;
-  due: number;
-  date: string;
-  status: "completed" | "pending" | "critical";
-  method: string;
-  formData?: InvoiceFormData;
-}
-
-const initialData: BillingRecord[] = [
-  { id: "BIL-001", patient: "Sarah Johnson", service: "Lab Test + Consultation", amount: 350, discount: 20, tax: 16.5, total: 346.5, paid: 346.5, due: 0, date: "2026-03-19", status: "completed", method: "Cash" },
-  { id: "BIL-002", patient: "Michael Chen", service: "X-Ray", amount: 200, discount: 0, tax: 10, total: 210, paid: 100, due: 110, date: "2026-03-18", status: "pending", method: "Card" },
-  { id: "BIL-003", patient: "Emily Davis", service: "Ultrasound + Injection", amount: 480, discount: 30, tax: 22.5, total: 472.5, paid: 0, due: 472.5, date: "2026-03-17", status: "critical", method: "—" },
-  { id: "BIL-004", patient: "James Wilson", service: "Health Checkup", amount: 150, discount: 0, tax: 7.5, total: 157.5, paid: 157.5, due: 0, date: "2026-03-16", status: "completed", method: "Cash" },
-  { id: "BIL-005", patient: "Rina Akter", service: "Prescription + Medicine", amount: 90, discount: 10, tax: 4, total: 84, paid: 50, due: 34, date: "2026-03-15", status: "pending", method: "ABA" },
-];
+import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, subscribeBilling } from "@/data/billingStore";
 
 const BillingPage = () => {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const lang = settings.language;
   const appSettings = getSettings();
-  const [billingData, setBillingData] = useState<BillingRecord[]>(initialData);
+  const [billingData, setBillingData] = useState<BillingRecord[]>(getBillingRecords());
   const [viewRecord, setViewRecord] = useState<BillingRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
+  useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
 
   // Pick up submitted invoice from the full-page form
   useEffect(() => {
@@ -115,7 +94,7 @@ const BillingPage = () => {
       const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
-      setBillingData((prev) => [record, ...prev]);
+      addBillingRecord(record);
     } catch { /* ignore */ }
   }, []);
 
@@ -174,7 +153,7 @@ const BillingPage = () => {
   const handleEdit = (record: BillingRecord) => {
     navigate("/billing/edit", { state: { editData: record.formData } });
   };
-  const handleDelete = () => { if (deleteRecord) { setBillingData((prev) => prev.filter((r) => r.id !== deleteRecord.id)); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
+  const handleDelete = () => { if (deleteRecord) { removeBillingRecord(deleteRecord.id); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const printInvoiceWindow = (record: BillingRecord) => {
     const s = appSettings;
     const p = patients.find((pt) => pt.name === record.patient);

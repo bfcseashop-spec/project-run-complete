@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   ClipboardList, TrendingUp, Calendar, Syringe, ScanLine, Heart, FileText,
   Activity, ArrowUpRight, Clock, Zap, ChevronRight,
+  Banknote, CreditCard, Building2, Landmark,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import {
@@ -14,7 +15,8 @@ import { getSettings } from "@/data/settingsStore";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
 import PaymentMethodChart from "@/components/PaymentMethodChart";
-import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
+import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
+import { parseISO, isWithinInterval } from "date-fns";
 
 const patientData = [
   { month: "Jan", patients: 120, returning: 45 }, { month: "Feb", patients: 145, returning: 58 },
@@ -68,20 +70,47 @@ const quickActions = [
   { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
 ];
 
+const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
+  Cash: { color: "hsl(142, 71%, 45%)", icon: Banknote },
+  ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
+  ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
+  Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
+};
+
 const Dashboard = () => {
   const settings = useSettings();
   const [filterPreset, setFilterPreset] = useState<DashboardFilterPreset>("today");
   const [customRange, setCustomRange] = useState<{ from: Date; to: Date } | null>(null);
+  const [billingRecords, setBillingRecords] = useState(getBillingRecords());
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
 
-  // Payment method data (would come from billing records in production)
-  const paymentData = [
-    { name: "Cash", amount: 12500, count: 34, color: "hsl(142, 71%, 45%)", icon: Banknote },
-    { name: "ABA", amount: 8200, count: 18, color: "hsl(217, 91%, 60%)", icon: Building2 },
-    { name: "ACleda", amount: 6800, count: 15, color: "hsl(38, 92%, 50%)", icon: Landmark },
-    { name: "Card", amount: 4500, count: 10, color: "hsl(270, 60%, 55%)", icon: CreditCard },
-  ];
+  useEffect(() => {
+    const unsub = subscribeBilling(() => setBillingRecords([...getBillingRecords()]));
+    return unsub;
+  }, []);
+
+  // Filter billing records by selected date range
+  const filteredBilling = useMemo(() => {
+    const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
+    return billingRecords.filter((r) => {
+      try {
+        const d = parseISO(r.date);
+        return isWithinInterval(d, { start: range.from, end: range.to });
+      } catch { return false; }
+    });
+  }, [billingRecords, filterPreset, customRange]);
+
+  // Build payment method data from filtered billing
+  const paymentData = useMemo(() => {
+    const methods = ["Cash", "ABA", "ACleda", "Card"];
+    return methods.map((name) => {
+      const matching = filteredBilling.filter((r) => r.method === name);
+      const amount = matching.reduce((s, r) => s + r.paid, 0);
+      const meta = paymentMeta[name];
+      return { name, amount, count: matching.length, color: meta.color, icon: meta.icon };
+    });
+  }, [filteredBilling]);
 
   return (
     <div className="space-y-6">
