@@ -29,9 +29,10 @@ import {
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
-  labReports, type LabReport, type ReportSection, type ReportInvestigation,
+  labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
 } from "@/data/labReports";
+import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView from "@/components/LabReportView";
 
 const categoryIcons: Record<string, React.ElementType> = {
