@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   Calendar, Syringe, ScanLine, Heart, FileText,
-  Activity, Clock, Zap, ArrowRight, ChevronRight,
+  Activity, Clock, Zap, ArrowRight,
   Banknote, CreditCard, Building2, Landmark,
-  ClipboardList, Waypoints,
+  ClipboardList,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import {
@@ -20,42 +20,42 @@ import { parseISO, isWithinInterval } from "date-fns";
 
 /* ── Static Data ── */
 const weeklyData = [
-  { day: "M", visits: 32 }, { day: "T", visits: 28 }, { day: "W", visits: 45 },
-  { day: "T", visits: 38 }, { day: "F", visits: 42 }, { day: "S", visits: 22 }, { day: "S", visits: 12 },
+  { day: "Mon", visits: 32 }, { day: "Tue", visits: 28 }, { day: "Wed", visits: 45 },
+  { day: "Thu", visits: 38 }, { day: "Fri", visits: 42 }, { day: "Sat", visits: 22 }, { day: "Sun", visits: 12 },
 ];
 
 const departmentData = [
-  { name: "OPD", value: 40, fill: "hsl(var(--primary))" },
+  { name: "OPD", value: 40, fill: "hsl(160, 84%, 39%)" },
   { name: "Lab Tests", value: 25, fill: "hsl(200, 80%, 45%)" },
   { name: "X-Ray", value: 15, fill: "hsl(38, 92%, 50%)" },
   { name: "Ultrasound", value: 12, fill: "hsl(270, 60%, 55%)" },
-  { name: "Other", value: 8, fill: "hsl(215, 25%, 60%)" },
+  { name: "Other", value: 8, fill: "hsl(350, 65%, 55%)" },
 ];
 
 const recentActivity = [
-  { id: "BIL-001", type: "Billing", description: "Invoice — Sarah Johnson", time: "5m", icon: DollarSign, color: "hsl(142, 71%, 45%)" },
-  { id: "LT-501", type: "Lab Test", description: "CBC — Michael Chen", time: "12m", icon: TestTube, color: "hsl(200, 80%, 45%)" },
-  { id: "RX-201", type: "Rx", description: "Prescription — Dr. Smith", time: "20m", icon: FileText, color: "hsl(270, 60%, 55%)" },
-  { id: "SC-3001", type: "Sample", description: "Blood sample — Sarah J.", time: "30m", icon: Syringe, color: "hsl(38, 92%, 50%)" },
-  { id: "XR-2001", type: "X-Ray", description: "Chest PA — James Wilson", time: "45m", icon: ScanLine, color: "hsl(350, 65%, 55%)" },
+  { id: "BIL-001", type: "Billing", description: "Invoice — Sarah Johnson", time: "5 min ago", icon: DollarSign, color: "hsl(142, 71%, 45%)" },
+  { id: "LT-501", type: "Lab Test", description: "CBC — Michael Chen", time: "12 min ago", icon: TestTube, color: "hsl(200, 80%, 45%)" },
+  { id: "RX-201", type: "Rx", description: "Prescription — Dr. Smith", time: "20 min ago", icon: FileText, color: "hsl(270, 60%, 55%)" },
+  { id: "SC-3001", type: "Sample", description: "Blood sample — Sarah J.", time: "30 min ago", icon: Syringe, color: "hsl(38, 92%, 50%)" },
+  { id: "XR-2001", type: "X-Ray", description: "Chest PA — James Wilson", time: "45 min ago", icon: ScanLine, color: "hsl(350, 65%, 55%)" },
 ];
 
 const upcomingAppointments = [
-  { patient: "Robert Taylor", doctor: "Dr. Smith", time: "2:00 PM", type: "Consult", avatar: "RT", color: "hsl(var(--primary))" },
+  { patient: "Robert Taylor", doctor: "Dr. Smith", time: "2:00 PM", type: "Consult", avatar: "RT", color: "hsl(160, 84%, 39%)" },
   { patient: "Lisa Anderson", doctor: "Dr. Patel", time: "2:30 PM", type: "Lab Review", avatar: "LA", color: "hsl(200, 80%, 45%)" },
   { patient: "David Martinez", doctor: "Dr. Williams", time: "3:00 PM", type: "X-Ray", avatar: "DM", color: "hsl(38, 92%, 50%)" },
   { patient: "Emma Thompson", doctor: "Dr. Lee", time: "3:30 PM", type: "Follow-up", avatar: "ET", color: "hsl(270, 60%, 55%)" },
 ];
 
 const operationsData = [
-  { icon: Users, label: "Register Patient", desc: "New OPD registration", path: "/opd", color: "hsl(var(--primary))" },
-  { icon: TestTube, label: "Lab Tests", desc: "Order & manage tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
-  { icon: FileText, label: "Prescription", desc: "Write prescriptions", path: "/prescription", color: "hsl(270, 60%, 55%)" },
-  { icon: DollarSign, label: "New Invoice", desc: "Create billing invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)" },
-  { icon: ScanLine, label: "X-Ray", desc: "Request imaging", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
-  { icon: Syringe, label: "Injections", desc: "Administer injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
-  { icon: Pill, label: "Medicine", desc: "Medicine inventory", path: "/medicine", color: "hsl(215, 60%, 55%)" },
-  { icon: Heart, label: "Health Services", desc: "Manage services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
+  { icon: Users, label: "Register Patient", desc: "New OPD registration", path: "/opd", color: "hsl(160, 84%, 39%)", bg: "linear-gradient(135deg, hsl(160,84%,39%), hsl(160,84%,30%))" },
+  { icon: TestTube, label: "Lab Tests", desc: "Order & manage tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)", bg: "linear-gradient(135deg, hsl(200,80%,45%), hsl(200,80%,35%))" },
+  { icon: FileText, label: "Prescription", desc: "Write prescriptions", path: "/prescription", color: "hsl(270, 60%, 55%)", bg: "linear-gradient(135deg, hsl(270,60%,55%), hsl(270,60%,42%))" },
+  { icon: DollarSign, label: "New Invoice", desc: "Create billing invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)", bg: "linear-gradient(135deg, hsl(142,71%,45%), hsl(142,71%,35%))" },
+  { icon: ScanLine, label: "X-Ray", desc: "Request imaging", path: "/x-ray", color: "hsl(38, 92%, 50%)", bg: "linear-gradient(135deg, hsl(38,92%,50%), hsl(38,92%,40%))" },
+  { icon: Syringe, label: "Injections", desc: "Administer injections", path: "/injections", color: "hsl(350, 65%, 55%)", bg: "linear-gradient(135deg, hsl(350,65%,55%), hsl(350,65%,42%))" },
+  { icon: Pill, label: "Medicine", desc: "Medicine inventory", path: "/medicine", color: "hsl(215, 60%, 55%)", bg: "linear-gradient(135deg, hsl(215,60%,55%), hsl(215,60%,42%))" },
+  { icon: Heart, label: "Health Services", desc: "Manage services", path: "/health-services", color: "hsl(340, 70%, 55%)", bg: "linear-gradient(135deg, hsl(340,70%,55%), hsl(340,70%,42%))" },
 ];
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
@@ -95,34 +95,39 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 w-full">
-      {/* ── Welcome Banner (gradient steps style) ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/5 via-card to-card border border-border/40 p-6">
-        <div className="flex items-center justify-between">
+      {/* ── Bold Welcome Banner ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-7 text-primary-foreground">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute w-64 h-64 rounded-full bg-white/20 -top-20 -right-20" />
+          <div className="absolute w-40 h-40 rounded-full bg-white/15 bottom-0 left-10" />
+          <div className="absolute w-20 h-20 rounded-full bg-white/10 top-10 right-1/3" />
+        </div>
+        <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-extrabold font-heading text-foreground tracking-tight">{greeting}, Doctor! 👋</h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h1 className="text-2xl font-black font-heading tracking-tight">{greeting}, Doctor! 👋</h1>
+            <p className="text-primary-foreground/70 text-sm mt-1 font-medium">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-primary">
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
               <Activity className="w-4 h-4" />
-              <span className="text-sm font-bold font-number">47</span>
-              <span className="text-xs">patients today</span>
+              <span className="text-lg font-black font-number">47</span>
+              <span className="text-xs font-medium opacity-80">patients</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-bold font-number text-foreground">8</span>
-              <span className="text-xs text-muted-foreground">in queue</span>
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
+              <Clock className="w-4 h-4" />
+              <span className="text-lg font-black font-number">8</span>
+              <span className="text-xs font-medium opacity-80">in queue</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Today's Data Section ── */}
+      {/* ── Today's Data ── */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-bold font-heading text-foreground">Today's Data</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black font-heading text-foreground">📊 Today's Data</h2>
           <DashboardDateFilter
             preset={filterPreset}
             customRange={customRange}
@@ -130,76 +135,78 @@ const Dashboard = () => {
             onCustomRangeChange={setCustomRange}
           />
         </div>
-
-        {/* Primary Stats - colored gradient cards like reference */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-          <StatCard icon={DollarSign} title="Payment Amount" value={formatDualPrice(67450)} change="58,200" changeType="positive" accentColor="hsl(340, 70%, 55%)" />
-          <StatCard icon={ClipboardList} title="Payment Orders" value="793" change="753" changeType="neutral" accentColor="hsl(var(--primary))" />
-          <StatCard icon={Users} title="Total Patients" value="1,284" change="1,150" changeType="positive" accentColor="hsl(200, 80%, 45%)" />
-          <StatCard icon={Stethoscope} title="Pending Orders" value="47" change="42" changeType="neutral" accentColor="hsl(142, 71%, 45%)" />
+          <StatCard icon={DollarSign} title="Revenue" value={formatDualPrice(67450)} change="58,200" accentColor="hsl(340, 70%, 55%)" />
+          <StatCard icon={ClipboardList} title="Invoices" value="793" change="753" accentColor="hsl(200, 80%, 45%)" />
+          <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 84%, 39%)" />
+          <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(270, 60%, 55%)" />
         </div>
-
-        {/* Secondary Stats - plain white cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={TestTube} title="Pending Tests" value="23" change="28" changeType="positive" accentColor="hsl(38, 92%, 50%)" />
-          <StatCard icon={Pill} title="Medicines" value="6" change="8" changeType="negative" accentColor="hsl(270, 60%, 55%)" />
-          <StatCard icon={ScanLine} title="X-Ray Orders" value="8" change="5" changeType="neutral" accentColor="hsl(215, 60%, 55%)" />
-          <StatCard icon={Heart} title="Health Services" value="7" change="6" changeType="positive" accentColor="hsl(350, 65%, 55%)" />
+          <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 92%, 50%)" />
+          <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 60%, 55%)" />
+          <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 71%, 45%)" />
+          <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 65%, 55%)" />
         </div>
       </div>
 
-      {/* ── Operations Assistant Grid ── */}
+      {/* ── Quick Actions (colorful icon buttons) ── */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-bold font-heading text-foreground">Quick Actions</h2>
-          <a href="/system" className="text-xs font-semibold text-primary hover:underline">More</a>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black font-heading text-foreground">⚡ Quick Actions</h2>
+          <a href="/system" className="text-xs font-bold text-primary hover:underline">View All →</a>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {operationsData.map((op, i) => (
             <a
               key={i}
               href={op.path}
-              className="flex items-center gap-3 p-4 rounded-2xl border border-border/40 bg-card hover:shadow-md hover:border-primary/20 transition-all group"
+              className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: `${op.color}15` }}
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                style={{ background: op.bg }}
               >
-                <op.icon className="w-4.5 h-4.5" style={{ color: op.color }} />
+                <op.icon className="w-5 h-5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-card-foreground">{op.label}</p>
+                <p className="text-[13px] font-bold text-card-foreground group-hover:text-primary transition-colors">{op.label}</p>
                 <p className="text-[10px] text-muted-foreground">{op.desc}</p>
               </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
             </a>
           ))}
         </div>
       </div>
 
-      {/* ── Middle Grid: Activity, Schedule, Charts ── */}
+      {/* ── Middle Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Live Activity */}
         <div className="bg-card rounded-2xl border border-border/40 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-primary" /> Live Activity
+            <h3 className="text-sm font-black text-card-foreground font-heading flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-emerald-500" />
+              </span>
+              Live Activity
             </h3>
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
             </span>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {recentActivity.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${a.color}15` }}>
-                  <a.icon className="w-3.5 h-3.5" style={{ color: a.color }} />
+              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/50 transition-colors">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm" style={{ background: `${a.color}20` }}>
+                  <a.icon className="w-4 h-4" style={{ color: a.color }} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium text-card-foreground truncate">{a.description}</p>
-                  <span className="text-[10px] text-muted-foreground">{a.type}</span>
+                  <p className="text-[12px] font-semibold text-card-foreground truncate">{a.description}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{ background: `${a.color}15`, color: a.color }}>{a.type}</span>
+                    <span className="text-[10px] text-muted-foreground">{a.time}</span>
+                  </div>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-medium flex-shrink-0">{a.time}</span>
               </div>
             ))}
           </div>
@@ -208,27 +215,30 @@ const Dashboard = () => {
         {/* Schedule */}
         <div className="bg-card rounded-2xl border border-border/40 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-primary" /> Schedule
+            <h3 className="text-sm font-black text-card-foreground font-heading flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Calendar className="w-3.5 h-3.5 text-primary" />
+              </span>
+              Schedule
             </h3>
-            <span className="text-[10px] font-bold text-primary">Today</span>
+            <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-lg">TODAY</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {upcomingAppointments.map((a, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors" style={{ background: `${a.color}08` }}>
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm"
                   style={{ background: a.color }}
                 >
                   {a.avatar}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-semibold text-card-foreground truncate">{a.patient}</p>
+                  <p className="text-[12px] font-bold text-card-foreground truncate">{a.patient}</p>
                   <p className="text-[10px] text-muted-foreground">{a.doctor}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-[11px] font-bold text-card-foreground font-number">{a.time}</p>
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{a.type}</p>
+                  <p className="text-[12px] font-black font-number" style={{ color: a.color }}>{a.time}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">{a.type}</p>
                 </div>
               </div>
             ))}
@@ -238,34 +248,38 @@ const Dashboard = () => {
         {/* Weekly + Department */}
         <div className="flex flex-col gap-4">
           <div className="bg-card rounded-2xl border border-border/40 p-5">
-            <h3 className="text-sm font-bold text-card-foreground font-heading mb-2">This Week</h3>
-            <ResponsiveContainer width="100%" height={110}>
-              <BarChart data={weeklyData} barSize={20}>
-                <Bar dataKey="visits" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} opacity={0.75} />
-                <XAxis dataKey="day" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: "8px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "11px" }} />
+            <h3 className="text-sm font-black text-card-foreground font-heading mb-3">📈 This Week</h3>
+            <ResponsiveContainer width="100%" height={120}>
+              <BarChart data={weeklyData} barSize={22}>
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <Bar dataKey="visits" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "11px", fontWeight: 700 }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           <div className="bg-card rounded-2xl border border-border/40 p-5 flex-1">
-            <h3 className="text-sm font-bold text-card-foreground font-heading mb-2">Departments</h3>
+            <h3 className="text-sm font-black text-card-foreground font-heading mb-3">🏥 Departments</h3>
             <div className="flex items-center gap-4">
-              <ResponsiveContainer width={90} height={90}>
+              <ResponsiveContainer width={100} height={100}>
                 <PieChart>
-                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={28} outerRadius={42} dataKey="value" paddingAngle={2} strokeWidth={0}>
+                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={30} outerRadius={48} dataKey="value" paddingAngle={3} strokeWidth={0}>
                     {departmentData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-              <div className="space-y-1.5 flex-1">
+              <div className="space-y-2 flex-1">
                 {departmentData.map((d, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.fill }} />
-                      <span className="text-[11px] text-card-foreground">{d.name}</span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground font-number">{d.value}%</span>
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-md" style={{ backgroundColor: d.fill }} />
+                    <span className="text-[11px] font-semibold text-card-foreground flex-1">{d.name}</span>
+                    <span className="text-[11px] font-bold font-number" style={{ color: d.fill }}>{d.value}%</span>
                   </div>
                 ))}
               </div>
