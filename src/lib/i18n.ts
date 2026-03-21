@@ -97,6 +97,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     code: "কোড", route: "রুট", strength: "শক্তি",
     frequency: "ফ্রিকোয়েন্সি", duration: "সময়কাল", dosage: "ডোজ", injection: "ইনজেকশন",
     systemManage: "সিস্টেম ম্যানেজ",
+    refund: "ফেরত",
   },
 };
 
