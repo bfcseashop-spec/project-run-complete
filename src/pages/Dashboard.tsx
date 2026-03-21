@@ -32,9 +32,6 @@ const departmentData = [
   { name: "Other", value: 8, fill: "hsl(215, 25%, 60%)" },
 ];
 
-const radialData = [
-  { name: "Completed", value: 82, fill: "hsl(var(--primary))" },
-];
 
 const recentActivity = [
   { id: "BIL-001", type: "Billing", description: "Invoice created for Sarah Johnson", time: "5 min ago", icon: DollarSign, color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
