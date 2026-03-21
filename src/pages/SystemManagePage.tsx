@@ -118,9 +118,11 @@ function applyStyles(s: SystemSettings) {
   // Font imports
   const bodyDef = fontFamilies.find(f => f.value === s.bodyFont);
   const headDef = headingFamilies.find(f => f.value === s.headingFont);
+  const numDef = numberFontFamilies.find(f => f.value === s.numberFont);
   const imports: string[] = [];
   if (bodyDef?.import) imports.push(bodyDef.import);
   if (headDef?.import && s.headingFont !== "__same__") imports.push(headDef.import);
+  if (numDef?.import && s.numberFont !== "__same__") imports.push(numDef.import);
 
   let linkEl = document.getElementById("system-manage-fonts") as HTMLLinkElement | null;
   if (!linkEl) {
