@@ -12,6 +12,9 @@ import {
 import { formatDualPrice, formatPrice, convertToSecondary } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
 import { useSettings } from "@/hooks/use-settings";
+import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
+import PaymentMethodChart from "@/components/PaymentMethodChart";
+import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
 
 const patientData = [
   { month: "Jan", patients: 120, returning: 45 }, { month: "Feb", patients: 145, returning: 58 },
