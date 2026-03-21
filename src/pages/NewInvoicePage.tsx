@@ -822,13 +822,25 @@ const NewInvoicePage = () => {
                   <span>#</span><span>Item</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Total</span>
                 </div>
                 {previewItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
-                    <span className="text-muted-foreground">{i + 1}</span>
-                    <span className="font-medium">{item.name}</span>
-                    <span className="text-xs text-muted-foreground">{item.description}</span>
-                    <span className="text-center">{item.qty}</span>
-                    <span className="text-right tabular-nums">{formatPrice(item.price)}</span>
-                    <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
+                  <div key={i}>
+                    <div className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm bg-muted/30">
+                      <span className="text-muted-foreground">{i + 1}</span>
+                      <span className="font-semibold">{item.name}</span>
+                      <span className="text-xs text-muted-foreground">{item.description}</span>
+                      <span className="text-center font-medium">{item.qty}</span>
+                      <span className="text-right tabular-nums font-medium">{formatPrice(item.price)}</span>
+                      <span className="text-right font-bold tabular-nums">{formatPrice(item.total)}</span>
+                    </div>
+                    {item.subItems.map((sub, j) => (
+                      <div key={j} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-1.5 border-t border-border/40 items-center text-xs text-muted-foreground/70">
+                        <span></span>
+                        <span className="pl-3">↳ {sub.name}</span>
+                        <span></span>
+                        <span className="text-center">{sub.qty}</span>
+                        <span className="text-right tabular-nums">{formatPrice(sub.price)}</span>
+                        <span className="text-right tabular-nums">{formatPrice(sub.total)}</span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
