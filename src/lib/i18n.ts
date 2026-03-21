@@ -106,6 +106,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     refund: "ফেরত",
     addService: "সেবা যোগ করুন",
     healthPackages: "প্যাকেজ",
+    inventoryList: "ইনভেন্টরি তালিকা",
   },
 };
 
