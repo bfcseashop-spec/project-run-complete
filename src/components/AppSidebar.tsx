@@ -5,7 +5,7 @@ import {
   MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
   Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
-  RotateCcw,
+  RotateCcw, Package,
 } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -42,7 +42,12 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: ClipboardList, labelKey: "opdSection", path: "/opd" },
       { icon: FileText, labelKey: "prescriptions", path: "/prescriptions" },
-      { icon: Heart, labelKey: "healthServices", path: "/health-services" },
+      { icon: Heart, labelKey: "healthServices", path: "/health-services",
+        subItems: [
+          { icon: Plus, labelKey: "addService", path: "/health-services" },
+          { icon: Package, labelKey: "healthPackages", path: "/health-services/packages" },
+        ],
+      },
       { icon: Syringe, labelKey: "injections", path: "/injections" },
     ],
   },
@@ -93,7 +98,7 @@ const menuSections: MenuSection[] = [
 const AppSidebar = () => {
   const { collapsed, toggle } = useSidebarState();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests", "/health-services"]);
   const { settings } = useSettings();
   const lang = settings.language;
 

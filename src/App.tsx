@@ -24,6 +24,7 @@ import SampleCollectionPage from "@/pages/SampleCollectionPage";
 import LabReportsPage from "@/pages/LabReportsPage";
 import XRayPage from "@/pages/XRayPage";
 import HealthServicesPage from "@/pages/HealthServicesPage";
+import HealthPackagesPage from "@/pages/HealthPackagesPage";
 import InjectionsPage from "@/pages/InjectionsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import SystemManagePage from "@/pages/SystemManagePage";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/ultrasound" element={<UltrasoundPage />} />
             <Route path="/sample-collection" element={<SampleCollectionPage />} />
             <Route path="/health-services" element={<HealthServicesPage />} />
+            <Route path="/health-services/packages" element={<HealthPackagesPage />} />
             <Route path="/injections" element={<InjectionsPage />} />
             <Route path="/hrm" element={<HRMPage />} />
             <Route path="/roles" element={<RolesPage />} />
