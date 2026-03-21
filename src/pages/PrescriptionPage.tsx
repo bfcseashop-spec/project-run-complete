@@ -399,22 +399,26 @@ const PrescriptionPage = () => {
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <img src={clinicLogo} alt="" className="w-48 h-48 opacity-[0.06]" />
                 </div>
-                <div className="relative z-10 border-r border-border p-4 space-y-6">
+                <div className="relative z-10 border-r border-border p-4 space-y-4">
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">C/C</p>
-                    <p className="text-sm text-foreground">
-                      {viewRx.tests && viewRx.tests.length > 0
-                        ? viewRx.tests.map((t) => t.name).join(", ")
-                        : "—"}
-                    </p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Chief Complaint</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.chiefComplaint || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">D/E</p>
-                    <p className="text-sm text-muted-foreground">—</p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">On Examination</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.onExamination || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">BP</p>
-                    <p className="text-sm text-muted-foreground">—</p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Investigation</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.investigation || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Diagnosis</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.diagnosis || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Treatment Plan</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.treatmentPlan || "—"}</p>
                   </div>
                 </div>
                 <div className="relative z-10 p-4">
