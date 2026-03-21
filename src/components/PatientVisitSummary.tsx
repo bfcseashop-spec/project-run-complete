@@ -150,8 +150,9 @@ export default function PatientVisitSummary({ open, onOpenChange, patient }: Pro
 
   if (!patient) return null;
 
-  const firstVisit = visits.length > 0 ? visits[visits.length - 1].date : "—";
-  const lastVisit = visits.length > 0 ? visits[0].date : "—";
+  const fmt = (d: string) => { try { return format(parseISO(d), "dd MMM yyyy"); } catch { return d; } };
+  const firstVisit = visits.length > 0 ? fmt(visits[visits.length - 1].date) : "—";
+  const lastVisit = visits.length > 0 ? fmt(visits[0].date) : "—";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
