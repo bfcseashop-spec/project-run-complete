@@ -33,6 +33,12 @@ const AddTestPage = () => {
   useSettings();
   const navigate = useNavigate();
   const { activeTests, findByName } = useTestNameStore();
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+
+  const doctors = useMemo(() => {
+    const set = new Set(patients.map((p) => p.doctor).filter(Boolean));
+    return Array.from(set).sort();
+  }, [patients]);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
@@ -41,6 +47,20 @@ const AddTestPage = () => {
     technicianAssigned: "",
     notes: "",
   });
+
+  const handlePatientSelect = (patientId: string) => {
+    const p = patients.find((pt) => pt.id === patientId);
+    if (p) {
+      setForm({
+        ...form,
+        patient: p.name,
+        patientId: p.id,
+        age: String(p.age),
+        gender: (p.gender === "F" ? "Female" : p.gender === "M" ? "Male" : p.gender) as LabTest["gender"],
+        doctor: p.doctor,
+      });
+    }
+  };
 
   const [tests, setTests] = useState<TestEntry[]>([
     { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 },
