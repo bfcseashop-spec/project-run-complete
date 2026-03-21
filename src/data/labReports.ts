@@ -33,6 +33,7 @@ export interface LabReport {
   technician: string;
   pathologist: string;
   instrument: string;
+  expectedTAT?: string; // e.g. "4h", "2d", "1w"
   sections: ReportSection[];
 }
 

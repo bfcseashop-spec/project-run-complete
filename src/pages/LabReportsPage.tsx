@@ -53,6 +53,7 @@ const emptyForm: Omit<LabReport, "id"> = {
   normalRange: "", remarks: "", sampleType: "Blood",
   collectedAt: "", reportedAt: "",
   technician: "", pathologist: "", instrument: "",
+  expectedTAT: "",
   sections: [{ title: "", investigations: [{ ...emptyInvestigation }] }],
 };
 
@@ -230,12 +231,35 @@ const LabReportsPage = () => {
           label = `${diffWeeks.toFixed(1)}w`;
           colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
         }
+
+        // Check if overdue based on expectedTAT
+        let isOverdue = false;
+        if (r.expectedTAT && !r.resultDate) {
+          const tatMatch = r.expectedTAT.match(/^(\d+)(h|d|w)$/);
+          if (tatMatch) {
+            const tatVal = parseInt(tatMatch[1]);
+            const tatUnit = tatMatch[2];
+            const tatHrs = tatUnit === "h" ? tatVal : tatUnit === "d" ? tatVal * 24 : tatVal * 168;
+            if (diffHrs > tatHrs) {
+              isOverdue = true;
+              colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
+            }
+          }
+        }
+
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
-            <Clock className="w-3 h-3" />
-            {label}
-            {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
-          </span>
+          <div className="flex flex-col gap-0.5">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
+              <Clock className="w-3 h-3" />
+              {label}
+              {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
+            </span>
+            {r.expectedTAT && (
+              <span className={`text-[10px] ml-1 ${isOverdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                {isOverdue ? "⚠ Overdue" : `ETA: ${r.expectedTAT}`}
+              </span>
+            )}
+          </div>
         );
       },
     },
@@ -430,7 +454,7 @@ const LabReportsPage = () => {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-5 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Registered Date</Label>
                     <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
@@ -446,6 +470,25 @@ const LabReportsPage = () => {
                   <div className="space-y-1.5">
                     <Label className="text-xs">Reported At</Label>
                     <Input value={form.reportedAt} onChange={(e) => setForm({ ...form, reportedAt: e.target.value })} placeholder="04:35 PM" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Expected TAT</Label>
+                    <Select value={form.expectedTAT || ""} onValueChange={(v) => setForm({ ...form, expectedTAT: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1h">1 Hour</SelectItem>
+                        <SelectItem value="2h">2 Hours</SelectItem>
+                        <SelectItem value="4h">4 Hours</SelectItem>
+                        <SelectItem value="6h">6 Hours</SelectItem>
+                        <SelectItem value="12h">12 Hours</SelectItem>
+                        <SelectItem value="1d">1 Day</SelectItem>
+                        <SelectItem value="2d">2 Days</SelectItem>
+                        <SelectItem value="3d">3 Days</SelectItem>
+                        <SelectItem value="5d">5 Days</SelectItem>
+                        <SelectItem value="1w">1 Week</SelectItem>
+                        <SelectItem value="2w">2 Weeks</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
