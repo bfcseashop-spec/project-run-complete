@@ -302,7 +302,55 @@ const ExpensesPage = () => {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteRecord} onOpenChange={open => !open && setDeleteRecord(null)}>
-        <AlertDialogContent>
+      {/* View Dialog (Read-Only) */}
+      <Dialog open={!!viewRecord} onOpenChange={() => setViewRecord(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl flex items-center gap-2">
+              {(() => { const Icon = categoryIcons[viewRecord?.category || ""] || HelpCircle; return <Icon className="w-5 h-5 text-primary" />; })()}
+              Expense Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewRecord && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-xs text-muted-foreground">Expense ID</p><p className="font-medium text-foreground">{viewRecord.id}</p></div>
+                <div><p className="text-xs text-muted-foreground">Status</p>
+                  {(() => { const mapped = viewRecord.status === "overdue" ? "pending" : viewRecord.status === "paid" ? "completed" : "active"; return <StatusBadge status={mapped as "active" | "completed" | "pending"} />; })()}
+                </div>
+                <div><p className="text-xs text-muted-foreground">Title</p><p className="font-medium text-foreground">{viewRecord.title}</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground capitalize">{viewRecord.category}</p></div>
+                <div><p className="text-xs text-muted-foreground">Amount</p><p className="font-semibold text-foreground">{formatPrice(viewRecord.amount)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Paid To</p><p className="font-medium text-foreground">{viewRecord.paidTo}</p></div>
+                <div><p className="text-xs text-muted-foreground">Payment Method</p><p className="font-medium text-foreground capitalize">{viewRecord.paymentMethod}</p></div>
+                <div><p className="text-xs text-muted-foreground">Date</p><p className="font-medium text-foreground">{viewRecord.date}</p></div>
+                <div><p className="text-xs text-muted-foreground">Receipt #</p><p className="font-medium text-foreground">{viewRecord.receipt || "—"}</p></div>
+              </div>
+              {viewRecord.notes && (
+                <div><p className="text-xs text-muted-foreground">Notes</p><p className="text-sm text-foreground mt-1">{viewRecord.notes}</p></div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
+            <Button variant="ghost" className="text-warning" onClick={() => { const r = viewRecord; setViewRecord(null); if (r) openEdit(r); }}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewRecord) printRecordReport({
+              id: viewRecord.id, sectionTitle: "Expense Report", fields: [
+                { label: "Title", value: viewRecord.title }, { label: "Category", value: viewRecord.category },
+                { label: "Amount", value: formatPrice(viewRecord.amount) }, { label: "Paid To", value: viewRecord.paidTo },
+                { label: "Payment Method", value: viewRecord.paymentMethod }, { label: "Date", value: viewRecord.date },
+                { label: "Receipt #", value: viewRecord.receipt }, { label: "Status", value: viewRecord.status },
+              ],
+            }); }}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Expense</AlertDialogTitle>
             <AlertDialogDescription>

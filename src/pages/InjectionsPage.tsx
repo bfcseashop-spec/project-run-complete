@@ -246,6 +246,46 @@ const InjectionsPage = () => {
         </DialogContent>
       </Dialog>
 
+      {/* View Dialog (Read-Only) */}
+      <Dialog open={!!viewInj} onOpenChange={() => setViewInj(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl flex items-center gap-2">
+              <Syringe className="w-5 h-5 text-primary" /> Injection Details
+            </DialogTitle>
+          </DialogHeader>
+          {viewInj && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
+                <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
+                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
+                <div><p className="text-xs text-muted-foreground">Strength</p><p className="font-medium text-foreground">{viewInj.strength || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Route</p><Badge variant="outline">{viewInj.route}</Badge></div>
+                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock} {viewInj.unit}</p></div>
+                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewInj(null)}>Close</Button>
+            <Button variant="ghost" className="text-warning" onClick={() => { const i = viewInj; setViewInj(null); if (i) openEdit(i); }}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
+              id: viewInj.id, sectionTitle: "Injection Report", fields: [
+                { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
+                { label: "Strength", value: viewInj.strength }, { label: "Route", value: viewInj.route },
+                { label: "Stock", value: `${viewInj.stock} ${viewInj.unit}` }, { label: "Price", value: formatDualPrice(viewInj.price) },
+              ],
+            }); }}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={!!deleteInj} onOpenChange={(open) => !open && setDeleteInj(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
