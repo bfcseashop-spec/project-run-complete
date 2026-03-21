@@ -55,7 +55,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
 /* ===== HEADER ===== */
 .report-header{background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .lab-brand{display:flex;align-items:center;gap:12px}
-.lab-logo{width:50px;height:50px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#dc2626;font-weight:700;text-align:center;line-height:1.1}
+.lab-logo{width:50px;height:50px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#dc2626;font-weight:700;text-align:center;line-height:1.1;overflow:hidden}
+.lab-logo img{width:100%;height:100%;object-fit:contain}
 .lab-name{font-size:24px;font-weight:800;color:#fff;letter-spacing:0.5px}
 .lab-tagline{font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px}
 .header-right{display:flex;align-items:center;gap:16px}
