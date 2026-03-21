@@ -240,10 +240,22 @@ const RefundPage = () => {
       processedBy: "Admin",
     });
 
+    // Update the billing record — reduce total by refund, adjust paid/due
+    if (foundInvoice) {
+      const newTotal = Math.max(0, foundInvoice.total - totalReturnValue);
+      const newPaid = Math.max(0, foundInvoice.paid - refundAmount);
+      const newDue = Math.max(0, newTotal - newPaid);
+      updateBillingRecord(foundInvoice.id, {
+        total: newTotal,
+        paid: newPaid,
+        due: newDue,
+      });
+    }
+
     if (refundMode === "money") {
-      toast.success(`Refund of ${formatPrice(totalReturnValue)} processed. Inventory updated.`);
+      toast.success(`Refund of ${formatPrice(totalReturnValue)} processed. Billing & inventory updated.`);
     } else {
-      toast.success(`Medicine replaced successfully.${balanceDiff > 0 ? ` Balance ${formatPrice(balanceDiff)} refunded via ${refundMethod}.` : ""} Inventory updated.`);
+      toast.success(`Medicine replaced successfully.${balanceDiff > 0 ? ` Balance ${formatPrice(balanceDiff)} refunded via ${refundMethod}.` : ""} Billing & inventory updated.`);
     }
     resetAll();
   };
