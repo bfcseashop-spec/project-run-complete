@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -23,53 +24,94 @@ import {
 import {
   Plus, Pencil, Trash2, ScanLine, Clock, CheckCircle, Activity,
   Search, Bone, Brain, Heart, Hand, Skull, Eye, Printer, Barcode as BarcodeIcon,
+  Upload, X, FileText, ImageIcon,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
-import { xrayRecords, type XRayRecord, bodyParts, examinationNames } from "@/data/xrayRecords";
+import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
+import { toast } from "sonner";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
-  chest: Heart,
-  spine: Bone,
-  abdomen: Activity,
-  extremity: Hand,
-  skull: Skull,
-  pelvis: Bone,
-  dental: Brain,
+  chest: Heart, spine: Bone, abdomen: Activity, extremity: Hand,
+  skull: Skull, pelvis: Bone, dental: Brain,
 };
 
 const emptyForm: Omit<XRayRecord, "id"> = {
   patient: "", examination: "", doctor: "", date: new Date().toISOString().split("T")[0],
   reportDate: "", status: "pending", bodyPart: "chest", findings: "",
-  impression: "", remarks: "",
+  impression: "", remarks: "", images: [],
 };
 
 const XRayPage = () => {
   const [records, setRecords] = useState<XRayRecord[]>(xrayRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<XRayRecord | null>(null);
+  const [viewRecord, setViewRecord] = useState<XRayRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<XRayRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [formImages, setFormImages] = useState<XRayImage[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
+  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setFormImages([]); setDialogOpen(true); };
   const openEdit = (r: XRayRecord) => {
     setEditRecord(r);
     const { id, ...rest } = r;
     setForm(rest);
+    setFormImages(r.images || []);
     setDialogOpen(true);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newImages: XRayImage[] = [];
+    Array.from(files).forEach((file) => {
+      const isImage = file.type.startsWith("image/");
+      const isPdf = file.type === "application/pdf";
+      if (!isImage && !isPdf) {
+        toast.error(`"${file.name}" is not a supported format. Use images or PDF.`);
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      newImages.push({
+        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: file.name,
+        url,
+        type: isPdf ? "pdf" : "image",
+        size: file.size,
+      });
+    });
+    setFormImages((prev) => [...prev, ...newImages]);
+    if (newImages.length > 0) toast.success(`${newImages.length} file(s) added`);
+    e.target.value = "";
+  };
+
+  const removeImage = (imgId: string) => {
+    setFormImages((prev) => prev.filter((img) => img.id !== imgId));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   const handleSubmit = () => {
-    if (!form.patient || !form.examination || !form.doctor) return;
+    if (!form.patient || !form.examination || !form.doctor) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
     if (editRecord) {
-      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form } : r));
+      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form, images: formImages } : r));
+      toast.success("X-Ray record updated");
     } else {
       const nextId = `XR-${2000 + records.length + 1}`;
-      setRecords((prev) => [...prev, { id: nextId, ...form }]);
+      setRecords((prev) => [...prev, { id: nextId, ...form, images: formImages }]);
+      toast.success("X-Ray order created");
     }
     setDialogOpen(false);
   };
@@ -78,6 +120,7 @@ const XRayPage = () => {
     if (deleteRecord) {
       setRecords((prev) => prev.filter((r) => r.id !== deleteRecord.id));
       setDeleteRecord(null);
+      toast.success("Record deleted");
     }
   };
 
@@ -85,6 +128,19 @@ const XRayPage = () => {
     setRecords((prev) => prev.filter((r) => !selectedIds.has(r.id)));
     setSelectedIds(new Set());
     setBulkDeleteOpen(false);
+    toast.success("Selected records deleted");
+  };
+
+  const handlePrint = (r: XRayRecord) => {
+    printRecordReport({
+      id: r.id, sectionTitle: "X-Ray Report", fields: [
+        { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
+        { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
+        { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
+        { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
+        { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
+      ],
+    });
   };
 
   const filtered = records.filter((r) => {
@@ -139,31 +195,19 @@ const XRayPage = () => {
       key: "actions", header: "Actions",
       render: (r: XRayRecord) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "X-Ray Record", fields: [
-              { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
-              { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
-              { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
-              { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
-              { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewRecord(r)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "X-Ray Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
-              { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
-              { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
-              { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
-              { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-            <BarcodeIcon className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => handlePrint(r)}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5 text-accent" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteRecord(r)}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
@@ -180,8 +224,8 @@ const XRayPage = () => {
       const newRecords: XRayRecord[] = rows.map((row, i) => ({
         id: `XR-${nextId + i}`, patient: String(row.patient || ""), examination: String(row.examination || ""),
         doctor: String(row.doctor || ""), date: String(row.date || new Date().toISOString().split("T")[0]),
-        reportDate: "", status: "pending", bodyPart: (row.bodyPart as XRayRecord["bodyPart"]) || "chest",
-        findings: "", impression: "", remarks: "",
+        reportDate: "", status: "pending" as const, bodyPart: (row.bodyPart as XRayRecord["bodyPart"]) || "chest",
+        findings: "", impression: "", remarks: "", images: [],
       }));
       setRecords((prev) => [...newRecords, ...prev]);
     }
@@ -238,9 +282,80 @@ const XRayPage = () => {
         <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
       )}
 
+      {/* View Dialog (Read-Only) */}
+      <Dialog open={!!viewRecord} onOpenChange={(open) => !open && setViewRecord(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>X-Ray Record Details</DialogTitle>
+            <DialogDescription>Viewing record {viewRecord?.id}</DialogDescription>
+          </DialogHeader>
+          {viewRecord && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center gap-3 pb-3 border-b border-border">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ScanLine className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{viewRecord.patient}</h3>
+                  <p className="text-xs text-muted-foreground font-mono">{viewRecord.id}</p>
+                </div>
+                <div className="ml-auto">
+                  <StatusBadge status={viewRecord.status === "in-progress" ? "active" : viewRecord.status as "completed" | "pending"} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><p className="text-muted-foreground text-xs">Examination</p><p className="font-medium">{viewRecord.examination}</p></div>
+                <div><p className="text-muted-foreground text-xs">Body Part</p><p className="font-medium capitalize">{viewRecord.bodyPart}</p></div>
+                <div><p className="text-muted-foreground text-xs">Doctor</p><p className="font-medium">{viewRecord.doctor}</p></div>
+                <div><p className="text-muted-foreground text-xs">Date</p><p className="font-medium">{viewRecord.date}</p></div>
+                <div><p className="text-muted-foreground text-xs">Report Date</p><p className="font-medium">{viewRecord.reportDate || "—"}</p></div>
+                <div><p className="text-muted-foreground text-xs">Status</p><p className="font-medium capitalize">{viewRecord.status}</p></div>
+              </div>
+              {viewRecord.findings && (
+                <div className="text-sm"><p className="text-muted-foreground text-xs">Findings</p><p className="font-medium">{viewRecord.findings}</p></div>
+              )}
+              {viewRecord.impression && (
+                <div className="text-sm"><p className="text-muted-foreground text-xs">Impression</p><p className="font-medium">{viewRecord.impression}</p></div>
+              )}
+              {viewRecord.remarks && (
+                <div className="text-sm"><p className="text-muted-foreground text-xs">Remarks</p><p className="font-medium">{viewRecord.remarks}</p></div>
+              )}
+              {viewRecord.images && viewRecord.images.length > 0 && (
+                <div>
+                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length})</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {viewRecord.images.map((img) => (
+                      <div key={img.id} className="border border-border rounded-md overflow-hidden">
+                        {img.type === "image" ? (
+                          <img src={img.url} alt={img.name} className="w-full h-20 object-cover" />
+                        ) : (
+                          <div className="w-full h-20 bg-muted flex items-center justify-center">
+                            <FileText className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <p className="text-[10px] p-1 truncate text-muted-foreground">{img.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
+            <Button onClick={() => { if (viewRecord) handlePrint(viewRecord); }}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
+            <Button onClick={() => { if (viewRecord) { openEdit(viewRecord); setViewRecord(null); } }}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editRecord ? "Edit X-Ray Record" : "New X-Ray Order"}</DialogTitle>
             <DialogDescription>{editRecord ? "Update the X-ray record details." : "Enter details for the new X-ray order."}</DialogDescription>
@@ -311,6 +426,66 @@ const XRayPage = () => {
               <Label>Remarks</Label>
               <Textarea value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} rows={2} />
             </div>
+
+            {/* Bulk Image Upload */}
+            <div className="space-y-2">
+              <Label>X-Ray Images / Documents</Label>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm font-medium text-foreground">Click to upload X-ray images</p>
+                <p className="text-xs text-muted-foreground mt-1">Supports JPG, PNG, WEBP, PDF — multiple files allowed</p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+
+              {formImages.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  {formImages.map((img) => (
+                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30">
+                      {img.type === "image" ? (
+                        <img src={img.url} alt={img.name} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div className="w-full h-24 flex flex-col items-center justify-center gap-1 bg-muted/50">
+                          <FileText className="w-8 h-8 text-destructive/70" />
+                          <span className="text-[10px] text-muted-foreground">PDF</span>
+                        </div>
+                      )}
+                      <div className="p-2 flex items-center justify-between">
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{img.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{formatFileSize(img.size)}</p>
+                        </div>
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-6 w-6 shrink-0 hover:bg-destructive/10"
+                          onClick={(e) => { e.stopPropagation(); removeImage(img.id); }}
+                        >
+                          <X className="w-3 h-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {formImages.length > 0 && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>{formImages.length} file(s) attached</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    <ImageIcon className="w-3 h-3 mr-1" />
+                    {formImages.filter(i => i.type === "image").length} images, {formImages.filter(i => i.type === "pdf").length} PDFs
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
@@ -330,7 +505,7 @@ const XRayPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -346,7 +521,7 @@ const XRayPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleBulkDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
