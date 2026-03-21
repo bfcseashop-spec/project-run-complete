@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import MedicinePage from "@/pages/MedicinePage";
+import MedicineInventoryPage from "@/pages/MedicineInventoryPage";
 import OPDPage from "@/pages/OPDPage";
 import PrescriptionPage from "@/pages/PrescriptionPage";
 import DoctorPage from "@/pages/DoctorPage";
