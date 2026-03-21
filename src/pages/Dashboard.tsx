@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
-  ClipboardList, TrendingUp, Calendar, Syringe, ScanLine, Heart, FileText,
-  Activity, ArrowUpRight, Clock, Zap, ChevronRight,
+  ClipboardList, Calendar, Syringe, ScanLine, Heart, FileText,
+  Activity, Clock, Zap,
   Banknote, CreditCard, Building2, Landmark,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
