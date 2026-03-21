@@ -171,99 +171,24 @@ const Dashboard = () => {
         <StatCard icon={Heart} title="Health Services" value="7" change="5 active" changeType="positive" />
       </div>
 
-      {/* Bento Grid - Main Charts */}
+      {/* Bento Grid - Activity & Schedule */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Revenue Area Chart - Wide */}
-        <div className="lg:col-span-8 bg-card rounded-2xl border border-border/50 shadow-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-card-foreground font-heading">Revenue Overview</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Monthly revenue trend</p>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span className="text-xs font-bold">+18%</span>
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={revenueData}>
-              <defs>
-                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPrice(v)} />
+        {/* This Week Mini Chart */}
+        <div className="lg:col-span-3 bg-card rounded-2xl border border-border/50 shadow-card p-5">
+          <h3 className="text-sm font-bold text-card-foreground font-heading">This Week</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Daily patient visits</p>
+          <ResponsiveContainer width="100%" height={140}>
+            <BarChart data={weeklyData}>
+              <Bar dataKey="visits" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} opacity={0.8} />
               <Tooltip
-                contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", boxShadow: "0 8px 32px -4px rgba(0,0,0,0.1)" }}
-                formatter={(value: number) => [formatDualPrice(value), "Revenue"]}
+                contentStyle={{ borderRadius: "8px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px" }}
               />
-              <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#revenueGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Completion Radial + Dept Pie */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
-          {/* Task Completion */}
-          <div className="flex-1 bg-card rounded-2xl border border-border/50 shadow-card p-5">
-            <h3 className="text-sm font-bold text-card-foreground font-heading">Task Completion</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Today's progress</p>
-            <div className="flex items-center justify-center mt-2">
-              <ResponsiveContainer width={140} height={140}>
-                <RadialBarChart innerRadius={50} outerRadius={70} data={radialData} startAngle={90} endAngle={-270}>
-                  <RadialBar background={{ fill: "hsl(var(--muted))" }} dataKey="value" cornerRadius={10} />
-                </RadialBarChart>
-              </ResponsiveContainer>
-              <div className="-ml-4">
-                <p className="text-3xl font-extrabold text-card-foreground font-number">82%</p>
-                <p className="text-xs text-muted-foreground">completed</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Weekly Visits Mini Chart */}
-          <div className="flex-1 bg-card rounded-2xl border border-border/50 shadow-card p-5">
-            <h3 className="text-sm font-bold text-card-foreground font-heading">This Week</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Daily patient visits</p>
-            <ResponsiveContainer width="100%" height={80}>
-              <BarChart data={weeklyData}>
-                <Bar dataKey="visits" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} opacity={0.8} />
-                <Tooltip
-                  contentStyle={{ borderRadius: "8px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px" }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Bento Grid - Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Patient Visits Bar Chart */}
-        <div className="lg:col-span-5 bg-card rounded-2xl border border-border/50 shadow-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-card-foreground font-heading">Patient Visits</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">New vs Returning patients</p>
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={patientData} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
-              <Bar dataKey="patients" name="Total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} opacity={0.85} />
-              <Bar dataKey="returning" name="Returning" fill="hsl(200, 80%, 45%)" radius={[4, 4, 0, 0]} opacity={0.65} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-4 bg-card rounded-2xl border border-border/50 shadow-card p-5">
+        <div className="lg:col-span-5 bg-card rounded-2xl border border-border/50 shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" /> Live Activity
@@ -293,7 +218,7 @@ const Dashboard = () => {
         </div>
 
         {/* Appointments */}
-        <div className="lg:col-span-3 bg-card rounded-2xl border border-border/50 shadow-card p-5">
+        <div className="lg:col-span-4 bg-card rounded-2xl border border-border/50 shadow-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" /> Schedule
@@ -315,6 +240,39 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                   <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{a.type}</span>
                   <span className="text-xs font-bold text-primary">{a.time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Department Distribution */}
+      <div className="bg-card rounded-2xl border border-border/50 shadow-card p-5">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-sm font-bold text-card-foreground font-heading">Department Distribution</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Patient visits by department</p>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <ResponsiveContainer width={220} height={180}>
+            <PieChart>
+              <Pie data={departmentData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3} strokeWidth={0}>
+                {departmentData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {departmentData.map((d, i) => (
+              <div key={i} className="flex items-center gap-2.5">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">{d.name}</p>
+                  <p className="text-xs text-muted-foreground">{d.value}%</p>
                 </div>
               </div>
             ))}
