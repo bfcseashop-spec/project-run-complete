@@ -259,6 +259,9 @@ const SampleCollectionPage = () => {
               <SendHorizonal className="w-3.5 h-3.5 text-primary" />
             </Button>
           )}
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+          </Button>
         </div>
       ),
     },
