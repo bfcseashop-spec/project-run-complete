@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface StatCardProps {
   title: string;
@@ -13,39 +12,29 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, iconBg, gradient, accentColor }: StatCardProps) => {
-  const changeColor = {
-    positive: "text-emerald-600 dark:text-emerald-400",
-    negative: "text-red-500 dark:text-red-400",
-    neutral: "text-muted-foreground",
-  }[changeType];
-
-  const TrendIcon = changeType === "positive" ? TrendingUp : changeType === "negative" ? TrendingDown : Minus;
+  const color = accentColor || "hsl(var(--primary))";
 
   return (
-    <div className={`relative overflow-hidden rounded-xl p-4 shadow-sm border border-border/40 hover:shadow-md transition-all duration-200 group ${gradient || "bg-card"}`}>
-      {/* Left accent bar */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
-        style={{ background: accentColor || "hsl(var(--primary))" }}
-      />
-
-      <div className="relative flex items-center gap-3.5 pl-2">
+    <div
+      className="relative overflow-hidden rounded-2xl p-5 border border-transparent transition-all duration-200 hover:shadow-md group"
+      style={{ background: `linear-gradient(135deg, ${color}08, ${color}15)`, borderColor: `${color}20` }}
+    >
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground font-medium">{title}</p>
+          <p className="text-2xl font-extrabold text-card-foreground font-number tracking-tight">{value}</p>
+          {change && (
+            <p className="text-[11px] text-muted-foreground">
+              Yesterday <span className="font-semibold font-number text-card-foreground/70">{change}</span>
+            </p>
+          )}
+        </div>
         <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: `${accentColor || "hsl(var(--primary))"}15` }}
+          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: `${color}20` }}
         >
-          <Icon className="w-4.5 h-4.5" style={{ color: accentColor || "hsl(var(--primary))" }} />
+          <Icon className="w-5 h-5" style={{ color }} />
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold leading-none mb-1">{title}</p>
-          <p className="text-xl font-extrabold text-card-foreground font-number tracking-tight leading-none">{value}</p>
-        </div>
-        {change && (
-          <div className={`flex items-center gap-0.5 ${changeColor} flex-shrink-0`}>
-            <TrendIcon className="w-3 h-3" />
-            <p className="text-[10px] font-semibold whitespace-nowrap">{change}</p>
-          </div>
-        )}
       </div>
     </div>
   );
