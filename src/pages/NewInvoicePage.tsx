@@ -785,14 +785,15 @@ const NewInvoicePage = () => {
 
               {/* Items Table */}
               <div className="border border-border rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <span>#</span><span>Item</span><span>Description</span><span className="text-right">Price</span><span className="text-right">Total</span>
+                <div className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>#</span><span>Item</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Total</span>
                 </div>
                 {previewItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
+                  <div key={i} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
                     <span className="text-muted-foreground">{i + 1}</span>
                     <span className="font-medium">{item.name}</span>
                     <span className="text-xs text-muted-foreground">{item.description}</span>
+                    <span className="text-center">{item.qty}</span>
                     <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
                     <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                   </div>
