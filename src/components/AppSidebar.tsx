@@ -98,7 +98,7 @@ const menuSections: MenuSection[] = [
 const AppSidebar = () => {
   const { collapsed, toggle } = useSidebarState();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests", "/health-services"]);
   const { settings } = useSettings();
   const lang = settings.language;
 
