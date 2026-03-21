@@ -431,7 +431,7 @@ const LabReportsPage = () => {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-5 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Registered Date</Label>
                     <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
@@ -447,6 +447,25 @@ const LabReportsPage = () => {
                   <div className="space-y-1.5">
                     <Label className="text-xs">Reported At</Label>
                     <Input value={form.reportedAt} onChange={(e) => setForm({ ...form, reportedAt: e.target.value })} placeholder="04:35 PM" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Expected TAT</Label>
+                    <Select value={form.expectedTAT || ""} onValueChange={(v) => setForm({ ...form, expectedTAT: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1h">1 Hour</SelectItem>
+                        <SelectItem value="2h">2 Hours</SelectItem>
+                        <SelectItem value="4h">4 Hours</SelectItem>
+                        <SelectItem value="6h">6 Hours</SelectItem>
+                        <SelectItem value="12h">12 Hours</SelectItem>
+                        <SelectItem value="1d">1 Day</SelectItem>
+                        <SelectItem value="2d">2 Days</SelectItem>
+                        <SelectItem value="3d">3 Days</SelectItem>
+                        <SelectItem value="5d">5 Days</SelectItem>
+                        <SelectItem value="1w">1 Week</SelectItem>
+                        <SelectItem value="2w">2 Weeks</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
