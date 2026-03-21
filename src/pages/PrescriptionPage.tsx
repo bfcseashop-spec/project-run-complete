@@ -175,7 +175,12 @@ const PrescriptionPage = () => {
     if (!printWin) return;
     printWin.document.write(`<!DOCTYPE html><html><head><title>Prescription ${rx.id}</title><style>
       body{font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:20px}
-      .header{background:linear-gradient(135deg,hsl(170,60%,40%),hsl(210,60%,30%));color:#fff;padding:20px;border-radius:8px 8px 0 0}
+      .header{background:linear-gradient(135deg,hsl(170,60%,40%),hsl(210,60%,30%));color:#fff;padding:20px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:flex-start}
+      .header-left h2{margin:0;font-size:18px}
+      .header-left small{opacity:0.7}
+      .header-right{text-align:right}
+      .header-right h3{margin:0;font-size:16px}
+      .header-right small{opacity:0.6;font-size:10px}
       .patient-bar{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #ddd;border-top:none}
       .patient-bar div{padding:8px 12px;border-right:1px solid #ddd;font-size:12px}
       .patient-bar div:last-child{border-right:none}
@@ -191,8 +196,12 @@ const PrescriptionPage = () => {
       h3{margin:16px 0 4px;font-size:14px;color:hsl(170,60%,35%)}
       .total{text-align:right;font-weight:700;padding:8px;border-top:2px solid #333;font-size:13px}
       .rx-symbol{font-size:28px;font-weight:bold;color:hsl(170,60%,35%);font-style:italic;margin-bottom:12px}
+      .footer{background:hsl(170,60%,40%);color:#fff;padding:8px 20px;display:flex;justify-content:space-between;font-size:10px;border-radius:0 0 8px 8px}
     </style></head><body>
-      <div class="header"><h2 style="margin:0">${rx.doctor}</h2><small>Prescription ID: ${rx.id}</small></div>
+      <div class="header">
+        <div class="header-left"><h2>${rx.doctor}</h2><small>Prescription ID: ${rx.id}</small></div>
+        <div class="header-right"><h3>${s.clinicName}</h3><small>${s.clinicTagline}</small>${s.clinicRegNumber ? `<br><small style="font-size:9px;opacity:0.5">Reg: ${s.clinicRegNumber}</small>` : ""}</div>
+      </div>
       <div class="patient-bar"><div><span>Patient: </span><strong>${rx.patient}</strong></div><div><span>Age/Gender: </span>${rx.age || "—"}, ${rx.gender || "—"}</div><div><span>Date: </span>${rx.date}</div></div>
       <div class="two-col">
         <div class="left-col">
