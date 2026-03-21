@@ -357,6 +357,7 @@ const NewInvoicePage = () => {
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
         <p><strong>${patient}</strong></p>
+        ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
         ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
