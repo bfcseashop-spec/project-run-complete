@@ -20,6 +20,8 @@ import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency"
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
+import { barcodeSVG } from "@/lib/barcode";
+import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 
 initPatients(opdPatients);
@@ -194,38 +196,74 @@ const NewInvoicePage = () => {
   const handlePrintInvoice = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     const s = appSettings;
+    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const now = new Date();
+    const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    const barcodeStr = barcodeSVG(invoiceId, 220, 50);
     const rows = previewItems.map((item, i) =>
-      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatDualPrice(item.total)}</td></tr>`
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
-    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:14px">
-        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatDualPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatDualPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatDualPrice(taxAmount)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div></div>`;
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatDualPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div></div>`;
+    const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod;
     const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;padding:32px 40px}
-@media print{@page{margin:15mm}body{padding:20px 30px}}</style></head><body>
-<div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px">
-  <h1 style="font-size:22px;font-weight:700;color:#0f766e">${s.clinicName}</h1>
-  <p style="font-size:12px;color:#666;margin-top:2px">${s.clinicTagline}</p>
-  <p style="font-size:11px;color:#888;margin-top:6px">${s.clinicAddress} • ${s.clinicPhone}</p>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff;padding:0;position:relative}
+.page{padding:32px 40px;position:relative;overflow:hidden}
+.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}
+.content{position:relative;z-index:1}
+@media print{@page{margin:15mm}body{padding:0}.page{padding:20px 30px}}</style></head><body>
+<div class="page">
+  <img src="${clinicLogo}" class="watermark" alt="" />
+  <div class="content">
+    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
+        <p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p>
+        <p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p>
+      </div>
+      <div style="text-align:right">
+        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Draft Invoice</p>
+        <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${invoiceId}</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
+        <p><strong>${patient}</strong></p>
+        ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Invoice Details</p>
+        <p>Date: <strong>${dateTimeStr}</strong></p>
+        <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Amount</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${totalsHtml}
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+    </div>
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
+      <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
+      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
+    </div>
+  </div>
 </div>
-<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
-  <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
-  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</strong></p></div>
-</div>
-<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
-  <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
-  <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Description</th>
-  <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Amount</th></tr></thead>
-  <tbody>${rows}</tbody>
-</table>
-${totalsHtml}
-<p style="text-align:center;font-size:11px;color:#888;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px">Thank you for choosing ${s.clinicName}. Get well soon!</p>
 </body></html>`);
     win.document.close();
     setTimeout(() => win.print(), 400);
@@ -262,42 +300,82 @@ ${totalsHtml}
   const handlePrintFromInvoice = () => {
     const s = appSettings;
     const invoiceItems = previewItems;
+    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const now = new Date();
+    const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    const barcodeStr = barcodeSVG(invoiceId, 220, 50);
     const rows = invoiceItems.map((item, i) =>
-      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;color:#6b7280">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-weight:500">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">${formatDualPrice(item.total)}</td></tr>`
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
-    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:14px">
-        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Subtotal</span><span>${formatDualPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Discount</span><span style="color:#dc2626">-${formatDualPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Tax (${taxRate}%)</span><span>${formatDualPrice(taxAmount)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:6px;font-weight:700;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
-    const paidLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Paid</span><span style="color:#16a34a;font-weight:600">${formatDualPrice(grandTotal)}</span></div>`;
-    const dueLine = `<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#6b7280">Due</span><span style="font-weight:600">${formatDualPrice(0)}</span></div>`;
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
+    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(discountAmount)}</span></div>`;
+    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatDualPrice(taxAmount)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
+    const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatDualPrice(grandTotal)}</span></div>`;
+    const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600">${formatDualPrice(0)}</span></div>`;
     totalsHtml += paidLine + dueLine + `</div>`;
     const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatDualPrice(sp.amount)}`).join(", ") : paymentMethod;
     const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
     win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;padding:32px 40px}
-@media print{@page{margin:15mm}body{padding:20px 30px}}</style></head><body>
-<div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px">
-  <h1 style="font-size:22px;font-weight:700;color:#0f766e">${s.clinicName}</h1>
-  <p style="font-size:12px;color:#666;margin-top:2px">${s.clinicTagline}</p>
-  <p style="font-size:11px;color:#888;margin-top:6px">${s.clinicAddress} • ${s.clinicPhone}</p>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff;padding:0;position:relative}
+.page{padding:32px 40px;position:relative;overflow:hidden}
+.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}
+.content{position:relative;z-index:1}
+@media print{@page{margin:15mm}body{padding:0}.page{padding:20px 30px}}</style></head><body>
+<div class="page">
+  <img src="${clinicLogo}" class="watermark" alt="" />
+  <div class="content">
+    <!-- Colorful Header -->
+    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
+        <p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p>
+        <p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p>
+      </div>
+      <div style="text-align:right">
+        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Invoice</p>
+        <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${invoiceId}</p>
+      </div>
+    </div>
+    <!-- Info Bar -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
+        <p><strong>${patient}</strong></p>
+        ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Invoice Details</p>
+        <p>Date: <strong>${dateTimeStr}</strong></p>
+        <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
+      </div>
+    </div>
+    <!-- Items Table -->
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Amount</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${totalsHtml}
+    <!-- Barcode -->
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+    </div>
+    <!-- Footer -->
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
+      <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
+      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
+    </div>
+  </div>
 </div>
-<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:20px">
-  <div><p><span style="color:#6b7280">Patient:</span> <strong>${patient}</strong></p>${doctor ? `<p><span style="color:#6b7280">Doctor:</span> <strong>${doctor}</strong></p>` : ''}</div>
-  <div style="text-align:right"><p><span style="color:#6b7280">Date:</span> <strong>${date}</strong></p><p><span style="color:#6b7280">Payment:</span> <strong>${payMethodStr}</strong></p></div>
-</div>
-<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px">
-  <thead><tr style="background:#f0fdfa"><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">#</th>
-  <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Description</th>
-  <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:0.5px">Amount</th></tr></thead>
-  <tbody>${rows}</tbody>
-</table>
-${totalsHtml}
-<p style="text-align:center;font-size:11px;color:#888;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px">Thank you for choosing ${s.clinicName}. Get well soon!</p>
 </body></html>`);
     win.document.close();
     setTimeout(() => win.print(), 400);
@@ -644,27 +722,40 @@ ${totalsHtml}
       {showInvoice && (
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-card rounded-2xl shadow-2xl border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-            <div ref={invoiceRef} className="p-8 space-y-6 overflow-y-auto flex-1">
-              {/* Header */}
-              <div className="text-center border-b border-border pb-4">
-                <h2 className="text-xl font-bold text-primary">{appSettings.clinicName}</h2>
-                <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
-                <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
-              </div>
-              {/* Patient/Date row */}
-              <div className="flex justify-between text-sm">
-                <div className="space-y-1">
-                  <p><span className="text-muted-foreground">Patient:</span> <span className="font-semibold">{patient}</span></p>
-                  {doctor && <p><span className="text-muted-foreground">Doctor:</span> <span className="font-medium">{doctor}</span></p>}
+            <div ref={invoiceRef} className="p-8 space-y-5 overflow-y-auto flex-1 relative">
+              {/* Watermark */}
+              <img src={clinicLogo} alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 opacity-[0.04] pointer-events-none" />
+
+              {/* Colorful Header */}
+              <div className="bg-gradient-to-r from-primary to-primary/70 rounded-xl px-6 py-5 text-primary-foreground flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-extrabold">{appSettings.clinicName}</h2>
+                  <p className="text-sm opacity-80">{appSettings.clinicTagline}</p>
+                  <p className="text-[10px] opacity-60 mt-1">{appSettings.clinicAddress} · {appSettings.clinicPhone}</p>
                 </div>
-                <div className="text-right space-y-1">
-                  <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{date}</span></p>
-                  <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-widest opacity-60">Invoice</p>
+                  <p className="text-base font-bold font-mono tracking-wider">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
                 </div>
               </div>
+
+              {/* Info Cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient & Doctor</p>
+                  <p className="font-semibold text-sm">{patient}</p>
+                  {doctor && <p className="text-xs text-muted-foreground mt-0.5">Dr. {doctor}</p>}
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Invoice Details</p>
+                  <p className="text-sm">Date: <span className="font-semibold">{date} {new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
+                </div>
+              </div>
+
               {/* Items Table */}
               <div className="border border-border rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   <span>#</span><span>Description</span><span className="text-right">Amount</span>
                 </div>
                 {previewItems.map((item, i) => (
@@ -675,12 +766,13 @@ ${totalsHtml}
                   </div>
                 ))}
               </div>
+
               {/* Totals */}
-              <div className="ml-auto w-64 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(subtotal)}</span></div>
-                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(discountAmount)}</span></div>}
-                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums">{formatDualPrice(taxAmount)}</span></div>}
-                <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span></div>
+              <div className="ml-auto w-72 space-y-1.5 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums font-medium">{formatDualPrice(subtotal)}</span></div>
+                {discountAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums font-medium">-{formatDualPrice(discountAmount)}</span></div>}
+                {taxAmount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({taxRate}%)</span><span className="tabular-nums font-medium">{formatDualPrice(taxAmount)}</span></div>}
+                <div className="border-t-2 border-primary pt-2 flex justify-between font-extrabold text-lg"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(grandTotal)}</span></div>
                 {splitMode && splitPayments.filter(sp => sp.amount > 0).length > 0 ? (
                   <>
                     {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
@@ -693,7 +785,18 @@ ${totalsHtml}
                 )}
                 <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
-              <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
+
+              {/* Barcode */}
+              <div className="text-center pt-4 border-t border-dashed border-border">
+                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
+                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+              </div>
+
+              {/* Footer */}
+              <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg py-3 mt-2">
+                <p className="text-xs text-primary font-medium">Thank you for choosing {appSettings.clinicName}. Get well soon! 🙏</p>
+                <p className="text-[10px] text-muted-foreground mt-1">{appSettings.clinicWebsite} · {appSettings.clinicEmail}</p>
+              </div>
             </div>
             {/* Actions */}
             <div className="px-6 pb-6 pt-2 flex gap-3 border-t border-border bg-muted/30">
