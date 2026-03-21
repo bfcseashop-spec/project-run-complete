@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSettings } from "@/hooks/use-settings";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -24,11 +25,14 @@ import {
 import {
   Plus, Pencil, Trash2, MonitorSpeaker, Clock, CheckCircle, Activity,
   Search, Heart, Baby, Scan, CircleDot, Waves, Printer, Eye, Barcode as BarcodeIcon,
+  Upload, X, FileText, ImageIcon,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
-  ultrasoundRecords, type UltrasoundRecord, regions, examinationNames,
+  ultrasoundRecords, type UltrasoundRecord, type UltrasoundImage, regions, examinationNames,
 } from "@/data/ultrasoundRecords";
+import { toast } from "sonner";
+import ImageLightbox from "@/components/ImageLightbox";
 
 const regionIcons: Record<string, React.ElementType> = {
   abdomen: Scan,
@@ -44,7 +48,7 @@ const regionIcons: Record<string, React.ElementType> = {
 const emptyForm: Omit<UltrasoundRecord, "id"> = {
   patient: "", examination: "", doctor: "", date: new Date().toISOString().split("T")[0],
   reportDate: "", status: "pending", region: "abdomen", findings: "",
-  impression: "", remarks: "",
+  impression: "", remarks: "", images: [],
 };
 
 function printReport(r: UltrasoundRecord, clinic: { name: string; tagline: string; phone: string; email: string; address: string; regNumber: string }) {
@@ -133,29 +137,75 @@ const UltrasoundPage = () => {
   const [viewRecord, setViewRecord] = useState<UltrasoundRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<UltrasoundRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [formImages, setFormImages] = useState<UltrasoundImage[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRegion, setFilterRegion] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<UltrasoundImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
+  const openLightbox = (images: UltrasoundImage[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setFormImages([]); setDialogOpen(true); };
   const openEdit = (r: UltrasoundRecord) => {
     setEditRecord(r);
     const { id, ...rest } = r;
     setForm(rest);
+    setFormImages(r.images || []);
     setDialogOpen(true);
   };
 
   const handleSubmit = () => {
     if (!form.patient || !form.examination || !form.doctor) return;
     if (editRecord) {
-      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form } : r));
+      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form, images: formImages } : r));
     } else {
       const nextId = `US-${3000 + records.length + 1}`;
-      setRecords((prev) => [...prev, { id: nextId, ...form }]);
+      setRecords((prev) => [...prev, { id: nextId, ...form, images: formImages }]);
     }
     setDialogOpen(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newImages: UltrasoundImage[] = [];
+    Array.from(files).forEach((file) => {
+      const isImage = file.type.startsWith("image/");
+      const isPdf = file.type === "application/pdf";
+      if (!isImage && !isPdf) {
+        toast.error(`"${file.name}" is not supported. Use images or PDF.`);
+        return;
+      }
+      newImages.push({
+        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type: isPdf ? "pdf" : "image",
+        size: file.size,
+      });
+    });
+    setFormImages((prev) => [...prev, ...newImages]);
+    if (newImages.length > 0) toast.success(`${newImages.length} file(s) added`);
+    e.target.value = "";
+  };
+
+  const removeImage = (imgId: string) => {
+    setFormImages((prev) => prev.filter((img) => img.id !== imgId));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const handleDelete = () => {
@@ -256,7 +306,7 @@ const UltrasoundPage = () => {
         id: `US-${nextId + i}`, patient: String(row.patient || ""), examination: String(row.examination || ""),
         doctor: String(row.doctor || ""), date: String(row.date || new Date().toISOString().split("T")[0]),
         reportDate: "", status: "pending", region: (row.region as UltrasoundRecord["region"]) || "abdomen",
-        findings: "", impression: "", remarks: "",
+        findings: "", impression: "", remarks: "", images: [],
       }));
       setRecords((prev) => [...newRecords, ...prev]);
     }
@@ -351,6 +401,29 @@ const UltrasoundPage = () => {
               {viewRecord.remarks && (
                 <div className="text-sm"><p className="text-muted-foreground text-xs">Remarks</p><p className="font-medium">{viewRecord.remarks}</p></div>
               )}
+              {viewRecord.images && viewRecord.images.length > 0 && (
+                <div>
+                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length}) — click to view fullscreen</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {viewRecord.images.map((img, idx) => (
+                      <div
+                        key={img.id}
+                        className="border border-border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        onClick={() => openLightbox(viewRecord.images, idx)}
+                      >
+                        {img.type === "image" ? (
+                          <img src={img.url} alt={img.name} className="w-full h-20 object-cover" />
+                        ) : (
+                          <div className="w-full h-20 bg-muted flex items-center justify-center">
+                            <FileText className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <p className="text-[10px] p-1 truncate text-muted-foreground">{img.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -372,7 +445,7 @@ const UltrasoundPage = () => {
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editRecord ? "Edit Ultrasound Record" : "New Ultrasound Order"}</DialogTitle>
             <DialogDescription>{editRecord ? "Update the ultrasound record details." : "Enter details for the new ultrasound order."}</DialogDescription>
@@ -443,6 +516,54 @@ const UltrasoundPage = () => {
               <Label>Remarks</Label>
               <Textarea value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} rows={2} />
             </div>
+
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label>Ultrasound Images / Documents</Label>
+              <div
+                className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm font-medium text-foreground">Click to upload ultrasound images</p>
+                <p className="text-xs text-muted-foreground mt-1">Supports JPG, PNG, WEBP, PDF — multiple files allowed</p>
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*,.pdf" multiple className="hidden" onChange={handleFileUpload} />
+              {formImages.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  {formImages.map((img) => (
+                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30 cursor-pointer" onClick={() => openLightbox(formImages, formImages.indexOf(img))}>
+                      {img.type === "image" ? (
+                        <img src={img.url} alt={img.name} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div className="w-full h-24 flex flex-col items-center justify-center gap-1 bg-muted/50">
+                          <FileText className="w-8 h-8 text-destructive/70" />
+                          <span className="text-[10px] text-muted-foreground">PDF</span>
+                        </div>
+                      )}
+                      <div className="p-2 flex items-center justify-between">
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{img.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{formatFileSize(img.size)}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); removeImage(img.id); }}>
+                          <X className="w-3 h-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {formImages.length > 0 && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>{formImages.length} file(s) attached</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    <ImageIcon className="w-3 h-3 mr-1" />
+                    {formImages.filter(i => i.type === "image").length} images, {formImages.filter(i => i.type === "pdf").length} PDFs
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
@@ -482,6 +603,14 @@ const UltrasoundPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+      />
     </div>
   );
 };

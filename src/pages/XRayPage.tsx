@@ -29,6 +29,7 @@ import {
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
 import { toast } from "sonner";
+import ImageLightbox from "@/components/ImageLightbox";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
   chest: Heart, spine: Bone, abdomen: Activity, extremity: Hand,
@@ -55,6 +56,15 @@ const XRayPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBodyPart, setFilterBodyPart] = useState<string>("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<XRayImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images: XRayImage[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setFormImages([]); setDialogOpen(true); };
   const openEdit = (r: XRayRecord) => {
@@ -322,10 +332,14 @@ const XRayPage = () => {
               )}
               {viewRecord.images && viewRecord.images.length > 0 && (
                 <div>
-                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length})</p>
+                  <p className="text-muted-foreground text-xs mb-2">Attached Images ({viewRecord.images.length}) — click to view fullscreen</p>
                   <div className="grid grid-cols-3 gap-2">
-                    {viewRecord.images.map((img) => (
-                      <div key={img.id} className="border border-border rounded-md overflow-hidden">
+                    {viewRecord.images.map((img, idx) => (
+                      <div
+                        key={img.id}
+                        className="border border-border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        onClick={() => openLightbox(viewRecord.images, idx)}
+                      >
                         {img.type === "image" ? (
                           <img src={img.url} alt={img.name} className="w-full h-20 object-cover" />
                         ) : (
@@ -450,7 +464,7 @@ const XRayPage = () => {
               {formImages.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                   {formImages.map((img) => (
-                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30">
+                    <div key={img.id} className="relative group border border-border rounded-lg overflow-hidden bg-muted/30 cursor-pointer" onClick={() => openLightbox(formImages, formImages.indexOf(img))}>
                       {img.type === "image" ? (
                         <img src={img.url} alt={img.name} className="w-full h-24 object-cover" />
                       ) : (
@@ -525,6 +539,14 @@ const XRayPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+      />
     </div>
   );
 };
