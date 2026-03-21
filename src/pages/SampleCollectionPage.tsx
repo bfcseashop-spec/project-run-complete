@@ -493,6 +493,28 @@ const SampleCollectionPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteRecord} onOpenChange={(open) => !open && setDeleteRecord(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Sample Record</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete sample <strong>{deleteRecord?.id}</strong> for {deleteRecord?.patient}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+              if (deleteRecord) {
+                removeSampleRecord(deleteRecord.id);
+                toast.success(`Sample ${deleteRecord.id} deleted`);
+                setDeleteRecord(null);
+              }
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
