@@ -160,6 +160,9 @@ const NewInvoicePage = () => {
   const effectivePaid = splitMode ? splitTotal : paidAmount;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
+  const selectedPatient = patients.find((p) => p.name === patient);
+  const patientPhone = selectedPatient?.phone || "";
+
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
@@ -238,6 +241,7 @@ const NewInvoicePage = () => {
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
         <p><strong>${patient}</strong></p>
+        ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
         ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
@@ -353,6 +357,7 @@ const NewInvoicePage = () => {
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
         <p><strong>${patient}</strong></p>
+        ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
         ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
@@ -757,6 +762,7 @@ const NewInvoicePage = () => {
                 <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
                   <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient & Doctor</p>
                   <p className="font-semibold text-sm">{patient}</p>
+                  {patientPhone && <p className="text-xs text-muted-foreground mt-0.5">📞 {patientPhone}</p>}
                   {doctor && <p className="text-xs text-muted-foreground mt-0.5">Dr. {doctor}</p>}
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
