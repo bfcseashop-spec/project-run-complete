@@ -93,7 +93,7 @@ const defaults: SystemSettings = {
   bodyFont: "'Inter', system-ui, sans-serif",
   headingFont: "'Playfair Display', Georgia, serif",
   numberFont: "__same__",
-  fontSize: "16px",
+  fontSize: "18px",
   colorTheme: "teal",
   mode: "light",
   borderRadius: "0.625rem",
