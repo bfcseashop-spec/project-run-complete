@@ -60,7 +60,13 @@ const paymentMethods = [
   { value: "Bank Transfer", label: "Bank Transfer", icon: CreditCard },
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
-const doctors = ["Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams", "Dr. Mark Brown", "Dr. Lisa Lee"];
+const doctors = [
+  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
+  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
+  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
+  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
+  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
+];
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 interface LineItem { id: string; type: LineItemType; name: string; price: number; qty: number; }
