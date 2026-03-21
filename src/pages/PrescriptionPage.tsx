@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import clinicLogo from "@/assets/clinic-logo.png";
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
+import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
 
 interface Prescription {
