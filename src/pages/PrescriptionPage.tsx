@@ -493,8 +493,20 @@ const PrescriptionPage = () => {
                       </div>
                     </div>
                   )}
+                  {viewRx.advices && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Advices</p>
+                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.advices}</p>
+                    </div>
+                  )}
+                  {viewRx.followUp && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Follow-up</p>
+                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.followUp}</p>
+                    </div>
+                  )}
                   {viewRx.notes && (
-                    <div className="mt-6 pt-4 border-t border-border">
+                    <div className="mt-4 pt-4 border-t border-border">
                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Notes</p>
                       <p className="text-sm text-foreground">{viewRx.notes}</p>
                     </div>
