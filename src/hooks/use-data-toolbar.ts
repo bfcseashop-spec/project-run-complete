@@ -10,11 +10,23 @@ interface UseDataToolbarOptions<T> {
   title: string;
 }
 
-export function useDataToolbar<T extends Record<string, unknown>>({ data, dateKey, columns, title }: UseDataToolbarOptions<T>) {
+export function useDataToolbar<T extends Record<string, unknown>>({ data, dateKey, columns, title, searchKeys }: UseDataToolbarOptions<T> & { searchKeys?: string[] }) {
   const [dateFilter, setDateFilter] = useState<DatePreset>("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredByDate = filterByDate(data, dateKey, dateFilter);
+
+  const filteredBySearch = searchQuery.trim()
+    ? filteredByDate.filter((row) => {
+        const q = searchQuery.toLowerCase();
+        const keys = searchKeys || columns.filter(c => c.key !== "actions").map(c => c.key);
+        return keys.some((k) => {
+          const val = row[k];
+          return val != null && String(val).toLowerCase().includes(q);
+        });
+      })
+    : filteredByDate;
 
   const exportCols = columns.filter((c) => c.key !== "actions");
 
