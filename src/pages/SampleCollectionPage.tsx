@@ -24,7 +24,7 @@ import {
 import {
   Plus, Pencil, Pipette, Clock, CheckCircle, PackageCheck,
   Search, AlertTriangle, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal,
+  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "@/data/sampleRecords";
