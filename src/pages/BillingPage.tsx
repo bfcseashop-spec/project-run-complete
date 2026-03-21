@@ -327,7 +327,7 @@ const BillingPage = () => {
             const items = viewRecord.formData?.lineItems;
             const grouped = items && items.length > 0
               ? groupLineItems(items)
-              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0, subItems: [] as { name: string; price: number; qty: number; total: number }[] }));
             return (
               <>
                 <div className="p-8 space-y-5 relative" ref={printRef}>
