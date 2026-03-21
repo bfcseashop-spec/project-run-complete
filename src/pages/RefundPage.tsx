@@ -703,14 +703,7 @@ const RefundPage = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewRecord) printRecordReport({
-              id: viewRecord.id, sectionTitle: "Refund Report", fields: [
-                { label: "Patient", value: viewRecord.patient }, { label: "Invoice", value: viewRecord.invoiceId },
-                { label: "Items", value: viewRecord.items.map(i => `${i.name} x${i.qty}`).join(", ") },
-                { label: "Total", value: formatDualPrice(viewRecord.totalRefund) }, { label: "Method", value: viewRecord.method },
-                { label: "Reason", value: viewRecord.reason }, { label: "Date", value: viewRecord.date },
-              ],
-            }); }}><Printer className="w-4 h-4 mr-1" /> Print</Button>
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewRecord) printRefundReceiptForRecord(viewRecord); }}><Printer className="w-4 h-4 mr-1" /> Print Receipt</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
