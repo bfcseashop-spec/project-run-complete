@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from "@/components/ui/tabs";
 import {
-  Building2, Users, Palette, Receipt, Printer, Globe, Save,
+  Building2, Users, Palette, Receipt, Printer, Globe, Save, Upload, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
