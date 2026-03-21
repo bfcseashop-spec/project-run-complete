@@ -270,6 +270,24 @@ const RefundPage = () => {
     if (deleteRecord) { deleteRefund(deleteRecord.id); toast.success(`Refund ${deleteRecord.id} deleted`); setDeleteRecord(null); }
   };
 
+  const printRefundReceiptForRecord = (r: RefundRecord) => {
+    const invoice = billingRecords.find((b) => b.id === r.invoiceId);
+    const originalTotal = invoice ? invoice.total + r.totalRefund : r.totalRefund;
+    printRefundReceipt({
+      refundId: r.id,
+      invoiceId: r.invoiceId,
+      patient: r.patient,
+      date: r.date,
+      items: r.items.map((i) => ({ name: i.name, type: i.type, qty: i.qty, unitPrice: i.unitPrice, total: i.total })),
+      originalTotal,
+      refundAmount: r.totalRefund,
+      newBalance: Math.max(0, originalTotal - r.totalRefund),
+      method: r.method,
+      reason: r.reason,
+      processedBy: r.processedBy,
+    });
+  };
+
   // Stats
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayRefunds = refunds.filter((r) => r.date === todayStr);
