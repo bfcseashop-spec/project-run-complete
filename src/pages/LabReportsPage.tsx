@@ -208,6 +208,38 @@ const LabReportsPage = () => {
       ),
     },
     {
+      key: "processingTime", header: "Processing Time",
+      render: (r: LabReport) => {
+        if (!r.date) return <span className="text-muted-foreground">—</span>;
+        const startDate = new Date(r.date);
+        const endDate = r.resultDate ? new Date(r.resultDate) : new Date();
+        const diffMs = endDate.getTime() - startDate.getTime();
+        if (diffMs < 0) return <span className="text-muted-foreground">—</span>;
+        const diffHrs = diffMs / (1000 * 60 * 60);
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        const diffWeeks = diffDays / 7;
+        let label: string;
+        let colorClass: string;
+        if (diffHrs < 24) {
+          label = `${Math.max(1, Math.round(diffHrs))}h`;
+          colorClass = "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950";
+        } else if (diffDays < 7) {
+          label = `${Math.round(diffDays)}d`;
+          colorClass = "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950";
+        } else {
+          label = `${diffWeeks.toFixed(1)}w`;
+          colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
+        }
+        return (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
+            <Clock className="w-3 h-3" />
+            {label}
+            {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
+          </span>
+        );
+      },
+    },
+    {
       key: "status", header: "Status",
       render: (r: LabReport) => {
         const mapped = r.status === "in-progress" ? "active" : r.status;
