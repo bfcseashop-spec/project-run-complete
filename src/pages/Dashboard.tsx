@@ -166,7 +166,7 @@ const Dashboard = () => {
                 </RadialBarChart>
               </ResponsiveContainer>
               <div className="-ml-4">
-                <p className="text-3xl font-extrabold text-card-foreground font-heading">82%</p>
+                <p className="text-3xl font-extrabold text-card-foreground font-number">82%</p>
                 <p className="text-xs text-muted-foreground">completed</p>
               </div>
             </div>
