@@ -541,6 +541,7 @@ const PrescriptionPage = () => {
                     </div>
                   )}
                 </div>
+              </div>
               {/* Signature */}
               <div className="px-6 py-4 flex justify-end">
                 <div className="text-center w-48">
