@@ -31,7 +31,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { printRecordReport } from "@/lib/printUtils";
+import { printRecordReport, printRefundReceipt } from "@/lib/printUtils";
 import { toast } from "sonner";
 import {
   getRefunds, getAuditLog, addRefund,
