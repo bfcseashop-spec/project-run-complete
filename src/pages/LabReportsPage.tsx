@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
@@ -29,9 +29,10 @@ import {
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
-  labReports, type LabReport, type ReportSection, type ReportInvestigation,
+  labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
 } from "@/data/labReports";
+import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView from "@/components/LabReportView";
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -57,7 +58,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 
 const LabReportsPage = () => {
   const { activeTestNames } = useTestNameStore();
-  const [reports, setReports] = useState<LabReport[]>(labReports);
+  const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
@@ -143,17 +144,16 @@ const LabReportsPage = () => {
     const finalForm = { ...form, sections: cleanedSections };
 
     if (editReport) {
-      setReports((prev) => prev.map((r) => r.id === editReport.id ? { ...editReport, ...finalForm } : r));
+      updateLabReport(editReport.id, finalForm);
     } else {
-      const nextNum = reports.length > 0 ? Math.max(...reports.map(r => parseInt(r.id.split("-")[1]))) + 1 : 1001;
-      setReports((prev) => [...prev, { id: `LR-${nextNum}`, ...finalForm }]);
+      addLabReport(finalForm);
     }
     setDialogOpen(false);
   };
 
   const handleDelete = () => {
     if (deleteReport) {
-      setReports((prev) => prev.filter((r) => r.id !== deleteReport.id));
+      removeLabReport(deleteReport.id);
       setDeleteReport(null);
     }
   };
@@ -247,17 +247,17 @@ const LabReportsPage = () => {
   const handleImportReports = async (file: File) => {
     const rows = await reportToolbar.handleImport(file);
     if (rows.length > 0) {
-      const nextNum = reports.length > 0 ? Math.max(...reports.map(r => parseInt(r.id.split("-")[1]))) + 1 : 1001;
-      const newReports: LabReport[] = rows.map((row, i) => ({
-        id: `LR-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
-        age: Number(row.age) || 0, gender: (row.gender as LabReport["gender"]) || "Male",
-        testName: String(row.testName || ""), doctor: String(row.doctor || ""),
-        date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
-        status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
-        sampleType: "Blood", collectedAt: "", reportedAt: "",
-        technician: "", pathologist: "", instrument: "", sections: [],
-      }));
-      setReports((prev) => [...newReports, ...prev]);
+      rows.forEach((row) => {
+        addLabReport({
+          patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+          age: Number(row.age) || 0, gender: (row.gender as LabReport["gender"]) || "Male",
+          testName: String(row.testName || ""), doctor: String(row.doctor || ""),
+          date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
+          status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
+          sampleType: "Blood", collectedAt: "", reportedAt: "",
+          technician: "", pathologist: "", instrument: "", sections: [],
+        });
+      });
     }
   };
 
