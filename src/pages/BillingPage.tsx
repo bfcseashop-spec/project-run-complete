@@ -311,80 +311,97 @@ const BillingPage = () => {
 
       <Dialog open={!!viewRecord} onOpenChange={() => setViewRecord(null)}>
         <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0">
-          {viewRecord && (
-            <>
-              <div className="p-8 space-y-6" id="invoice-print-area" ref={printRef}>
-                <div className="text-center border-b border-border pb-4">
-                  <h2 className="text-xl font-bold text-foreground">{appSettings.clinicName}</h2>
-                  <p className="text-sm text-muted-foreground">{appSettings.clinicTagline}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{appSettings.clinicAddress} | {appSettings.clinicPhone}</p>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <div className="space-y-1">
-                    <p><span className="text-muted-foreground">Invoice:</span> <span className="font-semibold">{viewRecord.id}</span></p>
-                    <p><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{viewRecord.patient}</span></p>
+          {viewRecord && (() => {
+            const pt = patients.find((p) => p.name === viewRecord.patient);
+            const dr = doctors.find((doc) => doc.name === viewRecord.formData?.doctor);
+            const items = viewRecord.formData?.lineItems;
+            const grouped = items && items.length > 0
+              ? groupLineItems(items)
+              : viewRecord.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+            return (
+              <>
+                <div className="p-8 space-y-5 relative" ref={printRef}>
+                  <img src={clinicLogo} alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 opacity-[0.04] pointer-events-none" />
+
+                  <div className="bg-gradient-to-r from-primary to-primary/70 rounded-xl px-6 py-5 text-primary-foreground flex justify-between items-center">
+                    <div>
+                      <h2 className="text-xl font-extrabold">{appSettings.clinicName}</h2>
+                      <p className="text-sm opacity-80">{appSettings.clinicTagline}</p>
+                      <p className="text-[10px] opacity-60 mt-1">{appSettings.clinicAddress} · {appSettings.clinicPhone}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase tracking-widest opacity-60">Invoice</p>
+                      <p className="text-base font-bold font-mono tracking-wider">{viewRecord.id}</p>
+                    </div>
                   </div>
-                  <div className="text-right space-y-1">
-                    <p><span className="text-muted-foreground">Date:</span> <span className="font-medium">{viewRecord.date}</span></p>
-                    <p><span className="text-muted-foreground">Payment:</span> <span className="font-medium">{viewRecord.method}</span></p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient Info</p>
+                      <p className="font-semibold text-sm">{viewRecord.patient}</p>
+                      {(pt?.age || pt?.gender) && <p className="text-xs text-muted-foreground mt-0.5">{pt.age ? `Age: ${pt.age}` : ''}{pt.age && pt.gender ? ' · ' : ''}{pt.gender ? `Gender: ${pt.gender}` : ''}</p>}
+                      {pt?.phone && <p className="text-xs text-muted-foreground mt-0.5">📞 {pt.phone}</p>}
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
+                      {viewRecord.formData?.doctor && <p className="font-semibold text-sm">{viewRecord.formData.doctor}</p>}
+                      {dr?.degree && <p className="text-[11px] text-muted-foreground">{dr.degree}</p>}
+                      <p className="text-sm mt-1">Date: <span className="font-semibold">{viewRecord.date}</span></p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{viewRecord.method}</span></p>
+                    </div>
                   </div>
-                </div>
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-primary/5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    <span>#</span><span>Description</span><span className="text-right">Amount</span>
-                  </div>
-                  {(() => {
-                    const items = viewRecord.formData?.lineItems;
-                    if (items && items.length > 0) {
-                      const nonMed = items.filter(li => li.type !== "MED");
-                      const meds = items.filter(li => li.type === "MED");
-                      const medTotal = meds.reduce((s, li) => s + li.price * li.qty, 0);
-                      const display = [
-                        ...nonMed.map(li => ({ name: li.name, total: li.price * li.qty })),
-                        ...(meds.length > 0 ? [{ name: "Medication", total: medTotal }] : []),
-                      ];
-                      return display.map((item, i) => (
-                        <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
-                          <span className="text-muted-foreground">{i + 1}</span>
-                          <span className="font-medium">{item.name}</span>
-                          <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
-                        </div>
-                      ));
-                    }
-                    return viewRecord.service.split(" + ").map((svc, i) => (
-                      <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      <span>#</span><span>Item</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Total</span>
+                    </div>
+                    {grouped.map((item, i) => (
+                      <div key={i} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
                         <span className="text-muted-foreground">{i + 1}</span>
-                        <span className="font-medium">{svc}</span>
-                        <span className="text-right tabular-nums">—</span>
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-xs text-muted-foreground">{item.description}</span>
+                        <span className="text-center">{item.qty}</span>
+                        <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
+                        <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                       </div>
-                    ));
-                  })()}
+                    ))}
+                  </div>
+
+                  <div className="ml-auto w-72 space-y-1.5 text-sm">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums font-medium">{formatDualPrice(viewRecord.amount)}</span></div>
+                    {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums font-medium">-{formatDualPrice(viewRecord.discount)}</span></div>}
+                    {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums font-medium">{formatDualPrice(viewRecord.tax)}</span></div>}
+                    <div className="border-t-2 border-primary pt-2 flex justify-between font-extrabold text-lg"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(viewRecord.total)}</span></div>
+                    {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
+                      <>
+                        {viewRecord.formData.splitPayments.map((sp, i) => (
+                          <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
+                        ))}
+                        <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(viewRecord.paid)}</span></div>
+                      </>
+                    ) : (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatDualPrice(viewRecord.paid)}</span></div>
+                    )}
+                    <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(viewRecord.due)}</span></div>
+                  </div>
+
+                  <div className="text-center pt-4 border-t border-dashed border-border">
+                    <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(viewRecord.id, 220, 50) }} />
+                    <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{viewRecord.id}</p>
+                  </div>
+
+                  <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg py-3 mt-2">
+                    <p className="text-xs text-primary font-medium">Thank you for choosing {appSettings.clinicName}. Get well soon! 🙏</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{appSettings.clinicWebsite} · {appSettings.clinicEmail}</p>
+                  </div>
                 </div>
-                <div className="ml-auto w-64 space-y-2 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="tabular-nums">{formatDualPrice(viewRecord.amount)}</span></div>
-                  {viewRecord.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span className="text-destructive tabular-nums">-{formatDualPrice(viewRecord.discount)}</span></div>}
-                  {viewRecord.tax > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span className="tabular-nums">{formatDualPrice(viewRecord.tax)}</span></div>}
-                  <div className="border-t border-border pt-2 flex justify-between font-bold text-base"><span>Grand Total</span><span className="text-primary tabular-nums">{formatDualPrice(viewRecord.total)}</span></div>
-                  {viewRecord.formData?.splitPayments && viewRecord.formData.splitPayments.length > 0 ? (
-                    <>
-                      {viewRecord.formData.splitPayments.map((sp, i) => (
-                        <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatDualPrice(sp.amount)}</span></div>
-                      ))}
-                      <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between text-sm"><span className="text-muted-foreground">Paid</span><span className="tabular-nums">{formatDualPrice(viewRecord.paid)}</span></div>
-                  )}
-                  <div className="flex justify-between text-sm font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${viewRecord.due > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatDualPrice(viewRecord.due)}</span></div>
+                <div className="px-6 pb-6 flex gap-3">
+                  <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">Close</Button>
+                  <Button onClick={() => printInvoiceWindow(viewRecord)} className="flex-1 gap-2 bg-primary hover:bg-primary/90"><Printer className="w-4 h-4" /> Print Invoice</Button>
                 </div>
-                <p className="text-center text-xs text-muted-foreground pt-4 border-t border-border">Thank you for choosing {appSettings.clinicName}. Get well soon!</p>
-              </div>
-              <div className="px-6 pb-6 flex gap-3">
-                <Button variant="outline" onClick={() => setViewRecord(null)} className="flex-1">Close</Button>
-                <Button onClick={() => window.print()} className="flex-1 gap-2 bg-primary hover:bg-primary/90"><Printer className="w-4 h-4" /> Print Invoice</Button>
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
