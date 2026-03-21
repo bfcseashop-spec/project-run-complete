@@ -210,6 +210,11 @@ const OPDPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ViewPatientDialog
+        open={!!viewPatient}
+        onOpenChange={(open) => { if (!open) setViewPatient(null); }}
+        patient={viewPatient}
+      />
       <PatientVisitSummary
         open={!!summaryPatient}
         onOpenChange={(open) => { if (!open) setSummaryPatient(null); }}
