@@ -58,9 +58,10 @@ const headingFamilies = [
 
 const fontSizes = [
   { label: "Small (14px)", value: "14px" },
-  { label: "Default (16px)", value: "16px" },
-  { label: "Large (18px)", value: "18px" },
-  { label: "Extra Large (20px)", value: "20px" },
+  { label: "Medium (16px)", value: "16px" },
+  { label: "Normal (18px)", value: "18px" },
+  { label: "Large (20px)", value: "20px" },
+  { label: "Extra Large (22px)", value: "22px" },
 ];
 
 /* ── Color themes ── */
