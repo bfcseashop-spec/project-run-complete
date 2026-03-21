@@ -533,6 +533,14 @@ const PrescriptionPage = () => {
                     </div>
                   )}
                 </div>
+              {/* Signature */}
+              <div className="px-6 py-4 flex justify-end">
+                <div className="text-center w-48">
+                  <div className="border-b border-dashed border-foreground/40 mb-1 h-10" />
+                  <p className="text-xs font-semibold text-foreground">{viewRx.doctor}</p>
+                  <p className="text-[10px] text-muted-foreground">Signature</p>
+                  <p className="text-[10px] text-muted-foreground">{viewRx.date}</p>
+                </div>
               </div>
               <div className="bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)] px-6 py-3 flex items-center justify-between text-white text-xs">
                 <span>📞 000 12345 6149</span>
