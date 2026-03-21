@@ -94,7 +94,7 @@ const Dashboard = () => {
   }, [filteredBilling]);
 
   return (
-    <div className="space-y-6 max-w-[1400px]">
+    <div className="space-y-6 w-full">
       {/* ── Welcome Banner (gradient steps style) ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/5 via-card to-card border border-border/40 p-6">
         <div className="flex items-center justify-between">
