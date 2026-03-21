@@ -1,3 +1,4 @@
+/* Billing data store */
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 
 export interface BillingRecord {
