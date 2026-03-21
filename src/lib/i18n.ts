@@ -73,6 +73,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     frequency: "ប្រេកង់", duration: "រយៈពេល", dosage: "កម្រិត", injection: "ថ្នាំចាក់",
     systemManage: "គ្រប់គ្រងប្រព័ន្ធ",
     refund: "បង្វិលសង",
+    addService: "បន្ថែមសេវា",
+    healthPackages: "កញ្ចប់",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
