@@ -98,14 +98,33 @@ const BillingPage = () => {
     } catch { /* ignore */ }
   }, []);
 
+  const getMedQty = (r: BillingRecord) => {
+    if (!r.formData?.lineItems) return 0;
+    return r.formData.lineItems.filter(li => li.type === "MED").reduce((s, li) => s + li.qty, 0);
+  };
+  const getInjection = (r: BillingRecord) => {
+    if (!r.formData?.lineItems) return r.service.includes("Injection") ? "Yes" : "—";
+    const inj = r.formData.lineItems.filter(li => li.type === "INJ");
+    return inj.length > 0 ? inj.map(li => li.name).join(", ") : "—";
+  };
+  const getPackages = (r: BillingRecord) => {
+    if (!r.formData?.lineItems) return r.service.includes("Checkup") ? "Yes" : "—";
+    const pkg = r.formData.lineItems.filter(li => li.type === "PKG");
+    return pkg.length > 0 ? pkg.map(li => li.name).join(", ") : "—";
+  };
+
   const columns = [
     { key: "id", header: "Invoice" },
+    { key: "date", header: t("date", lang) },
     { key: "patient", header: t("patient", lang) },
     { key: "service", header: "Service" },
+    { key: "medQty", header: "Qty (Med)", render: (d: BillingRecord) => <span className="font-number">{getMedQty(d) || "—"}</span> },
+    { key: "injection", header: "Injection", render: (d: BillingRecord) => <span className="text-sm">{getInjection(d)}</span> },
+    { key: "packages", header: "Packages", render: (d: BillingRecord) => <span className="text-sm">{getPackages(d)}</span> },
     { key: "total", header: t("total", lang), render: (d: BillingRecord) => <span className="font-semibold font-number">{formatDualPrice(d.total)}</span> },
     { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="font-number">{formatDualPrice(d.paid)}</span> },
     { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`font-number ${d.due > 0 ? "text-destructive font-medium" : ""}`}>{formatDualPrice(d.due)}</span> },
-    { key: "date", header: t("date", lang) },
+    { key: "method", header: "PayBy" },
     { key: "status", header: t("status", lang), render: (d: BillingRecord) => <StatusBadge status={d.status} /> },
     {
       key: "actions", header: "Actions", render: (d: BillingRecord) => (
