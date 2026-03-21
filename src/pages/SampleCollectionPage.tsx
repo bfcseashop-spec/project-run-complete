@@ -476,6 +476,24 @@ const SampleCollectionPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Collection & Send to Lab */}
+      <AlertDialog open={!!confirmRecord} onOpenChange={(open) => !open && setConfirmRecord(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Sample & Send to Lab Reports</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmRecord?.status === "pending"
+                ? `Mark sample ${confirmRecord?.id} as "Collected" and create a pending Lab Report for "${confirmRecord?.testName}"?`
+                : `Send collected sample ${confirmRecord?.id} ("${confirmRecord?.testName}") to Lab Reports for processing?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmCollected}>Confirm & Send</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
