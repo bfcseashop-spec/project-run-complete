@@ -472,7 +472,7 @@ const NewInvoicePage = () => {
               <Select value={doctor} onValueChange={setDoctor}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select doctor..." /></SelectTrigger>
                 <SelectContent>
-                  {doctors.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  {doctors.map((d) => <SelectItem key={d.name} value={d.name}>{d.name} — {d.degree}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
