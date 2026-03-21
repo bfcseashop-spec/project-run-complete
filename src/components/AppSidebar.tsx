@@ -71,7 +71,12 @@ const menuSections: MenuSection[] = [
     labelKey: "management",
     items: [
       { icon: Stethoscope, labelKey: "doctors", path: "/doctors" },
-      { icon: Pill, labelKey: "medicine", path: "/medicine" },
+      { icon: Pill, labelKey: "medicine", path: "/medicine",
+        subItems: [
+          { icon: Plus, labelKey: "addMedicine", path: "/medicine" },
+          { icon: List, labelKey: "inventoryList", path: "/medicine/inventory" },
+        ],
+      },
       { icon: Users, labelKey: "hrm", path: "/hrm" },
       { icon: UserCog, labelKey: "roles", path: "/roles" },
     ],
