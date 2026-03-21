@@ -210,6 +210,14 @@ const PrescriptionPage = () => {
           ${rx.notes ? `<p class="section-title">Notes</p><p class="section-text">${rx.notes}</p>` : ""}
         </div>
       </div>
+      <div style="display:flex;justify-content:flex-end;padding:20px 24px">
+        <div style="text-align:center;width:180px">
+          <div style="border-bottom:1px dashed #999;height:40px;margin-bottom:4px"></div>
+          <p style="font-size:12px;font-weight:600;margin:0">${rx.doctor}</p>
+          <p style="font-size:10px;color:#888;margin:2px 0 0">Signature</p>
+          <p style="font-size:10px;color:#888;margin:2px 0 0">${rx.date}</p>
+        </div>
+      </div>
     </body></html>`);
     printWin.document.close();
     setTimeout(() => printWin.print(), 200);
