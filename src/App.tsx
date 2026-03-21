@@ -65,6 +65,7 @@ const App = () => (
             <Route path="/investments" element={<InvestmentsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/system-manage" element={<SystemManagePage />} />
+            <Route path="/refund" element={<RefundPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
