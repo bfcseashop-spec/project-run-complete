@@ -192,23 +192,9 @@ const SystemManagePage = () => {
   };
 
   const resetAll = () => {
-    setSettings(defaults);
     saveSystemSettings(defaults);
-    // remove inline overrides
-    const root = document.documentElement;
-    root.style.removeProperty("--font-body");
-    root.style.removeProperty("--font-heading");
-    root.style.removeProperty("--font-number");
-    root.style.removeProperty("--primary");
-    root.style.removeProperty("--ring");
-    root.style.removeProperty("--accent");
-    root.style.removeProperty("--success");
-    root.style.removeProperty("--sidebar-primary");
-    root.style.removeProperty("--sidebar-ring");
-    root.style.removeProperty("--radius");
-    root.style.fontSize = "";
-    root.classList.remove("dark");
-    toast.success("Reset to default settings");
+    toast.success("Reset to defaults! Refreshing...");
+    setTimeout(() => window.location.reload(), 600);
   };
 
   const activeTheme = colorThemes.find(t => t.id === settings.colorTheme) || colorThemes[0];
