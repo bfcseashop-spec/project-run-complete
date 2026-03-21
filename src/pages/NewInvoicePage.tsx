@@ -327,8 +327,10 @@ const NewInvoicePage = () => {
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
     const rows = invoiceItems.map((item, i) =>
       `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:13px">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
     ).join("");
     let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
         <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(subtotal)}</span></div>`;
@@ -350,7 +352,6 @@ const NewInvoicePage = () => {
 <div class="page">
   <img src="${clinicLogo}" class="watermark" alt="" />
   <div class="content">
-    <!-- Colorful Header -->
     <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
       <div>
         <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
@@ -362,42 +363,36 @@ const NewInvoicePage = () => {
         <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${invoiceId}</p>
       </div>
     </div>
-    <!-- Info Bar -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient & Doctor</p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
         <p><strong>${patient}</strong></p>
+        ${patientAge || patientGender ? `<p style="color:#64748b;margin-top:2px">${patientAge ? `Age: ${patientAge}` : ''}${patientAge && patientGender ? ' · ' : ''}${patientGender ? `Gender: ${patientGender}` : ''}</p>` : ''}
         ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
-        ${doctor ? `<p style="color:#64748b;margin-top:2px">Dr. ${doctor}</p>` : ''}
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Invoice Details</p>
-        <p>Date: <strong>${dateTimeStr}</strong></p>
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${doctor ? `<p><strong>${doctor}</strong></p>` : ''}
+        ${doctorDegree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${doctorDegree}</p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${dateTimeStr}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
       </div>
     </div>
-    <!-- Items Table -->
     <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
       <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
-        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Amount</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <!-- Barcode & QR -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="text-align:center">
-        <div style="display:inline-block">${barcodeStr}</div>
-        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
-      </div>
-      <div style="text-align:center">
-        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
-        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
-      </div>
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
     </div>
-    <!-- Footer -->
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
       <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
       <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
