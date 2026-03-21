@@ -27,13 +27,13 @@ import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printBarcode } from "@/lib/printUtils";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
-import LabReportView from "@/components/LabReportView";
+import LabReportView, { printLabReport } from "@/components/LabReportView";
 
 const categoryIcons: Record<string, React.ElementType> = {
   hematology: Droplets, biochemistry: FlaskConical, microbiology: Bug,
@@ -224,13 +224,9 @@ const LabReportsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
             <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Lab Report", fields: [
-              { label: "Patient", value: r.patient }, { label: "Test", value: r.testName },
-              { label: "Doctor", value: r.doctor }, { label: "Date", value: r.date },
-              { label: "Status", value: r.status }, { label: "Report Date", value: r.resultDate || "" },
-            ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printLabReport(r)}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
             <BarcodeIcon className="w-3.5 h-3.5" />
           </Button>
