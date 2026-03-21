@@ -260,7 +260,7 @@ const UltrasoundPage = () => {
         id: `US-${nextId + i}`, patient: String(row.patient || ""), examination: String(row.examination || ""),
         doctor: String(row.doctor || ""), date: String(row.date || new Date().toISOString().split("T")[0]),
         reportDate: "", status: "pending", region: (row.region as UltrasoundRecord["region"]) || "abdomen",
-        findings: "", impression: "", remarks: "",
+        findings: "", impression: "", remarks: "", images: [],
       }));
       setRecords((prev) => [...newRecords, ...prev]);
     }
