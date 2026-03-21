@@ -13,6 +13,7 @@ import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
+import ViewPatientDialog from "@/components/ViewPatientDialog";
 import PatientVisitSummary from "@/components/PatientVisitSummary";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -29,6 +30,7 @@ const OPDPage = () => {
   const [patients, setPatients] = useState<OPDPatient[]>(getPatients());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
+  const [viewPatient, setViewPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
   const [summaryPatient, setSummaryPatient] = useState<OPDPatient | null>(null);
   const [search, setSearch] = useState("");
