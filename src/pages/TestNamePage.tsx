@@ -22,6 +22,7 @@ import { toast } from "sonner";
 const TestNamePage = () => {
   useSettings();
   const store = useTestNameStore();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
