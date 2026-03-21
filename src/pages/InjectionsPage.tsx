@@ -104,29 +104,26 @@ const InjectionsPage = () => {
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: i.id, sectionTitle: "Injection Details", fields: [
-              { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
-              { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
-              { label: "Status", value: i.status },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(i)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewInj(i)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: i.id, sectionTitle: "Injection Report", fields: [
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
               { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
               { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
             ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(i.id, i.name)}>
-            <Barcode className="w-3.5 h-3.5" />
+          })}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteInj(i)}>
-            <Trash2 className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(i.id, i.name)}>
+            <Barcode className="w-3.5 h-3.5 text-accent-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteInj(i)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),

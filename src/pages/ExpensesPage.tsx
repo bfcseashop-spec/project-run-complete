@@ -132,28 +132,24 @@ const ExpensesPage = () => {
       key: "actions", header: "Actions",
       render: (r: ExpenseRecord) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: r.id, sectionTitle: "Expense Details", fields: [
-              { label: "Title", value: r.title }, { label: "Category", value: r.category },
-              { label: "Amount", value: formatPrice(r.amount) }, { label: "Paid To", value: r.paidTo },
-              { label: "Payment Method", value: r.paymentMethod }, { label: "Date", value: r.date },
-              { label: "Receipt #", value: r.receipt }, { label: "Notes", value: r.notes },
-              { label: "Status", value: r.status },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewRecord(r)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: r.id, sectionTitle: "Expense Report", fields: [
               { label: "Title", value: r.title }, { label: "Category", value: r.category },
               { label: "Amount", value: formatPrice(r.amount) }, { label: "Paid To", value: r.paidTo },
               { label: "Payment Method", value: r.paymentMethod }, { label: "Date", value: r.date },
               { label: "Receipt #", value: r.receipt }, { label: "Status", value: r.status },
             ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteRecord(r)}>
-            <Trash2 className="w-3.5 h-3.5" />
+          })}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteRecord(r)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
       ),
