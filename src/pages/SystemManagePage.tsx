@@ -460,6 +460,13 @@ const SystemManagePage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-2 pb-4">
+        <Button size="lg" onClick={handleSave} className="px-8 text-base font-bold">
+          Save data
+        </Button>
+      </div>
     </div>
   );
 };
