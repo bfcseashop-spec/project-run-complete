@@ -25,30 +25,30 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
   const total = data.reduce((s, d) => s + d.amount, 0);
 
   return (
-    <div className="bg-card rounded-2xl border border-border/50 shadow-card p-5">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-card rounded-2xl border border-border/50 shadow-card p-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-sm font-bold text-card-foreground font-heading">Payment Methods</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Revenue by payment type</p>
+          <h3 className="text-base font-bold text-card-foreground font-heading">💳 Payment Methods</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">Revenue by payment type</p>
         </div>
-        <span className="text-sm font-bold text-card-foreground font-number">{formatDualPrice(total)}</span>
+        <span className="text-base font-bold text-card-foreground font-number">{formatDualPrice(total)}</span>
       </div>
 
       {/* Cards Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {data.map((d) => (
-          <div key={d.name} className="relative overflow-hidden rounded-xl p-3 border border-border/50" style={{ background: `${d.color}08` }}>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${d.color}18` }}>
-                <d.icon className="w-3.5 h-3.5" style={{ color: d.color }} />
+          <div key={d.name} className="relative overflow-hidden rounded-xl p-4 border border-border/50" style={{ background: `${d.color}08` }}>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${d.color}18` }}>
+                <d.icon className="w-4 h-4" style={{ color: d.color }} />
               </div>
-              <span className="text-xs font-semibold text-card-foreground">{d.name}</span>
+              <span className="text-sm font-semibold text-card-foreground">{d.name}</span>
             </div>
-            <p className="text-base font-extrabold text-card-foreground font-number">{formatPrice(d.amount)}</p>
-            <p className="text-[10px] text-muted-foreground">{d.count} transactions</p>
+            <p className="text-lg font-extrabold text-card-foreground font-number">{formatPrice(d.amount)}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{d.count} transactions</p>
             {/* Progress bar */}
-            <div className="mt-2 h-1 rounded-full bg-muted/60 overflow-hidden">
-              <div className="h-full rounded-full transition-all" style={{ width: `${(d.amount / total) * 100}%`, background: d.color }} />
+            <div className="mt-2.5 h-1.5 rounded-full bg-muted/60 overflow-hidden">
+              <div className="h-full rounded-full transition-all" style={{ width: `${total > 0 ? (d.amount / total) * 100 : 0}%`, background: d.color }} />
             </div>
           </div>
         ))}
