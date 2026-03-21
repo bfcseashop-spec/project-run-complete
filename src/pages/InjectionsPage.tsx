@@ -44,6 +44,7 @@ const InjectionsPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editInj, setEditInj] = useState<InjectionItem | null>(null);
   const [deleteInj, setDeleteInj] = useState<InjectionItem | null>(null);
+  const [viewInj, setViewInj] = useState<InjectionItem | null>(null);
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
