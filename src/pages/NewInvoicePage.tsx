@@ -160,6 +160,9 @@ const NewInvoicePage = () => {
   const effectivePaid = splitMode ? splitTotal : paidAmount;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
+  const selectedPatient = patients.find((p) => p.name === patient);
+  const patientPhone = selectedPatient?.phone || "";
+
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
   const nonMedicineItems = lineItems.filter((li) => li.type !== "MED");
