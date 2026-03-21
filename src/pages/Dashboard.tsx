@@ -96,29 +96,25 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 w-full">
       {/* ── Bold Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-7 text-primary-foreground">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute w-64 h-64 rounded-full bg-white/20 -top-20 -right-20" />
-          <div className="absolute w-40 h-40 rounded-full bg-white/15 bottom-0 left-10" />
-          <div className="absolute w-20 h-20 rounded-full bg-white/10 top-10 right-1/3" />
-        </div>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-6 text-primary-foreground">
+        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/5" />
         <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black font-heading tracking-tight">{greeting}, Doctor! 👋</h1>
-            <p className="text-primary-foreground/70 text-sm mt-1 font-medium">
+            <h1 className="text-xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
+            <p className="text-primary-foreground/60 text-sm mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
               <Activity className="w-4 h-4" />
-              <span className="text-lg font-black font-number">47</span>
-              <span className="text-xs font-medium opacity-80">patients</span>
+              <span className="text-base font-bold font-number">47</span>
+              <span className="text-xs opacity-70">patients</span>
             </div>
-            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
               <Clock className="w-4 h-4" />
-              <span className="text-lg font-black font-number">8</span>
-              <span className="text-xs font-medium opacity-80">in queue</span>
+              <span className="text-base font-bold font-number">8</span>
+              <span className="text-xs opacity-70">in queue</span>
             </div>
           </div>
         </div>
