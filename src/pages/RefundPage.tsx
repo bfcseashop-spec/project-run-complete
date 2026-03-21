@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   Plus, Eye, Trash2, RotateCcw, DollarSign, AlertTriangle,
-  CheckCircle, Clock, Package, ClipboardList, Minus, Search,
+  CheckCircle, Package, ClipboardList, Minus, Search,
 } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
@@ -32,8 +32,8 @@ import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { toast } from "sonner";
 import {
-  getRefunds, getAuditLog, addRefund, updateRefundStatus,
-  deleteRefund, subscribeRefunds, RefundRecord, RefundItem, AuditEntry,
+  getRefunds, getAuditLog, addRefund,
+  deleteRefund, subscribeRefunds, RefundRecord, RefundItem,
 } from "@/data/refundStore";
 import { initPatients, getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { getInjections, updateInjection, computeInjectionStatus, subscribeInjections } from "@/data/injectionStore";
@@ -41,9 +41,7 @@ import { opdPatients } from "@/data/opdPatients";
 
 initPatients(opdPatients);
 
-// Simulated medicine stock updater (MedicinePage uses local state, so we just toast)
 const restockMedicine = (name: string, qty: number) => {
-  // In a real app this would update a shared store
   console.log(`[RESTOCK] Medicine "${name}" +${qty} units`);
 };
 
@@ -54,6 +52,14 @@ const paymentMethods = [
   { value: "Card", label: "Card Refund" },
   { value: "Credit", label: "Store Credit" },
 ];
+
+const typeColors: Record<string, string> = {
+  MED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  INJ: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  SVC: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  PKG: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+  CUSTOM: "bg-muted text-muted-foreground",
+};
 
 const RefundPage = () => {
   const { settings } = useSettings();
@@ -71,13 +77,11 @@ const RefundPage = () => {
     return () => { u1(); u2(); u3(); };
   }, []);
 
-  // Dialog states
   const [showNewRefund, setShowNewRefund] = useState(false);
   const [viewRecord, setViewRecord] = useState<RefundRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<RefundRecord | null>(null);
   const [showAuditLog, setShowAuditLog] = useState(false);
 
-  // New refund form
   const [selectedPatient, setSelectedPatient] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState("");
   const [refundReason, setRefundReason] = useState("");
@@ -85,24 +89,16 @@ const RefundPage = () => {
   const [returnItems, setReturnItems] = useState<RefundItem[]>([]);
   const [itemSearch, setItemSearch] = useState("");
 
-  // Available items to return (simulated from billing/inventory)
   const availableItems = useMemo(() => {
     const items: { name: string; type: RefundItem["type"]; maxQty: number; unitPrice: number }[] = [];
-    // Medicines from the invoice system
     const meds = [
-      { name: "Amoxicillin 500mg", price: 2.50, stock: 10 },
-      { name: "Paracetamol 650mg", price: 0.50, stock: 10 },
-      { name: "Metformin 500mg", price: 1.00, stock: 10 },
-      { name: "Omeprazole 20mg", price: 1.50, stock: 10 },
-      { name: "Cetirizine 10mg", price: 0.75, stock: 10 },
-      { name: "Azithromycin 250mg", price: 3.00, stock: 10 },
-      { name: "10% GS 500ml", price: 10.00, stock: 10 },
-      { name: "Ibuprofen 400mg", price: 1.00, stock: 10 },
+      { name: "Amoxicillin 500mg", price: 2.50 }, { name: "Paracetamol 650mg", price: 0.50 },
+      { name: "Metformin 500mg", price: 1.00 }, { name: "Omeprazole 20mg", price: 1.50 },
+      { name: "Cetirizine 10mg", price: 0.75 }, { name: "Azithromycin 250mg", price: 3.00 },
+      { name: "10% GS 500ml", price: 10.00 }, { name: "Ibuprofen 400mg", price: 1.00 },
     ];
-    meds.forEach((m) => items.push({ name: m.name, type: "MED", maxQty: m.stock, unitPrice: m.price }));
-    // Injections
+    meds.forEach((m) => items.push({ name: m.name, type: "MED", maxQty: 10, unitPrice: m.price }));
     injections.forEach((inj) => items.push({ name: inj.name, type: "INJ", maxQty: 10, unitPrice: inj.price }));
-    // Services
     const svcs = [
       { name: "Consultation", price: 10 }, { name: "Lab Test", price: 10 },
       { name: "X-Ray", price: 15 }, { name: "Ultrasound", price: 20 },
@@ -137,7 +133,6 @@ const RefundPage = () => {
     if (returnItems.length === 0) { toast.error("Please add items to return"); return; }
     if (!refundReason.trim()) { toast.error("Please provide a reason for the refund"); return; }
 
-    // Update inventory stocks
     returnItems.forEach((item) => {
       if (item.type === "INJ") {
         const inj = injections.find((i) => i.name === item.name);
@@ -168,12 +163,8 @@ const RefundPage = () => {
   };
 
   const resetForm = () => {
-    setSelectedPatient("");
-    setSelectedInvoice("");
-    setRefundReason("");
-    setRefundMethod("Cash");
-    setReturnItems([]);
-    setItemSearch("");
+    setSelectedPatient(""); setSelectedInvoice(""); setRefundReason("");
+    setRefundMethod("Cash"); setReturnItems([]); setItemSearch("");
   };
 
   const handleDelete = () => {
@@ -184,7 +175,6 @@ const RefundPage = () => {
     }
   };
 
-  // Stats
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayRefunds = refunds.filter((r) => r.date === todayStr);
   const totalRefundedToday = todayRefunds.reduce((s, r) => s + r.totalRefund, 0);
@@ -205,22 +195,29 @@ const RefundPage = () => {
     { key: "method", header: "Method" },
     { key: "date", header: t("date", lang) },
     { key: "status", header: t("status", lang), render: (r: RefundRecord) => <StatusBadge status={r.status} /> },
+    {
+      key: "actions", header: t("actions", lang),
+      render: (r: RefundRecord) => (
+        <TooltipProvider>
+          <div className="flex items-center gap-1">
+            <Tooltip><TooltipTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setViewRecord(r)}><Eye className="w-4 h-4" /></Button>
+            </TooltipTrigger><TooltipContent>View</TooltipContent></Tooltip>
+            <Tooltip><TooltipTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive/60 hover:text-destructive" onClick={() => setDeleteRecord(r)}><Trash2 className="w-4 h-4" /></Button>
+            </TooltipTrigger><TooltipContent>Delete</TooltipContent></Tooltip>
+          </div>
+        </TooltipProvider>
+      ),
+    },
   ];
 
   const toolbar = useDataToolbar({ data: refunds as unknown as Record<string, unknown>[], dateKey: "date", columns, title: "Refunds" });
   const displayData = toolbar.filteredByDate as unknown as RefundRecord[];
 
-  const typeColors: Record<string, string> = {
-    MED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-    INJ: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-    SVC: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    PKG: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
-    CUSTOM: "bg-muted text-muted-foreground",
-  };
-
   return (
     <div className="space-y-6">
-      <PageHeader title={t("refund", lang)} subtitle="Process returns, restock inventory, and manage refunds">
+      <PageHeader title={t("refund", lang)} description="Process returns, restock inventory, and manage refunds">
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowAuditLog(true)} className="gap-2">
             <ClipboardList className="w-4 h-4" /> Audit Log
@@ -231,28 +228,28 @@ const RefundPage = () => {
         </div>
       </PageHeader>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title="Today's Refunds" value={formatDualPrice(totalRefundedToday)} change={`${todayRefunds.length} refund(s)`} changeType="neutral" icon={RotateCcw} iconBg="bg-destructive/10" />
         <StatCard title="Total Refunds" value={String(refunds.length)} change="All time" changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
-        <StatCard title="Completed" value={String(completedCount)} change={`${pendingCount} pending`} changeType={pendingCount > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-success/10" />
-        <StatCard title="Pending" value={String(pendingCount)} change={pendingCount > 0 ? "Needs attention" : "All clear"} changeType={pendingCount > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-warning/10" />
+        <StatCard title="Completed" value={String(completedCount)} change={`${pendingCount} pending`} changeType={pendingCount > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
+        <StatCard title="Pending" value={String(pendingCount)} change={pendingCount > 0 ? "Needs attention" : "All clear"} changeType={pendingCount > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
       </div>
 
-      {/* Toolbar */}
-      <DataToolbar {...toolbar} onImport={undefined} />
+      <DataToolbar
+        dateFilter={toolbar.dateFilter}
+        onDateFilterChange={toolbar.setDateFilter}
+        viewMode={toolbar.viewMode}
+        onViewModeChange={toolbar.setViewMode}
+        onExportExcel={toolbar.handleExportExcel}
+        onExportPDF={toolbar.handleExportPDF}
+        onImport={() => {}}
+        onDownloadSample={toolbar.handleDownloadSample}
+      />
 
-      {/* Table */}
       <DataTable
         data={displayData}
         columns={columns}
-        viewMode={toolbar.viewMode}
-        onAction={(action, row) => {
-          const record = row as unknown as RefundRecord;
-          if (action === "view") setViewRecord(record);
-          else if (action === "delete") setDeleteRecord(record);
-        }}
-        actions={["view", "delete"]}
+        keyExtractor={(r) => (r as RefundRecord).id}
       />
 
       {/* New Refund Dialog */}
@@ -265,7 +262,6 @@ const RefundPage = () => {
           </DialogHeader>
 
           <div className="space-y-5">
-            {/* Patient & Invoice */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Patient *</Label>
@@ -284,7 +280,6 @@ const RefundPage = () => {
               </div>
             </div>
 
-            {/* Item Search & Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold">Select Items to Return</Label>
               <div className="relative">
@@ -318,7 +313,6 @@ const RefundPage = () => {
               )}
             </div>
 
-            {/* Selected Return Items */}
             {returnItems.length > 0 && (
               <div className="border border-border rounded-lg overflow-hidden">
                 <div className="grid grid-cols-[auto_1fr_80px_80px_80px_40px] px-4 py-2 bg-muted/50 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -351,7 +345,6 @@ const RefundPage = () => {
               </div>
             )}
 
-            {/* Reason & Method */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Refund Method</Label>
@@ -370,7 +363,6 @@ const RefundPage = () => {
               </div>
             </div>
 
-            {/* Inventory Note */}
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
               <Package className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -378,7 +370,6 @@ const RefundPage = () => {
               </p>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowNewRefund(false)} className="flex-1">Cancel</Button>
               <Button onClick={handleSubmitRefund} className="flex-1 gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground">
