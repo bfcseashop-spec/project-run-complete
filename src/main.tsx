@@ -44,9 +44,17 @@ try {
       "'Raleway', sans-serif": "Raleway:wght@500;600;700",
       "'Oswald', sans-serif": "Oswald:wght@400;500;600;700",
       "'Bitter', serif": "Bitter:wght@400;600;700",
+      "'JetBrains Mono', monospace": "JetBrains+Mono:wght@400;500;600;700",
+      "'Roboto Mono', monospace": "Roboto+Mono:wght@400;500;600;700",
+      "'Space Grotesk', sans-serif": "Space+Grotesk:wght@400;500;600;700",
+      "'Outfit', sans-serif": "Outfit:wght@400;500;600;700",
+      "'Barlow', sans-serif": "Barlow:wght@400;500;600;700",
+      "'Bebas Neue', sans-serif": "Bebas+Neue",
+      "'Orbitron', sans-serif": "Orbitron:wght@400;500;600;700",
     };
     if (s.bodyFont && fontMap[s.bodyFont]) imports.push(fontMap[s.bodyFont]);
     if (s.headingFont && s.headingFont !== "__same__" && fontMap[s.headingFont]) imports.push(fontMap[s.headingFont]);
+    if (s.numberFont && s.numberFont !== "__same__" && fontMap[s.numberFont]) imports.push(fontMap[s.numberFont]);
     if (imports.length) {
       const link = document.createElement("link");
       link.id = "system-manage-fonts";
