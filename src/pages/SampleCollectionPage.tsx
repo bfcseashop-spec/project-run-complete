@@ -253,6 +253,16 @@ const SampleCollectionPage = () => {
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
+          {(r.status === "pending" || r.status === "collected") && r.status !== "collected" && (
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Confirm & Send to Lab" onClick={() => setConfirmRecord(r)}>
+              <SendHorizonal className="w-3.5 h-3.5 text-green-600" />
+            </Button>
+          )}
+          {r.status === "collected" && (
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Send to Lab Reports" onClick={() => setConfirmRecord(r)}>
+              <SendHorizonal className="w-3.5 h-3.5 text-green-600" />
+            </Button>
+          )}
         </div>
       ),
     },
