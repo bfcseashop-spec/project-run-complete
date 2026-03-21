@@ -7,12 +7,13 @@ import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Eye, Printer, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Printer, Search, ClipboardList } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
+import PatientVisitSummary from "@/components/PatientVisitSummary";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -29,6 +30,7 @@ const OPDPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPatient, setEditPatient] = useState<OPDPatient | null>(null);
   const [deletePatient, setDeletePatient] = useState<OPDPatient | null>(null);
+  const [summaryPatient, setSummaryPatient] = useState<OPDPatient | null>(null);
   const [search, setSearch] = useState("");
   const [filterBlood, setFilterBlood] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
@@ -110,6 +112,7 @@ const OPDPage = () => {
         ];
         return (
           <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Visit Summary" onClick={() => setSummaryPatient(p)}><ClipboardList className="w-3.5 h-3.5 text-primary" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Patient Record", fields, photo: p.photo })}><Eye className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields, photo: p.photo })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
@@ -205,6 +208,11 @@ const OPDPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <PatientVisitSummary
+        open={!!summaryPatient}
+        onOpenChange={(open) => { if (!open) setSummaryPatient(null); }}
+        patient={summaryPatient}
+      />
     </div>
   );
 };
