@@ -12,6 +12,7 @@ import {
   Pill, Syringe, FileText, Download, Printer, TrendingUp,
   Activity, CreditCard, ChevronDown, ChevronUp,
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { getBillingRecords, type BillingRecord } from "@/data/billingStore";
 import type { OPDPatient } from "@/data/opdPatients";
 import { formatPrice } from "@/lib/currency";
