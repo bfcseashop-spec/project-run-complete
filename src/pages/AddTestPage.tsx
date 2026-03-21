@@ -1,6 +1,6 @@
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
-import { useState } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { toast } from "sonner";
 
 interface TestEntry {
