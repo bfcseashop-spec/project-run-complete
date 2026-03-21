@@ -2,7 +2,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Printer } from "lucide-react";
+import { printRecordReport } from "@/lib/printUtils";
 import StatusBadge from "@/components/StatusBadge";
 import type { OPDPatient } from "@/data/opdPatients";
 
