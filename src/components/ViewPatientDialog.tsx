@@ -2,7 +2,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Printer } from "lucide-react";
+import { printRecordReport } from "@/lib/printUtils";
 import StatusBadge from "@/components/StatusBadge";
 import type { OPDPatient } from "@/data/opdPatients";
 
@@ -83,6 +84,19 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+          <Button onClick={() => {
+            const fields = [
+              { label: "Patient Name", value: patient.name }, { label: "Age", value: String(patient.age) },
+              { label: "Gender", value: patient.gender }, { label: "Blood Type", value: patient.bloodType || "N/A" },
+              { label: "Patient Type", value: patient.patientType || "N/A" }, { label: "Phone", value: patient.phone || "N/A" },
+              { label: "Complaint", value: patient.complaint }, { label: "Doctor", value: patient.doctor },
+              { label: "Time", value: patient.time }, { label: "Status", value: patient.status },
+              { label: "Medical History", value: patient.medicalHistory || "N/A" },
+            ];
+            printRecordReport({ id: patient.id, sectionTitle: "OPD Patient Record", fields, photo: patient.photo });
+          }}>
+            <Printer className="w-4 h-4 mr-2" /> Print
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
