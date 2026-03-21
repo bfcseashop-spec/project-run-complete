@@ -53,9 +53,8 @@ const menuSections: MenuSection[] = [
         icon: TestTube, labelKey: "labTests", path: "/lab-tests",
         subItems: [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
-          { icon: List, labelKey: "labTests", path: "/lab-tests" },
-          { icon: TestTube, labelKey: "name", path: "/lab-tests/names" },
           { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection" },
+          { icon: TestTube, labelKey: "name", path: "/lab-tests/names" },
         ],
       },
       { icon: FileText, labelKey: "labReports", path: "/lab-reports" },
