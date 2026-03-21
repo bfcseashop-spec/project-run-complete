@@ -429,12 +429,12 @@ const TestNamePage = () => {
             /* Grid View */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map((t) => (
-                <Card key={t.id} className={`relative ${!t.active ? "opacity-50" : ""}`}>
+                <Card key={t.id} className={`relative border-l-4 ${categoryBorder[t.category] || categoryBorder.General} ${!t.active ? "opacity-50" : ""}`}>
                   <CardContent className="pt-5 pb-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <TestTube className="w-4 h-4 text-primary" />
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${catIcon[t.category] || catIcon.General}`}>
+                          <TestTube className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-sm truncate">{t.name}</p>
