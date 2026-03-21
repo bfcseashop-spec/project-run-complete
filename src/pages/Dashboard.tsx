@@ -12,6 +12,9 @@ import {
 import { formatDualPrice, formatPrice, convertToSecondary } from "@/lib/currency";
 import { getSettings } from "@/data/settingsStore";
 import { useSettings } from "@/hooks/use-settings";
+import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
+import PaymentMethodChart from "@/components/PaymentMethodChart";
+import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
 
 const patientData = [
   { month: "Jan", patients: 120, returning: 45 }, { month: "Feb", patients: 145, returning: 58 },
@@ -67,11 +70,31 @@ const quickActions = [
 
 const Dashboard = () => {
   const settings = useSettings();
+  const [filterPreset, setFilterPreset] = useState<DashboardFilterPreset>("today");
+  const [customRange, setCustomRange] = useState<{ from: Date; to: Date } | null>(null);
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
 
+  // Payment method data (would come from billing records in production)
+  const paymentData = [
+    { name: "Cash", amount: 12500, count: 34, color: "hsl(142, 71%, 45%)", icon: Banknote },
+    { name: "ABA", amount: 8200, count: 18, color: "hsl(217, 91%, 60%)", icon: Building2 },
+    { name: "ACleda", amount: 6800, count: 15, color: "hsl(38, 92%, 50%)", icon: Landmark },
+    { name: "Card", amount: 4500, count: 10, color: "hsl(270, 60%, 55%)", icon: CreditCard },
+  ];
+
   return (
     <div className="space-y-6">
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold font-heading text-foreground">Dashboard</h2>
+        <DashboardDateFilter
+          preset={filterPreset}
+          customRange={customRange}
+          onPresetChange={setFilterPreset}
+          onCustomRangeChange={setCustomRange}
+        />
+      </div>
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/90 via-primary to-primary/80 p-6 text-primary-foreground">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzMuMzE0IDAgNiAyLjY4NiA2IDZzLTIuNjg2IDYtNiA2LTYtMi42ODYtNi02IDIuNjg2LTYgNi02eiIvPjwvZz48L2c+PC9zdmc+')] opacity-60" />
@@ -270,38 +293,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Department Distribution - Full Width */}
-      <div className="bg-card rounded-2xl border border-border/50 shadow-card p-5">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h3 className="text-sm font-bold text-card-foreground font-heading">Department Distribution</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Patient visits by department</p>
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-6">
-          <ResponsiveContainer width={220} height={180}>
-            <PieChart>
-              <Pie data={departmentData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3} strokeWidth={0}>
-                {departmentData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
-            {departmentData.map((d, i) => (
-              <div key={i} className="flex items-center gap-2.5">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
-                <div>
-                  <p className="text-sm font-semibold text-card-foreground">{d.name}</p>
-                  <p className="text-xs text-muted-foreground">{d.value}%</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Payment Methods - Full Width */}
+      <PaymentMethodChart data={paymentData} />
     </div>
   );
 };
