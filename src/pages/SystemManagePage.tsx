@@ -80,6 +80,7 @@ const STORAGE_KEY = "clinic-system-manage";
 interface SystemSettings {
   bodyFont: string;
   headingFont: string;
+  numberFont: string;
   fontSize: string;
   colorTheme: string;
   mode: "light" | "dark" | "system";
@@ -90,6 +91,7 @@ interface SystemSettings {
 const defaults: SystemSettings = {
   bodyFont: "'Inter', system-ui, sans-serif",
   headingFont: "'Playfair Display', Georgia, serif",
+  numberFont: "__same__",
   fontSize: "16px",
   colorTheme: "teal",
   mode: "light",
