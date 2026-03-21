@@ -112,6 +112,7 @@ const OPDPage = () => {
         ];
         return (
           <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon" className="h-7 w-7" title="Visit Summary" onClick={() => setSummaryPatient(p)}><ClipboardList className="w-3.5 h-3.5 text-primary" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Patient Record", fields, photo: p.photo })}><Eye className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => handleEdit(p)}><Pencil className="w-3.5 h-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({ id: p.id, sectionTitle: "OPD Report", fields, photo: p.photo })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
