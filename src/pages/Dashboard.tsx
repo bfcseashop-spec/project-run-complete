@@ -96,29 +96,25 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 w-full">
       {/* ── Bold Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-7 text-primary-foreground">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute w-64 h-64 rounded-full bg-white/20 -top-20 -right-20" />
-          <div className="absolute w-40 h-40 rounded-full bg-white/15 bottom-0 left-10" />
-          <div className="absolute w-20 h-20 rounded-full bg-white/10 top-10 right-1/3" />
-        </div>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-6 text-primary-foreground">
+        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/5" />
         <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black font-heading tracking-tight">{greeting}, Doctor! 👋</h1>
-            <p className="text-primary-foreground/70 text-sm mt-1 font-medium">
+            <h1 className="text-xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
+            <p className="text-primary-foreground/60 text-sm mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
               <Activity className="w-4 h-4" />
-              <span className="text-lg font-black font-number">47</span>
-              <span className="text-xs font-medium opacity-80">patients</span>
+              <span className="text-base font-bold font-number">47</span>
+              <span className="text-xs opacity-70">patients</span>
             </div>
-            <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
               <Clock className="w-4 h-4" />
-              <span className="text-lg font-black font-number">8</span>
-              <span className="text-xs font-medium opacity-80">in queue</span>
+              <span className="text-base font-bold font-number">8</span>
+              <span className="text-xs opacity-70">in queue</span>
             </div>
           </div>
         </div>
@@ -136,16 +132,16 @@ const Dashboard = () => {
           />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-          <StatCard icon={DollarSign} title="Revenue" value={formatDualPrice(67450)} change="58,200" accentColor="hsl(340, 70%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value="793" change="753" accentColor="hsl(200, 80%, 45%)" />
-          <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 84%, 39%)" />
-          <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(270, 60%, 55%)" />
+          <StatCard icon={DollarSign} title="Revenue" value={formatDualPrice(67450)} change="58,200" accentColor="hsl(340, 55%, 50%)" />
+          <StatCard icon={ClipboardList} title="Invoices" value="793" change="753" accentColor="hsl(200, 60%, 45%)" />
+          <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 50%, 38%)" />
+          <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(260, 45%, 50%)" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 92%, 50%)" />
-          <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 60%, 55%)" />
-          <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 65%, 55%)" />
+          <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 70%, 48%)" />
+          <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 50%, 50%)" />
+          <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 50%, 42%)" />
+          <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 50%, 50%)" />
         </div>
       </div>
 
