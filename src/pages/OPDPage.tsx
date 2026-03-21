@@ -13,6 +13,7 @@ import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
 import { initPatients, getPatients, addPatient, updatePatient, removePatient, subscribe } from "@/data/patientStore";
 import RegisterPatientDialog from "@/components/RegisterPatientDialog";
+import PatientVisitSummary from "@/components/PatientVisitSummary";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
