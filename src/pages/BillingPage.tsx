@@ -180,7 +180,7 @@ const BillingPage = () => {
     const p = patients.find((pt) => pt.name === record.patient);
     const d = doctors.find((doc) => doc.name === record.formData?.doctor);
     const items = record.formData?.lineItems;
-    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0, subItems: [] as { name: string; price: number; qty: number; total: number }[] }));
     const rows = grouped.map((item, i) => {
       const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
        <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:13px">${item.name}</td>
