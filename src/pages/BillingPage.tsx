@@ -154,6 +154,7 @@ const BillingPage = () => {
     dateKey: "date",
     columns,
     title: "Billing",
+    searchKeys: ["id", "patient", "service", "method", "status"],
   });
 
   const displayData = toolbar.filteredByDate as unknown as BillingRecord[];
