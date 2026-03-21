@@ -256,6 +256,35 @@ const TestNamePage = () => {
                 </SelectContent>
               </Select>
               <Button onClick={openAdd} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Test</Button>
+              {/* Import */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5"><Upload className="w-3.5 h-3.5" /> Import</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => fileRef.current?.click()}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Import Excel File
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadSample}>
+                    <Download className="w-4 h-4 mr-2" /> Download Sample File
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
+              {/* Export */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5"><Download className="w-3.5 h-3.5" /> Export</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Export as Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileText className="w-4 h-4 mr-2" /> Export as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               {selectedIds.size > 0 && (
                 <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
                   <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
