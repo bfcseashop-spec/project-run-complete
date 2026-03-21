@@ -123,9 +123,9 @@ const BillingPage = () => {
     { key: "id", header: "Invoice" },
     { key: "patient", header: t("patient", lang) },
     { key: "service", header: "Service" },
-    { key: "total", header: t("total", lang), render: (d: BillingRecord) => <span className="font-semibold">{formatDualPrice(d.total)}</span> },
-    { key: "paid", header: "Paid", render: (d: BillingRecord) => formatDualPrice(d.paid) },
-    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={d.due > 0 ? "text-destructive font-medium" : ""}>{formatDualPrice(d.due)}</span> },
+    { key: "total", header: t("total", lang), render: (d: BillingRecord) => <span className="font-semibold font-number">{formatDualPrice(d.total)}</span> },
+    { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="font-number">{formatDualPrice(d.paid)}</span> },
+    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`font-number ${d.due > 0 ? "text-destructive font-medium" : ""}`}>{formatDualPrice(d.due)}</span> },
     { key: "date", header: t("date", lang) },
     { key: "status", header: t("status", lang), render: (d: BillingRecord) => <StatusBadge status={d.status} /> },
     {

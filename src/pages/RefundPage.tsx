@@ -191,7 +191,7 @@ const RefundPage = () => {
         <span className="text-xs text-muted-foreground">{r.items.map((i) => i.name).join(", ").slice(0, 40)}{r.items.length > 2 ? "..." : ""}</span>
       ),
     },
-    { key: "totalRefund", header: t("total", lang), render: (r: RefundRecord) => <span className="font-semibold text-destructive">{formatDualPrice(r.totalRefund)}</span> },
+    { key: "totalRefund", header: t("total", lang), render: (r: RefundRecord) => <span className="font-semibold text-destructive font-number">{formatDualPrice(r.totalRefund)}</span> },
     { key: "method", header: "Method" },
     { key: "date", header: t("date", lang) },
     { key: "status", header: t("status", lang), render: (r: RefundRecord) => <StatusBadge status={r.status} /> },

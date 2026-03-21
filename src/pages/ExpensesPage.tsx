@@ -111,7 +111,7 @@ const ExpensesPage = () => {
     {
       key: "amount", header: "Amount",
       render: (r: ExpenseRecord) => (
-        <span className="font-semibold text-card-foreground">{formatPrice(r.amount)}</span>
+        <span className="font-semibold text-card-foreground font-number">{formatPrice(r.amount)}</span>
       ),
     },
     { key: "paidTo", header: "Paid To" },
