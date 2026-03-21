@@ -130,7 +130,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
   <!-- Header -->
   <div class="report-header">
     <div class="lab-brand">
-      <div class="lab-logo">🏥</div>
+      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
       <div>
         <div class="lab-name">${s.clinicName}</div>
         <div class="lab-tagline">${s.clinicTagline}</div>
