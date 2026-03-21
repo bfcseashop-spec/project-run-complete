@@ -132,16 +132,16 @@ const Dashboard = () => {
           />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-          <StatCard icon={DollarSign} title="Revenue" value={formatDualPrice(67450)} change="58,200" accentColor="hsl(340, 70%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value="793" change="753" accentColor="hsl(200, 80%, 45%)" />
-          <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 84%, 39%)" />
-          <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(270, 60%, 55%)" />
+          <StatCard icon={DollarSign} title="Revenue" value={formatDualPrice(67450)} change="58,200" accentColor="hsl(340, 55%, 50%)" />
+          <StatCard icon={ClipboardList} title="Invoices" value="793" change="753" accentColor="hsl(200, 60%, 45%)" />
+          <StatCard icon={Users} title="Patients" value="1,284" change="1,150" accentColor="hsl(160, 50%, 38%)" />
+          <StatCard icon={Stethoscope} title="Pending" value="47" change="42" accentColor="hsl(260, 45%, 50%)" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 92%, 50%)" />
-          <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 60%, 55%)" />
-          <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 65%, 55%)" />
+          <StatCard icon={TestTube} title="Lab Tests" value="23" change="28" accentColor="hsl(38, 70%, 48%)" />
+          <StatCard icon={Pill} title="Medicines" value="6" change="8" accentColor="hsl(215, 50%, 50%)" />
+          <StatCard icon={ScanLine} title="X-Ray" value="8" change="5" accentColor="hsl(142, 50%, 42%)" />
+          <StatCard icon={Heart} title="Services" value="7" change="6" accentColor="hsl(350, 50%, 50%)" />
         </div>
       </div>
 

@@ -16,19 +16,13 @@ const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, ac
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group"
+      className="relative overflow-hidden rounded-2xl p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group bg-card border border-border/50"
       style={{
-        background: `linear-gradient(145deg, ${color}18, ${color}30)`,
-        borderLeft: `4px solid ${color}`,
+        borderLeft: `3px solid ${color}`,
       }}
     >
-      {/* Decorative blob */}
       <div
-        className="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-20 group-hover:opacity-30 transition-opacity"
-        style={{ background: color }}
-      />
-      <div
-        className="absolute -right-2 -bottom-4 w-16 h-16 rounded-full opacity-10"
+        className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity"
         style={{ background: color }}
       />
 
