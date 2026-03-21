@@ -404,10 +404,11 @@ const PrescriptionPage = () => {
                   </div>
                   <div className="flex items-center gap-3 text-right">
                     <div>
-                      <h3 className="text-lg font-bold text-white">Prime Poly Clinic</h3>
-                      <p className="text-xs text-white/70">Healthcare & Wellness</p>
+                      <h3 className="text-lg font-bold text-white">{s.clinicName}</h3>
+                      <p className="text-xs text-white/70">{s.clinicTagline}</p>
+                      {s.clinicRegNumber && <p className="text-[10px] text-white/50 mt-0.5">Reg: {s.clinicRegNumber}</p>}
                     </div>
-                    <img src={clinicLogo} alt="Prime Poly Clinic" className="w-12 h-12 rounded-lg bg-white/10 p-1" />
+                    <img src={clinicLogo} alt={s.clinicName} className="w-12 h-12 rounded-lg bg-white/10 p-1" />
                   </div>
                 </div>
               </div>
