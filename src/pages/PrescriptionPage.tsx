@@ -555,9 +555,9 @@ const PrescriptionPage = () => {
                 </div>
               </div>
               <div className="bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)] px-6 py-3 flex items-center justify-between text-white text-xs">
-                <span>📞 000 12345 6149</span>
-                <span>📍 Clinic Address Here</span>
-                <span>🌐 www.clinic.com</span>
+                <span>📞 {s.clinicPhone}</span>
+                <span>📍 {s.clinicAddress}</span>
+                <span>🌐 {s.clinicWebsite}</span>
               </div>
               <div className="flex justify-end p-4 border-t border-border">
                 <Button variant="outline" size="sm" onClick={() => window.print()}>
