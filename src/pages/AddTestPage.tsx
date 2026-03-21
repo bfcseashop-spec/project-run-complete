@@ -11,46 +11,82 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
 import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { toast } from "sonner";
+
+interface TestEntry {
+  id: number;
+  mode: "auto" | "manual";
+  test: string;
+  sampleType: LabTest["sampleType"];
+  normalRange: string;
+  unit: string;
+  price: number;
+}
+
+let entryCounter = 1;
 
 const AddTestPage = () => {
   useSettings();
   const navigate = useNavigate();
   const { activeTests, findByName } = useTestNameStore();
+
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
-    test: "", doctor: "", date: new Date().toISOString().split("T")[0],
+    doctor: "", date: new Date().toISOString().split("T")[0],
     priority: "routine" as LabTest["priority"],
-    sampleType: "blood" as LabTest["sampleType"],
     technicianAssigned: "",
-    normalRange: "", unit: "", notes: "",
+    notes: "",
   });
 
-  const handleTestChange = (testName: string) => {
+  const [tests, setTests] = useState<TestEntry[]>([
+    { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 },
+  ]);
+
+  const addTest = () => {
+    setTests([...tests, { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 }]);
+  };
+
+  const removeTest = (id: number) => {
+    if (tests.length <= 1) return;
+    setTests(tests.filter((t) => t.id !== id));
+  };
+
+  const updateTest = (id: number, patch: Partial<TestEntry>) => {
+    setTests(tests.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  };
+
+  const handleAutoSelect = (id: number, testName: string) => {
     const entry = findByName(testName);
     if (entry) {
-      setForm({
-        ...form,
+      updateTest(id, {
         test: testName,
-        sampleType: (entry.sampleType as LabTest["sampleType"]) || form.sampleType,
+        sampleType: (entry.sampleType as LabTest["sampleType"]) || "blood",
         normalRange: entry.normalRange,
         unit: entry.unit,
+        price: entry.price,
       });
     } else {
-      setForm({ ...form, test: testName });
+      updateTest(id, { test: testName });
     }
   };
 
+  const totalPrice = tests.reduce((sum, t) => sum + (t.price || 0), 0);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.patient || !form.test || !form.doctor) {
-      toast.error("Please fill in all required fields");
+    if (!form.patient || !form.doctor) {
+      toast.error("Please fill in patient name and referring doctor");
       return;
     }
-    toast.success(`Test ordered successfully for ${form.patient}`);
+    const validTests = tests.filter((t) => t.test.trim());
+    if (validTests.length === 0) {
+      toast.error("Please add at least one test");
+      return;
+    }
+    toast.success(`${validTests.length} test(s) ordered successfully for ${form.patient}`);
     navigate("/lab-tests");
   };
 
@@ -64,6 +100,7 @@ const AddTestPage = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: Patient + Tests */}
           <Card className="lg:col-span-2">
             <CardContent className="pt-6 space-y-6">
               <h3 className="text-base font-semibold text-card-foreground font-heading">Patient Information</h3>
@@ -99,53 +136,119 @@ const AddTestPage = () => {
                 </div>
               </div>
 
+              {/* Tests Section */}
               <div className="border-t border-border pt-6">
-                <h3 className="text-base font-semibold text-card-foreground font-heading mb-4">Test Details</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Test Name <span className="text-destructive">*</span></Label>
-                    <Select value={form.test} onValueChange={handleTestChange}>
-                      <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
-                      <SelectContent>
-                        {activeTests.map((t) => (
-                          <SelectItem key={t.id} value={t.name}>
-                            {t.name} <span className="text-muted-foreground ml-1">— {formatDualPrice(t.price)}</span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Date</Label>
-                    <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-semibold text-card-foreground font-heading">
+                    Tests ({tests.length})
+                  </h3>
+                  <Button type="button" variant="outline" size="sm" onClick={addTest}>
+                    <Plus className="w-4 h-4 mr-1" /> Add Test
+                  </Button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="space-y-2">
-                    <Label>Normal Range</Label>
-                    <Input value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="e.g. 70-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Unit</Label>
-                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="e.g. mg/dL" />
-                  </div>
+
+                <div className="space-y-4">
+                  {tests.map((t, idx) => (
+                    <div key={t.id} className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">Test #{idx + 1}</span>
+                        <div className="flex items-center gap-2">
+                          {/* Mode toggle */}
+                          <div className="flex rounded-md border border-input overflow-hidden text-xs">
+                            <button
+                              type="button"
+                              className={`px-3 py-1 transition-colors ${t.mode === "auto" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"}`}
+                              onClick={() => updateTest(t.id, { mode: "auto", test: "", normalRange: "", unit: "", price: 0 })}
+                            >
+                              Auto
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-1 transition-colors ${t.mode === "manual" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"}`}
+                              onClick={() => updateTest(t.id, { mode: "manual", test: "", normalRange: "", unit: "", price: 0 })}
+                            >
+                              Manual
+                            </button>
+                          </div>
+                          {tests.length > 1 && (
+                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTest(t.id)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Test Name <span className="text-destructive">*</span></Label>
+                          {t.mode === "auto" ? (
+                            <Select value={t.test} onValueChange={(v) => handleAutoSelect(t.id, v)}>
+                              <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
+                              <SelectContent>
+                                {activeTests.map((at) => (
+                                  <SelectItem key={at.id} value={at.name}>
+                                    {at.name} — {formatDualPrice(at.price)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <Input
+                              value={t.test}
+                              onChange={(e) => updateTest(t.id, { test: e.target.value })}
+                              placeholder="Enter test name"
+                            />
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Sample Type</Label>
+                          <Select value={t.sampleType} onValueChange={(v) => updateTest(t.id, { sampleType: v as LabTest["sampleType"] })}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Normal Range</Label>
+                          <Input value={t.normalRange} onChange={(e) => updateTest(t.id, { normalRange: e.target.value })} placeholder="e.g. 70-100" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Unit</Label>
+                          <Input value={t.unit} onChange={(e) => updateTest(t.id, { unit: e.target.value })} placeholder="e.g. mg/dL" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Price</Label>
+                          <Input type="number" value={t.price || ""} onChange={(e) => updateTest(t.id, { price: Number(e.target.value) || 0 })} placeholder="0" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Total */}
+                {tests.length > 0 && (
+                  <div className="mt-4 flex justify-end">
+                    <div className="text-sm font-semibold text-foreground bg-muted px-4 py-2 rounded-md">
+                      Total: {formatDualPrice(totalPrice)}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
+          {/* Right sidebar */}
           <div className="space-y-6">
             <Card>
               <CardContent className="pt-6 space-y-4">
-                <h3 className="text-base font-semibold text-card-foreground font-heading">Sample & Priority</h3>
+                <h3 className="text-base font-semibold text-card-foreground font-heading">Priority & Assignment</h3>
                 <div className="space-y-2">
-                  <Label>Sample Type</Label>
-                  <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v as LabTest["sampleType"] })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label>Date</Label>
+                  <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Priority Level</Label>
@@ -181,8 +284,8 @@ const AddTestPage = () => {
             </Card>
 
             <div className="flex gap-3">
-              <Button type="submit" className="flex-1" onClick={handleSubmit}>
-                <Save className="w-4 h-4 mr-2" /> Order Test
+              <Button type="submit" className="flex-1">
+                <Save className="w-4 h-4 mr-2" /> Order Test{tests.length > 1 ? "s" : ""}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate("/lab-tests")}>
                 Cancel
