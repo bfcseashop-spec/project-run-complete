@@ -141,22 +141,24 @@ const HealthServicesPage = () => {
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => printRecordReport({
-            id: s.id, sectionTitle: "Health Service", fields: [
-              { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
-              { label: "Price", value: formatDualPrice(s.price) }, { label: "Duration", value: s.duration },
-              { label: "Status", value: s.status }, { label: "Description", value: s.description },
-            ],
-          })}><Eye className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(s)}><Pencil className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printRecordReport({
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewService(s)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(s)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: s.id, sectionTitle: "Health Service Report", fields: [
               { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
               { label: "Price", value: formatDualPrice(s.price) }, { label: "Duration", value: s.duration },
               { label: "Status", value: s.status }, { label: "Description", value: s.description },
             ],
-          })}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteService(s)}><Trash2 className="w-3.5 h-3.5" /></Button>
+          })}>
+            <Printer className="w-3.5 h-3.5 text-primary" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteService(s)}>
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+          </Button>
         </div>
       ),
     },
