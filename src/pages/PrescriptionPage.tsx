@@ -229,6 +229,7 @@ const PrescriptionPage = () => {
           <p style="font-size:10px;color:#888;margin:2px 0 0">${rx.date}</p>
         </div>
       </div>
+      <div class="footer"><span>📞 ${s.clinicPhone}</span><span>📍 ${s.clinicAddress}</span><span>🌐 ${s.clinicWebsite}</span></div>
     </body></html>`);
     printWin.document.close();
     setTimeout(() => printWin.print(), 200);
