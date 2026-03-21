@@ -15,7 +15,7 @@ type TranslationKey =
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
   | "frequency" | "duration" | "dosage" | "injection" | "systemManage"
-  | "refund" | "addService" | "healthPackages";
+  | "refund" | "addService" | "healthPackages" | "inventoryList";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {
@@ -46,6 +46,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     refund: "Refund",
     addService: "Add Service",
     healthPackages: "Packages",
+    inventoryList: "Inventory List",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
@@ -75,6 +76,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     refund: "បង្វិលសង",
     addService: "បន្ថែមសេវា",
     healthPackages: "កញ្ចប់",
+    inventoryList: "បញ្ជីស្តុក",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
@@ -104,6 +106,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     refund: "ফেরত",
     addService: "সেবা যোগ করুন",
     healthPackages: "প্যাকেজ",
+    inventoryList: "ইনভেন্টরি তালিকা",
   },
 };
 

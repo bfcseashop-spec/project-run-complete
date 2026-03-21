@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import MedicinePage from "@/pages/MedicinePage";
+import MedicineInventoryPage from "@/pages/MedicineInventoryPage";
 import OPDPage from "@/pages/OPDPage";
 import PrescriptionPage from "@/pages/PrescriptionPage";
 import DoctorPage from "@/pages/DoctorPage";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/billing/new" element={<NewInvoicePage />} />
             <Route path="/billing/edit" element={<NewInvoicePage />} />
             <Route path="/medicine" element={<MedicinePage />} />
+            <Route path="/medicine/inventory" element={<MedicineInventoryPage />} />
             <Route path="/opd" element={<OPDPage />} />
             <Route path="/prescriptions" element={<PrescriptionPage />} />
             <Route path="/doctors" element={<DoctorPage />} />
