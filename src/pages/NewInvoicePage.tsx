@@ -762,6 +762,7 @@ const NewInvoicePage = () => {
                 <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
                   <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient & Doctor</p>
                   <p className="font-semibold text-sm">{patient}</p>
+                  {patientPhone && <p className="text-xs text-muted-foreground mt-0.5">📞 {patientPhone}</p>}
                   {doctor && <p className="text-xs text-muted-foreground mt-0.5">Dr. {doctor}</p>}
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
