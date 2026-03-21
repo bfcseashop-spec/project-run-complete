@@ -153,7 +153,7 @@ const BillingPage = () => {
   const handleEdit = (record: BillingRecord) => {
     navigate("/billing/edit", { state: { editData: record.formData } });
   };
-  const handleDelete = () => { if (deleteRecord) { setBillingData((prev) => prev.filter((r) => r.id !== deleteRecord.id)); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
+  const handleDelete = () => { if (deleteRecord) { removeBillingRecord(deleteRecord.id); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const printInvoiceWindow = (record: BillingRecord) => {
     const s = appSettings;
     const p = patients.find((pt) => pt.name === record.patient);
