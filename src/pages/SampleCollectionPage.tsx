@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "@/data/sampleRecords";
-import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
+import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
 import { toast } from "sonner";
