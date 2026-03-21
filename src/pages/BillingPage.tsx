@@ -174,7 +174,80 @@ const BillingPage = () => {
     navigate("/billing/edit", { state: { editData: record.formData } });
   };
   const handleDelete = () => { if (deleteRecord) { setBillingData((prev) => prev.filter((r) => r.id !== deleteRecord.id)); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
-  const handlePrint = (record: BillingRecord) => { setViewRecord(record); setTimeout(() => window.print(), 300); };
+  const printInvoiceWindow = (record: BillingRecord) => {
+    const s = appSettings;
+    const p = patients.find((pt) => pt.name === record.patient);
+    const d = doctors.find((doc) => doc.name === record.formData?.doctor);
+    const items = record.formData?.lineItems;
+    const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0 }));
+    const rows = grouped.map((item, i) =>
+      `<tr><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px">${item.qty}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatDualPrice(item.total)}</td></tr>`
+    ).join("");
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatDualPrice(record.amount)}</span></div>`;
+    if (record.discount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatDualPrice(record.discount)}</span></div>`;
+    if (record.tax > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax</span><span style="font-weight:500">${formatDualPrice(record.tax)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(record.total)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatDualPrice(record.paid)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${record.due > 0 ? '#ef4444' : '#16a34a'}">${formatDualPrice(record.due)}</span></div></div>`;
+    const barcodeStr = barcodeSVG(record.id, 220, 50);
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${record.patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff}.page{padding:32px 40px;position:relative;overflow:hidden}.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}.content{position:relative;z-index:1}@media print{@page{margin:15mm}.page{padding:20px 30px}}</style></head><body>
+<div class="page">
+  <img src="${clinicLogo}" class="watermark" alt="" />
+  <div class="content">
+    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div><h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1><p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p><p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p></div>
+      <div style="text-align:right"><p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Invoice</p><p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${record.id}</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
+        <p><strong>${record.patient}</strong></p>
+        ${p?.age || p?.gender ? `<p style="color:#64748b;margin-top:2px">${p.age ? `Age: ${p.age}` : ''}${p.age && p.gender ? ' · ' : ''}${p.gender ? `Gender: ${p.gender}` : ''}</p>` : ''}
+        ${p?.phone ? `<p style="color:#64748b;margin-top:2px">📞 ${p.phone}</p>` : ''}
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${record.formData?.doctor ? `<p><strong>${record.formData.doctor}</strong></p>` : ''}
+        ${d?.degree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.degree}</p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${record.date}</strong></p>
+        <p style="margin-top:2px">Payment: <strong>${record.method}</strong></p>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
+        <th style="padding:10px 14px;text-align:center;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Qty</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${totalsHtml}
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="display:inline-block">${barcodeStr}</div>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${record.id}</p>
+    </div>
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
+      <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
+      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
+    </div>
+  </div>
+</div></body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 400);
+  };
+  const handlePrint = (record: BillingRecord) => { printInvoiceWindow(record); };
 
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
