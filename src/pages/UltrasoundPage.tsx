@@ -445,7 +445,7 @@ const UltrasoundPage = () => {
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editRecord ? "Edit Ultrasound Record" : "New Ultrasound Order"}</DialogTitle>
             <DialogDescription>{editRecord ? "Update the ultrasound record details." : "Enter details for the new ultrasound order."}</DialogDescription>
