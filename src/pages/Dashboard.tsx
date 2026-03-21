@@ -23,10 +23,6 @@ const weeklyData = [
   { day: "Thu", visits: 38 }, { day: "Fri", visits: 42 }, { day: "Sat", visits: 22 }, { day: "Sun", visits: 12 },
 ];
 
-const weeklyData = [
-  { day: "Mon", visits: 32 }, { day: "Tue", visits: 28 }, { day: "Wed", visits: 45 },
-  { day: "Thu", visits: 38 }, { day: "Fri", visits: 42 }, { day: "Sat", visits: 22 }, { day: "Sun", visits: 12 },
-];
 
 const departmentData = [
   { name: "OPD", value: 40, fill: "hsl(var(--primary))" },
