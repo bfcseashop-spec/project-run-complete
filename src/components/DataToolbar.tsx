@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
-  Download, Upload, FileSpreadsheet, FileText, List, LayoutGrid, Calendar,
+  Download, Upload, FileSpreadsheet, FileText, List, LayoutGrid, Calendar, Search,
 } from "lucide-react";
 import { DatePreset, datePresets } from "@/lib/dateFilters";
 import { toast } from "sonner";
@@ -18,6 +19,9 @@ interface DataToolbarProps {
   onDateFilterChange: (v: DatePreset) => void;
   viewMode: "list" | "grid";
   onViewModeChange: (v: "list" | "grid") => void;
+  searchQuery?: string;
+  onSearchChange?: (v: string) => void;
+  searchPlaceholder?: string;
   onExportExcel: () => void;
   onExportPDF: () => void;
   onImport: (file: File) => void;
@@ -27,6 +31,7 @@ interface DataToolbarProps {
 const DataToolbar = ({
   dateFilter, onDateFilterChange,
   viewMode, onViewModeChange,
+  searchQuery, onSearchChange, searchPlaceholder,
   onExportExcel, onExportPDF,
   onImport, onDownloadSample,
 }: DataToolbarProps) => {
@@ -46,6 +51,19 @@ const DataToolbar = ({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {/* Search */}
+      {onSearchChange && (
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            value={searchQuery || ""}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder || "Search..."}
+            className="h-9 w-[200px] pl-8 text-xs"
+          />
+        </div>
+      )}
+
       {/* Date Filter */}
       <Select value={dateFilter} onValueChange={(v) => onDateFilterChange(v as DatePreset)}>
         <SelectTrigger className="w-[140px] h-9 text-xs">

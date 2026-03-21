@@ -154,6 +154,7 @@ const BillingPage = () => {
     dateKey: "date",
     columns,
     title: "Billing",
+    searchKeys: ["id", "patient", "service", "method", "status"],
   });
 
   const displayData = toolbar.filteredByDate as unknown as BillingRecord[];
@@ -316,6 +317,8 @@ const BillingPage = () => {
       <DataToolbar
         dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter}
         viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode}
+        searchQuery={toolbar.searchQuery} onSearchChange={toolbar.setSearchQuery}
+        searchPlaceholder="Search by invoice, patient, service..."
         onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF}
         onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample}
       />
