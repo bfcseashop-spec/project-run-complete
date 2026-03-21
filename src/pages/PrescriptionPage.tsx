@@ -39,6 +39,13 @@ interface Prescription {
   medicineDetails?: { name: string; dosage: string; frequency: string; duration: string }[];
   injections?: InjectionEntry[];
   tests?: SelectedTest[];
+  chiefComplaint?: string;
+  onExamination?: string;
+  investigation?: string;
+  diagnosis?: string;
+  treatmentPlan?: string;
+  advices?: string;
+  followUp?: string;
 }
 
 const initialPrescriptions: Prescription[] = [
