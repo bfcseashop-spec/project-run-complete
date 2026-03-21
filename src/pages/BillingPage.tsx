@@ -99,18 +99,27 @@ const BillingPage = () => {
   }, []);
 
   const getMedQty = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return 0;
-    return r.formData.lineItems.filter(li => li.type === "MED").reduce((s, li) => s + li.qty, 0);
+    if (r.formData?.lineItems) {
+      return r.formData.lineItems.filter(li => li.type === "MED").reduce((s, li) => s + li.qty, 0);
+    }
+    // Fallback: check service string for medicine-related keywords
+    if (r.service.toLowerCase().includes("medicine") || r.service.toLowerCase().includes("prescription")) return 1;
+    return 0;
   };
   const getInjection = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return r.service.includes("Injection") ? "Yes" : "—";
-    const inj = r.formData.lineItems.filter(li => li.type === "INJ");
-    return inj.length > 0 ? inj.map(li => li.name).join(", ") : "—";
+    if (r.formData?.lineItems) {
+      const inj = r.formData.lineItems.filter(li => li.type === "INJ");
+      return inj.length > 0 ? inj.map(li => li.name).join(", ") : "—";
+    }
+    return r.service.toLowerCase().includes("injection") ? "Yes" : "—";
   };
   const getPackages = (r: BillingRecord) => {
-    if (!r.formData?.lineItems) return r.service.includes("Checkup") ? "Yes" : "—";
-    const pkg = r.formData.lineItems.filter(li => li.type === "PKG");
-    return pkg.length > 0 ? pkg.map(li => li.name).join(", ") : "—";
+    if (r.formData?.lineItems) {
+      const pkg = r.formData.lineItems.filter(li => li.type === "PKG");
+      return pkg.length > 0 ? pkg.map(li => li.name).join(", ") : "—";
+    }
+    if (r.service.toLowerCase().includes("checkup") || r.service.toLowerCase().includes("package")) return "Yes";
+    return "—";
   };
 
   const columns = [
