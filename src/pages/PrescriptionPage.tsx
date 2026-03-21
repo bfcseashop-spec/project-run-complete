@@ -104,6 +104,13 @@ const PrescriptionPage = () => {
                 medicineDetails: data.medicines.filter((m) => m.name),
                 injections: data.injections.filter((inj) => inj.name),
                 tests: data.tests,
+                chiefComplaint: data.chiefComplaint,
+                onExamination: data.onExamination,
+                investigation: data.investigation,
+                diagnosis: data.diagnosis,
+                treatmentPlan: data.treatmentPlan,
+                advices: data.advices,
+                followUp: data.followUp,
               }
             : p
         )
@@ -125,6 +132,13 @@ const PrescriptionPage = () => {
           medicineDetails: data.medicines.filter((m) => m.name),
           injections: data.injections.filter((inj) => inj.name),
           tests: data.tests,
+          chiefComplaint: data.chiefComplaint,
+          onExamination: data.onExamination,
+          investigation: data.investigation,
+          diagnosis: data.diagnosis,
+          treatmentPlan: data.treatmentPlan,
+          advices: data.advices,
+          followUp: data.followUp,
         },
         ...prev,
       ]);
