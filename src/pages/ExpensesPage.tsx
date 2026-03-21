@@ -47,6 +47,7 @@ const ExpensesPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<ExpenseRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<ExpenseRecord | null>(null);
+  const [viewRecord, setViewRecord] = useState<ExpenseRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
