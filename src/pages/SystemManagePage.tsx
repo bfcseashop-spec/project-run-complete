@@ -12,6 +12,19 @@ import { Paintbrush, Type, Palette, Sun, Moon, Monitor, Check } from "lucide-rea
 import { toast } from "sonner";
 
 /* ── Font options ── */
+const numberFontFamilies = [
+  { label: "Same as Body Font", value: "__same__", import: "" },
+  { label: "Inter (Default)", value: "'Inter', system-ui, sans-serif", import: "Inter:wght@300;400;500;600;700" },
+  { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", import: "JetBrains+Mono:wght@400;500;600;700" },
+  { label: "Roboto Mono", value: "'Roboto Mono', monospace", import: "Roboto+Mono:wght@400;500;600;700" },
+  { label: "Space Grotesk", value: "'Space Grotesk', sans-serif", import: "Space+Grotesk:wght@400;500;600;700" },
+  { label: "Outfit", value: "'Outfit', sans-serif", import: "Outfit:wght@400;500;600;700" },
+  { label: "DM Sans", value: "'DM Sans', sans-serif", import: "DM+Sans:wght@400;500;700" },
+  { label: "Barlow", value: "'Barlow', sans-serif", import: "Barlow:wght@400;500;600;700" },
+  { label: "Oswald", value: "'Oswald', sans-serif", import: "Oswald:wght@400;500;600;700" },
+  { label: "Bebas Neue", value: "'Bebas Neue', sans-serif", import: "Bebas+Neue" },
+  { label: "Orbitron", value: "'Orbitron', sans-serif", import: "Orbitron:wght@400;500;600;700" },
+];
 const fontFamilies = [
   { label: "Inter (Default)", value: "'Inter', system-ui, sans-serif", import: "Inter:wght@300;400;500;600;700" },
   { label: "Spectral", value: "'Spectral', serif", import: "Spectral:wght@300;400;500;600;700" },
@@ -67,6 +80,7 @@ const STORAGE_KEY = "clinic-system-manage";
 interface SystemSettings {
   bodyFont: string;
   headingFont: string;
+  numberFont: string;
   fontSize: string;
   colorTheme: string;
   mode: "light" | "dark" | "system";
@@ -77,6 +91,7 @@ interface SystemSettings {
 const defaults: SystemSettings = {
   bodyFont: "'Inter', system-ui, sans-serif",
   headingFont: "'Playfair Display', Georgia, serif",
+  numberFont: "__same__",
   fontSize: "16px",
   colorTheme: "teal",
   mode: "light",
@@ -103,9 +118,11 @@ function applyStyles(s: SystemSettings) {
   // Font imports
   const bodyDef = fontFamilies.find(f => f.value === s.bodyFont);
   const headDef = headingFamilies.find(f => f.value === s.headingFont);
+  const numDef = numberFontFamilies.find(f => f.value === s.numberFont);
   const imports: string[] = [];
   if (bodyDef?.import) imports.push(bodyDef.import);
   if (headDef?.import && s.headingFont !== "__same__") imports.push(headDef.import);
+  if (numDef?.import && s.numberFont !== "__same__") imports.push(numDef.import);
 
   let linkEl = document.getElementById("system-manage-fonts") as HTMLLinkElement | null;
   if (!linkEl) {
@@ -121,6 +138,7 @@ function applyStyles(s: SystemSettings) {
   // CSS vars
   root.style.setProperty("--font-body", s.bodyFont);
   root.style.setProperty("--font-heading", s.headingFont === "__same__" ? s.bodyFont : s.headingFont);
+  root.style.setProperty("--font-number", s.numberFont === "__same__" ? s.bodyFont : s.numberFont);
   root.style.fontSize = s.fontSize;
   root.style.setProperty("--radius", s.borderRadius);
 
@@ -177,6 +195,7 @@ const SystemManagePage = () => {
     const root = document.documentElement;
     root.style.removeProperty("--font-body");
     root.style.removeProperty("--font-heading");
+    root.style.removeProperty("--font-number");
     root.style.removeProperty("--primary");
     root.style.removeProperty("--ring");
     root.style.removeProperty("--accent");
@@ -250,6 +269,40 @@ const SystemManagePage = () => {
             </Card>
           </div>
 
+          {/* Number Font */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Number / Stats Font</CardTitle>
+              <CardDescription>Used for numeric values, prices, stats, and counters throughout the system</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Select value={settings.numberFont} onValueChange={v => update({ numberFont: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {numberFontFamilies.map(f => (
+                    <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value === "__same__" ? settings.bodyFont : f.value }}>{f.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="p-4 rounded-lg bg-muted/50 border border-border" style={{ fontFamily: settings.numberFont === "__same__" ? settings.bodyFont : settings.numberFont, fontVariantNumeric: "tabular-nums" }}>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Revenue</p>
+                    <p className="text-3xl font-extrabold mt-1">$67,450</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Patients</p>
+                    <p className="text-3xl font-extrabold mt-1">1,284</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tests</p>
+                    <p className="text-3xl font-extrabold mt-1">23</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-3">0123456789 — $12,345.67 — 99.9%</p>
+              </div>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Font Size</CardTitle>

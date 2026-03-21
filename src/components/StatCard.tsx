@@ -29,7 +29,7 @@ const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, ic
       <div className="relative flex items-start justify-between">
         <div className="space-y-1.5">
           <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{title}</p>
-          <p className="text-2xl font-extrabold text-card-foreground font-heading tracking-tight">{value}</p>
+          <p className="text-2xl font-extrabold text-card-foreground font-number tracking-tight">{value}</p>
           {change && (
             <div className={`flex items-center gap-1 ${changeColor}`}>
               <TrendIcon className="w-3 h-3" />
