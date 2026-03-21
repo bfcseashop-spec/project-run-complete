@@ -79,9 +79,9 @@ const SampleCollectionPage = () => {
   const handleImportSamples = async (file: File) => {
     const rows = await toolbar.handleImport(file);
     if (rows.length > 0) {
-      const nextNum = records.length > 0 ? Math.max(...records.map(r => parseInt(r.id.split("-")[1]))) + 1 : 3001;
       const newRecords: SampleRecord[] = rows.map((row, i) => ({
-        id: `SC-${nextNum + i}`, patient: String(row.patient || ""), patientId: String(row.patientId || ""),
+        id: `SC-imp-${Date.now()}-${i}`,
+        patient: String(row.patient || ""), patientId: String(row.patientId || ""),
         age: Number(row.age) || 0, gender: (row.gender as SampleRecord["gender"]) || "Male",
         testName: String(row.testName || ""), doctor: String(row.doctor || ""),
         collectionDate: String(row.collectionDate || new Date().toISOString().split("T")[0]),
@@ -90,7 +90,7 @@ const SampleCollectionPage = () => {
         collectedBy: String(row.collectedBy || ""), storageTemp: (row.storageTemp as SampleRecord["storageTemp"]) || "room",
         barcode: `BC-${90000 + records.length + i + 1}`, rejectionReason: "", notes: String(row.notes || ""),
       }));
-      setRecords((prev) => [...newRecords, ...prev]);
+      bulkAddSampleRecords(newRecords);
     }
   };
 
@@ -104,14 +104,39 @@ const SampleCollectionPage = () => {
 
   const handleSubmit = () => {
     if (!form.patient || !form.testName || !form.doctor) return;
-    const barcode = form.barcode || `BC-${90000 + records.length + 1}`;
     if (editRecord) {
-      setRecords((prev) => prev.map((r) => r.id === editRecord.id ? { ...editRecord, ...form, barcode } : r));
+      updateSampleRecord(editRecord.id, form);
     } else {
-      const nextNum = records.length > 0 ? Math.max(...records.map(r => parseInt(r.id.split("-")[1]))) + 1 : 3001;
-      setRecords((prev) => [...prev, { id: `SC-${nextNum}`, ...form, barcode }]);
+      addSampleRecord(form);
     }
     setDialogOpen(false);
+  };
+
+  const handleConfirmCollected = () => {
+    if (!confirmRecord) return;
+    // Mark as collected
+    const now = new Date();
+    updateSampleRecord(confirmRecord.id, {
+      status: "collected",
+      collectionDate: confirmRecord.collectionDate || now.toISOString().split("T")[0],
+      collectionTime: confirmRecord.collectionTime || now.toTimeString().slice(0, 5),
+    });
+    // Create a pending lab report
+    const updated = { ...confirmRecord, status: "collected" as const };
+    createReportFromSample({
+      patient: updated.patient,
+      patientId: updated.patientId,
+      age: updated.age,
+      gender: updated.gender,
+      testName: updated.testName,
+      doctor: updated.doctor,
+      sampleType: updated.sampleType,
+      collectionDate: updated.collectionDate || now.toISOString().split("T")[0],
+      collectionTime: updated.collectionTime || now.toTimeString().slice(0, 5),
+      collectedBy: updated.collectedBy,
+    });
+    toast.success(`Sample ${confirmRecord.id} confirmed & sent to Lab Reports`);
+    setConfirmRecord(null);
   };
 
   const tabFilter = (r: SampleRecord) => {
