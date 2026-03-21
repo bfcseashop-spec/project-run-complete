@@ -97,6 +97,8 @@ const BillingPage = () => {
   const [viewRecord, setViewRecord] = useState<BillingRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+  const [patients, setPatients] = useState(getPatients());
+  useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
 
   // Pick up submitted invoice from the full-page form
   useEffect(() => {
