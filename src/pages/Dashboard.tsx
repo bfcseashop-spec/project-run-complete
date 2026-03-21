@@ -293,38 +293,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Department Distribution - Full Width */}
-      <div className="bg-card rounded-2xl border border-border/50 shadow-card p-5">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h3 className="text-sm font-bold text-card-foreground font-heading">Department Distribution</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Patient visits by department</p>
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-6">
-          <ResponsiveContainer width={220} height={180}>
-            <PieChart>
-              <Pie data={departmentData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3} strokeWidth={0}>
-                {departmentData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
-            {departmentData.map((d, i) => (
-              <div key={i} className="flex items-center gap-2.5">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
-                <div>
-                  <p className="text-sm font-semibold text-card-foreground">{d.name}</p>
-                  <p className="text-xs text-muted-foreground">{d.value}%</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Payment Methods - Full Width */}
+      <PaymentMethodChart data={paymentData} />
     </div>
   );
 };
