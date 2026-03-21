@@ -168,6 +168,10 @@ const NewInvoicePage = () => {
 
   const selectedPatient = patients.find((p) => p.name === patient);
   const patientPhone = selectedPatient?.phone || "";
+  const patientAge = selectedPatient?.age || "";
+  const patientGender = selectedPatient?.gender || "";
+  const selectedDoctor = doctors.find((d) => d.name === doctor);
+  const doctorDegree = selectedDoctor?.degree || "";
 
   const medicationItems = lineItems.filter((li) => li.type === "MED");
   const medicationTotal = medicationItems.reduce((s, li) => s + li.price * li.qty, 0);
