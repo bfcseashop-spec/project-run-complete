@@ -154,6 +154,68 @@ const TestNamePage = () => {
 
   const activeCount = store.tests.filter((t) => t.active).length;
 
+  const exportColumns = [
+    { key: "id", header: "ID" },
+    { key: "name", header: "Test Name" },
+    { key: "category", header: "Category" },
+    { key: "sampleType", header: "Sample Type" },
+    { key: "normalRange", header: "Normal Range" },
+    { key: "unit", header: "Unit" },
+    { key: "price", header: "Price" },
+    { key: "active", header: "Active" },
+  ];
+
+  const handleExportExcel = () => {
+    exportToExcel(filtered as unknown as Record<string, unknown>[], exportColumns, "Test_Names");
+    toast.success(`Exported ${filtered.length} tests to Excel`);
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF(filtered as unknown as Record<string, unknown>[], exportColumns, "Test Name Management");
+  };
+
+  const handleDownloadSample = () => {
+    generateSampleExcel(exportColumns, "Test_Names");
+    toast.success("Sample template downloaded");
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const rows = await importFromExcel(file, exportColumns);
+      let added = 0;
+      rows.forEach((row) => {
+        const name = String(row.name || "").trim();
+        if (!name) return;
+        if (store.findByName(name)) return; // skip duplicates
+        store.addTest({
+          name,
+          category: String(row.category || "General"),
+          sampleType: String(row.sampleType || "blood"),
+          normalRange: String(row.normalRange || "-"),
+          unit: String(row.unit || ""),
+          price: Number(row.price) || 0,
+          active: row.active !== false && row.active !== "false" && row.active !== "Inactive",
+        });
+        added++;
+      });
+      toast.success(`Imported ${added} new tests (${rows.length - added} skipped as duplicates)`);
+    } catch {
+      toast.error("Failed to import file. Please check the format.");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls") && !file.name.endsWith(".csv")) {
+        toast.error("Please upload an Excel (.xlsx/.xls) or CSV file");
+        return;
+      }
+      handleImportFile(file);
+      e.target.value = "";
+    }
+  };
+
   return (
     <div>
       <PageHeader title="Test Name Management" description="Manage available lab test names, pricing, and categories" />
