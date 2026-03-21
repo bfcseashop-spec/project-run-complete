@@ -48,8 +48,47 @@ const LazyInvestments = lazy(() =>
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
-  <div className="flex items-center justify-center h-[60vh]">
-    <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+  <div className="space-y-6 p-6 animate-pulse">
+    {/* Header skeleton */}
+    <div className="flex items-center justify-between">
+      <div className="space-y-2">
+        <div className="h-7 w-48 bg-muted rounded-md" />
+        <div className="h-4 w-72 bg-muted/60 rounded-md" />
+      </div>
+      <div className="h-9 w-32 bg-muted rounded-md" />
+    </div>
+    {/* Stat cards skeleton */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="h-4 w-20 bg-muted rounded" />
+            <div className="h-8 w-8 bg-muted/60 rounded-lg" />
+          </div>
+          <div className="h-6 w-16 bg-muted rounded" />
+          <div className="h-3 w-24 bg-muted/40 rounded" />
+        </div>
+      ))}
+    </div>
+    {/* Toolbar skeleton */}
+    <div className="flex items-center gap-3">
+      <div className="h-9 w-36 bg-muted rounded-md" />
+      <div className="h-9 w-24 bg-muted/60 rounded-md" />
+      <div className="flex-1" />
+      <div className="h-9 w-20 bg-muted/60 rounded-md" />
+      <div className="h-9 w-20 bg-muted/60 rounded-md" />
+    </div>
+    {/* Table skeleton */}
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-muted/30">
+        {[...Array(6)].map((_, i) => <div key={i} className="h-4 bg-muted rounded" />)}
+      </div>
+      {[...Array(5)].map((_, row) => (
+        <div key={row} className="grid grid-cols-6 gap-4 px-4 py-3.5 border-t border-border">
+          {[...Array(6)].map((_, col) => <div key={col} className="h-4 bg-muted/50 rounded" style={{ width: `${50 + Math.random() * 40}%` }} />)}
+        </div>
+      ))}
+    </div>
   </div>
 );
 
