@@ -64,10 +64,11 @@ const sampleColumns = [
 ];
 
 const SampleCollectionPage = () => {
-  const [records, setRecords] = useState<SampleRecord[]>(initialRecords);
+  const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
+  const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
