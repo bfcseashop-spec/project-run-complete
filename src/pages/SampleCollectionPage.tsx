@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -18,16 +18,20 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Plus, Pencil, Pipette, Clock, CheckCircle, PackageCheck,
   Search, AlertTriangle, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle,
+  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
-import {
-  sampleRecords as initialRecords, type SampleRecord, sampleTypes,
-  storageTempOptions, collectors,
-} from "@/data/sampleRecords";
+import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "@/data/sampleRecords";
+import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
+import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
+import { toast } from "sonner";
 
 const sampleTypeIcons: Record<string, React.ElementType> = {
   blood: Droplets, urine: FlaskConical, stool: FlaskConical, sputum: FlaskConical,
