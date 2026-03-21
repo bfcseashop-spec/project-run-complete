@@ -18,16 +18,9 @@ import PaymentMethodChart from "@/components/PaymentMethodChart";
 import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
 import { parseISO, isWithinInterval } from "date-fns";
 
-const patientData = [
-  { month: "Jan", patients: 120, returning: 45 }, { month: "Feb", patients: 145, returning: 58 },
-  { month: "Mar", patients: 160, returning: 62 }, { month: "Apr", patients: 138, returning: 50 },
-  { month: "May", patients: 175, returning: 70 }, { month: "Jun", patients: 190, returning: 78 },
-];
-
-const revenueData = [
-  { month: "Jan", revenue: 45000 }, { month: "Feb", revenue: 52000 },
-  { month: "Mar", revenue: 48000 }, { month: "Apr", revenue: 61000 },
-  { month: "May", revenue: 55000 }, { month: "Jun", revenue: 67000 },
+const weeklyData = [
+  { day: "Mon", visits: 32 }, { day: "Tue", visits: 28 }, { day: "Wed", visits: 45 },
+  { day: "Thu", visits: 38 }, { day: "Fri", visits: 42 }, { day: "Sat", visits: 22 }, { day: "Sun", visits: 12 },
 ];
 
 const weeklyData = [
