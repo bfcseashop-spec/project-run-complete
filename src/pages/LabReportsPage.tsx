@@ -53,6 +53,7 @@ const emptyForm: Omit<LabReport, "id"> = {
   normalRange: "", remarks: "", sampleType: "Blood",
   collectedAt: "", reportedAt: "",
   technician: "", pathologist: "", instrument: "",
+  expectedTAT: "",
   sections: [{ title: "", investigations: [{ ...emptyInvestigation }] }],
 };
 
