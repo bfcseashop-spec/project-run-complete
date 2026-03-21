@@ -19,6 +19,9 @@ interface DataToolbarProps {
   onDateFilterChange: (v: DatePreset) => void;
   viewMode: "list" | "grid";
   onViewModeChange: (v: "list" | "grid") => void;
+  searchQuery?: string;
+  onSearchChange?: (v: string) => void;
+  searchPlaceholder?: string;
   onExportExcel: () => void;
   onExportPDF: () => void;
   onImport: (file: File) => void;
