@@ -765,27 +765,31 @@ const NewInvoicePage = () => {
               {/* Info Cards */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient & Doctor</p>
+                  <p className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Patient Info</p>
                   <p className="font-semibold text-sm">{patient}</p>
+                  {(patientAge || patientGender) && <p className="text-xs text-muted-foreground mt-0.5">{patientAge ? `Age: ${patientAge}` : ''}{patientAge && patientGender ? ' · ' : ''}{patientGender ? `Gender: ${patientGender}` : ''}</p>}
                   {patientPhone && <p className="text-xs text-muted-foreground mt-0.5">📞 {patientPhone}</p>}
-                  {doctor && <p className="text-xs text-muted-foreground mt-0.5">Dr. {doctor}</p>}
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Invoice Details</p>
-                  <p className="text-sm">Date: <span className="font-semibold">{date} {new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></p>
+                  <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
+                  {doctor && <p className="font-semibold text-sm">{doctor}</p>}
+                  {doctorDegree && <p className="text-[11px] text-muted-foreground">{doctorDegree}</p>}
+                  <p className="text-sm mt-1">Date: <span className="font-semibold">{date} {new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></p>
                   <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => sp.method).join(" + ") : paymentMethod}</span></p>
                 </div>
               </div>
 
               {/* Items Table */}
               <div className="border border-border rounded-lg overflow-hidden">
-                <div className="grid grid-cols-[40px_1fr_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <span>#</span><span>Description</span><span className="text-right">Amount</span>
+                <div className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-2.5 bg-gradient-to-r from-primary/5 to-primary/10 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>#</span><span>Item</span><span>Description</span><span className="text-right">Price</span><span className="text-right">Total</span>
                 </div>
                 {previewItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[40px_1fr_100px] px-4 py-3 border-t border-border items-center text-sm">
+                  <div key={i} className="grid grid-cols-[36px_1fr_1fr_90px_100px] px-4 py-3 border-t border-border items-center text-sm">
                     <span className="text-muted-foreground">{i + 1}</span>
                     <span className="font-medium">{item.name}</span>
+                    <span className="text-xs text-muted-foreground">{item.description}</span>
+                    <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
                     <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
                   </div>
                 ))}
@@ -810,16 +814,10 @@ const NewInvoicePage = () => {
                 <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
 
-              {/* Barcode & QR */}
-              <div className="flex items-center justify-center gap-6 pt-4 border-t border-dashed border-border">
-                <div className="text-center">
-                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                  <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
-                </div>
-                <div className="text-center">
-                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: qrcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 80) }} />
-                  <p className="text-[9px] text-muted-foreground mt-0.5">Scan QR</p>
-                </div>
+              {/* Barcode */}
+              <div className="text-center pt-4 border-t border-dashed border-border">
+                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
+                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
               </div>
 
               {/* Footer */}
