@@ -42,7 +42,12 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: ClipboardList, labelKey: "opdSection", path: "/opd" },
       { icon: FileText, labelKey: "prescriptions", path: "/prescriptions" },
-      { icon: Heart, labelKey: "healthServices", path: "/health-services" },
+      { icon: Heart, labelKey: "healthServices", path: "/health-services",
+        subItems: [
+          { icon: Plus, labelKey: "addService", path: "/health-services" },
+          { icon: Package, labelKey: "healthPackages", path: "/health-services/packages" },
+        ],
+      },
       { icon: Syringe, labelKey: "injections", path: "/injections" },
     ],
   },
