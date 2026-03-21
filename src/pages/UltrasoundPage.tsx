@@ -137,17 +137,29 @@ const UltrasoundPage = () => {
   const [viewRecord, setViewRecord] = useState<UltrasoundRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<UltrasoundRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [formImages, setFormImages] = useState<UltrasoundImage[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRegion, setFilterRegion] = useState<string>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<UltrasoundImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
+  const openLightbox = (images: UltrasoundImage[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const openAdd = () => { setEditRecord(null); setForm(emptyForm); setFormImages([]); setDialogOpen(true); };
   const openEdit = (r: UltrasoundRecord) => {
     setEditRecord(r);
     const { id, ...rest } = r;
     setForm(rest);
+    setFormImages(r.images || []);
     setDialogOpen(true);
   };
 
