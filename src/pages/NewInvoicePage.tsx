@@ -808,8 +808,8 @@ const NewInvoicePage = () => {
                     <span className="font-medium">{item.name}</span>
                     <span className="text-xs text-muted-foreground">{item.description}</span>
                     <span className="text-center">{item.qty}</span>
-                    <span className="text-right tabular-nums">{formatDualPrice(item.price)}</span>
-                    <span className="text-right font-semibold tabular-nums">{formatDualPrice(item.total)}</span>
+                    <span className="text-right tabular-nums">{formatPrice(item.price)}</span>
+                    <span className="text-right font-semibold tabular-nums">{formatPrice(item.total)}</span>
                   </div>
                 ))}
               </div>
