@@ -39,6 +39,13 @@ interface Prescription {
   medicineDetails?: { name: string; dosage: string; frequency: string; duration: string }[];
   injections?: InjectionEntry[];
   tests?: SelectedTest[];
+  chiefComplaint?: string;
+  onExamination?: string;
+  investigation?: string;
+  diagnosis?: string;
+  treatmentPlan?: string;
+  advices?: string;
+  followUp?: string;
 }
 
 const initialPrescriptions: Prescription[] = [
@@ -68,6 +75,13 @@ const PrescriptionPage = () => {
       : [{ name: "", dosage: "", frequency: "", duration: "" }],
     injections: rx.injections || [],
     tests: rx.tests || [],
+    chiefComplaint: rx.chiefComplaint || "",
+    onExamination: rx.onExamination || "",
+    investigation: rx.investigation || "",
+    diagnosis: rx.diagnosis || "",
+    treatmentPlan: rx.treatmentPlan || "",
+    advices: rx.advices || "",
+    followUp: rx.followUp || "",
   });
 
   const handleSubmit = (data: PrescriptionFormData) => {
@@ -90,6 +104,13 @@ const PrescriptionPage = () => {
                 medicineDetails: data.medicines.filter((m) => m.name),
                 injections: data.injections.filter((inj) => inj.name),
                 tests: data.tests,
+                chiefComplaint: data.chiefComplaint,
+                onExamination: data.onExamination,
+                investigation: data.investigation,
+                diagnosis: data.diagnosis,
+                treatmentPlan: data.treatmentPlan,
+                advices: data.advices,
+                followUp: data.followUp,
               }
             : p
         )
@@ -111,6 +132,13 @@ const PrescriptionPage = () => {
           medicineDetails: data.medicines.filter((m) => m.name),
           injections: data.injections.filter((inj) => inj.name),
           tests: data.tests,
+          chiefComplaint: data.chiefComplaint,
+          onExamination: data.onExamination,
+          investigation: data.investigation,
+          diagnosis: data.diagnosis,
+          treatmentPlan: data.treatmentPlan,
+          advices: data.advices,
+          followUp: data.followUp,
         },
         ...prev,
       ]);
@@ -150,17 +178,38 @@ const PrescriptionPage = () => {
       .patient-bar div{padding:8px 12px;border-right:1px solid #ddd;font-size:12px}
       .patient-bar div:last-child{border-right:none}
       .patient-bar span{color:#888}
+      .two-col{display:grid;grid-template-columns:1fr 1.5fr;min-height:400px;border:1px solid #ddd;border-top:none}
+      .left-col{border-right:1px solid #ddd;padding:16px}
+      .right-col{padding:16px}
+      .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:hsl(170,60%,35%);margin:12px 0 4px;border-bottom:1px solid #eee;padding-bottom:2px}
+      .section-title:first-child{margin-top:0}
+      .section-text{font-size:12px;color:#333;white-space:pre-line;margin:0 0 4px}
       table{width:100%;border-collapse:collapse;margin-top:8px}
       th{text-align:left;padding:6px 8px;border-bottom:2px solid #333;font-size:11px;text-transform:uppercase;color:#555}
       h3{margin:16px 0 4px;font-size:14px;color:hsl(170,60%,35%)}
       .total{text-align:right;font-weight:700;padding:8px;border-top:2px solid #333;font-size:13px}
+      .rx-symbol{font-size:28px;font-weight:bold;color:hsl(170,60%,35%);font-style:italic;margin-bottom:12px}
     </style></head><body>
       <div class="header"><h2 style="margin:0">${rx.doctor}</h2><small>Prescription ID: ${rx.id}</small></div>
       <div class="patient-bar"><div><span>Patient: </span><strong>${rx.patient}</strong></div><div><span>Age/Gender: </span>${rx.age || "—"}, ${rx.gender || "—"}</div><div><span>Date: </span>${rx.date}</div></div>
-      ${medRows ? `<h3>Medicines</h3><table><tr><th>#</th><th>Medicine</th><th>Dosage / Frequency</th><th>Duration</th></tr>${medRows}</table>` : ""}
-      ${injRows ? `<h3>Injections</h3><table><tr><th>#</th><th>Injection</th><th>Dosage / Route</th><th>Frequency</th></tr>${injRows}</table>` : ""}
-      ${testRows ? `<h3>Prescribed Tests (${rx.tests!.length})</h3><table><tr><th>#</th><th>Test Name</th><th>Category</th><th style="text-align:right">Price</th></tr>${testRows}</table><div class="total">Total: ${formatDualPrice(rx.tests!.reduce((s, t) => s + t.price, 0))}</div>` : ""}
-      ${rx.notes ? `<h3>Notes</h3><p style="font-size:12px;color:#444">${rx.notes}</p>` : ""}
+      <div class="two-col">
+        <div class="left-col">
+          ${rx.chiefComplaint ? `<p class="section-title">Chief Complaint</p><p class="section-text">${rx.chiefComplaint}</p>` : ""}
+          ${rx.onExamination ? `<p class="section-title">On Examination</p><p class="section-text">${rx.onExamination}</p>` : ""}
+          ${rx.investigation ? `<p class="section-title">Investigation</p><p class="section-text">${rx.investigation}</p>` : ""}
+          ${rx.diagnosis ? `<p class="section-title">Diagnosis</p><p class="section-text">${rx.diagnosis}</p>` : ""}
+          ${rx.treatmentPlan ? `<p class="section-title">Treatment Plan</p><p class="section-text">${rx.treatmentPlan}</p>` : ""}
+        </div>
+        <div class="right-col">
+          <div class="rx-symbol">℞</div>
+          ${medRows ? `<table><tr><th>#</th><th>Medicine</th><th>Dosage / Frequency</th><th>Duration</th></tr>${medRows}</table>` : ""}
+          ${injRows ? `<h3>Injections</h3><table><tr><th>#</th><th>Injection</th><th>Dosage / Route</th><th>Frequency</th></tr>${injRows}</table>` : ""}
+          ${testRows ? `<h3>Prescribed Tests (${rx.tests!.length})</h3><table><tr><th>#</th><th>Test Name</th><th>Category</th><th style="text-align:right">Price</th></tr>${testRows}</table><div class="total">Total: ${formatDualPrice(rx.tests!.reduce((s, t) => s + t.price, 0))}</div>` : ""}
+          ${rx.advices ? `<p class="section-title" style="margin-top:16px">Advices</p><p class="section-text">${rx.advices}</p>` : ""}
+          ${rx.followUp ? `<p class="section-title">Follow-up</p><p class="section-text">${rx.followUp}</p>` : ""}
+          ${rx.notes ? `<p class="section-title">Notes</p><p class="section-text">${rx.notes}</p>` : ""}
+        </div>
+      </div>
     </body></html>`);
     printWin.document.close();
     setTimeout(() => printWin.print(), 200);
@@ -371,22 +420,26 @@ const PrescriptionPage = () => {
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <img src={clinicLogo} alt="" className="w-48 h-48 opacity-[0.06]" />
                 </div>
-                <div className="relative z-10 border-r border-border p-4 space-y-6">
+                <div className="relative z-10 border-r border-border p-4 space-y-4">
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">C/C</p>
-                    <p className="text-sm text-foreground">
-                      {viewRx.tests && viewRx.tests.length > 0
-                        ? viewRx.tests.map((t) => t.name).join(", ")
-                        : "—"}
-                    </p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Chief Complaint</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.chiefComplaint || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">D/E</p>
-                    <p className="text-sm text-muted-foreground">—</p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">On Examination</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.onExamination || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">BP</p>
-                    <p className="text-sm text-muted-foreground">—</p>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Investigation</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.investigation || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Diagnosis</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.diagnosis || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Treatment Plan</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.treatmentPlan || "—"}</p>
                   </div>
                 </div>
                 <div className="relative z-10 p-4">
@@ -461,8 +514,20 @@ const PrescriptionPage = () => {
                       </div>
                     </div>
                   )}
+                  {viewRx.advices && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Advices</p>
+                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.advices}</p>
+                    </div>
+                  )}
+                  {viewRx.followUp && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Follow-up</p>
+                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.followUp}</p>
+                    </div>
+                  )}
                   {viewRx.notes && (
-                    <div className="mt-6 pt-4 border-t border-border">
+                    <div className="mt-4 pt-4 border-t border-border">
                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Notes</p>
                       <p className="text-sm text-foreground">{viewRx.notes}</p>
                     </div>
