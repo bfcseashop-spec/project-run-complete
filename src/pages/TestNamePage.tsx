@@ -401,8 +401,8 @@ const TestNamePage = () => {
                       <TableCell className="text-right font-medium">{formatDualPrice(t.price)}</TableCell>
                       <TableCell>
                         <Badge
-                          className="cursor-pointer"
-                          variant={t.active ? "default" : "secondary"}
+                          className={`cursor-pointer ${t.active ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}`}
+                          variant="outline"
                           onClick={() => toggleActive(t.id)}
                         >
                           {t.active ? "Active" : "Inactive"}
