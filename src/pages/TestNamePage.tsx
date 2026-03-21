@@ -457,10 +457,11 @@ const TestNamePage = () => {
                     </div>
                     <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-info" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(t)}><Pencil className="w-3.5 h-3.5 text-warning" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => setBarcodeTest(t)}><Barcode className="w-3.5 h-3.5 text-accent" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => handlePrint(t)}><Printer className="w-3.5 h-3.5 text-primary" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => handleDelete(t.id)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
                     </div>
                   </CardContent>
                 </Card>
