@@ -58,9 +58,10 @@ const headingFamilies = [
 
 const fontSizes = [
   { label: "Small (14px)", value: "14px" },
-  { label: "Default (16px)", value: "16px" },
-  { label: "Large (18px)", value: "18px" },
-  { label: "Extra Large (20px)", value: "20px" },
+  { label: "Medium (16px)", value: "16px" },
+  { label: "Normal (18px)", value: "18px" },
+  { label: "Large (20px)", value: "20px" },
+  { label: "Extra Large (22px)", value: "22px" },
 ];
 
 /* ── Color themes ── */
@@ -92,7 +93,7 @@ const defaults: SystemSettings = {
   bodyFont: "'Inter', system-ui, sans-serif",
   headingFont: "'Playfair Display', Georgia, serif",
   numberFont: "__same__",
-  fontSize: "16px",
+  fontSize: "18px",
   colorTheme: "teal",
   mode: "light",
   borderRadius: "0.625rem",
@@ -181,31 +182,19 @@ const SystemManagePage = () => {
   }, [settings]);
 
   const update = (partial: Partial<SystemSettings>) => {
-    setSettings(prev => {
-      const next = { ...prev, ...partial };
-      saveSystemSettings(next);
-      return next;
-    });
+    setSettings(prev => ({ ...prev, ...partial }));
+  };
+
+  const handleSave = () => {
+    saveSystemSettings(settings);
+    toast.success("Settings saved! Refreshing...");
+    setTimeout(() => window.location.reload(), 600);
   };
 
   const resetAll = () => {
-    setSettings(defaults);
     saveSystemSettings(defaults);
-    // remove inline overrides
-    const root = document.documentElement;
-    root.style.removeProperty("--font-body");
-    root.style.removeProperty("--font-heading");
-    root.style.removeProperty("--font-number");
-    root.style.removeProperty("--primary");
-    root.style.removeProperty("--ring");
-    root.style.removeProperty("--accent");
-    root.style.removeProperty("--success");
-    root.style.removeProperty("--sidebar-primary");
-    root.style.removeProperty("--sidebar-ring");
-    root.style.removeProperty("--radius");
-    root.style.fontSize = "";
-    root.classList.remove("dark");
-    toast.success("Reset to default settings");
+    toast.success("Reset to defaults! Refreshing...");
+    setTimeout(() => window.location.reload(), 600);
   };
 
   const activeTheme = colorThemes.find(t => t.id === settings.colorTheme) || colorThemes[0];
@@ -457,6 +446,13 @@ const SystemManagePage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-2 pb-4">
+        <Button size="lg" onClick={handleSave} className="px-8 text-base font-bold">
+          Save data
+        </Button>
+      </div>
     </div>
   );
 };
