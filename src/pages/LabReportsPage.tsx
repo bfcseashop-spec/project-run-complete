@@ -153,7 +153,7 @@ const LabReportsPage = () => {
 
   const handleDelete = () => {
     if (deleteReport) {
-      setReports((prev) => prev.filter((r) => r.id !== deleteReport.id));
+      removeLabReport(deleteReport.id);
       setDeleteReport(null);
     }
   };
