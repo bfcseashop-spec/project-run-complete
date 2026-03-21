@@ -21,6 +21,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
+import { qrcodeSVG } from "@/lib/qrcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 
@@ -254,9 +255,15 @@ const NewInvoicePage = () => {
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="display:inline-block">${barcodeStr}</div>
-      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="text-align:center">
+        <div style="display:inline-block">${barcodeStr}</div>
+        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+      </div>
+      <div style="text-align:center">
+        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
+        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
+      </div>
     </div>
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
       <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
@@ -364,10 +371,16 @@ const NewInvoicePage = () => {
       <tbody>${rows}</tbody>
     </table>
     ${totalsHtml}
-    <!-- Barcode -->
-    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="display:inline-block">${barcodeStr}</div>
-      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+    <!-- Barcode & QR -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
+      <div style="text-align:center">
+        <div style="display:inline-block">${barcodeStr}</div>
+        <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
+      </div>
+      <div style="text-align:center">
+        <div style="display:inline-block">${qrcodeSVG(invoiceId, 80)}</div>
+        <p style="font-size:9px;color:#94a3b8;margin-top:2px">Scan QR</p>
+      </div>
     </div>
     <!-- Footer -->
     <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
@@ -786,10 +799,16 @@ const NewInvoicePage = () => {
                 <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatDualPrice(0)}</span></div>
               </div>
 
-              {/* Barcode */}
-              <div className="text-center pt-4 border-t border-dashed border-border">
-                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+              {/* Barcode & QR */}
+              <div className="flex items-center justify-center gap-6 pt-4 border-t border-dashed border-border">
+                <div className="text-center">
+                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
+                  <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                </div>
+                <div className="text-center">
+                  <div className="inline-block" dangerouslySetInnerHTML={{ __html: qrcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 80) }} />
+                  <p className="text-[9px] text-muted-foreground mt-0.5">Scan QR</p>
+                </div>
               </div>
 
               {/* Footer */}
