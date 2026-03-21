@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSettings } from "@/hooks/use-settings";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -24,11 +25,14 @@ import {
 import {
   Plus, Pencil, Trash2, MonitorSpeaker, Clock, CheckCircle, Activity,
   Search, Heart, Baby, Scan, CircleDot, Waves, Printer, Eye, Barcode as BarcodeIcon,
+  Upload, X, FileText, ImageIcon,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import {
-  ultrasoundRecords, type UltrasoundRecord, regions, examinationNames,
+  ultrasoundRecords, type UltrasoundRecord, type UltrasoundImage, regions, examinationNames,
 } from "@/data/ultrasoundRecords";
+import { toast } from "sonner";
+import ImageLightbox from "@/components/ImageLightbox";
 
 const regionIcons: Record<string, React.ElementType> = {
   abdomen: Scan,
