@@ -45,6 +45,7 @@ const defaultSettings: AppSettings = {
   clinicAddress: "123 Medical Lane, Health City",
   clinicWebsite: "www.clinic.com",
   clinicRegNumber: "CLN-2024-0987",
+  clinicLogo: "",
   invoicePrefix: "INV",
   nextInvoiceNumber: "1001",
   taxEnabled: true,
