@@ -20,6 +20,7 @@ export interface AppSettings {
   clinicAddress: string;
   clinicWebsite: string;
   clinicRegNumber: string;
+  clinicLogo: string;
   invoicePrefix: string;
   nextInvoiceNumber: string;
   taxEnabled: boolean;
