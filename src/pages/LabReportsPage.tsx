@@ -58,7 +58,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 
 const LabReportsPage = () => {
   const { activeTestNames } = useTestNameStore();
-  const [reports, setReports] = useState<LabReport[]>(labReports);
+  const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
