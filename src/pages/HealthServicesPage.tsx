@@ -296,7 +296,7 @@ const HealthServicesPage = () => {
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewService) printRecordReport({
               id: viewService.id, sectionTitle: "Health Service Report", fields: [
                 { label: "Service Name", value: viewService.name }, { label: "Category", value: viewService.category },
-                { label: "Price", value: formatDualPrice(viewService.price) }, { label: "Duration", value: viewService.duration },
+                { label: "Price", value: formatDualPrice(viewService.price) },
                 { label: "Status", value: viewService.status }, { label: "Description", value: viewService.description },
               ],
             }); }}>
