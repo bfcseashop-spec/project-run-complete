@@ -118,11 +118,9 @@ const InjectionsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
-            id: i.id, sectionTitle: "Injection Report", fields: [
-              { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Unit", value: i.unit }, { label: "Price", value: formatDualPrice(i.price) },
-            ],
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
+            id: i.id, name: i.name, category: i.category,
+            unit: i.unit, price: formatDualPrice(i.price), status: computeInjectionStatus(i),
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
