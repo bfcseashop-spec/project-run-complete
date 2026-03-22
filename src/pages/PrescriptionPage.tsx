@@ -461,7 +461,8 @@ const PrescriptionPage = () => {
                 <div className="relative z-10 flex justify-between items-start">
                   <div>
                     <h2 className="text-xl font-heading font-bold text-white tracking-wide">{viewRx.doctor}</h2>
-                    <p className="text-xs text-white/50 mt-0.5">Prescription ID: {viewRx.id}</p>
+                    <p className="text-xs text-white/70 mt-0.5">{viewRx.doctorSpecialization || "Physician"}</p>
+                    <p className="text-[10px] text-white/40 mt-0.5">ID: {viewRx.id}</p>
                   </div>
                   <div className="flex items-center gap-3 text-right">
                     <div>
