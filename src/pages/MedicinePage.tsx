@@ -44,9 +44,12 @@ const categories = [
 const units = ["Tabs", "Caps", "Pieces", "Vials", "Amps", "Bottles", "Sachets", "Syringes", "Tubes"];
 
 const emptyForm = {
-  name: "", manufacturer: "", boxNo: "-", category: "Tablet", purchasePrice: 0,
-  price: 0, stock: 0, unit: "Pieces", soldOut: 0, image: "", expiry: "",
+  name: "", manufacturer: "", boxNo: "", category: "Tablet", purchasePrice: 0,
+  price: 0, stock: 0, unit: "Box", soldOut: 0, image: "", expiry: "",
+  batchNo: "", stockAlert: 10, imageUrl: "",
 };
+
+const unitTypes = ["Box", "Pieces", "Tabs", "Caps", "Vials", "Amps", "Bottles", "Sachets", "Syringes", "Tubes", "Strips"];
 
 const MedicinePage = () => {
   useSettings();
