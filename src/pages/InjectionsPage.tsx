@@ -32,6 +32,7 @@ import {
 
 const emptyForm: Omit<InjectionItem, "id"> = {
   name: "", category: "", strength: "", route: "", stock: 0, unit: "Amps", price: 0, status: "in-stock",
+
 };
 
 const categories = ["Antibiotic", "Antidiabetic", "Analgesic", "Antiemetic", "Antacid", "Corticosteroid", "Diuretic", "Supplement"];
