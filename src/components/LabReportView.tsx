@@ -244,23 +244,23 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
         </DialogHeader>
 
         <div id="lab-report-print">
-          {/* Header - Red Gradient */}
-          <div className="bg-destructive px-6 py-4 rounded-t-lg">
+          {/* Header - Teal Gradient */}
+          <div className="bg-gradient-to-r from-teal-700 to-teal-800 px-6 py-4 rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center text-lg overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center text-lg overflow-hidden shadow-md">
                   {s.clinicLogo ? <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain" /> : '🏥'}
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold text-destructive-foreground tracking-tight">
+                  <h2 className="text-xl font-extrabold text-white tracking-tight">
                     {s.clinicName}
                   </h2>
-                  <p className="text-xs text-destructive-foreground/80">{s.clinicTagline}</p>
+                  <p className="text-xs text-white/80 font-medium">{s.clinicTagline}</p>
                 </div>
               </div>
-              <div className="bg-destructive-foreground/10 rounded-lg px-4 py-2 text-center">
-                <div className="text-[9px] uppercase tracking-widest text-destructive-foreground/70">Case</div>
-                <div className="text-lg font-bold text-destructive-foreground">{report.id.replace("LR-", "")}</div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-5 py-2.5 text-center">
+                <div className="text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold">Case</div>
+                <div className="text-lg font-extrabold text-white">{report.id.replace("LR-", "")}</div>
               </div>
             </div>
           </div>
