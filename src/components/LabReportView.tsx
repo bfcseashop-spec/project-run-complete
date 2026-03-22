@@ -286,11 +286,11 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           </div>
 
           {/* Category + Reporting Date */}
-          <div className="px-6 py-3 flex items-baseline justify-between border-b-2 border-foreground/20">
-            <h2 className="text-lg font-bold text-card-foreground uppercase tracking-wide">
+          <div className="px-6 py-3 flex items-center justify-between border-b-[3px] border-primary/30">
+            <h2 className="text-lg font-extrabold text-primary uppercase tracking-wider">
               {report.category}
             </h2>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
               Reporting Date: {reportingDate}
             </span>
           </div>
