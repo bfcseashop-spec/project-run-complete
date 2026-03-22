@@ -281,10 +281,6 @@ const HealthServicesPage = () => {
                   <p className="text-xs text-muted-foreground">Price</p>
                   <p className="font-semibold text-foreground">{formatDualPrice(viewService.price)}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Duration</p>
-                  <p className="font-medium text-foreground">{viewService.duration || "—"}</p>
-                </div>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Description</p>
