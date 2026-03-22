@@ -213,15 +213,6 @@ const InjectionsPage = () => {
                 <Input value={form.strength} onChange={(e) => setForm((f) => ({ ...f, strength: e.target.value }))} placeholder="e.g. 1g" />
               </div>
               <div>
-                <Label>Route</Label>
-                <Select value={form.route} onValueChange={(v) => setForm((f) => ({ ...f, route: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {routes.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <Label>Unit</Label>
                 <Select value={form.unit} onValueChange={(v) => setForm((f) => ({ ...f, unit: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
