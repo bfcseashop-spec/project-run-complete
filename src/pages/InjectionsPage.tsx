@@ -299,6 +299,72 @@ const InjectionsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Unit Dialog */}
+      <Dialog open={unitDialogOpen} onOpenChange={setUnitDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Units</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                value={newUnitName}
+                onChange={(e) => setNewUnitName(e.target.value)}
+                placeholder="Enter new unit name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newUnitName.trim()) {
+                    if (allUnits.includes(newUnitName.trim())) {
+                      toast.error("Unit already exists");
+                    } else {
+                      setCustomUnits((prev) => [...prev, newUnitName.trim()]);
+                      setNewUnitName("");
+                      toast.success("Unit added");
+                    }
+                  }
+                }}
+              />
+              <Button onClick={() => {
+                if (!newUnitName.trim()) return;
+                if (allUnits.includes(newUnitName.trim())) {
+                  toast.error("Unit already exists");
+                  return;
+                }
+                setCustomUnits((prev) => [...prev, newUnitName.trim()]);
+                setNewUnitName("");
+                toast.success("Unit added");
+              }}>
+                <Plus className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground font-medium mb-2">Available Units</p>
+              <div className="flex flex-wrap gap-2">
+                {defaultUnits.map((u) => (
+                  <Badge key={u} variant="secondary" className="text-sm py-1 px-3">{u}</Badge>
+                ))}
+                {customUnits.map((u) => (
+                  <Badge key={u} variant="outline" className="text-sm py-1 px-3 gap-1">
+                    {u}
+                    <button
+                      onClick={() => {
+                        setCustomUnits((prev) => prev.filter((cu) => cu !== u));
+                        toast.success("Unit removed");
+                      }}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUnitDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
