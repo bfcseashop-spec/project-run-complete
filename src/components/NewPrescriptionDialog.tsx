@@ -24,8 +24,11 @@ import { formatPrice, formatDualPrice } from "@/lib/currency";
 initPatients(opdPatients);
 
 const doctors = [
-  "Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams",
-  "Dr. Mark Brown", "Dr. Lisa Lee",
+  { name: "Dr. Sarah Smith", specialization: "General Physician" },
+  { name: "Dr. Raj Patel", specialization: "Diabetologist" },
+  { name: "Dr. Emily Williams", specialization: "Orthopedic Surgeon" },
+  { name: "Dr. Mark Brown", specialization: "Dermatologist" },
+  { name: "Dr. Lisa Lee", specialization: "Cardiologist" },
 ];
 
 const medicineOptions = [
@@ -62,6 +65,7 @@ export interface PrescriptionFormData {
   age: string;
   gender: string;
   doctor: string;
+  doctorSpecialization: string;
   notes: string;
   medicines: MedicineEntry[];
   injections: InjectionEntry[];
@@ -83,7 +87,7 @@ const emptyMedicine: MedicineEntry = { name: "", dosage: "", frequency: "", dura
 const emptyInjection: InjectionEntry = { name: "", dosage: "", route: "", frequency: "" };
 
 const defaultForm: PrescriptionFormData = {
-  patient: "", age: "", gender: "", doctor: "", notes: "",
+  patient: "", age: "", gender: "", doctor: "", doctorSpecialization: "", notes: "",
   medicines: [{ ...emptyMedicine }],
   injections: [],
   tests: [],
@@ -250,13 +254,18 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Doctor *</Label>
-              <Select value={form.doctor} onValueChange={(v) => updateField("doctor", v)}>
+              <Select value={form.doctor} onValueChange={(v) => {
+                const doc = doctors.find((d) => d.name === v);
+                setForm((f) => ({ ...f, doctor: v, doctorSpecialization: doc?.specialization || "" }));
+              }}>
                 <SelectTrigger className="h-9 bg-background">
                   <SelectValue placeholder="Select doctor" />
                 </SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                    <SelectItem key={d.name} value={d.name}>
+                      {d.name} <span className="text-muted-foreground text-xs ml-1">({d.specialization})</span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
