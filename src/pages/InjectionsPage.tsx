@@ -97,9 +97,7 @@ const InjectionsPage = () => {
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
     { key: "category", header: "Category" },
-    { key: "strength", header: "Strength" },
-    
-    { key: "stock", header: "Stock", render: (i: InjectionItem) => `${i.stock} ${i.unit}` },
+    { key: "unit", header: "Unit" },
     { key: "price", header: "Price", render: (i: InjectionItem) => formatDualPrice(i.price) },
     { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
     {
@@ -114,8 +112,7 @@ const InjectionsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: i.id, sectionTitle: "Injection Report", fields: [
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Strength", value: i.strength },
-              { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
+              { label: "Unit", value: i.unit }, { label: "Price", value: formatDualPrice(i.price) },
             ],
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
@@ -209,10 +206,6 @@ const InjectionsPage = () => {
                 </Select>
               </div>
               <div>
-                <Label>Strength</Label>
-                <Input value={form.strength} onChange={(e) => setForm((f) => ({ ...f, strength: e.target.value }))} placeholder="e.g. 1g" />
-              </div>
-              <div>
                 <Label>Unit</Label>
                 <Select value={form.unit} onValueChange={(v) => setForm((f) => ({ ...f, unit: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
@@ -220,10 +213,6 @@ const InjectionsPage = () => {
                     {units.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label>Stock</Label>
-                <Input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
               </div>
               <div>
                 <Label>Price</Label>
@@ -253,9 +242,7 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
                 <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
-                <div><p className="text-xs text-muted-foreground">Strength</p><p className="font-medium text-foreground">{viewInj.strength || "—"}</p></div>
-                
-                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock} {viewInj.unit}</p></div>
+                <div><p className="text-xs text-muted-foreground">Unit</p><p className="font-medium text-foreground">{viewInj.unit}</p></div>
                 <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
               </div>
             </div>
@@ -268,8 +255,7 @@ const InjectionsPage = () => {
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
               id: viewInj.id, sectionTitle: "Injection Report", fields: [
                 { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
-                { label: "Strength", value: viewInj.strength },
-                { label: "Stock", value: `${viewInj.stock} ${viewInj.unit}` }, { label: "Price", value: formatDualPrice(viewInj.price) },
+                { label: "Unit", value: viewInj.unit }, { label: "Price", value: formatDualPrice(viewInj.price) },
               ],
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
