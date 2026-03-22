@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { printRecordReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
+import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import StatCard from "@/components/StatCard";
 import DataTable from "@/components/DataTable";
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import {
   Package, Plus, Eye, Printer, Pencil, Trash2,
-  Activity, Tag, Layers, CheckCircle2, Clock, FileText,
+  Activity, Tag, Layers, CheckCircle2, Clock, FileText, TestTube, Search, X,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -30,11 +31,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface PackageTest {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+}
 interface HealthPackage {
   id: string;
   name: string;
   services: string[];
+  tests: PackageTest[];
   price: number;
   discountPercent: number;
   validity: string;
@@ -52,32 +62,37 @@ const availableServices = [
 const initialPackages: HealthPackage[] = [
   {
     id: "PKG-001", name: "Basic Health Checkup", services: ["General Health Checkup", "Blood Test Panel", "ECG"],
+    tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", price: 350 }, { id: "TN-002", name: "Blood Sugar (Fasting)", category: "Biochemistry", price: 150 }],
     price: 1200, discountPercent: 15, validity: "1 Month", status: "active",
     description: "Essential health screening package with basic vitals, blood work, and heart checkup.",
   },
   {
     id: "PKG-002", name: "Women's Wellness Package", services: ["General Health Checkup", "Prenatal Checkup", "Ultrasound Abdomen", "Blood Test Panel"],
+    tests: [{ id: "TN-009", name: "Urine Routine", category: "Urology", price: 200 }, { id: "TN-010", name: "Thyroid Profile", category: "Biochemistry", price: 600 }],
     price: 2500, discountPercent: 20, validity: "3 Months", status: "active",
     description: "Comprehensive women's health package including prenatal and ultrasound services.",
   },
   {
     id: "PKG-003", name: "Child Care Bundle", services: ["Child Immunization (DPT)", "General Health Checkup", "Vision Screening"],
+    tests: [],
     price: 800, discountPercent: 10, validity: "6 Months", status: "active",
     description: "Pediatric health package covering vaccination, general checkup, and eye screening.",
   },
   {
     id: "PKG-004", name: "Executive Health Package", services: ["General Health Checkup", "Blood Test Panel", "ECG", "Chest X-Ray", "Ultrasound Abdomen", "Diabetes Screening"],
+    tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", price: 350 }, { id: "TN-004", name: "Lipid Profile", category: "Biochemistry", price: 800 }, { id: "TN-007", name: "Liver Function Test", category: "Biochemistry", price: 900 }, { id: "TN-008", name: "Kidney Function Test", category: "Biochemistry", price: 800 }],
     price: 4500, discountPercent: 25, validity: "1 Year", status: "active",
     description: "Premium comprehensive health assessment for executives with full diagnostics.",
   },
   {
     id: "PKG-005", name: "Dental Care Package", services: ["Dental Cleaning", "General Health Checkup"],
+    tests: [],
     price: 600, discountPercent: 5, validity: "6 Months", status: "pending",
     description: "Basic dental hygiene and general health checkup bundle.",
   },
 ];
 
-const emptyForm = { name: "", services: [] as string[], price: "", discountPercent: "", validity: "", status: "active", description: "" };
+const emptyForm = { name: "", services: [] as string[], tests: [] as PackageTest[], price: "", discountPercent: "", validity: "", status: "active", description: "" };
 
 const serviceColors: Record<string, string> = {
   "General Health Checkup": "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -96,34 +111,36 @@ const serviceColors: Record<string, string> = {
 
 const HealthPackagesPage = () => {
   useSettings();
+  const { activeTests } = useTestNameStore();
   const [packages, setPackages] = useState<HealthPackage[]>(initialPackages);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPkg, setEditPkg] = useState<HealthPackage | null>(null);
   const [deletePkg, setDeletePkg] = useState<HealthPackage | null>(null);
   const [viewPkg, setViewPkg] = useState<HealthPackage | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [testSearch, setTestSearch] = useState("");
 
   const update = (field: string, value: unknown) => setForm((f) => ({ ...f, [field]: value }));
 
   const openNew = () => { setEditPkg(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (p: HealthPackage) => {
     setEditPkg(p);
-    setForm({ name: p.name, services: [...p.services], price: String(p.price), discountPercent: String(p.discountPercent), validity: p.validity, status: p.status, description: p.description });
+    setForm({ name: p.name, services: [...p.services], tests: [...p.tests], price: String(p.price), discountPercent: String(p.discountPercent), validity: p.validity, status: p.status, description: p.description });
     setDialogOpen(true);
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.price || form.services.length === 0) return;
+    if (!form.name || !form.price || (form.services.length === 0 && form.tests.length === 0)) return;
     if (editPkg) {
       setPackages((prev) => prev.map((p) => p.id === editPkg.id ? {
-        ...p, name: form.name, services: form.services, price: parseFloat(form.price),
+        ...p, name: form.name, services: form.services, tests: form.tests, price: parseFloat(form.price),
         discountPercent: parseFloat(form.discountPercent) || 0, validity: form.validity,
         status: form.status as HealthPackage["status"], description: form.description,
       } : p));
     } else {
       const nextId = `PKG-${String(packages.length + 1).padStart(3, "0")}`;
       setPackages((prev) => [{
-        id: nextId, name: form.name, services: form.services, price: parseFloat(form.price),
+        id: nextId, name: form.name, services: form.services, tests: form.tests, price: parseFloat(form.price),
         discountPercent: parseFloat(form.discountPercent) || 0, validity: form.validity,
         status: form.status as HealthPackage["status"], description: form.description,
       }, ...prev]);
@@ -147,6 +164,22 @@ const HealthPackagesPage = () => {
     }));
   };
 
+  const selectedTestIds = new Set(form.tests.map((t) => t.id));
+
+  const toggleTest = (test: typeof activeTests[0]) => {
+    if (selectedTestIds.has(test.id)) {
+      setForm((f) => ({ ...f, tests: f.tests.filter((t) => t.id !== test.id) }));
+    } else {
+      setForm((f) => ({ ...f, tests: [...f.tests, { id: test.id, name: test.name, category: test.category, price: test.price }] }));
+    }
+  };
+
+  const filteredTests = useMemo(() => {
+    return activeTests.filter((t) =>
+      testSearch === "" || t.name.toLowerCase().includes(testSearch.toLowerCase())
+    );
+  }, [activeTests, testSearch]);
+
   const activeCount = packages.filter((p) => p.status === "active").length;
   const avgDiscount = packages.length > 0 ? Math.round(packages.reduce((s, p) => s + p.discountPercent, 0) / packages.length) : 0;
   const totalRevenue = packages.reduce((s, p) => s + p.price, 0);
@@ -160,6 +193,7 @@ const HealthPackagesPage = () => {
       { label: "Discounted Price", value: formatDualPrice(p.price * (1 - p.discountPercent / 100)) },
       { label: "Validity", value: p.validity },
       { label: "Services", value: p.services.join(", ") },
+      { label: "Tests", value: p.tests.length > 0 ? p.tests.map((t) => `${t.name} (${formatDualPrice(t.price)})`).join(", ") : "—" },
       { label: "Description", value: p.description },
     ],
   });
@@ -174,7 +208,7 @@ const HealthPackagesPage = () => {
           </div>
           <div>
             <p className="font-semibold text-foreground">{p.name}</p>
-            <p className="text-[11px] text-muted-foreground">{p.services.length} services · {p.validity}</p>
+            <p className="text-[11px] text-muted-foreground">{p.services.length} services{p.tests.length > 0 ? ` · ${p.tests.length} tests` : ''} · {p.validity}</p>
           </div>
         </div>
       ),
@@ -233,6 +267,7 @@ const HealthPackagesPage = () => {
       const newItems: HealthPackage[] = rows.map((row, i) => ({
         id: `PKG-${String(packages.length + i + 1).padStart(3, "0")}`,
         name: String(row.name || ""), services: String(row.services || "").split(",").map(s => s.trim()).filter(Boolean),
+        tests: [],
         price: Number(row.price) || 0, discountPercent: Number(row.discountPercent) || 0,
         validity: String(row.validity || ""), status: "active" as const, description: String(row.description || ""),
       }));
@@ -347,6 +382,44 @@ const HealthPackagesPage = () => {
                 </div>
               </div>
 
+              {/* Included Tests */}
+              {viewPkg.tests.length > 0 && (
+                <div className="px-6 py-4 border-t border-border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TestTube className="w-4 h-4 text-info" />
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                      Included Tests
+                    </h3>
+                    <Badge variant="secondary" className="text-[10px] ml-auto">{viewPkg.tests.length} tests</Badge>
+                  </div>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    {viewPkg.tests.map((test, i) => (
+                      <div
+                        key={test.id}
+                        className={`flex items-center justify-between px-4 py-2.5 text-sm ${
+                          i < viewPkg.tests.length - 1 ? "border-b border-border" : ""
+                        } ${i % 2 === 0 ? "bg-muted/20" : "bg-background"}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-info w-5 flex-shrink-0">{i + 1}.</span>
+                          <div className="w-2 h-2 rounded-full bg-info flex-shrink-0" />
+                          <div>
+                            <span className="font-medium text-foreground">{test.name}</span>
+                            <Badge variant="outline" className="text-[9px] ml-2 py-0 px-1.5 bg-info/5 border-info/20 text-info">{test.category}</Badge>
+                          </div>
+                        </div>
+                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-2 pt-2 border-t border-border/50">
+                    <p className="text-xs font-bold text-foreground">
+                      Test Total: <span className="text-info ml-1">{formatDualPrice(viewPkg.tests.reduce((s, t) => s + t.price, 0))}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Description */}
               {viewPkg.description && (
                 <div className="px-6 pb-4">
@@ -447,6 +520,51 @@ const HealthPackagesPage = () => {
                     </button>
                   );
                 })}
+              </div>
+            </div>
+            {/* Included Tests */}
+            <div>
+              <Label className="mb-2 block">
+                Included Tests
+                <span className="text-muted-foreground text-xs ml-1">({form.tests.length} selected)</span>
+              </Label>
+              {form.tests.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1">
+                  {form.tests.map((t) => (
+                    <Badge key={t.id} variant="secondary" className="pl-2 pr-0.5 py-0.5 flex items-center gap-1 text-[10px]">
+                      {t.name} <span className="text-muted-foreground">({formatDualPrice(t.price)})</span>
+                      <button type="button" onClick={() => setForm((f) => ({ ...f, tests: f.tests.filter((x) => x.id !== t.id) }))} className="ml-0.5 rounded-full hover:bg-destructive/20 p-0.5"><X className="w-2.5 h-2.5" /></button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <div className="flex items-center gap-1.5 p-2 border-b border-border bg-muted/30">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2 top-1.5 h-3 w-3 text-muted-foreground" />
+                    <Input placeholder="Search tests..." value={testSearch} onChange={(e) => setTestSearch(e.target.value)} className="pl-7 h-7 text-xs" />
+                  </div>
+                </div>
+                <ScrollArea className="h-[140px]">
+                  <div className="divide-y divide-border">
+                    {filteredTests.map((test) => {
+                      const isSelected = selectedTestIds.has(test.id);
+                      return (
+                        <label key={test.id} className={`flex items-center gap-2 px-3 py-1.5 cursor-pointer transition-colors hover:bg-muted/50 ${isSelected ? "bg-info/5" : ""}`}>
+                          <Checkbox checked={isSelected} onCheckedChange={() => toggleTest(test)} className="h-3.5 w-3.5" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs truncate font-medium">{test.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{test.category}</p>
+                          </div>
+                          <span className="text-[10px] tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                        </label>
+                      );
+                    })}
+                    {filteredTests.length === 0 && (
+                      <div className="py-4 text-center text-xs text-muted-foreground">No tests found</div>
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             </div>
             <div>
