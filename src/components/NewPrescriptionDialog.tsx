@@ -254,13 +254,18 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Doctor *</Label>
-              <Select value={form.doctor} onValueChange={(v) => updateField("doctor", v)}>
+              <Select value={form.doctor} onValueChange={(v) => {
+                const doc = doctors.find((d) => d.name === v);
+                setForm((f) => ({ ...f, doctor: v, doctorSpecialization: doc?.specialization || "" }));
+              }}>
                 <SelectTrigger className="h-9 bg-background">
                   <SelectValue placeholder="Select doctor" />
                 </SelectTrigger>
                 <SelectContent>
                   {doctors.map((d) => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                    <SelectItem key={d.name} value={d.name}>
+                      {d.name} <span className="text-muted-foreground text-xs ml-1">({d.specialization})</span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
