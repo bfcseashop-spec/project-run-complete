@@ -49,6 +49,11 @@ const InjectionsPage = () => {
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [customUnits, setCustomUnits] = useState<string[]>([]);
+  const [unitDialogOpen, setUnitDialogOpen] = useState(false);
+  const [newUnitName, setNewUnitName] = useState("");
+
+  const allUnits = [...defaultUnits, ...customUnits];
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
