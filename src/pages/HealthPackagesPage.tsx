@@ -566,6 +566,7 @@ const HealthPackagesPage = () => {
                   </div>
                 </ScrollArea>
               </div>
+            </div>
             <div>
               <Label>Description</Label>
               <Textarea placeholder="Brief description of the package..." rows={3} value={form.description} onChange={(e) => update("description", e.target.value)} />
