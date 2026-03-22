@@ -62,32 +62,37 @@ const availableServices = [
 const initialPackages: HealthPackage[] = [
   {
     id: "PKG-001", name: "Basic Health Checkup", services: ["General Health Checkup", "Blood Test Panel", "ECG"],
+    tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", price: 350 }, { id: "TN-002", name: "Blood Sugar (Fasting)", category: "Biochemistry", price: 150 }],
     price: 1200, discountPercent: 15, validity: "1 Month", status: "active",
     description: "Essential health screening package with basic vitals, blood work, and heart checkup.",
   },
   {
     id: "PKG-002", name: "Women's Wellness Package", services: ["General Health Checkup", "Prenatal Checkup", "Ultrasound Abdomen", "Blood Test Panel"],
+    tests: [{ id: "TN-009", name: "Urine Routine", category: "Urology", price: 200 }, { id: "TN-010", name: "Thyroid Profile", category: "Biochemistry", price: 600 }],
     price: 2500, discountPercent: 20, validity: "3 Months", status: "active",
     description: "Comprehensive women's health package including prenatal and ultrasound services.",
   },
   {
     id: "PKG-003", name: "Child Care Bundle", services: ["Child Immunization (DPT)", "General Health Checkup", "Vision Screening"],
+    tests: [],
     price: 800, discountPercent: 10, validity: "6 Months", status: "active",
     description: "Pediatric health package covering vaccination, general checkup, and eye screening.",
   },
   {
     id: "PKG-004", name: "Executive Health Package", services: ["General Health Checkup", "Blood Test Panel", "ECG", "Chest X-Ray", "Ultrasound Abdomen", "Diabetes Screening"],
+    tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", price: 350 }, { id: "TN-004", name: "Lipid Profile", category: "Biochemistry", price: 800 }, { id: "TN-007", name: "Liver Function Test", category: "Biochemistry", price: 900 }, { id: "TN-008", name: "Kidney Function Test", category: "Biochemistry", price: 800 }],
     price: 4500, discountPercent: 25, validity: "1 Year", status: "active",
     description: "Premium comprehensive health assessment for executives with full diagnostics.",
   },
   {
     id: "PKG-005", name: "Dental Care Package", services: ["Dental Cleaning", "General Health Checkup"],
+    tests: [],
     price: 600, discountPercent: 5, validity: "6 Months", status: "pending",
     description: "Basic dental hygiene and general health checkup bundle.",
   },
 ];
 
-const emptyForm = { name: "", services: [] as string[], price: "", discountPercent: "", validity: "", status: "active", description: "" };
+const emptyForm = { name: "", services: [] as string[], tests: [] as PackageTest[], price: "", discountPercent: "", validity: "", status: "active", description: "" };
 
 const serviceColors: Record<string, string> = {
   "General Health Checkup": "bg-emerald-50 text-emerald-700 border-emerald-200",
