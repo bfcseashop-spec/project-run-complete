@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { printRecordReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
+import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import StatCard from "@/components/StatCard";
 import DataTable from "@/components/DataTable";
