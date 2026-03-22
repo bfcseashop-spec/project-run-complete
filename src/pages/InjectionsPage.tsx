@@ -370,6 +370,72 @@ const InjectionsPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add Category Dialog */}
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Categories</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Enter new category name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newCategoryName.trim()) {
+                    if (allCategories.includes(newCategoryName.trim())) {
+                      toast.error("Category already exists");
+                    } else {
+                      setCustomCategories((prev) => [...prev, newCategoryName.trim()]);
+                      setNewCategoryName("");
+                      toast.success("Category added");
+                    }
+                  }
+                }}
+              />
+              <Button onClick={() => {
+                if (!newCategoryName.trim()) return;
+                if (allCategories.includes(newCategoryName.trim())) {
+                  toast.error("Category already exists");
+                  return;
+                }
+                setCustomCategories((prev) => [...prev, newCategoryName.trim()]);
+                setNewCategoryName("");
+                toast.success("Category added");
+              }}>
+                <Plus className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground font-medium mb-2">Available Categories</p>
+              <div className="flex flex-wrap gap-2">
+                {defaultCategories.map((c) => (
+                  <Badge key={c} variant="secondary" className="text-sm py-1 px-3">{c}</Badge>
+                ))}
+                {customCategories.map((c) => (
+                  <Badge key={c} variant="outline" className="text-sm py-1 px-3 gap-1">
+                    {c}
+                    <button
+                      onClick={() => {
+                        setCustomCategories((prev) => prev.filter((cc) => cc !== c));
+                        toast.success("Category removed");
+                      }}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
