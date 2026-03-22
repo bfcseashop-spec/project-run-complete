@@ -99,7 +99,7 @@ const HealthServicesPage = () => {
       const nextId = `HS-${100 + services.length + 1}`;
       setServices((prev) => [{
         id: nextId, name: form.name, category: form.category, price: parseFloat(form.price),
-        duration: form.duration, status: form.status as HealthService["status"], description: form.description,
+        status: form.status as HealthService["status"], description: form.description,
       }, ...prev]);
     }
     setDialogOpen(false);
