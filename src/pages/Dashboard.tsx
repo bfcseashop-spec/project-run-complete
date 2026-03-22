@@ -15,7 +15,6 @@ import { parseISO, isWithinInterval } from "date-fns";
 
 // Lazy load heavy chart components
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
-const LazyDashboardCharts = lazy(() => import("@/components/DashboardCharts"));
 
 /* ── Static Data ── */
 const weeklyData = [
