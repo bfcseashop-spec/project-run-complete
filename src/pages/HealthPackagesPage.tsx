@@ -208,7 +208,7 @@ const HealthPackagesPage = () => {
           </div>
           <div>
             <p className="font-semibold text-foreground">{p.name}</p>
-            <p className="text-[11px] text-muted-foreground">{p.services.length} services · {p.validity}</p>
+            <p className="text-[11px] text-muted-foreground">{p.services.length} services{p.tests.length > 0 ? ` · ${p.tests.length} tests` : ''} · {p.validity}</p>
           </div>
         </div>
       ),
