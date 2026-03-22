@@ -299,11 +299,11 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           <div className="px-6 py-2">
             {report.sections.map((section, sIdx) => (
               <div key={sIdx} className="mb-4">
-                <div className="text-sm font-bold text-card-foreground uppercase tracking-wider py-2 border-b border-border">
+              <div className="text-sm font-extrabold text-primary uppercase tracking-wider py-2 px-3 border-l-[3px] border-primary bg-primary/5 rounded-r-md">
                   {section.title}
                 </div>
                 {/* Table header */}
-                <div className="grid grid-cols-12 gap-2 py-2 border-b border-muted-foreground/30">
+                <div className="grid grid-cols-12 gap-2 py-2.5 border-b-2 border-primary/20 bg-primary/5 px-4 mt-2 rounded-md">
                   <div className="col-span-5 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Test</div>
                   <div className="col-span-3 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Ref. Value</div>
                   <div className="col-span-2 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Unit</div>
