@@ -269,6 +269,7 @@ const DoctorPage = () => {
         patients: Number(row.patients) || 0,
         photo: "",
         joinDate: String(row.joinDate || new Date().toISOString().split("T")[0]),
+        schedule: { ...defaultSchedule },
       }));
       setDoctors((prev) => [...newDoctors, ...prev]);
     }
