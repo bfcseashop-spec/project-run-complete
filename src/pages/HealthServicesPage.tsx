@@ -171,7 +171,7 @@ const HealthServicesPage = () => {
     if (rows.length > 0) {
       const newItems: HealthService[] = rows.map((row, i) => ({
         id: `HS-${100 + services.length + i + 1}`, name: String(row.name || ""), category: String(row.category || "General Consultation"),
-        price: Number(row.price) || 0, duration: String(row.duration || ""), status: "active" as const, description: String(row.description || ""),
+        price: Number(row.price) || 0, status: "active" as const, description: String(row.description || ""),
       }));
       setServices((prev) => [...newItems, ...prev]);
     }
