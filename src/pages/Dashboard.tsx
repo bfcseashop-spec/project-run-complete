@@ -250,41 +250,16 @@ const Dashboard = () => {
         <div className="flex flex-col gap-4">
           <div className="bg-card rounded-2xl border border-border/40 p-5">
             <h3 className="text-base font-bold text-card-foreground font-heading mb-3">📈 This Week</h3>
-            <ResponsiveContainer width="100%" height={130}>
-              <BarChart data={weeklyData} barSize={24}>
-                <defs>
-                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-                <Bar dataKey="visits" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div className="h-[130px] bg-muted/30 rounded-lg animate-pulse" />}>
+              <LazyWeeklyChart data={weeklyData} />
+            </Suspense>
           </div>
 
           <div className="bg-card rounded-2xl border border-border/40 p-5 flex-1">
             <h3 className="text-base font-bold text-card-foreground font-heading mb-3">🏥 Departments</h3>
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width={110} height={110}>
-                <PieChart>
-                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={32} outerRadius={52} dataKey="value" paddingAngle={3} strokeWidth={0}>
-                    {departmentData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-2.5 flex-1">
-                {departmentData.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-md" style={{ backgroundColor: d.fill }} />
-                    <span className="text-sm font-semibold text-card-foreground flex-1">{d.name}</span>
-                    <span className="text-sm font-bold font-number" style={{ color: d.fill }}>{d.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Suspense fallback={<div className="h-[110px] bg-muted/30 rounded-lg animate-pulse" />}>
+              <LazyDepartmentChart data={departmentData} />
+            </Suspense>
           </div>
         </div>
       </div>
