@@ -274,19 +274,19 @@ const LabReportsPage = () => {
       key: "actions", header: "Actions",
       render: (r: LabReport) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View Report" onClick={() => openView(r)}>
-            <Eye className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View Report" onClick={() => openView(r)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printLabReport(r)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printLabReport(r)}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-            <BarcodeIcon className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteReport(r)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteReport(r)}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
