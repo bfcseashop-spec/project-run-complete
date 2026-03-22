@@ -358,6 +358,37 @@ const DoctorPage = () => {
                 <div><p className="text-muted-foreground text-xs">Total Patients</p><p className="font-semibold text-card-foreground">{viewDoctor.patients}</p></div>
                 <div><p className="text-muted-foreground text-xs">Doctor ID</p><p className="font-mono text-xs">{viewDoctor.id}</p></div>
               </div>
+
+              {/* Schedule Section in View */}
+              <div className="pt-3 border-t border-border space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <CalendarDays className="w-3.5 h-3.5" /> Working Schedule
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {allDays.map((day) => (
+                    <span key={day} className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${viewDoctor.schedule.workingDays.includes(day) ? "bg-primary/10 text-primary border border-primary/30" : "bg-muted/50 text-muted-foreground line-through border border-transparent"}`}>
+                      {day.slice(0, 3)}
+                    </span>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div><p className="text-muted-foreground text-xs">Shift</p><p className="font-medium">{viewDoctor.schedule.shiftStart} – {viewDoctor.schedule.shiftEnd}</p></div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Leave Status</p>
+                    <p className="font-medium">
+                      {viewDoctor.schedule.leaveType ? (
+                        <Badge variant="outline" className="text-xs border-amber-300 text-amber-600">{viewDoctor.schedule.leaveType}</Badge>
+                      ) : (
+                        <span className="text-emerald-600 text-xs font-semibold">Active (No Leave)</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                {viewDoctor.schedule.leaveNote && (
+                  <p className="text-xs text-muted-foreground italic">Note: {viewDoctor.schedule.leaveNote}</p>
+                )}
+              </div>
+
               {viewDoctor.bio && (
                 <div className="text-sm pt-2 border-t border-border">
                   <p className="text-muted-foreground text-xs mb-1">Bio</p>
