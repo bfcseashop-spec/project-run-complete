@@ -9,7 +9,7 @@ import AppLayout from "@/components/AppLayout";
 // Lazy load all pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const MedicinePage = lazy(() => import("@/pages/MedicinePage"));
-const MedicineInventoryPage = lazy(() => import("@/pages/MedicineInventoryPage"));
+
 const OPDPage = lazy(() => import("@/pages/OPDPage"));
 const PrescriptionPage = lazy(() => import("@/pages/PrescriptionPage"));
 const DoctorPage = lazy(() => import("@/pages/DoctorPage"));
