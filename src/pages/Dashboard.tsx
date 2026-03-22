@@ -10,13 +10,12 @@ import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
-
-const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
-const LazyDashboardCharts = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: () => null })));
-
-// We import lazily but need the named exports; use dynamic import pattern
-import type { } from "@/components/DashboardCharts";
+import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
 import { parseISO, isWithinInterval } from "date-fns";
+
+// Lazy load heavy chart components
+const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
+const LazyDashboardCharts = lazy(() => import("@/components/DashboardCharts"));
 
 /* ── Static Data ── */
 const weeklyData = [
