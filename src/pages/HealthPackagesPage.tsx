@@ -164,6 +164,22 @@ const HealthPackagesPage = () => {
     }));
   };
 
+  const selectedTestIds = new Set(form.tests.map((t) => t.id));
+
+  const toggleTest = (test: typeof activeTests[0]) => {
+    if (selectedTestIds.has(test.id)) {
+      setForm((f) => ({ ...f, tests: f.tests.filter((t) => t.id !== test.id) }));
+    } else {
+      setForm((f) => ({ ...f, tests: [...f.tests, { id: test.id, name: test.name, category: test.category, price: test.price }] }));
+    }
+  };
+
+  const filteredTests = useMemo(() => {
+    return activeTests.filter((t) =>
+      testSearch === "" || t.name.toLowerCase().includes(testSearch.toLowerCase())
+    );
+  }, [activeTests, testSearch]);
+
   const activeCount = packages.filter((p) => p.status === "active").length;
   const avgDiscount = packages.length > 0 ? Math.round(packages.reduce((s, p) => s + p.discountPercent, 0) / packages.length) : 0;
   const totalRevenue = packages.reduce((s, p) => s + p.price, 0);
@@ -177,6 +193,7 @@ const HealthPackagesPage = () => {
       { label: "Discounted Price", value: formatDualPrice(p.price * (1 - p.discountPercent / 100)) },
       { label: "Validity", value: p.validity },
       { label: "Services", value: p.services.join(", ") },
+      { label: "Tests", value: p.tests.length > 0 ? p.tests.map((t) => `${t.name} (${formatDualPrice(t.price)})`).join(", ") : "—" },
       { label: "Description", value: p.description },
     ],
   });
