@@ -87,7 +87,7 @@ const emptyMedicine: MedicineEntry = { name: "", dosage: "", frequency: "", dura
 const emptyInjection: InjectionEntry = { name: "", dosage: "", route: "", frequency: "" };
 
 const defaultForm: PrescriptionFormData = {
-  patient: "", age: "", gender: "", doctor: "", notes: "",
+  patient: "", age: "", gender: "", doctor: "", doctorSpecialization: "", notes: "",
   medicines: [{ ...emptyMedicine }],
   injections: [],
   tests: [],
