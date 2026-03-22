@@ -152,7 +152,8 @@ const InjectionsPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Injections" description="Manage injection inventory, stock levels, and routes">
+      <PageHeader title="Injections" description="Manage injection inventory, stock levels, and units">
+        <Button variant="outline" onClick={() => setUnitDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Unit</Button>
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
         {selectedIds.size > 0 && (
           <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
