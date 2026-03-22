@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   Calendar, Syringe, ScanLine, Heart, FileText,
@@ -7,10 +7,17 @@ import {
   ClipboardList,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
-import {
-  BarChart, Bar, XAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
-} from "recharts";
+import { formatDualPrice, formatPrice } from "@/lib/currency";
+
+// Lazy load recharts - it's 225KB
+const LazyBarChart = lazy(() => import("recharts").then(m => ({ default: m.BarChart })));
+const LazyBar = lazy(() => import("recharts").then(m => ({ default: m.Bar })));
+const LazyXAxis = lazy(() => import("recharts").then(m => ({ default: m.XAxis })));
+const LazyTooltip = lazy(() => import("recharts").then(m => ({ default: m.Tooltip })));
+const LazyResponsiveContainer = lazy(() => import("recharts").then(m => ({ default: m.ResponsiveContainer })));
+const LazyPieChart = lazy(() => import("recharts").then(m => ({ default: m.PieChart })));
+const LazyPie = lazy(() => import("recharts").then(m => ({ default: m.Pie })));
+const LazyCell = lazy(() => import("recharts").then(m => ({ default: m.Cell })));
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
