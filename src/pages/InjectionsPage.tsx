@@ -37,7 +37,7 @@ const emptyForm: Omit<InjectionItem, "id"> = {
 
 const categories = ["Antibiotic", "Antidiabetic", "Analgesic", "Antiemetic", "Antacid", "Corticosteroid", "Diuretic", "Supplement"];
 const routes: string[] = [];
-const units = ["Vials", "Amps", "Pre-filled Syringes"];
+const defaultUnits = ["Vials", "Amps", "Pre-filled Syringes"];
 
 const InjectionsPage = () => {
   useSettings();
