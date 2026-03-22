@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import {
   Package, Plus, Eye, Printer, Pencil, Trash2,
-  Activity, Users, Tag, Layers,
+  Activity, Tag, Layers, CheckCircle2, Clock, FileText,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -29,6 +29,7 @@ import {
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface HealthPackage {
   id: string;
@@ -77,6 +78,21 @@ const initialPackages: HealthPackage[] = [
 ];
 
 const emptyForm = { name: "", services: [] as string[], price: "", discountPercent: "", validity: "", status: "active", description: "" };
+
+const serviceColors: Record<string, string> = {
+  "General Health Checkup": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Flu Vaccination": "bg-blue-50 text-blue-700 border-blue-200",
+  "Prenatal Checkup": "bg-pink-50 text-pink-700 border-pink-200",
+  "Vision Screening": "bg-violet-50 text-violet-700 border-violet-200",
+  "Child Immunization (DPT)": "bg-amber-50 text-amber-700 border-amber-200",
+  "Diabetes Screening": "bg-orange-50 text-orange-700 border-orange-200",
+  "Postnatal Care": "bg-rose-50 text-rose-700 border-rose-200",
+  "Dental Cleaning": "bg-cyan-50 text-cyan-700 border-cyan-200",
+  "Blood Test Panel": "bg-red-50 text-red-700 border-red-200",
+  "ECG": "bg-indigo-50 text-indigo-700 border-indigo-200",
+  "Chest X-Ray": "bg-slate-50 text-slate-700 border-slate-200",
+  "Ultrasound Abdomen": "bg-teal-50 text-teal-700 border-teal-200",
+};
 
 const HealthPackagesPage = () => {
   useSettings();
@@ -133,36 +149,58 @@ const HealthPackagesPage = () => {
 
   const activeCount = packages.filter((p) => p.status === "active").length;
   const avgDiscount = packages.length > 0 ? Math.round(packages.reduce((s, p) => s + p.discountPercent, 0) / packages.length) : 0;
+  const totalRevenue = packages.reduce((s, p) => s + p.price, 0);
+
+  const doPrint = (p: HealthPackage) => printRecordReport({
+    id: p.id, sectionTitle: "Health Package Report", fields: [
+      { label: "Package Name", value: p.name },
+      { label: "Status", value: p.status.charAt(0).toUpperCase() + p.status.slice(1) },
+      { label: "Price", value: formatDualPrice(p.price) },
+      { label: "Discount", value: `${p.discountPercent}%` },
+      { label: "Discounted Price", value: formatDualPrice(p.price * (1 - p.discountPercent / 100)) },
+      { label: "Validity", value: p.validity },
+      { label: "Services", value: p.services.join(", ") },
+      { label: "Description", value: p.description },
+    ],
+  });
 
   const columns = [
     { key: "id", header: "Package ID" },
     {
       key: "name", header: "Package Name", render: (p: HealthPackage) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
-            <Package className="w-4 h-4 text-accent-foreground" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0 border border-primary/10">
+            <Package className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-foreground">{p.name}</p>
-            <p className="text-xs text-muted-foreground">{p.services.length} services included</p>
+            <p className="font-semibold text-foreground">{p.name}</p>
+            <p className="text-[11px] text-muted-foreground">{p.services.length} services · {p.validity}</p>
           </div>
         </div>
       ),
     },
     {
       key: "price", header: "Price", render: (p: HealthPackage) => (
-        <div>
-          <span className="font-semibold text-foreground">{formatDualPrice(p.price)}</span>
-          {p.discountPercent > 0 && <Badge variant="secondary" className="ml-1.5 text-[10px]">{p.discountPercent}% off</Badge>}
+        <div className="space-y-0.5">
+          <span className="font-bold text-foreground tabular-nums">{formatDualPrice(p.price)}</span>
+          {p.discountPercent > 0 && (
+            <div className="flex items-center gap-1.5">
+              <Badge className="bg-success/10 text-success border-success/20 text-[10px] px-1.5 py-0">{p.discountPercent}% off</Badge>
+              <span className="text-[10px] text-muted-foreground tabular-nums">{formatDualPrice(p.price * (1 - p.discountPercent / 100))}</span>
+            </div>
+          )}
         </div>
       ),
     },
-    { key: "validity", header: "Validity" },
     {
-      key: "services", header: "Services", render: (p: HealthPackage) => (
-        <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {p.services.slice(0, 2).map((s) => <Badge key={s} variant="outline" className="text-[10px]">{s}</Badge>)}
-          {p.services.length > 2 && <Badge variant="secondary" className="text-[10px]">+{p.services.length - 2} more</Badge>}
+      key: "services", header: "Included Services", render: (p: HealthPackage) => (
+        <div className="flex flex-wrap gap-1 max-w-[260px]">
+          {p.services.slice(0, 3).map((s) => (
+            <Badge key={s} variant="outline" className={`text-[10px] border ${serviceColors[s] || "bg-muted text-muted-foreground border-border"}`}>{s}</Badge>
+          ))}
+          {p.services.length > 3 && (
+            <Badge variant="secondary" className="text-[10px] cursor-pointer hover:bg-accent" onClick={() => setViewPkg(p)}>+{p.services.length - 3} more</Badge>
+          )}
         </div>
       ),
     },
@@ -176,14 +214,7 @@ const HealthPackagesPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(p)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
-            id: p.id, sectionTitle: "Health Package Report", fields: [
-              { label: "Package Name", value: p.name }, { label: "Services", value: p.services.join(", ") },
-              { label: "Price", value: formatDualPrice(p.price) }, { label: "Discount", value: `${p.discountPercent}%` },
-              { label: "Validity", value: p.validity }, { label: "Status", value: p.status },
-              { label: "Description", value: p.description },
-            ],
-          })}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => doPrint(p)}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeletePkg(p)}>
@@ -212,17 +243,17 @@ const HealthPackagesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Health Packages" description="Create and manage bundled health service packages with discounts">
-        <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Package</Button>
+        <Button onClick={openNew} className="gap-2"><Plus className="w-4 h-4" /> Add Package</Button>
       </PageHeader>
-
-      <DataToolbar dateFilter={pkgToolbar.dateFilter} onDateFilterChange={pkgToolbar.setDateFilter} viewMode={pkgToolbar.viewMode} onViewModeChange={pkgToolbar.setViewMode} onExportExcel={pkgToolbar.handleExportExcel} onExportPDF={pkgToolbar.handleExportPDF} onImport={handleImport} onDownloadSample={pkgToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Packages" value={String(packages.length)} icon={Package} change="All packages" />
-        <StatCard title="Active" value={String(activeCount)} icon={Activity} change={`${packages.length > 0 ? Math.round((activeCount / packages.length) * 100) : 0}% active`} changeType="positive" />
-        <StatCard title="Avg. Discount" value={`${avgDiscount}%`} icon={Tag} change="Across packages" />
-        <StatCard title="Total Services" value={String(new Set(packages.flatMap(p => p.services)).size)} icon={Layers} change="Unique services" />
+        <StatCard title="Active Packages" value={String(activeCount)} icon={Activity} change={`${packages.length > 0 ? Math.round((activeCount / packages.length) * 100) : 0}% active`} changeType="positive" />
+        <StatCard title="Avg. Discount" value={`${avgDiscount}%`} icon={Tag} change="Across all packages" />
+        <StatCard title="Total Value" value={formatDualPrice(totalRevenue)} icon={Layers} change={`${new Set(packages.flatMap(p => p.services)).size} unique services`} />
       </div>
+
+      <DataToolbar dateFilter={pkgToolbar.dateFilter} onDateFilterChange={pkgToolbar.setDateFilter} viewMode={pkgToolbar.viewMode} onViewModeChange={pkgToolbar.setViewMode} onExportExcel={pkgToolbar.handleExportExcel} onExportPDF={pkgToolbar.handleExportPDF} onImport={handleImport} onDownloadSample={pkgToolbar.handleDownloadSample} />
 
       {pkgToolbar.viewMode === "list" ? (
         <DataTable columns={columns} data={packages} keyExtractor={(p) => p.id} />
@@ -230,59 +261,132 @@ const HealthPackagesPage = () => {
         <DataGridView columns={columns} data={packages} keyExtractor={(p) => p.id} />
       )}
 
-      {/* View Dialog */}
+      {/* ========== Professional View Dialog ========== */}
       <Dialog open={!!viewPkg} onOpenChange={() => setViewPkg(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-xl flex items-center gap-2">
-              <Package className="w-5 h-5 text-primary" /> Package Details
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl">
           {viewPkg && (
-            <div className="space-y-4 py-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div><p className="text-xs text-muted-foreground">Package ID</p><p className="font-medium text-foreground">{viewPkg.id}</p></div>
-                <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewPkg.status} /></div>
-                <div><p className="text-xs text-muted-foreground">Package Name</p><p className="font-medium text-foreground">{viewPkg.name}</p></div>
-                <div><p className="text-xs text-muted-foreground">Validity</p><p className="font-medium text-foreground">{viewPkg.validity || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewPkg.price)}</p></div>
-                <div><p className="text-xs text-muted-foreground">Discount</p><p className="font-medium text-foreground">{viewPkg.discountPercent}%</p></div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1.5">Included Services</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {viewPkg.services.map((s) => <Badge key={s} variant="outline">{s}</Badge>)}
+            <div>
+              {/* Header */}
+              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background px-6 pt-6 pb-4 border-b border-border">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
+                      <Package className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-heading font-bold text-foreground">{viewPkg.name}</h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">{viewPkg.id}</p>
+                    </div>
+                  </div>
+                  <StatusBadge status={viewPkg.status} />
                 </div>
               </div>
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-3 border-b border-border">
+                <div className="px-5 py-3.5 border-r border-border">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Tag className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Price</span>
+                  </div>
+                  <p className="text-lg font-bold text-foreground tabular-nums">{formatDualPrice(viewPkg.price)}</p>
+                </div>
+                <div className="px-5 py-3.5 border-r border-border">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Activity className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Discount</span>
+                  </div>
+                  <p className="text-lg font-bold text-success tabular-nums">{viewPkg.discountPercent}%</p>
+                  <p className="text-[10px] text-muted-foreground">After: {formatDualPrice(viewPkg.price * (1 - viewPkg.discountPercent / 100))}</p>
+                </div>
+                <div className="px-5 py-3.5">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Clock className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Validity</span>
+                  </div>
+                  <p className="text-lg font-bold text-foreground">{viewPkg.validity || "—"}</p>
+                </div>
+              </div>
+
+              {/* Included Services - Full List */}
+              <div className="px-6 py-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                    Included Services
+                  </h3>
+                  <Badge variant="secondary" className="text-[10px] ml-auto">{viewPkg.services.length} services</Badge>
+                </div>
+                <div className="rounded-lg border border-border overflow-hidden">
+                  {viewPkg.services.map((service, i) => (
+                    <div
+                      key={service}
+                      className={`flex items-center gap-3 px-4 py-2.5 text-sm ${
+                        i < viewPkg.services.length - 1 ? "border-b border-border" : ""
+                      } ${i % 2 === 0 ? "bg-muted/20" : "bg-background"}`}
+                    >
+                      <span className="text-xs font-bold text-primary w-5 flex-shrink-0">{i + 1}.</span>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        serviceColors[service]?.includes("emerald") ? "bg-emerald-500" :
+                        serviceColors[service]?.includes("blue") ? "bg-blue-500" :
+                        serviceColors[service]?.includes("pink") ? "bg-pink-500" :
+                        serviceColors[service]?.includes("violet") ? "bg-violet-500" :
+                        serviceColors[service]?.includes("amber") ? "bg-amber-500" :
+                        serviceColors[service]?.includes("orange") ? "bg-orange-500" :
+                        serviceColors[service]?.includes("rose") ? "bg-rose-500" :
+                        serviceColors[service]?.includes("cyan") ? "bg-cyan-500" :
+                        serviceColors[service]?.includes("red") ? "bg-red-500" :
+                        serviceColors[service]?.includes("indigo") ? "bg-indigo-500" :
+                        serviceColors[service]?.includes("slate") ? "bg-slate-500" :
+                        serviceColors[service]?.includes("teal") ? "bg-teal-500" :
+                        "bg-muted-foreground"
+                      }`} />
+                      <span className="font-medium text-foreground">{service}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
               {viewPkg.description && (
-                <div><p className="text-xs text-muted-foreground">Description</p><p className="text-sm text-foreground mt-1">{viewPkg.description}</p></div>
+                <div className="px-6 pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Description</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-3 border border-border">
+                    {viewPkg.description}
+                  </p>
+                </div>
               )}
+
+              <Separator />
+
+              {/* Footer Actions */}
+              <div className="flex items-center justify-between px-6 py-3">
+                <Button variant="outline" size="sm" onClick={() => setViewPkg(null)}>Close</Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="text-warning hover:bg-warning/10 gap-1.5" onClick={() => { const p = viewPkg; setViewPkg(null); if (p) openEdit(p); }}>
+                    <Pencil className="w-3.5 h-3.5" /> Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 gap-1.5" onClick={() => { if (viewPkg) doPrint(viewPkg); }}>
+                    <Printer className="w-3.5 h-3.5" /> Print
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewPkg(null)}>Close</Button>
-            <Button variant="ghost" className="text-warning" onClick={() => { const p = viewPkg; setViewPkg(null); if (p) openEdit(p); }}>
-              <Pencil className="w-4 h-4 mr-1" /> Edit
-            </Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewPkg) printRecordReport({
-              id: viewPkg.id, sectionTitle: "Health Package Report", fields: [
-                { label: "Package Name", value: viewPkg.name }, { label: "Services", value: viewPkg.services.join(", ") },
-                { label: "Price", value: formatDualPrice(viewPkg.price) }, { label: "Discount", value: `${viewPkg.discountPercent}%` },
-                { label: "Validity", value: viewPkg.validity }, { label: "Status", value: viewPkg.status },
-                { label: "Description", value: viewPkg.description },
-              ],
-            }); }}>
-              <Printer className="w-4 h-4 mr-1" /> Print
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Add / Edit Dialog */}
+      {/* ========== Add / Edit Dialog ========== */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditPkg(null); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-heading text-xl">{editPkg ? "Edit Package" : "Add New Package"}</DialogTitle>
+            <DialogTitle className="font-heading text-xl flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              {editPkg ? "Edit Package" : "Add New Package"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -317,22 +421,29 @@ const HealthPackagesPage = () => {
               </div>
             </div>
             <div>
-              <Label className="mb-2 block">Included Services * <span className="text-muted-foreground text-xs">({form.services.length} selected)</span></Label>
-              <div className="grid grid-cols-2 gap-2 p-3 border border-border rounded-lg bg-muted/30 max-h-[180px] overflow-y-auto">
+              <Label className="mb-2 block">
+                Included Services *
+                <span className="text-muted-foreground text-xs ml-1">({form.services.length} selected)</span>
+              </Label>
+              <div className="grid grid-cols-2 gap-2 p-3 border border-border rounded-lg bg-muted/30 max-h-[200px] overflow-y-auto">
                 {availableServices.map((service) => {
                   const selected = form.services.includes(service);
+                  const colorClass = serviceColors[service] || "";
                   return (
                     <button
                       key={service}
                       type="button"
                       onClick={() => toggleService(service)}
-                      className={`text-left text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                      className={`text-left text-xs px-3 py-2 rounded-md border transition-all ${
                         selected
-                          ? "bg-primary/10 border-primary text-primary font-medium"
+                          ? `${colorClass || "bg-primary/10 border-primary text-primary"} font-semibold shadow-sm`
                           : "bg-background border-border text-foreground hover:bg-accent"
                       }`}
                     >
-                      {service}
+                      <span className="flex items-center gap-1.5">
+                        {selected && <CheckCircle2 className="w-3 h-3 flex-shrink-0" />}
+                        {service}
+                      </span>
                     </button>
                   );
                 })}
@@ -350,7 +461,7 @@ const HealthPackagesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* ========== Delete Confirmation ========== */}
       <AlertDialog open={!!deletePkg} onOpenChange={() => setDeletePkg(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
