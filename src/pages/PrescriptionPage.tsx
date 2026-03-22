@@ -234,8 +234,8 @@ const PrescriptionPage = () => {
 <div class="page">
   <div class="header">
     <div class="header-left">
-      <h2>${rx.doctor}</h2>
-      <p>Prescription ID: ${rx.id}</p>
+      <h2>\${rx.doctor}</h2>
+      <p>\${rx.doctorSpecialization || 'Physician'}</p>
     </div>
     <div class="header-right">
       <h3>${s.clinicName}</h3>
