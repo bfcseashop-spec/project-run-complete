@@ -9,7 +9,7 @@ import AppLayout from "@/components/AppLayout";
 // Lazy load all pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const MedicinePage = lazy(() => import("@/pages/MedicinePage"));
-const MedicineInventoryPage = lazy(() => import("@/pages/MedicineInventoryPage"));
+
 const OPDPage = lazy(() => import("@/pages/OPDPage"));
 const PrescriptionPage = lazy(() => import("@/pages/PrescriptionPage"));
 const DoctorPage = lazy(() => import("@/pages/DoctorPage"));
@@ -103,7 +103,7 @@ const App = () => (
               <Route path="/billing/new" element={<NewInvoicePage />} />
               <Route path="/billing/edit" element={<NewInvoicePage />} />
               <Route path="/medicine" element={<MedicinePage />} />
-              <Route path="/medicine/inventory" element={<MedicineInventoryPage />} />
+              
               <Route path="/opd" element={<OPDPage />} />
               <Route path="/prescriptions" element={<PrescriptionPage />} />
               <Route path="/doctors" element={<DoctorPage />} />
