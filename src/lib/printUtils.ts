@@ -95,6 +95,166 @@ body{font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:ce
   setTimeout(() => win.print(), 400);
 }
 
+/** Print a professional Health Package report */
+export function printHealthPackageReport(opts: {
+  id: string;
+  name: string;
+  status: string;
+  price: number;
+  discountPercent: number;
+  validity: string;
+  services: string[];
+  tests: { name: string; category: string; price: number }[];
+  description: string;
+}) {
+  const s = getSettings();
+  const win = window.open("", "_blank", "width=800,height=900");
+  if (!win) return;
+
+  const discountedPrice = opts.price * (1 - opts.discountPercent / 100);
+  const barcodeHtml = barcodeSVG(opts.id, 220, 55);
+
+  const statusColor = opts.status === "active" ? "#059669" : opts.status === "inactive" ? "#dc2626" : "#d97706";
+  const statusBg = opts.status === "active" ? "#ecfdf5" : opts.status === "inactive" ? "#fef2f2" : "#fffbeb";
+
+  const servicesList = opts.services.length > 0
+    ? opts.services.map((s, i) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;${i < opts.services.length - 1 ? "border-bottom:1px solid #f3f4f6;" : ""}">
+        <div style="width:22px;height:22px;border-radius:50%;background:#ecfdf5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span style="font-size:13px;color:#1a1a1a;font-weight:500">${s}</span>
+      </div>`).join("")
+    : '<div style="font-size:12px;color:#999;padding:6px 0">No services included</div>';
+
+  const testRows = opts.tests.length > 0
+    ? opts.tests.map((t, i) => `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#888">${i + 1}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6">
+          <span style="font-size:13px;font-weight:500;color:#1a1a1a">${t.name}</span>
+          <span style="display:block;font-size:10px;color:#888;margin-top:1px">${t.category}</span>
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:#1a1a1a">$${t.price.toFixed(2)}</td>
+      </tr>`).join("")
+    : "";
+
+  const testsSection = opts.tests.length > 0 ? `
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#0f766e;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Included Tests
+      </div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#f8fafc">
+            <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;color:#888;font-weight:700;border-bottom:2px solid #e5e7eb;width:30px">#</th>
+            <th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;color:#888;font-weight:700;border-bottom:2px solid #e5e7eb">Test Name</th>
+            <th style="padding:8px 12px;text-align:right;font-size:10px;text-transform:uppercase;color:#888;font-weight:700;border-bottom:2px solid #e5e7eb;width:90px">Price</th>
+          </tr>
+        </thead>
+        <tbody>${testRows}</tbody>
+        <tfoot>
+          <tr style="background:#f0fdfa">
+            <td colspan="2" style="padding:10px 12px;font-size:12px;font-weight:700;color:#0f766e;text-transform:uppercase;letter-spacing:0.5px">Test Total</td>
+            <td style="padding:10px 12px;text-align:right;font-size:14px;font-weight:800;color:#0f766e;font-variant-numeric:tabular-nums">$${opts.tests.reduce((s, t) => s + t.price, 0).toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>` : "";
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Health Package - ${opts.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff}
+.page{max-width:760px;margin:0 auto;padding:32px 40px}
+@media print{body{padding:0}.page{padding:20px 30px}@page{margin:15mm}}
+</style></head><body>
+<div class="page">
+  <!-- Clinic Header -->
+  <div style="text-align:center;padding-bottom:18px;margin-bottom:24px;position:relative">
+    <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#0f766e,#14b8a6,#0f766e);border-radius:2px"></div>
+    <h1 style="font-size:26px;font-weight:800;color:#0f766e;letter-spacing:-0.5px">${s.clinicName}</h1>
+    <div style="font-size:12px;color:#666;margin-top:3px;font-weight:500">${s.clinicTagline}</div>
+    <div style="font-size:11px;color:#999;margin-top:6px">${s.clinicAddress} &bull; ${s.clinicPhone} &bull; ${s.clinicEmail}</div>
+    ${s.clinicRegNumber ? `<div style="font-size:11px;color:#999;margin-top:2px">Reg: ${s.clinicRegNumber}</div>` : ""}
+  </div>
+
+  <!-- Report Title -->
+  <div style="text-align:center;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1.5px solid #99f6e4;border-radius:10px;padding:14px 20px;margin-bottom:24px">
+    <h2 style="font-size:17px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:2px">Health Package Report</h2>
+    <div style="font-size:11px;color:#888;margin-top:4px;font-weight:500">ID: ${opts.id}</div>
+  </div>
+
+  <!-- Package Details Grid -->
+  <div style="border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:24px">
+    <div style="display:grid;grid-template-columns:1fr 1fr">
+      <div style="padding:14px 18px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Package Name</div>
+        <div style="font-size:15px;font-weight:700;margin-top:4px;color:#1a1a1a">${opts.name}</div>
+      </div>
+      <div style="padding:14px 18px;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Status</div>
+        <div style="margin-top:4px"><span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;background:${statusBg};color:${statusColor};text-transform:capitalize">${opts.status}</span></div>
+      </div>
+      <div style="padding:14px 18px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Original Price</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;color:#1a1a1a;font-variant-numeric:tabular-nums">$${opts.price.toFixed(2)}</div>
+      </div>
+      <div style="padding:14px 18px;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Discount</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;color:#d97706;font-variant-numeric:tabular-nums">${opts.discountPercent}%</div>
+      </div>
+      <div style="padding:14px 18px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Discounted Price</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;color:#059669;font-variant-numeric:tabular-nums">$${discountedPrice.toFixed(2)}</div>
+      </div>
+      <div style="padding:14px 18px;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Validity</div>
+        <div style="font-size:15px;font-weight:700;margin-top:4px;color:#1a1a1a">${opts.validity}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#0f766e;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      Included Services
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px">
+      ${servicesList}
+    </div>
+  </div>
+
+  <!-- Tests -->
+  ${testsSection}
+
+  <!-- Description -->
+  ${opts.description ? `
+  <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px 18px;margin-bottom:24px">
+    <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700;margin-bottom:6px">Description</div>
+    <div style="font-size:13px;color:#333;line-height:1.6">${opts.description}</div>
+  </div>` : ""}
+
+  <!-- Savings Highlight -->
+  ${opts.discountPercent > 0 ? `
+  <div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:10px;padding:16px 20px;margin-bottom:24px;text-align:center">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#065f46;font-weight:700;margin-bottom:4px">You Save</div>
+    <div style="font-size:24px;font-weight:900;color:#059669;font-variant-numeric:tabular-nums">$${(opts.price - discountedPrice).toFixed(2)}</div>
+    <div style="font-size:11px;color:#065f46;margin-top:2px">${opts.discountPercent}% off the original price</div>
+  </div>` : ""}
+
+  <!-- Barcode & Footer -->
+  <div style="text-align:center;margin-top:28px;padding-top:18px;border-top:2px dashed #d1d5db">
+    <div style="margin-bottom:10px">${barcodeHtml}</div>
+    <div style="font-size:10px;color:#888;margin-top:14px">Printed on ${new Date().toLocaleDateString()} from ${s.clinicName}</div>
+    <div style="font-size:9px;color:#aaa;margin-top:4px">This is a computer-generated report. No signature required.</div>
+  </div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 400);
+}
+
 /** Print a professional refund receipt with original/refund/balance breakdown */
 export function printRefundReceipt(opts: {
   refundId: string;
