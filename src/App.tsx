@@ -118,7 +118,7 @@ const App = () => (
               <Route path="/health-services" element={<HealthServicesPage />} />
               <Route path="/health-services/packages" element={<HealthPackagesPage />} />
               <Route path="/injections" element={<InjectionsPage />} />
-              <Route path="/hrm" element={<LazyPlaceholders />} />
+              
               <Route path="/roles" element={<LazyRoles />} />
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/bank" element={<LazyBank />} />
