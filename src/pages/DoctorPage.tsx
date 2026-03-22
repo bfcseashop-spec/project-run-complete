@@ -491,6 +491,76 @@ const DoctorPage = () => {
               </div>
             </div>
 
+            {/* Working Schedule */}
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/40 border-b border-border">
+                <CalendarDays className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">Working Schedule</span>
+              </div>
+              <div className="p-4 space-y-4">
+                {/* Working Days */}
+                <div>
+                  <Label className="text-xs font-semibold mb-2 block">Working Days</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {allDays.map((day) => {
+                      const checked = form.schedule.workingDays.includes(day);
+                      return (
+                        <label key={day} className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${checked ? "bg-primary/10 border-primary/40 text-primary font-semibold" : "bg-muted/30 border-border text-muted-foreground hover:border-primary/30"}`}>
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              const days = v
+                                ? [...form.schedule.workingDays, day]
+                                : form.schedule.workingDays.filter((d) => d !== day);
+                              setForm((p) => ({ ...p, schedule: { ...p.schedule, workingDays: days } }));
+                            }}
+                            className="h-3.5 w-3.5"
+                          />
+                          {day.slice(0, 3)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Shift Timing */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" /> Shift Start
+                    </Label>
+                    <Input type="time" value={form.schedule.shiftStart} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, shiftStart: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" /> Shift End
+                    </Label>
+                    <Input type="time" value={form.schedule.shiftEnd} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, shiftEnd: e.target.value } }))} />
+                  </div>
+                </div>
+
+                {/* Leave / Day Off */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <CalendarOff className="w-3 h-3" /> Leave Status
+                    </Label>
+                    <Select value={form.schedule.leaveType || "none"} onValueChange={(v) => setForm((p) => ({ ...p, schedule: { ...p.schedule, leaveType: v === "none" ? "" : v } }))}>
+                      <SelectTrigger><SelectValue placeholder="No Leave" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Leave (Active)</SelectItem>
+                        {leaveTypes.map((lt) => <SelectItem key={lt} value={lt}>{lt}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block">Leave Note</Label>
+                    <Input placeholder="e.g. Returns on Monday" value={form.schedule.leaveNote} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, leaveNote: e.target.value } }))} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Bio */}
             <div>
               <Label>Bio / Notes</Label>
