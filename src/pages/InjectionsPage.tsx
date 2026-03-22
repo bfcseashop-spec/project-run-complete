@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, X } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
@@ -118,11 +118,9 @@ const InjectionsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
-            id: i.id, sectionTitle: "Injection Report", fields: [
-              { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Unit", value: i.unit }, { label: "Price", value: formatDualPrice(i.price) },
-            ],
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
+            id: i.id, name: i.name, category: i.category,
+            unit: i.unit, price: formatDualPrice(i.price), status: computeInjectionStatus(i.stock),
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
@@ -263,11 +261,9 @@ const InjectionsPage = () => {
             <Button variant="ghost" className="text-warning" onClick={() => { const i = viewInj; setViewInj(null); if (i) openEdit(i); }}>
               <Pencil className="w-4 h-4 mr-1" /> Edit
             </Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
-              id: viewInj.id, sectionTitle: "Injection Report", fields: [
-                { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
-                { label: "Unit", value: viewInj.unit }, { label: "Price", value: formatDualPrice(viewInj.price) },
-              ],
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printInjectionReport({
+              id: viewInj.id, name: viewInj.name, category: viewInj.category,
+              unit: viewInj.unit, price: formatDualPrice(viewInj.price), status: computeInjectionStatus(viewInj.stock),
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
