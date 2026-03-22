@@ -256,8 +256,7 @@ const InjectionsPage = () => {
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
               id: viewInj.id, sectionTitle: "Injection Report", fields: [
                 { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
-                { label: "Strength", value: viewInj.strength },
-                { label: "Stock", value: `${viewInj.stock} ${viewInj.unit}` }, { label: "Price", value: formatDualPrice(viewInj.price) },
+                { label: "Unit", value: viewInj.unit }, { label: "Price", value: formatDualPrice(viewInj.price) },
               ],
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
