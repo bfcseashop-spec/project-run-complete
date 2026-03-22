@@ -7,10 +7,10 @@ import { t } from "@/lib/i18n";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import StatCard from "@/components/StatCard";
 import DataTable from "@/components/DataTable";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -22,25 +22,25 @@ import {
 } from "@/components/ui/select";
 import {
   Heart, Plus, Stethoscope, Syringe, Baby, Eye, Printer,
-  Pencil, Trash2, Activity, Users, CalendarCheck,
+  Pencil, Trash2, Activity, TrendingUp, LayoutGrid, X,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface HealthService {
   id: string;
   name: string;
   category: string;
   price: number;
-  
   status: "active" | "pending" | "completed";
   description: string;
 }
 
-const categories = [
+const defaultCategories = [
   "General Consultation",
   "Vaccination",
   "Maternal Care",
@@ -56,6 +56,17 @@ const categoryIcons: Record<string, React.ElementType> = {
   "Vaccination": Syringe,
   "Maternal Care": Baby,
   "Eye Care": Eye,
+};
+
+const categoryColors: Record<string, string> = {
+  "General Consultation": "hsl(var(--primary))",
+  "Vaccination": "hsl(210, 70%, 50%)",
+  "Maternal Care": "hsl(330, 60%, 55%)",
+  "Eye Care": "hsl(170, 60%, 40%)",
+  "Dental Care": "hsl(45, 70%, 50%)",
+  "Physiotherapy": "hsl(260, 50%, 55%)",
+  "Nutrition & Diet": "hsl(140, 55%, 45%)",
+  "Mental Health": "hsl(200, 60%, 50%)",
 };
 
 const initialServices: HealthService[] = [
@@ -78,6 +89,11 @@ const HealthServicesPage = () => {
   const [deleteService, setDeleteService] = useState<HealthService | null>(null);
   const [viewService, setViewService] = useState<HealthService | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
+  const allCategories = [...defaultCategories, ...customCategories];
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -89,18 +105,23 @@ const HealthServicesPage = () => {
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.category || !form.price) return;
+    if (!form.name || !form.category || !form.price) {
+      toast.error("Name, category, and price are required");
+      return;
+    }
     if (editService) {
       setServices((prev) => prev.map((s) => s.id === editService.id ? {
         ...s, name: form.name, category: form.category, price: parseFloat(form.price),
         status: form.status as HealthService["status"], description: form.description,
       } : s));
+      toast.success("Service updated");
     } else {
       const nextId = `HS-${100 + services.length + 1}`;
       setServices((prev) => [{
         id: nextId, name: form.name, category: form.category, price: parseFloat(form.price),
         status: form.status as HealthService["status"], description: form.description,
       }, ...prev]);
+      toast.success("Service added");
     }
     setDialogOpen(false);
     setEditService(null);
@@ -111,32 +132,54 @@ const HealthServicesPage = () => {
     if (deleteService) {
       setServices((prev) => prev.filter((s) => s.id !== deleteService.id));
       setDeleteService(null);
+      toast.success("Service deleted");
     }
   };
 
+  const addCategory = () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    if (allCategories.includes(name)) { toast.error("Category already exists"); return; }
+    setCustomCategories((prev) => [...prev, name]);
+    setNewCategoryName("");
+    toast.success("Category added");
+  };
+
   const activeCount = services.filter((s) => s.status === "active").length;
+  const pendingCount = services.filter((s) => s.status === "pending").length;
   const totalRevenue = services.reduce((sum, s) => sum + s.price, 0);
+  const uniqueCategories = new Set(services.map((s) => s.category)).size;
 
   const columns = [
     { key: "id", header: "Service ID" },
     {
       key: "name", header: "Service Name", render: (s: HealthService) => {
         const Icon = categoryIcons[s.category] || Heart;
+        const color = categoryColors[s.category] || "hsl(var(--primary))";
         return (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Icon className="w-4 h-4 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}18` }}>
+              <Icon className="w-4 h-4" style={{ color }} />
             </div>
             <div>
-              <p className="font-medium text-foreground">{s.name}</p>
+              <p className="font-semibold text-foreground leading-tight">{s.name}</p>
               <p className="text-xs text-muted-foreground">{s.category}</p>
             </div>
           </div>
         );
       },
     },
-    { key: "price", header: "Price", render: (s: HealthService) => <span className="font-semibold text-foreground">{formatDualPrice(s.price)}</span> },
-    
+    {
+      key: "category", header: "Category", render: (s: HealthService) => {
+        const color = categoryColors[s.category] || "hsl(var(--primary))";
+        return (
+          <Badge variant="outline" className="text-xs font-medium" style={{ borderColor: `${color}40`, color, background: `${color}08` }}>
+            {s.category}
+          </Badge>
+        );
+      },
+    },
+    { key: "price", header: "Price", render: (s: HealthService) => <span className="font-bold text-foreground">{formatDualPrice(s.price)}</span> },
     { key: "status", header: "Status", render: (s: HealthService) => <StatusBadge status={s.status} /> },
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
@@ -180,16 +223,69 @@ const HealthServicesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Health Services" description="Manage clinic health services, packages, and consultations">
+        <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Category</Button>
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Service</Button>
       </PageHeader>
 
       <DataToolbar dateFilter={hsToolbar.dateFilter} onDateFilterChange={hsToolbar.setDateFilter} viewMode={hsToolbar.viewMode} onViewModeChange={hsToolbar.setViewMode} onExportExcel={hsToolbar.handleExportExcel} onExportPDF={hsToolbar.handleExportPDF} onImport={handleImportHS} onDownloadSample={hsToolbar.handleDownloadSample} />
 
+      {/* Enhanced Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Services" value={String(services.length)} icon={Heart} change="All categories" />
-        <StatCard title="Active Services" value={String(activeCount)} icon={Activity} change={`${Math.round((activeCount / services.length) * 100)}% active`} changeType="positive" />
-        <StatCard title="Categories" value={String(new Set(services.map((s) => s.category)).size)} icon={CalendarCheck} change="Service categories" />
-        <StatCard title="Avg. Price" value={formatDualPrice(Math.round(totalRevenue / services.length))} icon={Users} change="Per service" />
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(var(--primary))" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(var(--primary))" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>Total Services</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{services.length}</p>
+              <p className="text-xs text-muted-foreground">Across all categories</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(var(--primary) / 0.12)" }}>
+              <Heart className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(142, 71%, 45%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(142, 71%, 45%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(142, 71%, 45%)" }}>Active</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{activeCount}</p>
+              <p className="text-xs text-muted-foreground">{pendingCount} pending</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(142, 71%, 45%, 0.12)" }}>
+              <Activity className="w-6 h-6" style={{ color: "hsl(142, 71%, 45%)" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(260, 50%, 55%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(260, 50%, 55%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(260, 50%, 55%)" }}>Categories</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{uniqueCategories}</p>
+              <p className="text-xs text-muted-foreground">{allCategories.length} available</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(260, 50%, 55%, 0.12)" }}>
+              <LayoutGrid className="w-6 h-6" style={{ color: "hsl(260, 50%, 55%)" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(45, 70%, 50%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(45, 70%, 50%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(45, 70%, 50%)" }}>Avg. Price</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{formatDualPrice(Math.round(totalRevenue / services.length))}</p>
+              <p className="text-xs text-muted-foreground">Per service</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(45, 70%, 50%, 0.12)" }}>
+              <TrendingUp className="w-6 h-6" style={{ color: "hsl(45, 70%, 50%)" }} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {hsToolbar.viewMode === "list" ? (
@@ -215,7 +311,7 @@ const HealthServicesPage = () => {
                 <Select value={form.category} onValueChange={(v) => update("category", v)}>
                   <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                   <SelectContent>
-                    {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {allCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -224,18 +320,16 @@ const HealthServicesPage = () => {
                 <Input placeholder="e.g. 500" type="number" value={form.price} onChange={(e) => update("price", e.target.value)} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v) => update("status", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => update("status", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Description</Label>
@@ -249,42 +343,37 @@ const HealthServicesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* View Dialog (Read-Only) */}
+      {/* View Dialog */}
       <Dialog open={!!viewService} onOpenChange={() => setViewService(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-heading text-xl flex items-center gap-2">
-              {(() => { const Icon = categoryIcons[viewService?.category || ""] || Heart; return <Icon className="w-5 h-5 text-primary" />; })()}
+              {(() => {
+                const Icon = categoryIcons[viewService?.category || ""] || Heart;
+                const color = categoryColors[viewService?.category || ""] || "hsl(var(--primary))";
+                return <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}18` }}><Icon className="w-4 h-4" style={{ color }} /></div>;
+              })()}
               Service Details
             </DialogTitle>
           </DialogHeader>
           {viewService && (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Service ID</p>
-                  <p className="font-medium text-foreground">{viewService.id}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Status</p>
-                  <StatusBadge status={viewService.status} />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Service Name</p>
-                  <p className="font-medium text-foreground">{viewService.name}</p>
-                </div>
+                <div><p className="text-xs text-muted-foreground">Service ID</p><p className="font-medium text-foreground">{viewService.id}</p></div>
+                <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewService.status} /></div>
+                <div><p className="text-xs text-muted-foreground">Service Name</p><p className="font-medium text-foreground">{viewService.name}</p></div>
                 <div>
                   <p className="text-xs text-muted-foreground">Category</p>
-                  <p className="font-medium text-foreground">{viewService.category}</p>
+                  <Badge variant="outline" className="text-xs mt-1" style={{
+                    borderColor: `${categoryColors[viewService.category] || "hsl(var(--primary))"}40`,
+                    color: categoryColors[viewService.category] || "hsl(var(--primary))",
+                  }}>{viewService.category}</Badge>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Price</p>
-                  <p className="font-semibold text-foreground">{formatDualPrice(viewService.price)}</p>
-                </div>
+                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-bold text-foreground text-lg">{formatDualPrice(viewService.price)}</p></div>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Description</p>
-                <p className="text-sm text-foreground mt-1">{viewService.description || "No description provided."}</p>
+              <div className="rounded-lg bg-muted/30 p-3">
+                <p className="text-xs text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-foreground">{viewService.description || "No description provided."}</p>
               </div>
             </div>
           )}
@@ -306,7 +395,7 @@ const HealthServicesPage = () => {
         </DialogContent>
       </Dialog>
 
-
+      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteService} onOpenChange={() => setDeleteService(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -321,6 +410,53 @@ const HealthServicesPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Manager Dialog */}
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Categories</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Enter new category name"
+                onKeyDown={(e) => { if (e.key === "Enter") addCategory(); }}
+              />
+              <Button onClick={addCategory}>
+                <Plus className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground font-medium mb-2">Available Categories</p>
+              <div className="flex flex-wrap gap-2">
+                {defaultCategories.map((c) => (
+                  <Badge key={c} variant="secondary" className="text-sm py-1 px-3">{c}</Badge>
+                ))}
+                {customCategories.map((c) => (
+                  <Badge key={c} variant="outline" className="text-sm py-1 px-3 gap-1">
+                    {c}
+                    <button
+                      onClick={() => {
+                        setCustomCategories((prev) => prev.filter((cc) => cc !== c));
+                        toast.success("Category removed");
+                      }}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
