@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, X } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
