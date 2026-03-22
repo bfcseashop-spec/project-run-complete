@@ -79,9 +79,6 @@ const PrescriptionPage = () => {
     tests: rx.tests || [],
     chiefComplaint: rx.chiefComplaint || "",
     onExamination: rx.onExamination || "",
-    investigation: rx.investigation || "",
-    diagnosis: rx.diagnosis || "",
-    treatmentPlan: rx.treatmentPlan || "",
     advices: rx.advices || "",
     followUp: rx.followUp || "",
   });
