@@ -226,10 +226,6 @@ const HealthServicesPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Duration</Label>
-                <Input placeholder="e.g. 30 min" value={form.duration} onChange={(e) => update("duration", e.target.value)} />
-              </div>
-              <div>
                 <Label>Status</Label>
                 <Select value={form.status} onValueChange={(v) => update("status", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
