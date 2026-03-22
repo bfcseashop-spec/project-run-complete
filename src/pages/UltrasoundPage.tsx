@@ -210,10 +210,7 @@ const UltrasoundPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print Report" onClick={() => printReport(r, {
-            name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
-            email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
-          })}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print Report" onClick={() => printReport(r)}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
