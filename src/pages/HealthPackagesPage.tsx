@@ -44,6 +44,7 @@ interface HealthPackage {
   id: string;
   name: string;
   services: string[];
+  tests: PackageTest[];
   price: number;
   discountPercent: number;
   validity: string;
