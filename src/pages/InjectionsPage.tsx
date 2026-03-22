@@ -216,7 +216,7 @@ const InjectionsPage = () => {
                 <Select value={form.unit} onValueChange={(v) => setForm((f) => ({ ...f, unit: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    {units.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {allUnits.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
