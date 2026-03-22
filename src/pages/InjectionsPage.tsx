@@ -120,7 +120,7 @@ const InjectionsPage = () => {
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
             id: i.id, name: i.name, category: i.category,
-            unit: i.unit, price: formatDualPrice(i.price), status: computeInjectionStatus(i),
+            unit: i.unit, price: formatDualPrice(i.price), status: computeInjectionStatus(i.stock),
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
