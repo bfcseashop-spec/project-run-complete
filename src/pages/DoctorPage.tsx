@@ -66,12 +66,17 @@ const defaultSpecialties = [
   "Radiology", "Psychiatry", "Urology", "Oncology", "Dentistry",
 ];
 
+const defaultSchedule: DoctorSchedule = {
+  workingDays: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+  shiftStart: "09:00", shiftEnd: "17:00", leaveType: "", leaveNote: "",
+};
+
 const initialDoctors: Doctor[] = [
-  { id: "D001", name: "Dr. Sarah Smith", specialty: "General Medicine", qualification: "MBBS, MD", phone: "+1-555-0101", email: "sarah@clinic.com", address: "123 Medical Lane", experience: 12, consultationFee: 50, bio: "Experienced general practitioner with a focus on preventive care.", status: "active", patients: 128, photo: "", joinDate: "2020-01-15" },
-  { id: "D002", name: "Dr. Raj Patel", specialty: "Pathology", qualification: "MBBS, MD Pathology", phone: "+1-555-0102", email: "raj@clinic.com", address: "456 Lab Street", experience: 8, consultationFee: 40, bio: "Specialist in clinical and anatomical pathology.", status: "active", patients: 95, photo: "", joinDate: "2021-03-20" },
-  { id: "D003", name: "Dr. Emily Williams", specialty: "Orthopedics", qualification: "MBBS, MS Ortho", phone: "+1-555-0103", email: "emily@clinic.com", address: "789 Bone Ave", experience: 15, consultationFee: 75, bio: "Expert in joint replacement and sports medicine.", status: "active", patients: 76, photo: "", joinDate: "2019-06-10" },
-  { id: "D004", name: "Dr. Mark Brown", specialty: "Dermatology", qualification: "MBBS, MD Derma", phone: "+1-555-0104", email: "mark@clinic.com", address: "321 Skin Road", experience: 6, consultationFee: 45, bio: "Focused on cosmetic dermatology and skin disorders.", status: "inactive", patients: 42, photo: "", joinDate: "2022-09-01" },
-  { id: "D005", name: "Dr. Lisa Lee", specialty: "Cardiology", qualification: "MBBS, DM Cardiology", phone: "+1-555-0105", email: "lisa@clinic.com", address: "654 Heart Blvd", experience: 20, consultationFee: 100, bio: "Senior cardiologist specializing in interventional procedures.", status: "active", patients: 110, photo: "", joinDate: "2018-02-28" },
+  { id: "D001", name: "Dr. Sarah Smith", specialty: "General Medicine", qualification: "MBBS, MD", phone: "+1-555-0101", email: "sarah@clinic.com", address: "123 Medical Lane", experience: 12, consultationFee: 50, bio: "Experienced general practitioner with a focus on preventive care.", status: "active", patients: 128, photo: "", joinDate: "2020-01-15", schedule: { ...defaultSchedule } },
+  { id: "D002", name: "Dr. Raj Patel", specialty: "Pathology", qualification: "MBBS, MD Pathology", phone: "+1-555-0102", email: "raj@clinic.com", address: "456 Lab Street", experience: 8, consultationFee: 40, bio: "Specialist in clinical and anatomical pathology.", status: "active", patients: 95, photo: "", joinDate: "2021-03-20", schedule: { ...defaultSchedule, workingDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"] } },
+  { id: "D003", name: "Dr. Emily Williams", specialty: "Orthopedics", qualification: "MBBS, MS Ortho", phone: "+1-555-0103", email: "emily@clinic.com", address: "789 Bone Ave", experience: 15, consultationFee: 75, bio: "Expert in joint replacement and sports medicine.", status: "active", patients: 76, photo: "", joinDate: "2019-06-10", schedule: { ...defaultSchedule } },
+  { id: "D004", name: "Dr. Mark Brown", specialty: "Dermatology", qualification: "MBBS, MD Derma", phone: "+1-555-0104", email: "mark@clinic.com", address: "321 Skin Road", experience: 6, consultationFee: 45, bio: "Focused on cosmetic dermatology and skin disorders.", status: "inactive", patients: 42, photo: "", joinDate: "2022-09-01", schedule: { ...defaultSchedule, leaveType: "Leave", leaveNote: "On personal leave" } },
+  { id: "D005", name: "Dr. Lisa Lee", specialty: "Cardiology", qualification: "MBBS, DM Cardiology", phone: "+1-555-0105", email: "lisa@clinic.com", address: "654 Heart Blvd", experience: 20, consultationFee: 100, bio: "Senior cardiologist specializing in interventional procedures.", status: "active", patients: 110, photo: "", joinDate: "2018-02-28", schedule: { ...defaultSchedule, shiftStart: "08:00", shiftEnd: "16:00" } },
 ];
 
 const emptyForm: Omit<Doctor, "id"> = {
