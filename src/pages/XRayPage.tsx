@@ -26,7 +26,7 @@ import {
   Search, Bone, Brain, Heart, Hand, Skull, Eye, Printer, Barcode as BarcodeIcon,
   Upload, X, FileText, ImageIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printXRayReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
 import { toast } from "sonner";
 import ImageLightbox from "@/components/ImageLightbox";
