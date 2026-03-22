@@ -83,6 +83,7 @@ const emptyForm: Omit<Doctor, "id"> = {
   name: "", specialty: "", qualification: "", phone: "", email: "", address: "",
   experience: 0, consultationFee: 0, bio: "", status: "active", patients: 0,
   photo: "", joinDate: new Date().toISOString().split("T")[0],
+  schedule: { ...defaultSchedule },
 };
 
 const DoctorPage = () => {
