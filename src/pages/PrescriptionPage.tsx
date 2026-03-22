@@ -105,9 +105,6 @@ const PrescriptionPage = () => {
                 tests: data.tests,
                 chiefComplaint: data.chiefComplaint,
                 onExamination: data.onExamination,
-                investigation: data.investigation,
-                diagnosis: data.diagnosis,
-                treatmentPlan: data.treatmentPlan,
                 advices: data.advices,
                 followUp: data.followUp,
               }
