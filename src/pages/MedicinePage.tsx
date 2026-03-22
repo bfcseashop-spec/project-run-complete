@@ -36,7 +36,7 @@ import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 
-const categories = [
+const defaultCategories = [
   "Antibiotic", "Analgesic", "Antidiabetic", "Antacid", "Antihistamine",
   "Cardiovascular", "Dermatology", "Injection", "IV Fluid", "Syrup",
   "Tablet", "Capsule", "Sachets", "Supplement", "Other",
