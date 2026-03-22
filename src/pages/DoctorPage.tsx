@@ -31,6 +31,17 @@ import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { toast } from "sonner";
 
+const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const leaveTypes = ["Day Off", "Leave", "BL (Bereavement Leave)", "UL (Unpaid Leave)", "SL (Sick Leave)", "CL (Casual Leave)"];
+
+export interface DoctorSchedule {
+  workingDays: string[];
+  shiftStart: string;
+  shiftEnd: string;
+  leaveType: string;
+  leaveNote: string;
+}
+
 export interface Doctor {
   id: string;
   name: string;
@@ -46,6 +57,7 @@ export interface Doctor {
   patients: number;
   photo: string;
   joinDate: string;
+  schedule: DoctorSchedule;
 }
 
 const defaultSpecialties = [
