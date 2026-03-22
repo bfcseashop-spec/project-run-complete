@@ -31,7 +31,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface PackageTest {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+}
 interface HealthPackage {
   id: string;
   name: string;
