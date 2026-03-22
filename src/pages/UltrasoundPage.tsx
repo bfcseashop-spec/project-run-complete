@@ -357,10 +357,7 @@ const UltrasoundPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
             <Button onClick={() => {
-              if (viewRecord) printReport(viewRecord, {
-                name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
-                email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
-              });
+              if (viewRecord) printReport(viewRecord);
             }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
