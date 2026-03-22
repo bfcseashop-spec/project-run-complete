@@ -32,6 +32,7 @@ interface Prescription {
   id: string;
   patient: string;
   doctor: string;
+  doctorSpecialization?: string;
   date: string;
   medicines: string;
   age?: string;
@@ -42,9 +43,6 @@ interface Prescription {
   tests?: SelectedTest[];
   chiefComplaint?: string;
   onExamination?: string;
-  investigation?: string;
-  diagnosis?: string;
-  treatmentPlan?: string;
   advices?: string;
   followUp?: string;
 }
