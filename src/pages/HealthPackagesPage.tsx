@@ -382,6 +382,44 @@ const HealthPackagesPage = () => {
                 </div>
               </div>
 
+              {/* Included Tests */}
+              {viewPkg.tests.length > 0 && (
+                <div className="px-6 py-4 border-t border-border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TestTube className="w-4 h-4 text-info" />
+                    <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                      Included Tests
+                    </h3>
+                    <Badge variant="secondary" className="text-[10px] ml-auto">{viewPkg.tests.length} tests</Badge>
+                  </div>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    {viewPkg.tests.map((test, i) => (
+                      <div
+                        key={test.id}
+                        className={`flex items-center justify-between px-4 py-2.5 text-sm ${
+                          i < viewPkg.tests.length - 1 ? "border-b border-border" : ""
+                        } ${i % 2 === 0 ? "bg-muted/20" : "bg-background"}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-info w-5 flex-shrink-0">{i + 1}.</span>
+                          <div className="w-2 h-2 rounded-full bg-info flex-shrink-0" />
+                          <div>
+                            <span className="font-medium text-foreground">{test.name}</span>
+                            <Badge variant="outline" className="text-[9px] ml-2 py-0 px-1.5 bg-info/5 border-info/20 text-info">{test.category}</Badge>
+                          </div>
+                        </div>
+                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-2 pt-2 border-t border-border/50">
+                    <p className="text-xs font-bold text-foreground">
+                      Test Total: <span className="text-info ml-1">{formatDualPrice(viewPkg.tests.reduce((s, t) => s + t.price, 0))}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Description */}
               {viewPkg.description && (
                 <div className="px-6 pb-4">
