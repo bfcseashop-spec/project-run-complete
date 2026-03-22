@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
+import { Checkbox } from "@/components/ui/checkbox";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
@@ -24,10 +25,22 @@ import {
 import {
   Plus, Pencil, Trash2, Eye, Printer, Search, Users, UserCheck, UserX,
   Stethoscope, Upload, X, Phone, Mail, MapPin, GraduationCap, Barcode as BarcodeIcon,
+  CalendarDays, Clock, CalendarOff,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { toast } from "sonner";
+
+const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const leaveTypes = ["Day Off", "Leave", "BL (Bereavement Leave)", "UL (Unpaid Leave)", "SL (Sick Leave)", "CL (Casual Leave)"];
+
+export interface DoctorSchedule {
+  workingDays: string[];
+  shiftStart: string;
+  shiftEnd: string;
+  leaveType: string;
+  leaveNote: string;
+}
 
 export interface Doctor {
   id: string;
@@ -44,6 +57,7 @@ export interface Doctor {
   patients: number;
   photo: string;
   joinDate: string;
+  schedule: DoctorSchedule;
 }
 
 const defaultSpecialties = [
@@ -52,18 +66,24 @@ const defaultSpecialties = [
   "Radiology", "Psychiatry", "Urology", "Oncology", "Dentistry",
 ];
 
+const defaultSchedule: DoctorSchedule = {
+  workingDays: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+  shiftStart: "09:00", shiftEnd: "17:00", leaveType: "", leaveNote: "",
+};
+
 const initialDoctors: Doctor[] = [
-  { id: "D001", name: "Dr. Sarah Smith", specialty: "General Medicine", qualification: "MBBS, MD", phone: "+1-555-0101", email: "sarah@clinic.com", address: "123 Medical Lane", experience: 12, consultationFee: 50, bio: "Experienced general practitioner with a focus on preventive care.", status: "active", patients: 128, photo: "", joinDate: "2020-01-15" },
-  { id: "D002", name: "Dr. Raj Patel", specialty: "Pathology", qualification: "MBBS, MD Pathology", phone: "+1-555-0102", email: "raj@clinic.com", address: "456 Lab Street", experience: 8, consultationFee: 40, bio: "Specialist in clinical and anatomical pathology.", status: "active", patients: 95, photo: "", joinDate: "2021-03-20" },
-  { id: "D003", name: "Dr. Emily Williams", specialty: "Orthopedics", qualification: "MBBS, MS Ortho", phone: "+1-555-0103", email: "emily@clinic.com", address: "789 Bone Ave", experience: 15, consultationFee: 75, bio: "Expert in joint replacement and sports medicine.", status: "active", patients: 76, photo: "", joinDate: "2019-06-10" },
-  { id: "D004", name: "Dr. Mark Brown", specialty: "Dermatology", qualification: "MBBS, MD Derma", phone: "+1-555-0104", email: "mark@clinic.com", address: "321 Skin Road", experience: 6, consultationFee: 45, bio: "Focused on cosmetic dermatology and skin disorders.", status: "inactive", patients: 42, photo: "", joinDate: "2022-09-01" },
-  { id: "D005", name: "Dr. Lisa Lee", specialty: "Cardiology", qualification: "MBBS, DM Cardiology", phone: "+1-555-0105", email: "lisa@clinic.com", address: "654 Heart Blvd", experience: 20, consultationFee: 100, bio: "Senior cardiologist specializing in interventional procedures.", status: "active", patients: 110, photo: "", joinDate: "2018-02-28" },
+  { id: "D001", name: "Dr. Sarah Smith", specialty: "General Medicine", qualification: "MBBS, MD", phone: "+1-555-0101", email: "sarah@clinic.com", address: "123 Medical Lane", experience: 12, consultationFee: 50, bio: "Experienced general practitioner with a focus on preventive care.", status: "active", patients: 128, photo: "", joinDate: "2020-01-15", schedule: { ...defaultSchedule } },
+  { id: "D002", name: "Dr. Raj Patel", specialty: "Pathology", qualification: "MBBS, MD Pathology", phone: "+1-555-0102", email: "raj@clinic.com", address: "456 Lab Street", experience: 8, consultationFee: 40, bio: "Specialist in clinical and anatomical pathology.", status: "active", patients: 95, photo: "", joinDate: "2021-03-20", schedule: { ...defaultSchedule, workingDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"] } },
+  { id: "D003", name: "Dr. Emily Williams", specialty: "Orthopedics", qualification: "MBBS, MS Ortho", phone: "+1-555-0103", email: "emily@clinic.com", address: "789 Bone Ave", experience: 15, consultationFee: 75, bio: "Expert in joint replacement and sports medicine.", status: "active", patients: 76, photo: "", joinDate: "2019-06-10", schedule: { ...defaultSchedule } },
+  { id: "D004", name: "Dr. Mark Brown", specialty: "Dermatology", qualification: "MBBS, MD Derma", phone: "+1-555-0104", email: "mark@clinic.com", address: "321 Skin Road", experience: 6, consultationFee: 45, bio: "Focused on cosmetic dermatology and skin disorders.", status: "inactive", patients: 42, photo: "", joinDate: "2022-09-01", schedule: { ...defaultSchedule, leaveType: "Leave", leaveNote: "On personal leave" } },
+  { id: "D005", name: "Dr. Lisa Lee", specialty: "Cardiology", qualification: "MBBS, DM Cardiology", phone: "+1-555-0105", email: "lisa@clinic.com", address: "654 Heart Blvd", experience: 20, consultationFee: 100, bio: "Senior cardiologist specializing in interventional procedures.", status: "active", patients: 110, photo: "", joinDate: "2018-02-28", schedule: { ...defaultSchedule, shiftStart: "08:00", shiftEnd: "16:00" } },
 ];
 
 const emptyForm: Omit<Doctor, "id"> = {
   name: "", specialty: "", qualification: "", phone: "", email: "", address: "",
   experience: 0, consultationFee: 0, bio: "", status: "active", patients: 0,
   photo: "", joinDate: new Date().toISOString().split("T")[0],
+  schedule: { ...defaultSchedule },
 };
 
 const DoctorPage = () => {
@@ -145,6 +165,9 @@ const DoctorPage = () => {
         { label: "Email", value: d.email }, { label: "Experience", value: `${d.experience} years` },
         { label: "Consultation Fee", value: `$${d.consultationFee}` }, { label: "Status", value: d.status },
         { label: "Join Date", value: d.joinDate }, { label: "Total Patients", value: String(d.patients) },
+        { label: "Working Days", value: d.schedule.workingDays.map((d) => d.slice(0, 3)).join(", ") },
+        { label: "Shift", value: `${d.schedule.shiftStart} – ${d.schedule.shiftEnd}` },
+        { label: "Leave Status", value: d.schedule.leaveType || "Active (No Leave)" },
       ],
     });
   };
@@ -249,6 +272,7 @@ const DoctorPage = () => {
         patients: Number(row.patients) || 0,
         photo: "",
         joinDate: String(row.joinDate || new Date().toISOString().split("T")[0]),
+        schedule: { ...defaultSchedule },
       }));
       setDoctors((prev) => [...newDoctors, ...prev]);
     }
@@ -337,6 +361,37 @@ const DoctorPage = () => {
                 <div><p className="text-muted-foreground text-xs">Total Patients</p><p className="font-semibold text-card-foreground">{viewDoctor.patients}</p></div>
                 <div><p className="text-muted-foreground text-xs">Doctor ID</p><p className="font-mono text-xs">{viewDoctor.id}</p></div>
               </div>
+
+              {/* Schedule Section in View */}
+              <div className="pt-3 border-t border-border space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <CalendarDays className="w-3.5 h-3.5" /> Working Schedule
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {allDays.map((day) => (
+                    <span key={day} className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${viewDoctor.schedule.workingDays.includes(day) ? "bg-primary/10 text-primary border border-primary/30" : "bg-muted/50 text-muted-foreground line-through border border-transparent"}`}>
+                      {day.slice(0, 3)}
+                    </span>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div><p className="text-muted-foreground text-xs">Shift</p><p className="font-medium">{viewDoctor.schedule.shiftStart} – {viewDoctor.schedule.shiftEnd}</p></div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Leave Status</p>
+                    <p className="font-medium">
+                      {viewDoctor.schedule.leaveType ? (
+                        <Badge variant="outline" className="text-xs border-amber-300 text-amber-600">{viewDoctor.schedule.leaveType}</Badge>
+                      ) : (
+                        <span className="text-emerald-600 text-xs font-semibold">Active (No Leave)</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                {viewDoctor.schedule.leaveNote && (
+                  <p className="text-xs text-muted-foreground italic">Note: {viewDoctor.schedule.leaveNote}</p>
+                )}
+              </div>
+
               {viewDoctor.bio && (
                 <div className="text-sm pt-2 border-t border-border">
                   <p className="text-muted-foreground text-xs mb-1">Bio</p>
@@ -467,6 +522,76 @@ const DoctorPage = () => {
               <div>
                 <Label>Total Patients</Label>
                 <Input type="number" min={0} value={form.patients} onChange={(e) => setForm((p) => ({ ...p, patients: Number(e.target.value) }))} />
+              </div>
+            </div>
+
+            {/* Working Schedule */}
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/40 border-b border-border">
+                <CalendarDays className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold">Working Schedule</span>
+              </div>
+              <div className="p-4 space-y-4">
+                {/* Working Days */}
+                <div>
+                  <Label className="text-xs font-semibold mb-2 block">Working Days</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {allDays.map((day) => {
+                      const checked = form.schedule.workingDays.includes(day);
+                      return (
+                        <label key={day} className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${checked ? "bg-primary/10 border-primary/40 text-primary font-semibold" : "bg-muted/30 border-border text-muted-foreground hover:border-primary/30"}`}>
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              const days = v
+                                ? [...form.schedule.workingDays, day]
+                                : form.schedule.workingDays.filter((d) => d !== day);
+                              setForm((p) => ({ ...p, schedule: { ...p.schedule, workingDays: days } }));
+                            }}
+                            className="h-3.5 w-3.5"
+                          />
+                          {day.slice(0, 3)}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Shift Timing */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" /> Shift Start
+                    </Label>
+                    <Input type="time" value={form.schedule.shiftStart} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, shiftStart: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" /> Shift End
+                    </Label>
+                    <Input type="time" value={form.schedule.shiftEnd} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, shiftEnd: e.target.value } }))} />
+                  </div>
+                </div>
+
+                {/* Leave / Day Off */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block flex items-center gap-1.5">
+                      <CalendarOff className="w-3 h-3" /> Leave Status
+                    </Label>
+                    <Select value={form.schedule.leaveType || "none"} onValueChange={(v) => setForm((p) => ({ ...p, schedule: { ...p.schedule, leaveType: v === "none" ? "" : v } }))}>
+                      <SelectTrigger><SelectValue placeholder="No Leave" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Leave (Active)</SelectItem>
+                        {leaveTypes.map((lt) => <SelectItem key={lt} value={lt}>{lt}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1.5 block">Leave Note</Label>
+                    <Input placeholder="e.g. Returns on Monday" value={form.schedule.leaveNote} onChange={(e) => setForm((p) => ({ ...p, schedule: { ...p.schedule, leaveNote: e.target.value } }))} />
+                  </div>
+                </div>
               </div>
             </div>
 
