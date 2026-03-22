@@ -128,17 +128,17 @@ const HealthPackagesPage = () => {
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.price || form.services.length === 0) return;
+    if (!form.name || !form.price || (form.services.length === 0 && form.tests.length === 0)) return;
     if (editPkg) {
       setPackages((prev) => prev.map((p) => p.id === editPkg.id ? {
-        ...p, name: form.name, services: form.services, price: parseFloat(form.price),
+        ...p, name: form.name, services: form.services, tests: form.tests, price: parseFloat(form.price),
         discountPercent: parseFloat(form.discountPercent) || 0, validity: form.validity,
         status: form.status as HealthPackage["status"], description: form.description,
       } : p));
     } else {
       const nextId = `PKG-${String(packages.length + 1).padStart(3, "0")}`;
       setPackages((prev) => [{
-        id: nextId, name: form.name, services: form.services, price: parseFloat(form.price),
+        id: nextId, name: form.name, services: form.services, tests: form.tests, price: parseFloat(form.price),
         discountPercent: parseFloat(form.discountPercent) || 0, validity: form.validity,
         status: form.status as HealthPackage["status"], description: form.description,
       }, ...prev]);
