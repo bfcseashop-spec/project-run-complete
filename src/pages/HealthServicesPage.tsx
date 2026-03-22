@@ -93,7 +93,7 @@ const HealthServicesPage = () => {
     if (editService) {
       setServices((prev) => prev.map((s) => s.id === editService.id ? {
         ...s, name: form.name, category: form.category, price: parseFloat(form.price),
-        duration: form.duration, status: form.status as HealthService["status"], description: form.description,
+        status: form.status as HealthService["status"], description: form.description,
       } : s));
     } else {
       const nextId = `HS-${100 + services.length + 1}`;
