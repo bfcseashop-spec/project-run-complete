@@ -68,7 +68,7 @@ const initialServices: HealthService[] = [
   { id: "HS-107", name: "Postnatal Care", category: "Maternal Care", price: 700, status: "completed", description: "Post-delivery health checkup for mother and newborn." },
 ];
 
-const emptyForm = { name: "", category: "", price: "", duration: "", status: "active", description: "" };
+const emptyForm = { name: "", category: "", price: "", status: "active", description: "" };
 
 const HealthServicesPage = () => {
   useSettings();
