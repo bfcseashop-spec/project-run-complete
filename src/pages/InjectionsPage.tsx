@@ -114,7 +114,6 @@ const InjectionsPage = () => {
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
               { label: "Unit", value: i.unit }, { label: "Price", value: formatDualPrice(i.price) },
             ],
-            ],
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
