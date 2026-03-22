@@ -26,7 +26,7 @@ import {
   Search, Bone, Brain, Heart, Hand, Skull, Eye, Printer, Barcode as BarcodeIcon,
   Upload, X, FileText, ImageIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printXRayReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
 import { toast } from "sonner";
 import ImageLightbox from "@/components/ImageLightbox";
@@ -142,14 +142,11 @@ const XRayPage = () => {
   };
 
   const handlePrint = (r: XRayRecord) => {
-    printRecordReport({
-      id: r.id, sectionTitle: "X-Ray Report", fields: [
-        { label: "Patient", value: r.patient }, { label: "Examination", value: r.examination },
-        { label: "Body Part", value: r.bodyPart }, { label: "Doctor", value: r.doctor },
-        { label: "Date", value: r.date }, { label: "Report Date", value: r.reportDate },
-        { label: "Findings", value: r.findings }, { label: "Impression", value: r.impression },
-        { label: "Remarks", value: r.remarks }, { label: "Status", value: r.status },
-      ],
+    printXRayReport({
+      id: r.id, patient: r.patient, examination: r.examination,
+      bodyPart: r.bodyPart, doctor: r.doctor, date: r.date,
+      reportDate: r.reportDate, status: r.status, findings: r.findings,
+      impression: r.impression, remarks: r.remarks,
     });
   };
 

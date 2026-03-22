@@ -27,7 +27,7 @@ import {
   Search, Heart, Baby, Scan, CircleDot, Waves, Printer, Eye, Barcode as BarcodeIcon,
   Upload, X, FileText, ImageIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printUltrasoundReport, printBarcode } from "@/lib/printUtils";
 import {
   ultrasoundRecords, type UltrasoundRecord, type UltrasoundImage, regions, examinationNames,
 } from "@/data/ultrasoundRecords";
@@ -51,82 +51,13 @@ const emptyForm: Omit<UltrasoundRecord, "id"> = {
   impression: "", remarks: "", images: [],
 };
 
-function printReport(r: UltrasoundRecord, clinic: { name: string; tagline: string; phone: string; email: string; address: string; regNumber: string }) {
-  const win = window.open("", "_blank", "width=800,height=900");
-  if (!win) return;
-  win.document.write(`<!DOCTYPE html><html><head><title>Ultrasound Report - ${r.id}</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;padding:0;background:#fff}
-.page{max-width:760px;margin:0 auto;padding:32px 40px}
-.header{text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:20px}
-.header h1{font-size:22px;font-weight:700;color:#0f766e;letter-spacing:0.5px}
-.header .tagline{font-size:12px;color:#666;margin-top:2px}
-.header .contact{font-size:11px;color:#888;margin-top:6px}
-.report-title{text-align:center;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:6px;padding:10px;margin-bottom:20px}
-.report-title h2{font-size:16px;font-weight:600;color:#0f766e;text-transform:uppercase;letter-spacing:1px}
-.report-title .id{font-size:11px;color:#888;margin-top:2px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;margin-bottom:20px}
-.info-cell{padding:10px 14px;border-bottom:1px solid #e5e7eb}
-.info-cell:nth-child(odd){border-right:1px solid #e5e7eb}
-.info-cell .lbl{font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.5px;font-weight:600}
-.info-cell .val{font-size:13px;color:#1a1a1a;font-weight:500;margin-top:2px}
-.section{margin-bottom:16px}
-.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#0f766e;border-bottom:2px solid #ccfbf1;padding-bottom:4px;margin-bottom:8px}
-.section-body{font-size:13px;line-height:1.7;color:#333;padding:8px 12px;background:#fafafa;border-radius:4px;min-height:40px;white-space:pre-wrap}
-.section-body.empty{color:#aaa;font-style:italic}
-.footer{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;padding-top:20px}
-.signature{text-align:center;min-width:200px}
-.signature .line{border-top:1px solid #333;margin-bottom:4px}
-.signature .name{font-size:13px;font-weight:600}
-.signature .label{font-size:10px;color:#888;text-transform:uppercase}
-.stamp{font-size:10px;color:#888;text-align:center;margin-top:30px;border-top:1px solid #e5e7eb;padding-top:10px}
-@media print{body{padding:0}.page{padding:20px 30px}@page{margin:15mm}}
-</style></head><body>
-<div class="page">
-  <div class="header">
-    <h1>${clinic.name}</h1>
-    <div class="tagline">${clinic.tagline}</div>
-    <div class="contact">${clinic.address} &bull; ${clinic.phone} &bull; ${clinic.email}</div>
-    ${clinic.regNumber ? `<div class="contact">Reg: ${clinic.regNumber}</div>` : ""}
-  </div>
-  <div class="report-title">
-    <h2>Ultrasonography Report</h2>
-    <div class="id">Report ID: ${r.id}</div>
-  </div>
-  <div class="info-grid">
-    <div class="info-cell"><div class="lbl">Patient Name</div><div class="val">${r.patient || "—"}</div></div>
-    <div class="info-cell"><div class="lbl">Referring Doctor</div><div class="val">${r.doctor || "—"}</div></div>
-    <div class="info-cell"><div class="lbl">Examination</div><div class="val">${r.examination || "—"}</div></div>
-    <div class="info-cell"><div class="lbl">Region</div><div class="val" style="text-transform:capitalize">${r.region || "—"}</div></div>
-    <div class="info-cell"><div class="lbl">Scan Date</div><div class="val">${r.date || "—"}</div></div>
-    <div class="info-cell"><div class="lbl">Report Date</div><div class="val">${r.reportDate || "—"}</div></div>
-  </div>
-  <div class="section">
-    <div class="section-title">Findings</div>
-    <div class="section-body ${r.findings ? "" : "empty"}">${r.findings || "No findings recorded yet."}</div>
-  </div>
-  <div class="section">
-    <div class="section-title">Impression</div>
-    <div class="section-body ${r.impression ? "" : "empty"}">${r.impression || "Pending radiologist review."}</div>
-  </div>
-  <div class="section">
-    <div class="section-title">Remarks</div>
-    <div class="section-body ${r.remarks ? "" : "empty"}">${r.remarks || "No additional remarks."}</div>
-  </div>
-  <div class="footer">
-    <div></div>
-    <div class="signature">
-      <div class="line" style="width:200px"></div>
-      <div class="name">${r.doctor}</div>
-      <div class="label">Sonologist / Radiologist</div>
-    </div>
-  </div>
-  <div class="stamp">This is a computer-generated report from ${clinic.name}. Printed on ${new Date().toLocaleDateString()}.</div>
-</div>
-</body></html>`);
-  win.document.close();
-  setTimeout(() => win.print(), 400);
+function printReport(r: UltrasoundRecord) {
+  printUltrasoundReport({
+    id: r.id, patient: r.patient, examination: r.examination,
+    region: r.region, doctor: r.doctor, date: r.date,
+    reportDate: r.reportDate, status: r.status, findings: r.findings,
+    impression: r.impression, remarks: r.remarks,
+  });
 }
 
 const UltrasoundPage = () => {
@@ -279,10 +210,7 @@ const UltrasoundPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print Report" onClick={() => printReport(r, {
-            name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
-            email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
-          })}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print Report" onClick={() => printReport(r)}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/10" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
@@ -429,10 +357,7 @@ const UltrasoundPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewRecord(null)}>Close</Button>
             <Button onClick={() => {
-              if (viewRecord) printReport(viewRecord, {
-                name: settings.clinicName, tagline: settings.clinicTagline, phone: settings.clinicPhone,
-                email: settings.clinicEmail, address: settings.clinicAddress, regNumber: settings.clinicRegNumber,
-              });
+              if (viewRecord) printReport(viewRecord);
             }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
