@@ -6,7 +6,6 @@ import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -274,19 +273,19 @@ const LabReportsPage = () => {
       key: "actions", header: "Actions",
       render: (r: LabReport) => (
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="View Report" onClick={() => openView(r)}>
-            <Eye className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View Report" onClick={() => openView(r)}>
+            <Eye className="w-3.5 h-3.5 text-info" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
+            <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Print" onClick={() => printLabReport(r)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printLabReport(r)}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-            <BarcodeIcon className="w-3.5 h-3.5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+            <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Delete" onClick={() => setDeleteReport(r)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteReport(r)}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>
@@ -322,10 +321,61 @@ const LabReportsPage = () => {
       <DataToolbar dateFilter={reportToolbar.dateFilter} onDateFilterChange={reportToolbar.setDateFilter} viewMode={reportToolbar.viewMode} onViewModeChange={reportToolbar.setViewMode} onExportExcel={reportToolbar.handleExportExcel} onExportPDF={reportToolbar.handleExportPDF} onImport={handleImportReports} onDownloadSample={reportToolbar.handleDownloadSample} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Reports" value={String(totalReports)} icon={FileText} />
-        <StatCard title="Completed" value={String(completedReports)} icon={CheckCircle} />
-        <StatCard title="Pending" value={String(pendingReports)} icon={Clock} />
-        <StatCard title="In Progress" value={String(inProgressReports)} icon={FlaskConical} />
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(var(--primary))" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(var(--primary))" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>Total Reports</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{totalReports}</p>
+              <p className="text-xs text-muted-foreground">All lab reports</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(var(--primary) / 0.12)" }}>
+              <FileText className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(142, 71%, 45%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(142, 71%, 45%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(142, 71%, 45%)" }}>Completed</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{completedReports}</p>
+              <p className="text-xs text-muted-foreground">{totalReports > 0 ? Math.round((completedReports / totalReports) * 100) : 0}% complete</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(142, 71%, 45%, 0.12)" }}>
+              <CheckCircle className="w-6 h-6" style={{ color: "hsl(142, 71%, 45%)" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(45, 93%, 47%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(45, 93%, 47%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(45, 93%, 47%)" }}>Pending</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{pendingReports}</p>
+              <p className="text-xs text-muted-foreground">Awaiting results</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(45, 93%, 47%, 0.12)" }}>
+              <Clock className="w-6 h-6" style={{ color: "hsl(45, 93%, 47%)" }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl p-5 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderLeft: "3px solid hsl(210, 70%, 50%)" }}>
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(210, 70%, 50%)" }} />
+          <div className="relative flex items-start justify-between">
+            <div className="space-y-1.5">
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(210, 70%, 50%)" }}>In Progress</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{inProgressReports}</p>
+              <p className="text-xs text-muted-foreground">Currently processing</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50%, 0.12)" }}>
+              <FlaskConical className="w-6 h-6" style={{ color: "hsl(210, 70%, 50%)" }} />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
