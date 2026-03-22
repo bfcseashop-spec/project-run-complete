@@ -120,6 +120,7 @@ const PrescriptionPage = () => {
           id: nextId,
           patient: data.patient,
           doctor: data.doctor,
+          doctorSpecialization: data.doctorSpecialization,
           date: new Date().toISOString().split("T")[0],
           medicines: allMeds,
           age: data.age,
