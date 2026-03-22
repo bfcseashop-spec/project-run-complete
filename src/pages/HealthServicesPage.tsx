@@ -35,7 +35,7 @@ interface HealthService {
   name: string;
   category: string;
   price: number;
-  duration: string;
+  
   status: "active" | "pending" | "completed";
   description: string;
 }
