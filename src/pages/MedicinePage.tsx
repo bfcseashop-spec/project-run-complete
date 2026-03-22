@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Plus, Trash2, Pencil, Eye, Printer, Search, Package, PackageCheck,
   AlertTriangle, PackageX, DollarSign, TrendingUp, Upload, X, Calendar,
-  Barcode as BarcodeIcon,
+  Barcode as BarcodeIcon, Image as ImageIcon, Pill, ShoppingCart, Tag, Info, Link,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
