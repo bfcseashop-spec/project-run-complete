@@ -398,7 +398,7 @@ function PatientRow({ label, value, bold }: { label: string; value: string; bold
 
 function FooterItem({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-2 text-destructive-foreground/90">
+    <div className="flex items-center gap-2 text-white/90">
       <span className="text-sm">{icon}</span>
       <div className="text-[10px] leading-tight">
         <div className="font-bold">{label}</div>
