@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { printRecordReport } from "@/lib/printUtils";
+import { printHealthServiceReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -190,12 +190,8 @@ const HealthServicesPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(s)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
-            id: s.id, sectionTitle: "Health Service Report", fields: [
-              { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
-              { label: "Price", value: formatDualPrice(s.price) },
-              { label: "Status", value: s.status }, { label: "Description", value: s.description },
-            ],
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printHealthServiceReport({
+            id: s.id, name: s.name, category: s.category, price: s.price, status: s.status, description: s.description,
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
@@ -382,12 +378,9 @@ const HealthServicesPage = () => {
             <Button variant="ghost" className="text-warning" onClick={() => { const s = viewService; setViewService(null); if (s) openEdit(s); }}>
               <Pencil className="w-4 h-4 mr-1" /> Edit
             </Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewService) printRecordReport({
-              id: viewService.id, sectionTitle: "Health Service Report", fields: [
-                { label: "Service Name", value: viewService.name }, { label: "Category", value: viewService.category },
-                { label: "Price", value: formatDualPrice(viewService.price) },
-                { label: "Status", value: viewService.status }, { label: "Description", value: viewService.description },
-              ],
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewService) printHealthServiceReport({
+              id: viewService.id, name: viewService.name, category: viewService.category,
+              price: viewService.price, status: viewService.status, description: viewService.description,
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
