@@ -89,9 +89,6 @@ const defaultForm: PrescriptionFormData = {
   tests: [],
   chiefComplaint: "",
   onExamination: "",
-  investigation: "",
-  diagnosis: "",
-  treatmentPlan: "",
   advices: "",
   followUp: "",
 };
