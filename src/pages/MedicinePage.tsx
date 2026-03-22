@@ -67,6 +67,37 @@ const MedicinePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
+  const [customCategories, setCustomCategories] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("med-custom-categories") || "[]"); } catch { return []; }
+  });
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [deleteCatConfirm, setDeleteCatConfirm] = useState<string | null>(null);
+
+  const categories = [...defaultCategories, ...customCategories];
+
+  const saveCustomCategories = (cats: string[]) => {
+    setCustomCategories(cats);
+    localStorage.setItem("med-custom-categories", JSON.stringify(cats));
+  };
+
+  const handleAddCategory = () => {
+    const trimmed = newCategory.trim();
+    if (!trimmed) return;
+    if (categories.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error("Category already exists");
+      return;
+    }
+    saveCustomCategories([...customCategories, trimmed]);
+    setNewCategory("");
+    toast.success(`Category "${trimmed}" added`);
+  };
+
+  const handleDeleteCategory = (cat: string) => {
+    saveCustomCategories(customCategories.filter((c) => c !== cat));
+    setDeleteCatConfirm(null);
+    toast.success(`Category "${cat}" removed`);
+  };
 
   useEffect(() => {
     const unsub = subscribeMedicines(() => setData([...getMedicines()]));
