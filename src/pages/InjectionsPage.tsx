@@ -243,9 +243,7 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
                 <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
-                <div><p className="text-xs text-muted-foreground">Strength</p><p className="font-medium text-foreground">{viewInj.strength || "—"}</p></div>
-                
-                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock} {viewInj.unit}</p></div>
+                <div><p className="text-xs text-muted-foreground">Unit</p><p className="font-medium text-foreground">{viewInj.unit}</p></div>
                 <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
               </div>
             </div>
