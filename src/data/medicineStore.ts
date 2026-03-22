@@ -3,10 +3,15 @@ type Listener = () => void;
 export interface Medicine {
   id: string;
   name: string;
+  manufacturer: string;
+  boxNo: string;
   category: string;
-  stock: number;
+  purchasePrice: number;
+  price: number; // selling price
+  stock: number; // quantity (total pcs)
   unit: string;
-  price: number;
+  soldOut: number;
+  image: string;
   expiry: string;
   status: "in-stock" | "low-stock" | "out-of-stock";
 }
@@ -14,15 +19,19 @@ export interface Medicine {
 const computeStatus = (stock: number): Medicine["status"] =>
   stock <= 0 ? "out-of-stock" : stock <= 20 ? "low-stock" : "in-stock";
 
+const available = (m: Medicine) => m.stock - m.soldOut;
+
 const initial: Medicine[] = [
-  { id: "M001", name: "Amoxicillin 500mg", category: "Antibiotic", stock: 240, unit: "Caps", price: 15, expiry: "2025-12-15", status: "in-stock" },
-  { id: "M002", name: "Paracetamol 650mg", category: "Analgesic", stock: 500, unit: "Tabs", price: 5, expiry: "2026-03-20", status: "in-stock" },
-  { id: "M003", name: "Metformin 500mg", category: "Antidiabetic", stock: 18, unit: "Tabs", price: 8, expiry: "2025-08-10", status: "low-stock" },
-  { id: "M004", name: "Omeprazole 20mg", category: "Antacid", stock: 0, unit: "Caps", price: 12, expiry: "2025-06-01", status: "out-of-stock" },
-  { id: "M005", name: "Cetirizine 10mg", category: "Antihistamine", stock: 150, unit: "Tabs", price: 6, expiry: "2026-01-30", status: "in-stock" },
-  { id: "M006", name: "Azithromycin 250mg", category: "Antibiotic", stock: 45, unit: "Tabs", price: 20, expiry: "2025-11-22", status: "low-stock" },
-  { id: "M007", name: "Ibuprofen 400mg", category: "Analgesic", stock: 300, unit: "Tabs", price: 10, expiry: "2026-05-15", status: "in-stock" },
-  { id: "M008", name: "Ciprofloxacin 500mg", category: "Antibiotic", stock: 80, unit: "Tabs", price: 18, expiry: "2026-02-28", status: "in-stock" },
+  { id: "M001", name: "Amoxicillin 500mg", manufacturer: "BBCA Pharma", boxNo: "-", category: "Antibiotic", purchasePrice: 0.05, price: 0.25, stock: 240, unit: "Caps", soldOut: 12, image: "", expiry: "2028-09-26", status: "in-stock" },
+  { id: "M002", name: "Paracetamol 650mg", manufacturer: "Square", boxNo: "-", category: "Analgesic", purchasePrice: 0.02, price: 0.15, stock: 500, unit: "Tabs", soldOut: 35, image: "", expiry: "2028-03-30", status: "in-stock" },
+  { id: "M003", name: "Metformin 500mg", manufacturer: "Novo Nordisk", boxNo: "-", category: "Antidiabetic", purchasePrice: 0.04, price: 0.30, stock: 18, unit: "Tabs", soldOut: 5, image: "", expiry: "2027-08-07", status: "low-stock" },
+  { id: "M004", name: "Omeprazole 20mg", manufacturer: "Sanofi", boxNo: "-", category: "Antacid", purchasePrice: 0.06, price: 0.35, stock: 0, unit: "Caps", soldOut: 0, image: "", expiry: "2026-06-01", status: "out-of-stock" },
+  { id: "M005", name: "Cetirizine 10mg", manufacturer: "Square", boxNo: "-", category: "Antihistamine", purchasePrice: 0.03, price: 0.25, stock: 150, unit: "Tabs", soldOut: 10, image: "", expiry: "2028-01-30", status: "in-stock" },
+  { id: "M006", name: "Azithromycin 250mg", manufacturer: "BBCA Pharma", boxNo: "-", category: "Antibiotic", purchasePrice: 0.10, price: 0.50, stock: 45, unit: "Tabs", soldOut: 8, image: "", expiry: "2027-11-22", status: "in-stock" },
+  { id: "M007", name: "Ibuprofen 400mg", manufacturer: "PT MediFarma Lab", boxNo: "-", category: "Analgesic", purchasePrice: 0.04, price: 0.20, stock: 300, unit: "Tabs", soldOut: 20, image: "", expiry: "2028-05-15", status: "in-stock" },
+  { id: "M008", name: "Ciprofloxacin 500mg", manufacturer: "Korean Drug co.Ltd", boxNo: "-", category: "Antibiotic", purchasePrice: 0.08, price: 0.40, stock: 80, unit: "Tabs", soldOut: 15, image: "", expiry: "2028-02-28", status: "in-stock" },
+  { id: "M009", name: "Alatrol", manufacturer: "Square", boxNo: "-", category: "Syrup", purchasePrice: 0.80, price: 4.99, stock: 97, unit: "Bottles", soldOut: 0, image: "", expiry: "2028-08-30", status: "in-stock" },
+  { id: "M010", name: "Actrapid", manufacturer: "Novo Nordisk", boxNo: "-", category: "Injection", purchasePrice: 8.50, price: 50.00, stock: 1, unit: "Vials", soldOut: 0, image: "", expiry: "2026-08-31", status: "low-stock" },
 ];
 
 let medicines: Medicine[] = [...initial];
