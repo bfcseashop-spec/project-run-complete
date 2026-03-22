@@ -184,18 +184,16 @@ const HealthPackagesPage = () => {
   const avgDiscount = packages.length > 0 ? Math.round(packages.reduce((s, p) => s + p.discountPercent, 0) / packages.length) : 0;
   const totalRevenue = packages.reduce((s, p) => s + p.price, 0);
 
-  const doPrint = (p: HealthPackage) => printRecordReport({
-    id: p.id, sectionTitle: "Health Package Report", fields: [
-      { label: "Package Name", value: p.name },
-      { label: "Status", value: p.status.charAt(0).toUpperCase() + p.status.slice(1) },
-      { label: "Price", value: formatDualPrice(p.price) },
-      { label: "Discount", value: `${p.discountPercent}%` },
-      { label: "Discounted Price", value: formatDualPrice(p.price * (1 - p.discountPercent / 100)) },
-      { label: "Validity", value: p.validity },
-      { label: "Services", value: p.services.join(", ") },
-      { label: "Tests", value: p.tests.length > 0 ? p.tests.map((t) => `${t.name} (${formatDualPrice(t.price)})`).join(", ") : "—" },
-      { label: "Description", value: p.description },
-    ],
+  const doPrint = (p: HealthPackage) => printHealthPackageReport({
+    id: p.id,
+    name: p.name,
+    status: p.status,
+    price: p.price,
+    discountPercent: p.discountPercent,
+    validity: p.validity,
+    services: p.services,
+    tests: p.tests,
+    description: p.description,
   });
 
   const columns = [
