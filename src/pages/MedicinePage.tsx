@@ -341,7 +341,7 @@ const MedicinePage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Add Medicine" description="Manage medicine inventory, stock levels, and pricing">
+      <PageHeader title="Medicine Management" description="Manage medicine inventory, stock levels, and pricing">
         {selectedIds.size > 0 && (
           <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
             <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
