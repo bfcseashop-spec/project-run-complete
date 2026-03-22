@@ -68,9 +68,6 @@ export interface PrescriptionFormData {
   tests: SelectedTest[];
   chiefComplaint: string;
   onExamination: string;
-  investigation: string;
-  diagnosis: string;
-  treatmentPlan: string;
   advices: string;
   followUp: string;
 }
