@@ -77,7 +77,7 @@ const menuSections: MenuSection[] = [
           { icon: List, labelKey: "inventoryList", path: "/medicine/inventory" },
         ],
       },
-      { icon: Users, labelKey: "hrm", path: "/hrm" },
+      
       { icon: UserCog, labelKey: "roles", path: "/roles" },
     ],
   },

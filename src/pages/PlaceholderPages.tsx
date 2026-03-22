@@ -1,7 +1,7 @@
 import PageHeader from "@/components/PageHeader";
 import DataToolbar from "@/components/DataToolbar";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Users, UserCog, CreditCard, TrendingUp } from "lucide-react";
+import { UserCog, CreditCard, TrendingUp } from "lucide-react";
 
 interface PlaceholderPageProps {
   title: string;
@@ -29,7 +29,7 @@ const PlaceholderPage = ({ title, description, icon: Icon }: PlaceholderPageProp
 };
 
 
-export const HRMPage = () => <PlaceholderPage title="HRM" description="Human resource management and payroll" icon={Users} />;
+
 export const RolesPage = () => <PlaceholderPage title="Roles & Permissions" description="Manage user roles and access control" icon={UserCog} />;
 
 export const BankPage = () => <PlaceholderPage title="Bank Transactions" description="Manage banking activities and reconciliation" icon={CreditCard} />;

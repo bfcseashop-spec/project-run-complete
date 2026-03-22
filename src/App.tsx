@@ -32,9 +32,6 @@ const SystemManagePage = lazy(() => import("@/pages/SystemManagePage"));
 const RefundPage = lazy(() => import("@/pages/RefundPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-const LazyPlaceholders = lazy(() =>
-  import("@/pages/PlaceholderPages").then((m) => ({ default: m.HRMPage }))
-);
 const LazyRoles = lazy(() =>
   import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage }))
 );
@@ -121,7 +118,7 @@ const App = () => (
               <Route path="/health-services" element={<HealthServicesPage />} />
               <Route path="/health-services/packages" element={<HealthPackagesPage />} />
               <Route path="/injections" element={<InjectionsPage />} />
-              <Route path="/hrm" element={<LazyPlaceholders />} />
+              
               <Route path="/roles" element={<LazyRoles />} />
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/bank" element={<LazyBank />} />
