@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -60,6 +62,8 @@ const MedicinePage = () => {
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 100;
 
   useEffect(() => {
     const unsub = subscribeMedicines(() => setData([...getMedicines()]));
@@ -381,12 +385,56 @@ const MedicinePage = () => {
         </div>
       </div>
 
-      {/* Data Table */}
-      {toolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={filtered} keyExtractor={(m) => (m as Medicine).id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
-      ) : (
-        <DataGridView columns={columns} data={filtered} keyExtractor={(m) => (m as Medicine).id} />
-      )}
+      {/* Data Table with Pagination */}
+      {(() => {
+        const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+        const safeCurrentPage = Math.min(currentPage, totalPages);
+        const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+        const endIdx = Math.min(startIdx + itemsPerPage, filtered.length);
+        const paginatedData = filtered.slice(startIdx, endIdx);
+
+        return (
+          <>
+            <ScrollArea className="w-full rounded-lg border border-border">
+              <div className="min-w-[1200px]">
+                {toolbar.viewMode === "list" ? (
+                  <DataTable columns={columns} data={paginatedData} keyExtractor={(m) => (m as Medicine).id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
+                ) : (
+                  <DataGridView columns={columns} data={paginatedData} keyExtractor={(m) => (m as Medicine).id} />
+                )}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between bg-card border border-border rounded-lg px-4 py-3">
+              <p className="text-sm text-muted-foreground">
+                Showing <span className="font-semibold text-card-foreground">{filtered.length > 0 ? startIdx + 1 : 0}-{endIdx}</span> of <span className="font-semibold text-card-foreground">{filtered.length}</span> medicines
+              </p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={safeCurrentPage <= 1} onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 5) { page = i + 1; }
+                  else if (safeCurrentPage <= 3) { page = i + 1; }
+                  else if (safeCurrentPage >= totalPages - 2) { page = totalPages - 4 + i; }
+                  else { page = safeCurrentPage - 2 + i; }
+                  return (
+                    <Button key={page} variant={page === safeCurrentPage ? "default" : "outline"} size="icon" className="h-8 w-8 text-xs" onClick={() => setCurrentPage(page)}>
+                      {page}
+                    </Button>
+                  );
+                })}
+                <Button variant="outline" size="icon" className="h-8 w-8" disabled={safeCurrentPage >= totalPages} onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
       {/* View Dialog */}
       <Dialog open={!!viewMed} onOpenChange={(open) => !open && setViewMed(null)}>
