@@ -65,6 +65,7 @@ export interface PrescriptionFormData {
   age: string;
   gender: string;
   doctor: string;
+  doctorSpecialization: string;
   notes: string;
   medicines: MedicineEntry[];
   injections: InjectionEntry[];
