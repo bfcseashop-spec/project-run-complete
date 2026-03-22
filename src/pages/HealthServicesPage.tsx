@@ -59,13 +59,13 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 const initialServices: HealthService[] = [
-  { id: "HS-101", name: "General Health Checkup", category: "General Consultation", price: 500, duration: "30 min", status: "active", description: "Comprehensive physical examination with basic vitals and health assessment." },
-  { id: "HS-102", name: "Flu Vaccination", category: "Vaccination", price: 350, duration: "15 min", status: "active", description: "Annual influenza vaccination for adults and children above 6 months." },
-  { id: "HS-103", name: "Prenatal Checkup", category: "Maternal Care", price: 800, duration: "45 min", status: "active", description: "Routine prenatal visit including ultrasound review and maternal health assessment." },
-  { id: "HS-104", name: "Vision Screening", category: "Eye Care", price: 400, duration: "20 min", status: "active", description: "Standard vision test and eye health screening for all age groups." },
-  { id: "HS-105", name: "Child Immunization (DPT)", category: "Vaccination", price: 250, duration: "10 min", status: "active", description: "Diphtheria, Pertussis, and Tetanus vaccine for infants and children." },
-  { id: "HS-106", name: "Diabetes Screening", category: "General Consultation", price: 600, duration: "25 min", status: "pending", description: "Fasting blood sugar and HbA1c test with doctor consultation." },
-  { id: "HS-107", name: "Postnatal Care", category: "Maternal Care", price: 700, duration: "40 min", status: "completed", description: "Post-delivery health checkup for mother and newborn." },
+  { id: "HS-101", name: "General Health Checkup", category: "General Consultation", price: 500, status: "active", description: "Comprehensive physical examination with basic vitals and health assessment." },
+  { id: "HS-102", name: "Flu Vaccination", category: "Vaccination", price: 350, status: "active", description: "Annual influenza vaccination for adults and children above 6 months." },
+  { id: "HS-103", name: "Prenatal Checkup", category: "Maternal Care", price: 800, status: "active", description: "Routine prenatal visit including ultrasound review and maternal health assessment." },
+  { id: "HS-104", name: "Vision Screening", category: "Eye Care", price: 400, status: "active", description: "Standard vision test and eye health screening for all age groups." },
+  { id: "HS-105", name: "Child Immunization (DPT)", category: "Vaccination", price: 250, status: "active", description: "Diphtheria, Pertussis, and Tetanus vaccine for infants and children." },
+  { id: "HS-106", name: "Diabetes Screening", category: "General Consultation", price: 600, status: "pending", description: "Fasting blood sugar and HbA1c test with doctor consultation." },
+  { id: "HS-107", name: "Postnatal Care", category: "Maternal Care", price: 700, status: "completed", description: "Post-delivery health checkup for mother and newborn." },
 ];
 
 const emptyForm = { name: "", category: "", price: "", duration: "", status: "active", description: "" };
