@@ -332,6 +332,7 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           {report.remarks && (
             <div className="mx-6 mb-3 p-4 bg-primary/5 rounded-lg border-[1.5px] border-primary/20 text-sm text-muted-foreground leading-relaxed">
               <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">📋 Remarks</p>
+              {report.remarks}
             </div>
           )}
 
