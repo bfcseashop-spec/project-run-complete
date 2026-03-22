@@ -266,21 +266,21 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           </div>
 
           {/* Patient Info Bar */}
-          <div className="px-6 py-3 bg-destructive/5 border-b border-destructive/20">
+          <div className="px-6 py-3.5 bg-primary/5 border-b-[3px] border-primary/30">
             <div className="grid grid-cols-3 gap-6">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <PatientRow label="Name:" value={report.patient} bold />
                 <PatientRow label="Age / Sex:" value={`${report.age} Years / ${report.gender}`} />
                 <PatientRow label="PID:" value={report.patientId} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <PatientRow label="Requested:" value={report.date} />
                 <PatientRow label="Reported:" value={report.resultDate || "Pending"} />
                 <PatientRow label="Consultant:" value={report.doctor} />
               </div>
-              <div className="text-right space-y-1">
-                <span className="text-xs font-bold text-destructive">Pat No: {report.patientId}</span>
-                <div className="font-mono text-xs bg-muted px-2 py-1 rounded inline-block">{report.id}</div>
+              <div className="text-right space-y-1.5">
+                <span className="text-xs font-bold text-primary">Pat No: {report.patientId}</span>
+                <div className="font-mono text-xs bg-muted px-3 py-1.5 rounded-md inline-block font-semibold">{report.id}</div>
               </div>
             </div>
           </div>
