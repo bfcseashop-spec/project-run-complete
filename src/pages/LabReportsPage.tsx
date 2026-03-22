@@ -6,7 +6,6 @@ import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
