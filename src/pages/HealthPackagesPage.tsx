@@ -111,12 +111,14 @@ const serviceColors: Record<string, string> = {
 
 const HealthPackagesPage = () => {
   useSettings();
+  const { activeTests } = useTestNameStore();
   const [packages, setPackages] = useState<HealthPackage[]>(initialPackages);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPkg, setEditPkg] = useState<HealthPackage | null>(null);
   const [deletePkg, setDeletePkg] = useState<HealthPackage | null>(null);
   const [viewPkg, setViewPkg] = useState<HealthPackage | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [testSearch, setTestSearch] = useState("");
 
   const update = (field: string, value: unknown) => setForm((f) => ({ ...f, [field]: value }));
 
