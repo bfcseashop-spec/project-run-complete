@@ -483,3 +483,307 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
   win.document.close();
   setTimeout(() => win.print(), 400);
 }
+
+/** Print a professional X-Ray report */
+export function printXRayReport(opts: {
+  id: string;
+  patient: string;
+  examination: string;
+  bodyPart: string;
+  doctor: string;
+  date: string;
+  reportDate: string;
+  status: string;
+  findings: string;
+  impression: string;
+  remarks: string;
+}) {
+  const s = getSettings();
+  const win = window.open("", "_blank", "width=850,height=1000");
+  if (!win) return;
+
+  const barcodeHtml = barcodeSVG(opts.id, 220, 55);
+  const statusColor = opts.status === "completed" ? "#059669" : opts.status === "in-progress" ? "#2563eb" : "#d97706";
+  const statusBg = opts.status === "completed" ? "#ecfdf5" : opts.status === "in-progress" ? "#eff6ff" : "#fffbeb";
+  const statusLabel = opts.status === "in-progress" ? "In Progress" : opts.status.charAt(0).toUpperCase() + opts.status.slice(1);
+
+  win.document.write(`<!DOCTYPE html><html><head><title>X-Ray Report - ${opts.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
+.page{max-width:800px;margin:0 auto;padding:0}
+.report-header{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:20px 30px;display:flex;align-items:center;justify-content:space-between}
+.lab-brand{display:flex;align-items:center;gap:14px}
+.lab-logo{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0f766e;font-weight:700;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.lab-logo img{width:100%;height:100%;object-fit:contain}
+.lab-name{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.lab-tagline{font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px;font-weight:500}
+.header-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;color:#fff;backdrop-filter:blur(4px)}
+.header-badge .badge-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.8;font-weight:600}
+.header-badge .badge-value{font-size:16px;font-weight:800;margin-top:2px}
+.patient-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:14px 30px;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-bottom:3px solid #14b8a6}
+.patient-col{display:flex;flex-direction:column;gap:5px}
+.patient-row{display:flex;gap:6px;font-size:12px}
+.patient-row .plabel{font-weight:700;color:#0f766e;min-width:95px;font-size:11px;text-transform:uppercase;letter-spacing:0.3px}
+.patient-row .pvalue{color:#1a1a1a;font-weight:500}
+.barcode-col{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.report-body{padding:24px 30px}
+.report-title{font-size:18px;font-weight:800;text-transform:uppercase;color:#0f766e;letter-spacing:1px;border-bottom:3px solid #0f766e;padding-bottom:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.status-pill{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+.section{margin-bottom:18px}
+.section-title{font-size:12px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;padding:6px 12px;background:linear-gradient(90deg,#f0fdfa,transparent);border-left:3px solid #14b8a6}
+.section-body{font-size:13px;line-height:1.8;color:#333;padding:12px 16px;background:#fafffe;border:1px solid #e5e7eb;border-radius:6px;min-height:50px;white-space:pre-wrap}
+.section-body.empty{color:#aaa;font-style:italic;min-height:40px}
+.signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:40px}
+.sig-block{text-align:center}
+.sig-line{border-top:2px solid #0f766e;margin-top:44px;padding-top:8px}
+.sig-name{font-size:12px;font-weight:700;color:#1a1a1a}
+.sig-role{font-size:10px;color:#6b7280}
+.end-text{font-size:10px;color:#9ca3af;margin-top:52px}
+.report-footer{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;margin-top:28px}
+.footer-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px}
+.footer-icon{width:26px;height:26px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.footer-icon svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2}
+@media print{@page{size:A4;margin:10mm}body{background:#fff}.page{max-width:100%}}
+</style></head><body>
+<div class="page">
+  <div class="report-header">
+    <div class="lab-brand">
+      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
+      <div>
+        <div class="lab-name">${s.clinicName}</div>
+        <div class="lab-tagline">${s.clinicTagline}</div>
+      </div>
+    </div>
+    <div class="header-badge">
+      <div class="badge-label">X-Ray ID</div>
+      <div class="badge-value">${opts.id.replace("XR-", "")}</div>
+    </div>
+  </div>
+
+  <div class="patient-bar">
+    <div class="patient-col">
+      <div class="patient-row"><span class="plabel">Patient:</span><span class="pvalue">${opts.patient}</span></div>
+      <div class="patient-row"><span class="plabel">Examination:</span><span class="pvalue">${opts.examination}</span></div>
+      <div class="patient-row"><span class="plabel">Body Part:</span><span class="pvalue" style="text-transform:capitalize">${opts.bodyPart}</span></div>
+    </div>
+    <div class="patient-col">
+      <div class="patient-row"><span class="plabel">Scan Date:</span><span class="pvalue">${opts.date}</span></div>
+      <div class="patient-row"><span class="plabel">Report Date:</span><span class="pvalue">${opts.reportDate || "Pending"}</span></div>
+      <div class="patient-row"><span class="plabel">Radiologist:</span><span class="pvalue">${opts.doctor}</span></div>
+    </div>
+    <div class="barcode-col">
+      <div style="font-size:11px;font-weight:700;color:#0f766e">${opts.id}</div>
+      <div>${barcodeHtml}</div>
+    </div>
+  </div>
+
+  <div class="report-body">
+    <div class="report-title">
+      <span>X-Ray Report</span>
+      <span class="status-pill" style="background:${statusBg};color:${statusColor}">${statusLabel}</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Findings</div>
+      <div class="section-body ${opts.findings ? "" : "empty"}">${opts.findings || "No findings recorded yet."}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impression</div>
+      <div class="section-body ${opts.impression ? "" : "empty"}">${opts.impression || "Pending radiologist review."}</div>
+    </div>
+
+    ${opts.remarks ? `<div class="section">
+      <div class="section-title">Remarks</div>
+      <div class="section-body">${opts.remarks}</div>
+    </div>` : ""}
+
+    <div class="signatures">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">Radiographer</div>
+        <div class="sig-role">(Medical Radiographer)</div>
+      </div>
+      <div class="sig-block">
+        <div class="end-text">****End of Report****</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">${opts.doctor}</div>
+        <div class="sig-role">(Radiologist)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+      <div><strong>Phone</strong><br/>${s.clinicPhone}</div>
+    </div>
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div><strong>Email</strong><br/>${s.clinicEmail}</div>
+    </div>
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <div><strong>Address</strong><br/>${s.clinicAddress}</div>
+    </div>
+  </div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+/** Print a professional Ultrasound/Sonography report */
+export function printUltrasoundReport(opts: {
+  id: string;
+  patient: string;
+  examination: string;
+  region: string;
+  doctor: string;
+  date: string;
+  reportDate: string;
+  status: string;
+  findings: string;
+  impression: string;
+  remarks: string;
+}) {
+  const s = getSettings();
+  const win = window.open("", "_blank", "width=850,height=1000");
+  if (!win) return;
+
+  const barcodeHtml = barcodeSVG(opts.id, 220, 55);
+  const statusColor = opts.status === "completed" ? "#059669" : opts.status === "in-progress" ? "#2563eb" : "#d97706";
+  const statusBg = opts.status === "completed" ? "#ecfdf5" : opts.status === "in-progress" ? "#eff6ff" : "#fffbeb";
+  const statusLabel = opts.status === "in-progress" ? "In Progress" : opts.status.charAt(0).toUpperCase() + opts.status.slice(1);
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Ultrasound Report - ${opts.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
+.page{max-width:800px;margin:0 auto;padding:0}
+.report-header{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:20px 30px;display:flex;align-items:center;justify-content:space-between}
+.lab-brand{display:flex;align-items:center;gap:14px}
+.lab-logo{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0f766e;font-weight:700;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.lab-logo img{width:100%;height:100%;object-fit:contain}
+.lab-name{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.lab-tagline{font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px;font-weight:500}
+.header-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;color:#fff;backdrop-filter:blur(4px)}
+.header-badge .badge-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.8;font-weight:600}
+.header-badge .badge-value{font-size:16px;font-weight:800;margin-top:2px}
+.patient-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:14px 30px;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-bottom:3px solid #14b8a6}
+.patient-col{display:flex;flex-direction:column;gap:5px}
+.patient-row{display:flex;gap:6px;font-size:12px}
+.patient-row .plabel{font-weight:700;color:#0f766e;min-width:95px;font-size:11px;text-transform:uppercase;letter-spacing:0.3px}
+.patient-row .pvalue{color:#1a1a1a;font-weight:500}
+.barcode-col{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.report-body{padding:24px 30px}
+.report-title{font-size:18px;font-weight:800;text-transform:uppercase;color:#0f766e;letter-spacing:1px;border-bottom:3px solid #0f766e;padding-bottom:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.status-pill{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+.section{margin-bottom:18px}
+.section-title{font-size:12px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;padding:6px 12px;background:linear-gradient(90deg,#f0fdfa,transparent);border-left:3px solid #14b8a6}
+.section-body{font-size:13px;line-height:1.8;color:#333;padding:12px 16px;background:#fafffe;border:1px solid #e5e7eb;border-radius:6px;min-height:50px;white-space:pre-wrap}
+.section-body.empty{color:#aaa;font-style:italic;min-height:40px}
+.signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:40px}
+.sig-block{text-align:center}
+.sig-line{border-top:2px solid #0f766e;margin-top:44px;padding-top:8px}
+.sig-name{font-size:12px;font-weight:700;color:#1a1a1a}
+.sig-role{font-size:10px;color:#6b7280}
+.end-text{font-size:10px;color:#9ca3af;margin-top:52px}
+.report-footer{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;margin-top:28px}
+.footer-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px}
+.footer-icon{width:26px;height:26px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.footer-icon svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2}
+@media print{@page{size:A4;margin:10mm}body{background:#fff}.page{max-width:100%}}
+</style></head><body>
+<div class="page">
+  <div class="report-header">
+    <div class="lab-brand">
+      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
+      <div>
+        <div class="lab-name">${s.clinicName}</div>
+        <div class="lab-tagline">${s.clinicTagline}</div>
+      </div>
+    </div>
+    <div class="header-badge">
+      <div class="badge-label">USG ID</div>
+      <div class="badge-value">${opts.id.replace("US-", "")}</div>
+    </div>
+  </div>
+
+  <div class="patient-bar">
+    <div class="patient-col">
+      <div class="patient-row"><span class="plabel">Patient:</span><span class="pvalue">${opts.patient}</span></div>
+      <div class="patient-row"><span class="plabel">Examination:</span><span class="pvalue">${opts.examination}</span></div>
+      <div class="patient-row"><span class="plabel">Region:</span><span class="pvalue" style="text-transform:capitalize">${opts.region}</span></div>
+    </div>
+    <div class="patient-col">
+      <div class="patient-row"><span class="plabel">Scan Date:</span><span class="pvalue">${opts.date}</span></div>
+      <div class="patient-row"><span class="plabel">Report Date:</span><span class="pvalue">${opts.reportDate || "Pending"}</span></div>
+      <div class="patient-row"><span class="plabel">Sonologist:</span><span class="pvalue">${opts.doctor}</span></div>
+    </div>
+    <div class="barcode-col">
+      <div style="font-size:11px;font-weight:700;color:#0f766e">${opts.id}</div>
+      <div>${barcodeHtml}</div>
+    </div>
+  </div>
+
+  <div class="report-body">
+    <div class="report-title">
+      <span>Ultrasonography Report</span>
+      <span class="status-pill" style="background:${statusBg};color:${statusColor}">${statusLabel}</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Findings</div>
+      <div class="section-body ${opts.findings ? "" : "empty"}">${opts.findings || "No findings recorded yet."}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impression</div>
+      <div class="section-body ${opts.impression ? "" : "empty"}">${opts.impression || "Pending sonologist review."}</div>
+    </div>
+
+    ${opts.remarks ? `<div class="section">
+      <div class="section-title">Remarks</div>
+      <div class="section-body">${opts.remarks}</div>
+    </div>` : ""}
+
+    <div class="signatures">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">Sonographer</div>
+        <div class="sig-role">(Medical Sonographer)</div>
+      </div>
+      <div class="sig-block">
+        <div class="end-text">****End of Report****</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">${opts.doctor}</div>
+        <div class="sig-role">(Sonologist / Radiologist)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+      <div><strong>Phone</strong><br/>${s.clinicPhone}</div>
+    </div>
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div><strong>Email</strong><br/>${s.clinicEmail}</div>
+    </div>
+    <div class="footer-item">
+      <div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <div><strong>Address</strong><br/>${s.clinicAddress}</div>
+    </div>
+  </div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
