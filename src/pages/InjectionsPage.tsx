@@ -97,9 +97,7 @@ const InjectionsPage = () => {
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
     { key: "category", header: "Category" },
-    { key: "strength", header: "Strength" },
-    
-    { key: "stock", header: "Stock", render: (i: InjectionItem) => `${i.stock} ${i.unit}` },
+    { key: "unit", header: "Unit" },
     { key: "price", header: "Price", render: (i: InjectionItem) => formatDualPrice(i.price) },
     { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
     {
