@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, Search, TestTube, X, Syringe, Stethoscope, ClipboardList, FlaskConical, Activity, HeartPulse } from "lucide-react";
+import { Trash2, Plus, Search, TestTube, X, Syringe, Stethoscope, ClipboardList, Activity } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
