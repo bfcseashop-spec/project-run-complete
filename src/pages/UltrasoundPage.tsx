@@ -27,7 +27,7 @@ import {
   Search, Heart, Baby, Scan, CircleDot, Waves, Printer, Eye, Barcode as BarcodeIcon,
   Upload, X, FileText, ImageIcon,
 } from "lucide-react";
-import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { printUltrasoundReport, printBarcode } from "@/lib/printUtils";
 import {
   ultrasoundRecords, type UltrasoundRecord, type UltrasoundImage, regions, examinationNames,
 } from "@/data/ultrasoundRecords";
