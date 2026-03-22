@@ -165,6 +165,9 @@ const DoctorPage = () => {
         { label: "Email", value: d.email }, { label: "Experience", value: `${d.experience} years` },
         { label: "Consultation Fee", value: `$${d.consultationFee}` }, { label: "Status", value: d.status },
         { label: "Join Date", value: d.joinDate }, { label: "Total Patients", value: String(d.patients) },
+        { label: "Working Days", value: d.schedule.workingDays.map((d) => d.slice(0, 3)).join(", ") },
+        { label: "Shift", value: `${d.schedule.shiftStart} – ${d.schedule.shiftEnd}` },
+        { label: "Leave Status", value: d.schedule.leaveType || "Active (No Leave)" },
       ],
     });
   };
