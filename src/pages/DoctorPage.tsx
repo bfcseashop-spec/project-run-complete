@@ -328,7 +328,89 @@ const DoctorPage = () => {
         <DataGridView columns={columns} data={filtered} keyExtractor={(d) => d.id} />
       )}
 
-      {/* View Doctor Dialog */}
+      {/* Weekly Schedule Overview */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 bg-muted/40 border-b border-border">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4.5 h-4.5 text-primary" />
+            <span className="text-sm font-bold text-card-foreground">Weekly Schedule Overview</span>
+            <Badge variant="secondary" className="text-[10px]">{doctors.length} doctors</Badge>
+          </div>
+          <div className="flex items-center gap-3 text-[10px]">
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-primary/80" /> Working</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/30" /> Off</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> On Leave</span>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/20">
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-[200px] sticky left-0 bg-muted/20">Doctor</th>
+                {allDays.map((day) => (
+                  <th key={day} className="text-center px-2 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider min-w-[90px]">{day.slice(0, 3)}</th>
+                ))}
+                <th className="text-center px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider min-w-[100px]">Shift</th>
+                <th className="text-center px-3 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider min-w-[100px]">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {doctors.map((doc) => {
+                const onLeave = !!doc.schedule.leaveType;
+                return (
+                  <tr key={doc.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-2.5 sticky left-0 bg-card">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar className="h-7 w-7 border border-primary/20">
+                          {doc.photo ? <AvatarImage src={doc.photo} alt={doc.name} /> : null}
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">{getInitials(doc.name)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold text-xs text-card-foreground leading-tight">{doc.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{doc.specialty}</p>
+                        </div>
+                      </div>
+                    </td>
+                    {allDays.map((day) => {
+                      const isWorking = doc.schedule.workingDays.includes(day);
+                      return (
+                        <td key={day} className="text-center px-2 py-2.5">
+                          {onLeave ? (
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-950/30" title={doc.schedule.leaveType}>
+                              <CalendarOff className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                            </span>
+                          ) : isWorking ? (
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
+                              <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted/50">
+                              <span className="w-2 h-2 rounded-full bg-muted-foreground/25" />
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                    <td className="text-center px-3 py-2.5">
+                      <span className="text-xs font-medium text-muted-foreground">{doc.schedule.shiftStart} – {doc.schedule.shiftEnd}</span>
+                    </td>
+                    <td className="text-center px-3 py-2.5">
+                      {onLeave ? (
+                        <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20">{doc.schedule.leaveType}</Badge>
+                      ) : doc.status === "active" ? (
+                        <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20">Active</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] border-muted-foreground/30 text-muted-foreground">Inactive</Badge>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <Dialog open={!!viewDoctor} onOpenChange={(open) => !open && setViewDoctor(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
