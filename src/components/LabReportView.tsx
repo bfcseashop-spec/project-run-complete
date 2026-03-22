@@ -360,7 +360,7 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               </div>
               <div>
                 <div className="h-10" />
-                <div className="border-t border-muted-foreground/40 pt-2">
+                <div className="border-t-2 border-primary pt-2">
                   <p className="text-xs font-bold text-card-foreground">{report.pathologist || "Pathologist"}</p>
                   <p className="text-[10px] text-muted-foreground">(MD, Pathologist)</p>
                 </div>
