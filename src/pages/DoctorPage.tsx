@@ -25,6 +25,7 @@ import {
 import {
   Plus, Pencil, Trash2, Eye, Printer, Search, Users, UserCheck, UserX,
   Stethoscope, Upload, X, Phone, Mail, MapPin, GraduationCap, Barcode as BarcodeIcon,
+  CalendarDays, Clock, CalendarOff,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
