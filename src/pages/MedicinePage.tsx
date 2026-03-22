@@ -36,7 +36,7 @@ import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 
-const categories = [
+const defaultCategories = [
   "Antibiotic", "Analgesic", "Antidiabetic", "Antacid", "Antihistamine",
   "Cardiovascular", "Dermatology", "Injection", "IV Fluid", "Syrup",
   "Tablet", "Capsule", "Sachets", "Supplement", "Other",
@@ -67,6 +67,37 @@ const MedicinePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 100;
+  const [customCategories, setCustomCategories] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("med-custom-categories") || "[]"); } catch { return []; }
+  });
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [deleteCatConfirm, setDeleteCatConfirm] = useState<string | null>(null);
+
+  const categories = [...defaultCategories, ...customCategories];
+
+  const saveCustomCategories = (cats: string[]) => {
+    setCustomCategories(cats);
+    localStorage.setItem("med-custom-categories", JSON.stringify(cats));
+  };
+
+  const handleAddCategory = () => {
+    const trimmed = newCategory.trim();
+    if (!trimmed) return;
+    if (categories.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error("Category already exists");
+      return;
+    }
+    saveCustomCategories([...customCategories, trimmed]);
+    setNewCategory("");
+    toast.success(`Category "${trimmed}" added`);
+  };
+
+  const handleDeleteCategory = (cat: string) => {
+    saveCustomCategories(customCategories.filter((c) => c !== cat));
+    setDeleteCatConfirm(null);
+    toast.success(`Category "${cat}" removed`);
+  };
 
   useEffect(() => {
     const unsub = subscribeMedicines(() => setData([...getMedicines()]));
@@ -316,6 +347,7 @@ const MedicinePage = () => {
             <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
           </Button>
         )}
+        <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}><Tag className="w-4 h-4 mr-2" /> Categories</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
       </PageHeader>
 
@@ -709,6 +741,76 @@ const MedicinePage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete All</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Category Manager Dialog */}
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Tag className="w-5 h-5 text-primary" /> Manage Categories
+            </DialogTitle>
+            <DialogDescription>Add or remove medicine categories</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name..."
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+              />
+              <Button onClick={handleAddCategory} disabled={!newCategory.trim()}>
+                <Plus className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Default Categories</p>
+              <div className="flex flex-wrap gap-1.5">
+                {defaultCategories.map((cat) => (
+                  <Badge key={cat} variant="secondary" className="text-xs">{cat}</Badge>
+                ))}
+              </div>
+            </div>
+
+            {customCategories.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Custom Categories</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {customCategories.map((cat) => (
+                    <Badge key={cat} variant="outline" className="text-xs border-primary/30 text-primary flex items-center gap-1 pr-1">
+                      {cat}
+                      <button
+                        className="ml-0.5 hover:bg-destructive/10 rounded-full p-0.5"
+                        onClick={() => setDeleteCatConfirm(cat)}
+                      >
+                        <X className="w-3 h-3 text-destructive" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Category Confirm */}
+      <AlertDialog open={!!deleteCatConfirm} onOpenChange={() => setDeleteCatConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteCatConfirm}"?</AlertDialogTitle>
+            <AlertDialogDescription>This category will be removed. Medicines using it won't be affected.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteCatConfirm && handleDeleteCategory(deleteCatConfirm)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
