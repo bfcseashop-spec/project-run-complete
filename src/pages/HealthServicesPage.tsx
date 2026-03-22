@@ -84,7 +84,7 @@ const HealthServicesPage = () => {
   const openNew = () => { setEditService(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: HealthService) => {
     setEditService(s);
-    setForm({ name: s.name, category: s.category, price: String(s.price), duration: s.duration, status: s.status, description: s.description });
+    setForm({ name: s.name, category: s.category, price: String(s.price), status: s.status, description: s.description });
     setDialogOpen(true);
   };
 
