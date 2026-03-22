@@ -136,7 +136,7 @@ const HealthServicesPage = () => {
       },
     },
     { key: "price", header: "Price", render: (s: HealthService) => <span className="font-semibold text-foreground">{formatDualPrice(s.price)}</span> },
-    { key: "duration", header: "Duration" },
+    
     { key: "status", header: "Status", render: (s: HealthService) => <StatusBadge status={s.status} /> },
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
