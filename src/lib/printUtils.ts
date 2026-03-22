@@ -385,3 +385,101 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff}
   win.document.close();
   setTimeout(() => win.print(), 400);
 }
+
+/** Print a professional Health Service report */
+export function printHealthServiceReport(opts: {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  status: string;
+  description: string;
+}) {
+  const s = getSettings();
+  const win = window.open("", "_blank", "width=800,height=900");
+  if (!win) return;
+
+  const barcodeHtml = barcodeSVG(opts.id, 220, 55);
+  const statusColor = opts.status === "active" ? "#059669" : opts.status === "pending" ? "#d97706" : "#6366f1";
+  const statusBg = opts.status === "active" ? "#ecfdf5" : opts.status === "pending" ? "#fffbeb" : "#eef2ff";
+  const statusLabel = opts.status.charAt(0).toUpperCase() + opts.status.slice(1);
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Health Service - ${opts.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff}
+.page{max-width:760px;margin:0 auto;padding:32px 40px}
+@media print{body{padding:0}.page{padding:20px 30px}@page{margin:15mm}}
+</style></head><body>
+<div class="page">
+  <!-- Clinic Header -->
+  <div style="text-align:center;padding-bottom:18px;margin-bottom:24px;position:relative">
+    <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#0f766e,#14b8a6,#0f766e);border-radius:2px"></div>
+    <h1 style="font-size:26px;font-weight:800;color:#0f766e;letter-spacing:-0.5px">${s.clinicName}</h1>
+    <div style="font-size:12px;color:#666;margin-top:3px;font-weight:500">${s.clinicTagline}</div>
+    <div style="font-size:11px;color:#999;margin-top:6px">${s.clinicAddress} &bull; ${s.clinicPhone} &bull; ${s.clinicEmail}</div>
+    ${s.clinicRegNumber ? `<div style="font-size:11px;color:#999;margin-top:2px">Reg: ${s.clinicRegNumber}</div>` : ""}
+  </div>
+
+  <!-- Report Title -->
+  <div style="text-align:center;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1.5px solid #99f6e4;border-radius:10px;padding:14px 20px;margin-bottom:24px">
+    <h2 style="font-size:17px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:2px">Health Service Report</h2>
+    <div style="font-size:11px;color:#888;margin-top:4px;font-weight:500">ID: ${opts.id}</div>
+  </div>
+
+  <!-- Service Details -->
+  <div style="border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:24px">
+    <div style="display:grid;grid-template-columns:1fr 1fr">
+      <div style="padding:16px 20px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Service Name</div>
+        <div style="font-size:16px;font-weight:700;margin-top:6px;color:#1a1a1a">${opts.name}</div>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Status</div>
+        <div style="margin-top:6px"><span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${statusBg};color:${statusColor};text-transform:capitalize">${statusLabel}</span></div>
+      </div>
+      <div style="padding:16px 20px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Category</div>
+        <div style="margin-top:6px"><span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4">${opts.category}</span></div>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb">
+        <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Service Fee</div>
+        <div style="font-size:22px;font-weight:900;margin-top:6px;color:#0f766e;font-variant-numeric:tabular-nums">$${opts.price.toFixed(2)}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  ${opts.description ? `
+  <div style="margin-bottom:24px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#0f766e;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      Description
+    </div>
+    <div style="background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:10px;padding:16px 20px">
+      <p style="font-size:14px;color:#333;line-height:1.7">${opts.description}</p>
+    </div>
+  </div>` : ""}
+
+  <!-- Service Info Box -->
+  <div style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1.5px solid #6ee7b7;border-radius:10px;padding:18px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px">
+    <div style="width:48px;height:48px;border-radius:14px;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#065f46">Service Information</div>
+      <div style="font-size:12px;color:#047857;margin-top:2px">This service is currently <strong>${statusLabel.toLowerCase()}</strong> and available under the <strong>${opts.category}</strong> department at <strong>${s.clinicName}</strong>.</div>
+    </div>
+  </div>
+
+  <!-- Barcode & Footer -->
+  <div style="text-align:center;margin-top:28px;padding-top:18px;border-top:2px dashed #d1d5db">
+    <div style="margin-bottom:10px">${barcodeHtml}</div>
+    <div style="font-size:10px;color:#888;margin-top:14px">Printed on ${new Date().toLocaleDateString()} from ${s.clinicName}</div>
+    <div style="font-size:9px;color:#aaa;margin-top:4px">This is a computer-generated report. No signature required.</div>
+  </div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 400);
+}
