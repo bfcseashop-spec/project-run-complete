@@ -369,7 +369,7 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           </div>
 
           {/* Footer */}
-          <div className="bg-destructive px-6 py-3 rounded-b-lg flex items-center justify-between">
+          <div className="bg-gradient-to-r from-teal-700 to-teal-800 px-6 py-3 rounded-b-lg flex items-center justify-between">
             <div className="flex items-center gap-6">
               <FooterItem icon="📞" label="Phone" value={s.clinicPhone} />
               <FooterItem icon="✉️" label="Email" value={s.clinicEmail} />
