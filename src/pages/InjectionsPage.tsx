@@ -32,10 +32,11 @@ import {
 
 const emptyForm: Omit<InjectionItem, "id"> = {
   name: "", category: "", strength: "", route: "", stock: 0, unit: "Amps", price: 0, status: "in-stock",
+
 };
 
 const categories = ["Antibiotic", "Antidiabetic", "Analgesic", "Antiemetic", "Antacid", "Corticosteroid", "Diuretic", "Supplement"];
-const routes = ["IV", "IM", "SC", "ID", "IV/IM"];
+const routes: string[] = [];
 const units = ["Vials", "Amps", "Pre-filled Syringes"];
 
 const InjectionsPage = () => {
@@ -97,7 +98,7 @@ const InjectionsPage = () => {
     { key: "name", header: "Injection Name" },
     { key: "category", header: "Category" },
     { key: "strength", header: "Strength" },
-    { key: "route", header: "Route", render: (i: InjectionItem) => <Badge variant="outline" className="text-xs">{i.route}</Badge> },
+    
     { key: "stock", header: "Stock", render: (i: InjectionItem) => `${i.stock} ${i.unit}` },
     { key: "price", header: "Price", render: (i: InjectionItem) => formatDualPrice(i.price) },
     { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
@@ -113,7 +114,7 @@ const InjectionsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: i.id, sectionTitle: "Injection Report", fields: [
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
+              { label: "Strength", value: i.strength },
               { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
             ],
           })}>
@@ -212,15 +213,6 @@ const InjectionsPage = () => {
                 <Input value={form.strength} onChange={(e) => setForm((f) => ({ ...f, strength: e.target.value }))} placeholder="e.g. 1g" />
               </div>
               <div>
-                <Label>Route</Label>
-                <Select value={form.route} onValueChange={(v) => setForm((f) => ({ ...f, route: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {routes.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <Label>Unit</Label>
                 <Select value={form.unit} onValueChange={(v) => setForm((f) => ({ ...f, unit: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
@@ -262,7 +254,7 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
                 <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
                 <div><p className="text-xs text-muted-foreground">Strength</p><p className="font-medium text-foreground">{viewInj.strength || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Route</p><Badge variant="outline">{viewInj.route}</Badge></div>
+                
                 <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock} {viewInj.unit}</p></div>
                 <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
               </div>
@@ -276,7 +268,7 @@ const InjectionsPage = () => {
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
               id: viewInj.id, sectionTitle: "Injection Report", fields: [
                 { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
-                { label: "Strength", value: viewInj.strength }, { label: "Route", value: viewInj.route },
+                { label: "Strength", value: viewInj.strength },
                 { label: "Stock", value: `${viewInj.stock} ${viewInj.unit}` }, { label: "Price", value: formatDualPrice(viewInj.price) },
               ],
             }); }}>
