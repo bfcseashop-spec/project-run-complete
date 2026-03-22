@@ -248,6 +248,7 @@ const HealthPackagesPage = () => {
       const newItems: HealthPackage[] = rows.map((row, i) => ({
         id: `PKG-${String(packages.length + i + 1).padStart(3, "0")}`,
         name: String(row.name || ""), services: String(row.services || "").split(",").map(s => s.trim()).filter(Boolean),
+        tests: [],
         price: Number(row.price) || 0, discountPercent: Number(row.discountPercent) || 0,
         validity: String(row.validity || ""), status: "active" as const, description: String(row.description || ""),
       }));
