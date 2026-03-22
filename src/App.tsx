@@ -103,7 +103,7 @@ const App = () => (
               <Route path="/billing/new" element={<NewInvoicePage />} />
               <Route path="/billing/edit" element={<NewInvoicePage />} />
               <Route path="/medicine" element={<MedicinePage />} />
-              <Route path="/medicine/inventory" element={<MedicineInventoryPage />} />
+              
               <Route path="/opd" element={<OPDPage />} />
               <Route path="/prescriptions" element={<PrescriptionPage />} />
               <Route path="/doctors" element={<DoctorPage />} />
