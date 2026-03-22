@@ -123,7 +123,7 @@ const HealthPackagesPage = () => {
   const openNew = () => { setEditPkg(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (p: HealthPackage) => {
     setEditPkg(p);
-    setForm({ name: p.name, services: [...p.services], price: String(p.price), discountPercent: String(p.discountPercent), validity: p.validity, status: p.status, description: p.description });
+    setForm({ name: p.name, services: [...p.services], tests: [...p.tests], price: String(p.price), discountPercent: String(p.discountPercent), validity: p.validity, status: p.status, description: p.description });
     setDialogOpen(true);
   };
 
