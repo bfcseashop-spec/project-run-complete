@@ -69,6 +69,7 @@ const PrescriptionPage = () => {
     age: rx.age || "",
     gender: rx.gender || "",
     doctor: rx.doctor,
+    doctorSpecialization: rx.doctorSpecialization || "",
     notes: rx.notes || "",
     medicines: rx.medicineDetails && rx.medicineDetails.length > 0
       ? rx.medicineDetails
