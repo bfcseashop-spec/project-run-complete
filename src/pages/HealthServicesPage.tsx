@@ -190,12 +190,8 @@ const HealthServicesPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(s)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
-            id: s.id, sectionTitle: "Health Service Report", fields: [
-              { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
-              { label: "Price", value: formatDualPrice(s.price) },
-              { label: "Status", value: s.status }, { label: "Description", value: s.description },
-            ],
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printHealthServiceReport({
+            id: s.id, name: s.name, category: s.category, price: s.price, status: s.status, description: s.description,
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
