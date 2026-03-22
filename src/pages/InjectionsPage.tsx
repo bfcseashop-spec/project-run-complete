@@ -114,7 +114,7 @@ const InjectionsPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: i.id, sectionTitle: "Injection Report", fields: [
               { label: "Name", value: i.name }, { label: "Category", value: i.category },
-              { label: "Strength", value: i.strength }, { label: "Route", value: i.route },
+              { label: "Strength", value: i.strength },
               { label: "Stock", value: `${i.stock} ${i.unit}` }, { label: "Price", value: formatDualPrice(i.price) },
             ],
           })}>
