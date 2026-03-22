@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Plus, Trash2, Pencil, Eye, Printer, Search, Package, PackageCheck,
   AlertTriangle, PackageX, DollarSign, TrendingUp, Upload, X, Calendar,
-  Barcode as BarcodeIcon,
+  Barcode as BarcodeIcon, Image as ImageIcon, Pill, ShoppingCart, Tag, Info, Link,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
@@ -44,9 +44,12 @@ const categories = [
 const units = ["Tabs", "Caps", "Pieces", "Vials", "Amps", "Bottles", "Sachets", "Syringes", "Tubes"];
 
 const emptyForm = {
-  name: "", manufacturer: "", boxNo: "-", category: "Tablet", purchasePrice: 0,
-  price: 0, stock: 0, unit: "Pieces", soldOut: 0, image: "", expiry: "",
+  name: "", manufacturer: "", boxNo: "", category: "Tablet", purchasePrice: 0,
+  price: 0, stock: 0, unit: "Box", soldOut: 0, image: "", expiry: "",
+  batchNo: "", stockAlert: 10, imageUrl: "",
 };
+
+const unitTypes = ["Box", "Pieces", "Tabs", "Caps", "Vials", "Amps", "Bottles", "Sachets", "Syringes", "Tubes", "Strips"];
 
 const MedicinePage = () => {
   useSettings();
@@ -77,6 +80,7 @@ const MedicinePage = () => {
       name: m.name, manufacturer: m.manufacturer, boxNo: m.boxNo, category: m.category,
       purchasePrice: m.purchasePrice, price: m.price, stock: m.stock, unit: m.unit,
       soldOut: m.soldOut, image: m.image, expiry: m.expiry,
+      batchNo: "", stockAlert: 10, imageUrl: "",
     });
     setDialogOpen(true);
   };
@@ -496,106 +500,186 @@ const MedicinePage = () => {
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editMed ? "Edit Medicine" : "Add New Medicine"}</DialogTitle>
-            <DialogDescription>{editMed ? `Editing ${editMed.name}` : "Enter the medicine details below"}</DialogDescription>
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6 pb-0">
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Pill className="w-5 h-5 text-primary" />
+              {editMed ? "Edit Medicine" : "Add Medicine"}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-5 py-2">
-            {/* Image Upload */}
-            <div className="flex items-center gap-5">
-              <div className="relative">
+
+          <div className="px-6 pb-6 space-y-5">
+
+            {/* ── Medicine Image (Optional) ── */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <ImageIcon className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Medicine Image</span>
+                <span className="text-xs text-muted-foreground">(Optional)</span>
+              </div>
+              <div className="flex items-center gap-4">
                 <div
-                  className="w-20 h-20 rounded-lg border-2 border-dashed border-primary/30 cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center overflow-hidden bg-muted/50"
+                  className="w-20 h-20 rounded-lg border-2 border-dashed border-border cursor-pointer hover:border-primary/50 transition-colors flex flex-col items-center justify-center bg-muted/30 flex-shrink-0"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {form.image ? (
-                    <img src={form.image} alt="Medicine" className="w-full h-full object-cover" />
+                    <img src={form.image} alt="Medicine" className="w-full h-full object-cover rounded-lg" />
                   ) : (
-                    <Upload className="w-6 h-6 text-muted-foreground" />
+                    <>
+                      <Upload className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-[10px] text-muted-foreground mt-1">Upload</span>
+                      <span className="text-[9px] text-muted-foreground">Max 2MB (JPG, PNG)</span>
+                    </>
                   )}
                 </div>
                 {form.image && (
                   <button
-                    className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80"
+                    className="absolute ml-16 -mt-16 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80"
                     onClick={() => setForm((p) => ({ ...p, image: "" }))}
                   >
                     <X className="w-3 h-3" />
                   </button>
                 )}
+                <div className="flex-1">
+                  <Label className="text-xs text-muted-foreground">Or use image URL</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      placeholder="https://example.com/medicine.jpg"
+                      value={form.imageUrl}
+                      onChange={(e) => setForm((p) => ({ ...p, imageUrl: e.target.value }))}
+                      className="text-sm"
+                    />
+                    <Button variant="outline" size="sm" onClick={() => {
+                      if (form.imageUrl.trim()) {
+                        setForm((p) => ({ ...p, image: p.imageUrl.trim() }));
+                        toast.success("Image URL applied");
+                      }
+                    }}>
+                      <Link className="w-3 h-3 mr-1" /> Use URL
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <Label className="text-sm font-semibold">Medicine Image</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Upload a product photo. Max 5MB, JPG/PNG.</p>
-                <Button variant="outline" size="sm" className="mt-2" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Image
-                </Button>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            </div>
+
+            {/* ── Medicine Details ── */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Pill className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Medicine Details</span>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs font-semibold">Medicine Name *</Label>
+                  <Input placeholder="e.g. Amoxicillin 500mg" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-semibold">Category</Label>
+                    <Select value={form.category} onValueChange={(v) => setForm((p) => ({ ...p, category: v }))}>
+                      <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
+                      <SelectContent>{categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold">Unit Type *</Label>
+                    <Select value={form.unit} onValueChange={(v) => setForm((p) => ({ ...p, unit: v }))}>
+                      <SelectTrigger><SelectValue placeholder="Box" /></SelectTrigger>
+                      <SelectContent>{unitTypes.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold">Total Pcs *</Label>
+                  <Input type="number" min={0} value={form.stock} onChange={(e) => setForm((p) => ({ ...p, stock: Number(e.target.value) }))} />
+                </div>
               </div>
             </div>
 
-            {/* Name & Manufacturer */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Medicine Name *</Label>
-                <Input placeholder="e.g. Amoxicillin 500mg" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />
+            {/* ── Purchase ── */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <ShoppingCart className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Purchase</span>
               </div>
-              <div>
-                <Label>Manufacturer</Label>
-                <Input placeholder="e.g. BBCA Pharma" value={form.manufacturer} onChange={(e) => setForm((p) => ({ ...p, manufacturer: e.target.value }))} />
-              </div>
-            </div>
-
-            {/* Category, Box No */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Category</Label>
-                <Select value={form.category} onValueChange={(v) => setForm((p) => ({ ...p, category: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Box No.</Label>
-                <Input placeholder="-" value={form.boxNo} onChange={(e) => setForm((p) => ({ ...p, boxNo: e.target.value }))} />
+              <div className="grid grid-cols-2 gap-3 items-end">
+                <div>
+                  <Label className="text-xs font-semibold">Total Purchase Price *</Label>
+                  <Input type="number" min={0} step="0.01" value={form.purchasePrice} onChange={(e) => setForm((p) => ({ ...p, purchasePrice: Number(e.target.value) }))} />
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2">
+                  <p className="text-[10px] text-muted-foreground">Purchase Each Price (Auto)</p>
+                  <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                    ${form.stock > 0 ? (form.purchasePrice / form.stock).toFixed(2) : "0.00"}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Prices */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Purchase Price (Per Pcs) $</Label>
-                <Input type="number" min={0} step="0.01" value={form.purchasePrice} onChange={(e) => setForm((p) => ({ ...p, purchasePrice: Number(e.target.value) }))} />
+            {/* ── Sales ── */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Sales</span>
               </div>
-              <div>
-                <Label>Selling Price (Per Pcs) $</Label>
-                <Input type="number" min={0} step="0.01" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: Number(e.target.value) }))} />
+              <div className="grid grid-cols-2 gap-3 items-end">
+                <div>
+                  <Label className="text-xs font-semibold">Sales Each Price *</Label>
+                  <Input type="number" min={0} step="0.01" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: Number(e.target.value) }))} />
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2">
+                  <p className="text-[10px] text-muted-foreground">Total Sales Price (Auto)</p>
+                  <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                    ${(form.price * form.stock).toFixed(2)}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            {/* Quantity, Unit, Sold Out */}
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label>Quantity (Total Pcs)</Label>
+              <div className="mt-3">
+                <Label className="text-xs font-semibold">Stock Available pcs</Label>
                 <Input type="number" min={0} value={form.stock} onChange={(e) => setForm((p) => ({ ...p, stock: Number(e.target.value) }))} />
               </div>
-              <div>
-                <Label>Unit</Label>
-                <Select value={form.unit} onValueChange={(v) => setForm((p) => ({ ...p, unit: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{units.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
-                </Select>
+            </div>
+
+            {/* ── Additional Info ── */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Info className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">Additional Info</span>
               </div>
-              <div>
-                <Label>Expiry Date</Label>
-                <Input type="date" value={form.expiry} onChange={(e) => setForm((p) => ({ ...p, expiry: e.target.value }))} />
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-semibold">Expiry Date <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                    <Input type="date" value={form.expiry} onChange={(e) => setForm((p) => ({ ...p, expiry: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold">Manufacturer</Label>
+                    <Input placeholder="e.g. BBCA Pharma" value={form.manufacturer} onChange={(e) => setForm((p) => ({ ...p, manufacturer: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-semibold">Batch No</Label>
+                    <Input placeholder="Optional" value={form.batchNo} onChange={(e) => setForm((p) => ({ ...p, batchNo: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold">Box No.</Label>
+                    <Input placeholder="Rack / Box number" value={form.boxNo} onChange={(e) => setForm((p) => ({ ...p, boxNo: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="w-1/2">
+                  <Label className="text-xs font-semibold">Stock Alert</Label>
+                  <Input type="number" min={0} value={form.stockAlert} onChange={(e) => setForm((p) => ({ ...p, stockAlert: Number(e.target.value) }))} />
+                </div>
               </div>
             </div>
+
+            {/* Submit Button */}
+            <Button onClick={handleSubmit} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-5">
+              {editMed ? "Update Medicine" : "Add Medicine"}
+            </Button>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{editMed ? "Update Medicine" : "Add Medicine"}</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
