@@ -157,6 +157,7 @@ const InjectionsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Injections" description="Manage injection inventory, stock levels, and units">
+        <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Category</Button>
         <Button variant="outline" onClick={() => setUnitDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Unit</Button>
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
         {selectedIds.size > 0 && (
