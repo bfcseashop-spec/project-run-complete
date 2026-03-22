@@ -346,8 +346,8 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           )}
 
           {/* Signatures */}
-          <div className="px-6 py-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="px-6 py-3">
+            <div className="grid grid-cols-3 gap-4 text-center mt-8">
               <div>
                 <div className="h-10" />
                 <div className="border-t border-muted-foreground/40 pt-2">
