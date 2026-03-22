@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   Calendar, Syringe, ScanLine, Heart, FileText,
@@ -7,16 +7,16 @@ import {
   ClipboardList,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
-import {
-  BarChart, Bar, XAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
-} from "recharts";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
-import PaymentMethodChart from "@/components/PaymentMethodChart";
 import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
 import { parseISO, isWithinInterval } from "date-fns";
+
+// Lazy load heavy chart components
+const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
+const LazyWeeklyChart = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: m.WeeklyChart })));
+const LazyDepartmentChart = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: m.DepartmentChart })));
 
 /* ── Static Data ── */
 const weeklyData = [
@@ -145,7 +145,9 @@ const Dashboard = () => {
         </div>
 
         {/* Payment Methods — inside Today's Data, shares the same date filter */}
-        <PaymentMethodChart data={paymentData} />
+        <Suspense fallback={<div className="h-40 bg-muted/30 rounded-xl animate-pulse" />}>
+          <LazyPaymentMethodChart data={paymentData} />
+        </Suspense>
       </div>
 
       {/* ── Quick Actions ── */}
@@ -248,41 +250,16 @@ const Dashboard = () => {
         <div className="flex flex-col gap-4">
           <div className="bg-card rounded-2xl border border-border/40 p-5">
             <h3 className="text-base font-bold text-card-foreground font-heading mb-3">📈 This Week</h3>
-            <ResponsiveContainer width="100%" height={130}>
-              <BarChart data={weeklyData} barSize={24}>
-                <defs>
-                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-                <Bar dataKey="visits" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div className="h-[130px] bg-muted/30 rounded-lg animate-pulse" />}>
+              <LazyWeeklyChart data={weeklyData} />
+            </Suspense>
           </div>
 
           <div className="bg-card rounded-2xl border border-border/40 p-5 flex-1">
             <h3 className="text-base font-bold text-card-foreground font-heading mb-3">🏥 Departments</h3>
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width={110} height={110}>
-                <PieChart>
-                  <Pie data={departmentData} cx="50%" cy="50%" innerRadius={32} outerRadius={52} dataKey="value" paddingAngle={3} strokeWidth={0}>
-                    {departmentData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-2.5 flex-1">
-                {departmentData.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-md" style={{ backgroundColor: d.fill }} />
-                    <span className="text-sm font-semibold text-card-foreground flex-1">{d.name}</span>
-                    <span className="text-sm font-bold font-number" style={{ color: d.fill }}>{d.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Suspense fallback={<div className="h-[110px] bg-muted/30 rounded-lg animate-pulse" />}>
+              <LazyDepartmentChart data={departmentData} />
+            </Suspense>
           </div>
         </div>
       </div>
