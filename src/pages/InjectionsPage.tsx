@@ -52,8 +52,12 @@ const InjectionsPage = () => {
   const [customUnits, setCustomUnits] = useState<string[]>([]);
   const [unitDialogOpen, setUnitDialogOpen] = useState(false);
   const [newUnitName, setNewUnitName] = useState("");
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const allUnits = [...defaultUnits, ...customUnits];
+  const allCategories = [...defaultCategories, ...customCategories];
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
