@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
+import { Checkbox } from "@/components/ui/checkbox";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
