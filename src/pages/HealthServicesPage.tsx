@@ -35,7 +35,7 @@ interface HealthService {
   name: string;
   category: string;
   price: number;
-  duration: string;
+  
   status: "active" | "pending" | "completed";
   description: string;
 }
@@ -59,16 +59,16 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 const initialServices: HealthService[] = [
-  { id: "HS-101", name: "General Health Checkup", category: "General Consultation", price: 500, duration: "30 min", status: "active", description: "Comprehensive physical examination with basic vitals and health assessment." },
-  { id: "HS-102", name: "Flu Vaccination", category: "Vaccination", price: 350, duration: "15 min", status: "active", description: "Annual influenza vaccination for adults and children above 6 months." },
-  { id: "HS-103", name: "Prenatal Checkup", category: "Maternal Care", price: 800, duration: "45 min", status: "active", description: "Routine prenatal visit including ultrasound review and maternal health assessment." },
-  { id: "HS-104", name: "Vision Screening", category: "Eye Care", price: 400, duration: "20 min", status: "active", description: "Standard vision test and eye health screening for all age groups." },
-  { id: "HS-105", name: "Child Immunization (DPT)", category: "Vaccination", price: 250, duration: "10 min", status: "active", description: "Diphtheria, Pertussis, and Tetanus vaccine for infants and children." },
-  { id: "HS-106", name: "Diabetes Screening", category: "General Consultation", price: 600, duration: "25 min", status: "pending", description: "Fasting blood sugar and HbA1c test with doctor consultation." },
-  { id: "HS-107", name: "Postnatal Care", category: "Maternal Care", price: 700, duration: "40 min", status: "completed", description: "Post-delivery health checkup for mother and newborn." },
+  { id: "HS-101", name: "General Health Checkup", category: "General Consultation", price: 500, status: "active", description: "Comprehensive physical examination with basic vitals and health assessment." },
+  { id: "HS-102", name: "Flu Vaccination", category: "Vaccination", price: 350, status: "active", description: "Annual influenza vaccination for adults and children above 6 months." },
+  { id: "HS-103", name: "Prenatal Checkup", category: "Maternal Care", price: 800, status: "active", description: "Routine prenatal visit including ultrasound review and maternal health assessment." },
+  { id: "HS-104", name: "Vision Screening", category: "Eye Care", price: 400, status: "active", description: "Standard vision test and eye health screening for all age groups." },
+  { id: "HS-105", name: "Child Immunization (DPT)", category: "Vaccination", price: 250, status: "active", description: "Diphtheria, Pertussis, and Tetanus vaccine for infants and children." },
+  { id: "HS-106", name: "Diabetes Screening", category: "General Consultation", price: 600, status: "pending", description: "Fasting blood sugar and HbA1c test with doctor consultation." },
+  { id: "HS-107", name: "Postnatal Care", category: "Maternal Care", price: 700, status: "completed", description: "Post-delivery health checkup for mother and newborn." },
 ];
 
-const emptyForm = { name: "", category: "", price: "", duration: "", status: "active", description: "" };
+const emptyForm = { name: "", category: "", price: "", status: "active", description: "" };
 
 const HealthServicesPage = () => {
   useSettings();
@@ -84,7 +84,7 @@ const HealthServicesPage = () => {
   const openNew = () => { setEditService(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (s: HealthService) => {
     setEditService(s);
-    setForm({ name: s.name, category: s.category, price: String(s.price), duration: s.duration, status: s.status, description: s.description });
+    setForm({ name: s.name, category: s.category, price: String(s.price), status: s.status, description: s.description });
     setDialogOpen(true);
   };
 
@@ -93,13 +93,13 @@ const HealthServicesPage = () => {
     if (editService) {
       setServices((prev) => prev.map((s) => s.id === editService.id ? {
         ...s, name: form.name, category: form.category, price: parseFloat(form.price),
-        duration: form.duration, status: form.status as HealthService["status"], description: form.description,
+        status: form.status as HealthService["status"], description: form.description,
       } : s));
     } else {
       const nextId = `HS-${100 + services.length + 1}`;
       setServices((prev) => [{
         id: nextId, name: form.name, category: form.category, price: parseFloat(form.price),
-        duration: form.duration, status: form.status as HealthService["status"], description: form.description,
+        status: form.status as HealthService["status"], description: form.description,
       }, ...prev]);
     }
     setDialogOpen(false);
@@ -136,7 +136,7 @@ const HealthServicesPage = () => {
       },
     },
     { key: "price", header: "Price", render: (s: HealthService) => <span className="font-semibold text-foreground">{formatDualPrice(s.price)}</span> },
-    { key: "duration", header: "Duration" },
+    
     { key: "status", header: "Status", render: (s: HealthService) => <StatusBadge status={s.status} /> },
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
@@ -150,7 +150,7 @@ const HealthServicesPage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printRecordReport({
             id: s.id, sectionTitle: "Health Service Report", fields: [
               { label: "Service Name", value: s.name }, { label: "Category", value: s.category },
-              { label: "Price", value: formatDualPrice(s.price) }, { label: "Duration", value: s.duration },
+              { label: "Price", value: formatDualPrice(s.price) },
               { label: "Status", value: s.status }, { label: "Description", value: s.description },
             ],
           })}>
@@ -171,7 +171,7 @@ const HealthServicesPage = () => {
     if (rows.length > 0) {
       const newItems: HealthService[] = rows.map((row, i) => ({
         id: `HS-${100 + services.length + i + 1}`, name: String(row.name || ""), category: String(row.category || "General Consultation"),
-        price: Number(row.price) || 0, duration: String(row.duration || ""), status: "active" as const, description: String(row.description || ""),
+        price: Number(row.price) || 0, status: "active" as const, description: String(row.description || ""),
       }));
       setServices((prev) => [...newItems, ...prev]);
     }
@@ -225,10 +225,6 @@ const HealthServicesPage = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Duration</Label>
-                <Input placeholder="e.g. 30 min" value={form.duration} onChange={(e) => update("duration", e.target.value)} />
-              </div>
               <div>
                 <Label>Status</Label>
                 <Select value={form.status} onValueChange={(v) => update("status", v)}>
@@ -285,10 +281,6 @@ const HealthServicesPage = () => {
                   <p className="text-xs text-muted-foreground">Price</p>
                   <p className="font-semibold text-foreground">{formatDualPrice(viewService.price)}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Duration</p>
-                  <p className="font-medium text-foreground">{viewService.duration || "—"}</p>
-                </div>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Description</p>
@@ -304,7 +296,7 @@ const HealthServicesPage = () => {
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewService) printRecordReport({
               id: viewService.id, sectionTitle: "Health Service Report", fields: [
                 { label: "Service Name", value: viewService.name }, { label: "Category", value: viewService.category },
-                { label: "Price", value: formatDualPrice(viewService.price) }, { label: "Duration", value: viewService.duration },
+                { label: "Price", value: formatDualPrice(viewService.price) },
                 { label: "Status", value: viewService.status }, { label: "Description", value: viewService.description },
               ],
             }); }}>
