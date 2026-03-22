@@ -8,11 +8,14 @@ import {
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
-import { formatDualPrice, formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
-import PaymentMethodChart from "@/components/PaymentMethodChart";
-import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
+
+const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
+const LazyDashboardCharts = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: () => null })));
+
+// We import lazily but need the named exports; use dynamic import pattern
+import type { } from "@/components/DashboardCharts";
 import { parseISO, isWithinInterval } from "date-fns";
 
 /* ── Static Data ── */
