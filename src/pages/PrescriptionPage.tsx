@@ -450,80 +450,91 @@ const PrescriptionPage = () => {
 
       {/* View Prescription Dialog */}
       <Dialog open={!!viewRx} onOpenChange={() => setViewRx(null)}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-xl shadow-2xl">
           {viewRx && (
-            <div className="bg-background" id="prescription-print">
-              <div className="relative bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(210,60%,30%)] px-6 py-5">
-                <div className="absolute top-0 right-0 w-32 h-full bg-[hsl(210,60%,25%)] skew-x-[-12deg] translate-x-8" />
+            <div className="bg-background">
+              {/* Premium Header */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)] px-7 py-6">
+                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5" />
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-300/60 via-teal-200/80 to-emerald-300/60" />
                 <div className="relative z-10 flex justify-between items-start">
                   <div>
-                    <h2 className="text-xl font-bold text-white">{viewRx.doctor}</h2>
-                    <p className="text-sm text-white/80">General Physician</p>
+                    <h2 className="text-xl font-heading font-bold text-white tracking-wide">{viewRx.doctor}</h2>
+                    <p className="text-xs text-white/50 mt-0.5">Prescription ID: {viewRx.id}</p>
                   </div>
                   <div className="flex items-center gap-3 text-right">
                     <div>
-                      <h3 className="text-lg font-bold text-white">{s.clinicName}</h3>
-                      <p className="text-xs text-white/70">{s.clinicTagline}</p>
-                      {s.clinicRegNumber && <p className="text-[10px] text-white/50 mt-0.5">Reg: {s.clinicRegNumber}</p>}
+                      <h3 className="text-base font-heading font-bold text-white">{s.clinicName}</h3>
+                      <p className="text-[10px] text-white/60">{s.clinicTagline}</p>
+                      {s.clinicRegNumber && <p className="text-[9px] text-white/40 mt-0.5">Reg: {s.clinicRegNumber}</p>}
                     </div>
-                    <img src={clinicLogo} alt={s.clinicName} className="w-12 h-12 rounded-lg bg-white/10 p-1" />
+                    <img src={clinicLogo} alt={s.clinicName} className="w-11 h-11 rounded-lg bg-white/10 p-1 ring-1 ring-white/20" />
                   </div>
                 </div>
               </div>
-              <div className="h-1 bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)]" />
-              <div className="grid grid-cols-3 border-b border-border bg-muted/30 text-sm">
-                <div className="px-4 py-2 border-r border-border">
-                  <span className="text-muted-foreground text-xs">Patient Name:</span>
-                  <span className="ml-2 font-medium text-foreground">{viewRx.patient}</span>
+
+              {/* Patient Info Bar */}
+              <div className="grid grid-cols-3 bg-muted/30 border-b border-border">
+                <div className="px-5 py-3 border-r border-border">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Patient Name</span>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{viewRx.patient}</p>
                 </div>
-                <div className="px-4 py-2 border-r border-border">
-                  <span className="text-muted-foreground text-xs">Age / Gender:</span>
-                  <span className="ml-2 font-medium text-foreground">{viewRx.age || "—"} yrs, {viewRx.gender || "—"}</span>
+                <div className="px-5 py-3 border-r border-border">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Age / Gender</span>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{viewRx.age || "—"} yrs, {viewRx.gender || "—"}</p>
                 </div>
-                <div className="px-4 py-2">
-                  <span className="text-muted-foreground text-xs">Date:</span>
-                  <span className="ml-2 font-medium text-foreground">{viewRx.date}</span>
+                <div className="px-5 py-3">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Date</span>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{viewRx.date}</p>
                 </div>
               </div>
-              <div className="relative grid grid-cols-[200px_1fr] min-h-[320px]">
+
+              {/* Two-Column Content */}
+              <div className="relative grid grid-cols-[200px_1fr] min-h-[340px]">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <img src={clinicLogo} alt="" className="w-48 h-48 opacity-[0.06]" />
+                  <img src={clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
                 </div>
-                <div className="relative z-10 border-r border-border p-4 space-y-4">
-                  <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Chief Complaint</p>
-                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.chiefComplaint || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">On Examination</p>
-                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.onExamination || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Investigation</p>
-                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.investigation || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Diagnosis</p>
-                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.diagnosis || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Treatment Plan</p>
-                    <p className="text-sm text-foreground whitespace-pre-line">{viewRx.treatmentPlan || "—"}</p>
-                  </div>
+
+                {/* Left: Clinical */}
+                <div className="relative z-10 border-r border-border p-5 space-y-5 bg-muted/10">
+                  {viewRx.chiefComplaint && (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-primary mb-1.5 flex items-center gap-1.5">
+                        <span className="w-[3px] h-3 bg-primary rounded-full inline-block" />
+                        Chief Complaint
+                      </p>
+                      <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">{viewRx.chiefComplaint}</p>
+                    </div>
+                  )}
+                  {viewRx.onExamination && (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-primary mb-1.5 flex items-center gap-1.5">
+                        <span className="w-[3px] h-3 bg-primary rounded-full inline-block" />
+                        On Examination
+                      </p>
+                      <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">{viewRx.onExamination}</p>
+                    </div>
+                  )}
+                  {!viewRx.chiefComplaint && !viewRx.onExamination && (
+                    <p className="text-xs text-muted-foreground italic">No clinical notes</p>
+                  )}
                 </div>
-                <div className="relative z-10 p-4">
-                  <p className="text-3xl font-bold text-[hsl(170,60%,35%)] mb-4">
-                    R<sub className="text-xl">x</sub>
+
+                {/* Right: Rx */}
+                <div className="relative z-10 p-5">
+                  <p className="text-4xl font-heading font-bold text-primary mb-5 tracking-tight">
+                    R<sub className="text-2xl">x</sub>
                   </p>
+
                   {viewRx.medicineDetails && viewRx.medicineDetails.length > 0 && (
-                    <div className="space-y-3 mb-4">
+                    <div className="space-y-1 mb-5">
                       {viewRx.medicineDetails.map((m, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <span className="text-xs font-bold text-[hsl(170,60%,35%)] mt-0.5">{i + 1}.</span>
+                        <div key={i} className="flex items-start gap-2.5 py-1.5" style={i > 0 ? { borderTop: '1px dashed hsl(var(--border))' } : {}}>
+                          <span className="text-xs font-bold text-primary mt-0.5 w-5 flex-shrink-0">{i + 1}.</span>
                           <div>
                             <p className="text-sm font-semibold text-foreground">{m.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {m.dosage && `${m.dosage}`}{m.frequency && ` — ${m.frequency}`}{m.duration && ` — ${m.duration}`}
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {m.dosage}{m.frequency && ` — ${m.frequency}`}{m.duration && ` — ${m.duration}`}
                             </p>
                           </div>
                         </div>
@@ -531,24 +542,21 @@ const PrescriptionPage = () => {
                     </div>
                   )}
 
-                  {/* Injections in view */}
                   {viewRx.injections && viewRx.injections.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-border">
+                    <div className="mt-5 pt-4 border-t-2 border-border">
                       <div className="flex items-center gap-2 mb-3">
-                        <Syringe className="w-4 h-4 text-[hsl(170,60%,35%)]" />
-                        <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider">
+                        <Syringe className="w-4 h-4 text-primary" />
+                        <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-primary">
                           Injections ({viewRx.injections.length})
                         </p>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {viewRx.injections.map((inj, i) => (
-                          <div key={i} className="flex items-start gap-2">
-                            <span className="text-xs font-bold text-[hsl(170,60%,35%)] mt-0.5">{i + 1}.</span>
+                          <div key={i} className="flex items-start gap-2.5 py-1.5" style={i > 0 ? { borderTop: '1px dashed hsl(var(--border))' } : {}}>
+                            <span className="text-xs font-bold text-primary mt-0.5 w-5 flex-shrink-0">{i + 1}.</span>
                             <div>
                               <p className="text-sm font-semibold text-foreground">{inj.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {inj.dosage} · {inj.route} · {inj.frequency}
-                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{inj.dosage} · {inj.route} · {inj.frequency}</p>
                             </div>
                           </div>
                         ))}
@@ -557,69 +565,77 @@ const PrescriptionPage = () => {
                   )}
 
                   {viewRx.tests && viewRx.tests.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-border">
+                    <div className="mt-5 pt-4 border-t-2 border-border">
                       <div className="flex items-center gap-2 mb-3">
-                        <TestTube className="w-4 h-4 text-[hsl(170,60%,35%)]" />
-                        <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider">
+                        <TestTube className="w-4 h-4 text-primary" />
+                        <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-primary">
                           Prescribed Tests ({viewRx.tests.length})
                         </p>
                       </div>
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {viewRx.tests.map((t, i) => (
-                          <div key={t.id} className="flex items-center justify-between text-sm py-1 px-2 rounded bg-muted/40">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-[hsl(170,60%,35%)] w-4">{i + 1}.</span>
-                              <span className="font-medium text-foreground">{t.name}</span>
-                              <Badge variant="outline" className="text-[10px] py-0 px-1.5">{t.category}</Badge>
+                      <div className="space-y-1">
+                        {viewRx.tests.map((tt, i) => (
+                          <div key={tt.id} className="flex items-center justify-between py-2 px-3 rounded-md bg-muted/40">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-xs font-bold text-primary w-5">{i + 1}.</span>
+                              <span className="text-sm font-medium text-foreground">{tt.name}</span>
+                              <Badge variant="outline" className="text-[9px] py-0 px-1.5 bg-primary/5 border-primary/20 text-primary">{tt.category}</Badge>
                             </div>
-                            <span className="text-xs font-medium text-muted-foreground">{formatDualPrice(t.price)}</span>
+                            <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatDualPrice(tt.price)}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-end mt-2 pt-2 border-t border-border">
+                      <div className="flex justify-end mt-3 pt-2 border-t-2 border-primary/20">
                         <p className="text-sm font-bold text-foreground">
-                          Test Total: <span className="text-[hsl(170,60%,35%)]">{formatDualPrice(viewRx.tests.reduce((s, tt) => s + tt.price, 0))}</span>
+                          Test Total: <span className="text-primary ml-1">{formatDualPrice(viewRx.tests.reduce((s, tt) => s + tt.price, 0))}</span>
                         </p>
                       </div>
                     </div>
                   )}
+
                   {viewRx.advices && (
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Advices</p>
-                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.advices}</p>
+                    <div className="mt-5 bg-primary/5 border-l-[3px] border-primary rounded-r-md p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[1px] text-primary mb-1">Advices</p>
+                      <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">{viewRx.advices}</p>
                     </div>
                   )}
+
                   {viewRx.followUp && (
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-xs font-bold text-[hsl(170,60%,35%)] uppercase tracking-wider mb-1">Follow-up</p>
-                      <p className="text-sm text-foreground whitespace-pre-line">{viewRx.followUp}</p>
+                    <div className="mt-3 bg-warning/10 border-l-[3px] border-warning rounded-r-md p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[1px] text-warning mb-1">Follow-up</p>
+                      <p className="text-sm text-foreground">{viewRx.followUp}</p>
                     </div>
                   )}
+
                   {viewRx.notes && (
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Notes</p>
-                      <p className="text-sm text-foreground">{viewRx.notes}</p>
+                    <div className="mt-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Notes</p>
+                      <p className="text-sm text-muted-foreground">{viewRx.notes}</p>
                     </div>
                   )}
                 </div>
               </div>
+
               {/* Signature */}
-              <div className="px-6 py-4 flex justify-end">
+              <div className="px-7 py-5 flex justify-end border-t border-border">
                 <div className="text-center w-48">
-                  <div className="border-b border-dashed border-foreground/40 mb-1 h-10" />
+                  <div className="border-b border-dashed border-muted-foreground/30 mb-1.5 h-9" />
                   <p className="text-xs font-semibold text-foreground">{viewRx.doctor}</p>
                   <p className="text-[10px] text-muted-foreground">Signature</p>
                   <p className="text-[10px] text-muted-foreground">{viewRx.date}</p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-[hsl(170,60%,40%)] to-[hsl(170,50%,50%)] px-6 py-3 flex items-center justify-between text-white text-xs">
+
+              {/* Footer */}
+              <div className="bg-gradient-to-r from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)] px-7 py-3 flex items-center justify-between text-white/85 text-[10px]">
                 <span>📞 {s.clinicPhone}</span>
                 <span>📍 {s.clinicAddress}</span>
                 <span>🌐 {s.clinicWebsite}</span>
               </div>
+
+              {/* Print Button */}
               <div className="flex justify-end p-4 border-t border-border">
-                <Button variant="outline" size="sm" onClick={() => window.print()}>
-                  <Printer className="w-4 h-4 mr-1" /> Print
+                <Button variant="outline" size="sm" onClick={() => handlePrint(viewRx)}>
+                  <Printer className="w-4 h-4 mr-1.5" /> Print
                 </Button>
               </div>
             </div>
