@@ -143,7 +143,9 @@ const Dashboard = () => {
         </div>
 
         {/* Payment Methods — inside Today's Data, shares the same date filter */}
-        <PaymentMethodChart data={paymentData} />
+        <Suspense fallback={<div className="h-40 bg-muted/30 rounded-xl animate-pulse" />}>
+          <LazyPaymentMethodChart data={paymentData} />
+        </Suspense>
       </div>
 
       {/* ── Quick Actions ── */}
