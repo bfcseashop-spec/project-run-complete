@@ -95,6 +95,7 @@ const PrescriptionPage = () => {
                 ...p,
                 patient: data.patient,
                 doctor: data.doctor,
+                doctorSpecialization: data.doctorSpecialization,
                 medicines: allMeds,
                 age: data.age,
                 gender: data.gender,
