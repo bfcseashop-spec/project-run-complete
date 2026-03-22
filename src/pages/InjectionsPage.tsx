@@ -261,11 +261,9 @@ const InjectionsPage = () => {
             <Button variant="ghost" className="text-warning" onClick={() => { const i = viewInj; setViewInj(null); if (i) openEdit(i); }}>
               <Pencil className="w-4 h-4 mr-1" /> Edit
             </Button>
-            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printRecordReport({
-              id: viewInj.id, sectionTitle: "Injection Report", fields: [
-                { label: "Name", value: viewInj.name }, { label: "Category", value: viewInj.category },
-                { label: "Unit", value: viewInj.unit }, { label: "Price", value: formatDualPrice(viewInj.price) },
-              ],
+            <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printInjectionReport({
+              id: viewInj.id, name: viewInj.name, category: viewInj.category,
+              unit: viewInj.unit, price: formatDualPrice(viewInj.price), status: computeInjectionStatus(viewInj),
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>

@@ -787,3 +787,123 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
   win.document.close();
   setTimeout(() => win.print(), 500);
 }
+
+/** Print a professional Injection report */
+export function printInjectionReport(opts: {
+  id: string;
+  name: string;
+  category: string;
+  unit: string;
+  price: string;
+  status: string;
+}) {
+  const s = getSettings();
+  const win = window.open("", "_blank", "width=850,height=1000");
+  if (!win) return;
+
+  const barcodeHtml = barcodeSVG(opts.id, 220, 55);
+  const statusColor = opts.status === "in-stock" ? "#059669" : opts.status === "low-stock" ? "#d97706" : "#dc2626";
+  const statusBg = opts.status === "in-stock" ? "#ecfdf5" : opts.status === "low-stock" ? "#fffbeb" : "#fef2f2";
+  const statusLabel = opts.status === "in-stock" ? "In Stock" : opts.status === "low-stock" ? "Low Stock" : "Out of Stock";
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Injection Report - ${opts.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
+.page{max-width:800px;margin:0 auto;padding:0}
+.report-header{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:20px 30px;display:flex;align-items:center;justify-content:space-between}
+.lab-brand{display:flex;align-items:center;gap:14px}
+.lab-logo{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0f766e;font-weight:700;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.lab-logo img{width:100%;height:100%;object-fit:contain}
+.lab-name{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.lab-tagline{font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px;font-weight:500}
+.header-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;color:#fff;backdrop-filter:blur(4px)}
+.header-badge .badge-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.8;font-weight:600}
+.header-badge .badge-value{font-size:16px;font-weight:800;margin-top:2px}
+@media print{@page{size:A4;margin:10mm}body{background:#fff}.page{max-width:100%}}
+</style></head><body>
+<div class="page">
+  <div class="report-header">
+    <div class="lab-brand">
+      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
+      <div>
+        <div class="lab-name">${s.clinicName}</div>
+        <div class="lab-tagline">${s.clinicTagline}</div>
+      </div>
+    </div>
+    <div class="header-badge">
+      <div class="badge-label">Item ID</div>
+      <div class="badge-value">${opts.id.replace("INJ-", "")}</div>
+    </div>
+  </div>
+
+  <!-- Patient Bar styled info -->
+  <div style="padding:14px 30px;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-bottom:3px solid #14b8a6">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;color:#0f766e;font-weight:700;letter-spacing:1px">Injection Item Report</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">ID: ${opts.id}</div>
+      </div>
+      <span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;background:${statusBg};color:${statusColor}">${statusLabel}</span>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div style="padding:24px 30px">
+    <div style="border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:16px 20px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+          <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Injection Name</div>
+          <div style="font-size:16px;font-weight:700;margin-top:6px;color:#1a1a1a">${opts.name}</div>
+        </div>
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb">
+          <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Category</div>
+          <div style="margin-top:6px"><span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4">${opts.category}</span></div>
+        </div>
+        <div style="padding:16px 20px;border-right:1px solid #e5e7eb">
+          <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Unit</div>
+          <div style="font-size:15px;font-weight:700;margin-top:6px;color:#1a1a1a">${opts.unit}</div>
+        </div>
+        <div style="padding:16px 20px">
+          <div style="font-size:10px;text-transform:uppercase;color:#888;letter-spacing:0.8px;font-weight:700">Price</div>
+          <div style="font-size:22px;font-weight:900;margin-top:6px;color:#0f766e;font-variant-numeric:tabular-nums">${opts.price}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Box -->
+    <div style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1.5px solid #6ee7b7;border-radius:10px;padding:18px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px">
+      <div style="width:48px;height:48px;border-radius:14px;background:#d1fae5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 6.5 1 1"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/><path d="m14.5 6.5-9.06 9.06a2 2 0 0 0-.58 1.13L4 21l4.31-.86a2 2 0 0 0 1.13-.58Z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#065f46">Inventory Information</div>
+        <div style="font-size:12px;color:#047857;margin-top:2px">This injection is currently <strong>${statusLabel.toLowerCase()}</strong> in the <strong>${opts.category}</strong> category at <strong>${s.clinicName}</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;margin-top:28px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px">
+        <span>📞</span><div><strong>Phone</strong><br/>${s.clinicPhone}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px">
+        <span>✉️</span><div><strong>Email</strong><br/>${s.clinicEmail}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px">
+        <span>📍</span><div><strong>Address</strong><br/>${s.clinicAddress}</div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:6px;padding:6px;box-shadow:0 2px 6px rgba(0,0,0,0.1)">${barcodeHtml}</div>
+  </div>
+
+  <div style="text-align:center;padding:12px;font-size:10px;color:#888">
+    Printed on ${new Date().toLocaleDateString()} from ${s.clinicName} &bull; Computer-generated report
+  </div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
