@@ -32,9 +32,6 @@ const SystemManagePage = lazy(() => import("@/pages/SystemManagePage"));
 const RefundPage = lazy(() => import("@/pages/RefundPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-const LazyPlaceholders = lazy(() =>
-  import("@/pages/PlaceholderPages").then((m) => ({ default: m.HRMPage }))
-);
 const LazyRoles = lazy(() =>
   import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage }))
 );
