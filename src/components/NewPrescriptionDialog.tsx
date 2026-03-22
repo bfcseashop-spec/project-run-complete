@@ -297,47 +297,6 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                 />
               </div>
 
-              {/* Investigation */}
-              <div>
-                <Label className="text-xs font-bold uppercase tracking-wide text-primary flex items-center gap-1.5 mb-1.5">
-                  <FlaskConical className="w-3.5 h-3.5" /> Investigation
-                </Label>
-                <Textarea
-                  placeholder="e.g. X-Ray Shoulder B/V - N, RBS - 6.6, S. Creatinine - 0.86..."
-                  rows={2}
-                  value={form.investigation}
-                  onChange={(e) => updateField("investigation", e.target.value)}
-                  className="text-sm"
-                />
-              </div>
-
-              {/* Diagnosis */}
-              <div>
-                <Label className="text-xs font-bold uppercase tracking-wide text-primary flex items-center gap-1.5 mb-1.5">
-                  <HeartPulse className="w-3.5 h-3.5" /> Diagnosis
-                </Label>
-                <Textarea
-                  placeholder="e.g. Spondylosis, Adhesive Capsulitis..."
-                  rows={2}
-                  value={form.diagnosis}
-                  onChange={(e) => updateField("diagnosis", e.target.value)}
-                  className="text-sm"
-                />
-              </div>
-
-              {/* Treatment Plan */}
-              <div>
-                <Label className="text-xs font-bold uppercase tracking-wide text-primary flex items-center gap-1.5 mb-1.5">
-                  Treatment Plan
-                </Label>
-                <Textarea
-                  placeholder="e.g. Conservative, Steroid injection..."
-                  rows={2}
-                  value={form.treatmentPlan}
-                  onChange={(e) => updateField("treatmentPlan", e.target.value)}
-                  className="text-sm"
-                />
-              </div>
 
               {/* Prescribed Tests */}
               <div>
