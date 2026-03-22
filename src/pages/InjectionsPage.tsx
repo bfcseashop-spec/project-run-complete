@@ -263,7 +263,7 @@ const InjectionsPage = () => {
             </Button>
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printInjectionReport({
               id: viewInj.id, name: viewInj.name, category: viewInj.category,
-              unit: viewInj.unit, price: formatDualPrice(viewInj.price), status: computeInjectionStatus(viewInj),
+              unit: viewInj.unit, price: formatDualPrice(viewInj.price), status: computeInjectionStatus(viewInj.stock),
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
