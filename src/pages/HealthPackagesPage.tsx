@@ -522,6 +522,50 @@ const HealthPackagesPage = () => {
                 })}
               </div>
             </div>
+            {/* Included Tests */}
+            <div>
+              <Label className="mb-2 block">
+                Included Tests
+                <span className="text-muted-foreground text-xs ml-1">({form.tests.length} selected)</span>
+              </Label>
+              {form.tests.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1">
+                  {form.tests.map((t) => (
+                    <Badge key={t.id} variant="secondary" className="pl-2 pr-0.5 py-0.5 flex items-center gap-1 text-[10px]">
+                      {t.name} <span className="text-muted-foreground">({formatDualPrice(t.price)})</span>
+                      <button type="button" onClick={() => setForm((f) => ({ ...f, tests: f.tests.filter((x) => x.id !== t.id) }))} className="ml-0.5 rounded-full hover:bg-destructive/20 p-0.5"><X className="w-2.5 h-2.5" /></button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <div className="flex items-center gap-1.5 p-2 border-b border-border bg-muted/30">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2 top-1.5 h-3 w-3 text-muted-foreground" />
+                    <Input placeholder="Search tests..." value={testSearch} onChange={(e) => setTestSearch(e.target.value)} className="pl-7 h-7 text-xs" />
+                  </div>
+                </div>
+                <ScrollArea className="h-[140px]">
+                  <div className="divide-y divide-border">
+                    {filteredTests.map((test) => {
+                      const isSelected = selectedTestIds.has(test.id);
+                      return (
+                        <label key={test.id} className={`flex items-center gap-2 px-3 py-1.5 cursor-pointer transition-colors hover:bg-muted/50 ${isSelected ? "bg-info/5" : ""}`}>
+                          <Checkbox checked={isSelected} onCheckedChange={() => toggleTest(test)} className="h-3.5 w-3.5" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs truncate font-medium">{test.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{test.category}</p>
+                          </div>
+                          <span className="text-[10px] tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                        </label>
+                      );
+                    })}
+                    {filteredTests.length === 0 && (
+                      <div className="py-4 text-center text-xs text-muted-foreground">No tests found</div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
             <div>
               <Label>Description</Label>
               <Textarea placeholder="Brief description of the package..." rows={3} value={form.description} onChange={(e) => update("description", e.target.value)} />
