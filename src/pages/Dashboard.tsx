@@ -178,13 +178,15 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 w-full">
       {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-6 lg:p-7 text-primary-foreground">
-        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/5" />
-        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/3" />
+      <div className="relative overflow-hidden rounded-2xl p-6 lg:p-7 text-white"
+        style={{ background: "linear-gradient(135deg, hsl(168,80%,30%) 0%, hsl(200,80%,40%) 50%, hsl(240,60%,50%) 100%)" }}>
+        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
+        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
+        <div className="absolute right-20 bottom-2 w-24 h-24 rounded-full bg-yellow-300/10" />
         <div className="relative flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
-            <p className="text-primary-foreground/60 text-sm mt-1">
+            <p className="text-white/60 text-sm mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
@@ -212,7 +214,9 @@ const Dashboard = () => {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-primary" />
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(142,71%,45%), hsl(160,84%,39%))" }}>
+              <DollarSign className="w-4 h-4 text-white" />
+            </span>
             Financial Overview
           </h2>
           <DashboardDateFilter
@@ -223,10 +227,10 @@ const Dashboard = () => {
           />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 60%, 45%)" />
-          <StatCard icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(260, 45%, 50%)" />
+          <StatCard variant="gradient" icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
+          <StatCard variant="gradient" icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
+          <StatCard variant="gradient" icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 70%, 50%)" />
+          <StatCard variant="gradient" icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(270, 55%, 55%)" />
         </div>
 
         <div className="mt-4">
@@ -239,14 +243,16 @@ const Dashboard = () => {
       {/* ── Clinical Overview ── */}
       <section>
         <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-          <Stethoscope className="w-5 h-5 text-primary" />
+          <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(220,70%,50%))" }}>
+            <Stethoscope className="w-4 h-4 text-white" />
+          </span>
           Clinical Overview
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard icon={Users} title="Patients" value={String(stats.totalPatients)} change={`${stats.activePatients} active`} accentColor="hsl(160, 50%, 38%)" />
           <StatCard icon={TestTube} title="Lab Reports" value={String(stats.totalLabs)} change={`${stats.pendingLabs} pending`} accentColor="hsl(200, 80%, 45%)" />
           <StatCard icon={ScanLine} title="X-Ray" value={String(xrayRecords.length)} change={`${stats.pendingXrays} pending`} accentColor="hsl(38, 70%, 48%)" />
-          <StatCard icon={Heart} title="Ultrasound" value={String(ultrasoundRecords.length)} change={`${stats.pendingUltrasounds} pending`} accentColor="hsl(270, 60%, 55%)" />
+          <StatCard icon={Heart} title="Ultrasound" value={String(ultrasoundRecords.length)} change={`${stats.pendingUltrasounds} pending`} accentColor="hsl(280, 65%, 55%)" />
         </div>
       </section>
 
@@ -254,7 +260,9 @@ const Dashboard = () => {
       {(stats.lowStockMeds + stats.outOfStockMeds + stats.lowStockInj + stats.outOfStockInj > 0) && (
         <section>
           <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(38,92%,50%), hsl(25,90%,50%))" }}>
+              <AlertTriangle className="w-4 h-4 text-white" />
+            </span>
             Inventory Alerts
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -270,20 +278,21 @@ const Dashboard = () => {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2">
-            <ArrowRight className="w-5 h-5 text-primary" />
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(300,60%,50%))" }}>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </span>
             Quick Actions
           </h2>
-          <a href="/system" className="text-sm font-bold text-primary hover:underline">View All →</a>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {operationsData.map((op, i) => (
             <a
               key={i}
               href={op.path}
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
             >
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
                 style={{ background: op.bg }}
               >
                 <op.icon className="w-5 h-5 text-white" />
@@ -300,10 +309,11 @@ const Dashboard = () => {
       {/* ── Analytics Grid ── */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Recent Activity - from real billing */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(160,84%,39%), hsl(200,80%,45%), hsl(270,60%,55%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Activity className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(160,84%,39%), hsl(200,80%,45%))" }}>
+              <Activity className="w-3.5 h-3.5 text-white" />
             </span>
             Recent Activity
           </h3>
@@ -326,10 +336,11 @@ const Dashboard = () => {
         </div>
 
         {/* Weekly Trend */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(200,80%,45%), hsl(38,92%,50%), hsl(350,65%,55%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Calendar className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(38,92%,50%))" }}>
+              <Calendar className="w-3.5 h-3.5 text-white" />
             </span>
             Weekly Billing Trend
           </h3>
@@ -339,10 +350,11 @@ const Dashboard = () => {
         </div>
 
         {/* Department Distribution */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(270,60%,55%), hsl(340,70%,55%), hsl(142,71%,45%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Stethoscope className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(340,70%,55%))" }}>
+              <Stethoscope className="w-3.5 h-3.5 text-white" />
             </span>
             Department Distribution
           </h3>
