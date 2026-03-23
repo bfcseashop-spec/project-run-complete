@@ -20,7 +20,7 @@ import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { xrayRecords } from "@/data/xrayRecords";
 import { ultrasoundRecords } from "@/data/ultrasoundRecords";
-import { expenseRecords } from "@/data/expenseRecords";
+import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
 import { parseISO, isWithinInterval, format } from "date-fns";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
