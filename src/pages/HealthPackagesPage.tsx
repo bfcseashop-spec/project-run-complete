@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { printHealthPackageReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
-import { formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
@@ -214,11 +214,11 @@ const HealthPackagesPage = () => {
     {
       key: "price", header: "Price", render: (p: HealthPackage) => (
         <div className="space-y-0.5">
-          <span className="font-bold text-foreground tabular-nums">{formatDualPrice(p.price)}</span>
+          <span className="font-bold text-foreground tabular-nums">{formatPrice(p.price)}</span>
           {p.discountPercent > 0 && (
             <div className="flex items-center gap-1.5">
               <Badge className="bg-success/10 text-success border-success/20 text-[10px] px-1.5 py-0">{p.discountPercent}% off</Badge>
-              <span className="text-[10px] text-muted-foreground tabular-nums">{formatDualPrice(p.price * (1 - p.discountPercent / 100))}</span>
+              <span className="text-[10px] text-muted-foreground tabular-nums">{formatPrice(p.price * (1 - p.discountPercent / 100))}</span>
             </div>
           )}
         </div>
@@ -283,7 +283,7 @@ const HealthPackagesPage = () => {
         <StatCard title="Total Packages" value={String(packages.length)} icon={Package} change="All packages" />
         <StatCard title="Active Packages" value={String(activeCount)} icon={Activity} change={`${packages.length > 0 ? Math.round((activeCount / packages.length) * 100) : 0}% active`} changeType="positive" />
         <StatCard title="Avg. Discount" value={`${avgDiscount}%`} icon={Tag} change="Across all packages" />
-        <StatCard title="Total Value" value={formatDualPrice(totalRevenue)} icon={Layers} change={`${new Set(packages.flatMap(p => p.services)).size} unique services`} />
+        <StatCard title="Total Value" value={formatPrice(totalRevenue)} icon={Layers} change={`${new Set(packages.flatMap(p => p.services)).size} unique services`} />
       </div>
 
       <DataToolbar dateFilter={pkgToolbar.dateFilter} onDateFilterChange={pkgToolbar.setDateFilter} viewMode={pkgToolbar.viewMode} onViewModeChange={pkgToolbar.setViewMode} onExportExcel={pkgToolbar.handleExportExcel} onExportPDF={pkgToolbar.handleExportPDF} onImport={handleImport} onDownloadSample={pkgToolbar.handleDownloadSample} />
@@ -322,7 +322,7 @@ const HealthPackagesPage = () => {
                     <Tag className="w-3 h-3 text-muted-foreground" />
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Price</span>
                   </div>
-                  <p className="text-lg font-bold text-foreground tabular-nums">{formatDualPrice(viewPkg.price)}</p>
+                  <p className="text-lg font-bold text-foreground tabular-nums">{formatPrice(viewPkg.price)}</p>
                 </div>
                 <div className="px-5 py-3.5 border-r border-border">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -330,7 +330,7 @@ const HealthPackagesPage = () => {
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Discount</span>
                   </div>
                   <p className="text-lg font-bold text-success tabular-nums">{viewPkg.discountPercent}%</p>
-                  <p className="text-[10px] text-muted-foreground">After: {formatDualPrice(viewPkg.price * (1 - viewPkg.discountPercent / 100))}</p>
+                  <p className="text-[10px] text-muted-foreground">After: {formatPrice(viewPkg.price * (1 - viewPkg.discountPercent / 100))}</p>
                 </div>
                 <div className="px-5 py-3.5">
                   <div className="flex items-center gap-1.5 mb-1">
@@ -406,13 +406,13 @@ const HealthPackagesPage = () => {
                             <Badge variant="outline" className="text-[9px] ml-2 py-0 px-1.5 bg-info/5 border-info/20 text-info">{test.category}</Badge>
                           </div>
                         </div>
-                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatPrice(test.price)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-end mt-2 pt-2 border-t border-border/50">
                     <p className="text-xs font-bold text-foreground">
-                      Test Total: <span className="text-info ml-1">{formatDualPrice(viewPkg.tests.reduce((s, t) => s + t.price, 0))}</span>
+                      Test Total: <span className="text-info ml-1">{formatPrice(viewPkg.tests.reduce((s, t) => s + t.price, 0))}</span>
                     </p>
                   </div>
                 </div>
@@ -530,7 +530,7 @@ const HealthPackagesPage = () => {
                 <div className="mb-2 flex flex-wrap gap-1">
                   {form.tests.map((t) => (
                     <Badge key={t.id} variant="secondary" className="pl-2 pr-0.5 py-0.5 flex items-center gap-1 text-[10px]">
-                      {t.name} <span className="text-muted-foreground">({formatDualPrice(t.price)})</span>
+                      {t.name} <span className="text-muted-foreground">({formatPrice(t.price)})</span>
                       <button type="button" onClick={() => setForm((f) => ({ ...f, tests: f.tests.filter((x) => x.id !== t.id) }))} className="ml-0.5 rounded-full hover:bg-destructive/20 p-0.5"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   ))}
@@ -554,7 +554,7 @@ const HealthPackagesPage = () => {
                             <p className="text-xs truncate font-medium">{test.name}</p>
                             <p className="text-[10px] text-muted-foreground">{test.category}</p>
                           </div>
-                          <span className="text-[10px] tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                          <span className="text-[10px] tabular-nums text-muted-foreground">{formatPrice(test.price)}</span>
                         </label>
                       );
                     })}

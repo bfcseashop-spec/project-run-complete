@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
-import { formatDualPrice, formatPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printRefundReceipt } from "@/lib/printUtils";
 import { toast } from "sonner";
@@ -312,7 +312,7 @@ const RefundPage = () => {
     },
     {
       key: "totalRefund", header: "Amount",
-      render: (r: RefundRecord) => <span className="font-semibold text-destructive tabular-nums">{formatDualPrice(r.totalRefund)}</span>,
+      render: (r: RefundRecord) => <span className="font-semibold text-destructive tabular-nums">{formatPrice(r.totalRefund)}</span>,
     },
     {
       key: "method", header: "Type",
@@ -401,9 +401,9 @@ const RefundPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 ["Patient", foundInvoice.patient, ""],
-                ["Total", formatDualPrice(foundInvoice.total), ""],
-                ["Paid", formatDualPrice(foundInvoice.paid), "text-emerald-600"],
-                ["Due", formatDualPrice(foundInvoice.due), foundInvoice.due > 0 ? "text-destructive" : "text-muted-foreground"],
+                ["Total", formatPrice(foundInvoice.total), ""],
+                ["Paid", formatPrice(foundInvoice.paid), "text-emerald-600"],
+                ["Due", formatPrice(foundInvoice.due), foundInvoice.due > 0 ? "text-destructive" : "text-muted-foreground"],
               ].map(([label, value, color]) => (
                 <div key={label} className="bg-card border border-border rounded-lg p-3">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
@@ -469,7 +469,7 @@ const RefundPage = () => {
                     <DollarSign className="w-8 h-8 text-destructive mb-2" />
                     <h4 className="font-bold text-foreground">Refund Money</h4>
                     <p className="text-xs text-muted-foreground mt-1">Return items & get cash/card refund. Items go back to inventory.</p>
-                    <p className="text-lg font-extrabold text-destructive mt-2 tabular-nums">{formatDualPrice(totalReturnValue)}</p>
+                    <p className="text-lg font-extrabold text-destructive mt-2 tabular-nums">{formatPrice(totalReturnValue)}</p>
                   </button>
 
                   {/* Replace Medicine */}
@@ -600,7 +600,7 @@ const RefundPage = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard title="Today's Refunds" value={formatDualPrice(totalRefundedToday)} change={`${todayRefunds.length} refund(s)`} changeType="neutral" icon={RotateCcw} iconBg="bg-destructive/10" />
+          <StatCard title="Today's Refunds" value={formatPrice(totalRefundedToday)} change={`${todayRefunds.length} refund(s)`} changeType="neutral" icon={RotateCcw} iconBg="bg-destructive/10" />
           <StatCard title="Total Records" value={String(refunds.length)} change="All time" changeType="neutral" icon={DollarSign} iconBg="bg-primary/10" />
           <StatCard title="Completed" value={String(completedCount)} change={`${pendingCount} pending`} changeType={pendingCount > 0 ? "negative" : "positive"} icon={CheckCircle} iconBg="bg-accent/50" />
           <StatCard title="Pending" value={String(pendingCount)} change={pendingCount > 0 ? "Needs attention" : "All clear"} changeType={pendingCount > 0 ? "negative" : "positive"} icon={AlertTriangle} iconBg="bg-destructive/10" />
@@ -666,7 +666,7 @@ const RefundPage = () => {
                 </div>
                 <div className="bg-muted/50 rounded-lg p-3">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Refund Info</p>
-                  <p className="font-semibold text-sm text-destructive">{formatDualPrice(viewRecord.totalRefund)}</p>
+                  <p className="font-semibold text-sm text-destructive">{formatPrice(viewRecord.totalRefund)}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{viewRecord.date}</p>
                 </div>
               </div>

@@ -23,7 +23,7 @@ import {
 import { barcodeSVG } from "@/lib/barcode";
 import { toast } from "sonner";
 import clinicLogo from "@/assets/clinic-logo.png";
-import { formatPrice, formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
@@ -167,7 +167,7 @@ const PrescriptionPage = () => {
         <td style="padding:8px 12px;border-bottom:1px solid #e8ece9">
           <span style="background:#e6f7f2;color:#0d9373;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">${t.category}</span>
         </td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e8ece9;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">${formatDualPrice(t.price)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8ece9;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">${formatPrice(t.price)}</td>
       </tr>`).join("");
     const medRows = (rx.medicineDetails || []).map((m, i) => `
       <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;${i > 0 ? 'border-top:1px dashed #e8ece9;' : ''}">
@@ -259,7 +259,7 @@ const PrescriptionPage = () => {
       <div class="rx-symbol">R<sub>x</sub></div>
       ${medRows ? `<div style="margin-bottom:16px">${medRows}</div>` : ""}
       ${injRows ? `<div style="margin-top:16px;padding-top:12px;border-top:2px solid #e8ece9"><div class="section-label" style="margin-bottom:10px">💉 Injections</div>${injRows}</div>` : ""}
-      ${testRows ? `<div class="test-section"><div class="test-header"><span>🧪 Prescribed Tests (${rx.tests!.length})</span></div><table class="test-table"><thead><tr><th style="width:30px">#</th><th>Test Name</th><th style="width:100px">Category</th><th style="text-align:right;width:90px">Price</th></tr></thead><tbody>${testRows}</tbody></table><div class="test-total">Test Total: ${formatDualPrice(rx.tests!.reduce((s, t) => s + t.price, 0))}</div></div>` : ""}
+      ${testRows ? `<div class="test-section"><div class="test-header"><span>🧪 Prescribed Tests (${rx.tests!.length})</span></div><table class="test-table"><thead><tr><th style="width:30px">#</th><th>Test Name</th><th style="width:100px">Category</th><th style="text-align:right;width:90px">Price</th></tr></thead><tbody>${testRows}</tbody></table><div class="test-total">Test Total: ${formatPrice(rx.tests!.reduce((s, t) => s + t.price, 0))}</div></div>` : ""}
       ${rx.advices ? `<div class="advice-box"><div class="advice-label">Advices</div><div class="advice-text">${rx.advices}</div></div>` : ""}
       ${rx.followUp ? `<div style="margin-top:12px;padding:10px 16px;background:#fff8f0;border-left:3px solid #e8a040;border-radius:0 6px 6px 0"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c07830;margin-bottom:4px">Follow-up</div><div style="font-size:12px;color:#3a5a5e">${rx.followUp}</div></div>` : ""}
       ${rx.notes ? `<div style="margin-top:12px"><div style="font-size:10px;font-weight:600;color:#9bb8b2;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Notes</div><div style="font-size:12px;color:#6b8a8e">${rx.notes}</div></div>` : ""}
@@ -337,12 +337,12 @@ const PrescriptionPage = () => {
                       <span className="text-xs font-bold text-primary w-4 flex-shrink-0">{i + 1}.</span>
                       <span className="truncate font-medium text-foreground">{t.name}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">{formatDualPrice(t.price)}</span>
+                    <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">{formatPrice(t.price)}</span>
                   </div>
                 ))}
               </div>
               <div className="px-3 py-2 border-t border-border bg-muted/40 flex justify-end">
-                <span className="text-xs font-bold text-foreground">Total: {formatDualPrice(p.tests.reduce((s, tt) => s + tt.price, 0))}</span>
+                <span className="text-xs font-bold text-foreground">Total: {formatPrice(p.tests.reduce((s, tt) => s + tt.price, 0))}</span>
               </div>
             </PopoverContent>
           </Popover>
@@ -582,13 +582,13 @@ const PrescriptionPage = () => {
                               <span className="text-sm font-medium text-foreground">{tt.name}</span>
                               <Badge variant="outline" className="text-[9px] py-0 px-1.5 bg-primary/5 border-primary/20 text-primary">{tt.category}</Badge>
                             </div>
-                            <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatDualPrice(tt.price)}</span>
+                            <span className="text-xs font-semibold tabular-nums text-muted-foreground">{formatPrice(tt.price)}</span>
                           </div>
                         ))}
                       </div>
                       <div className="flex justify-end mt-3 pt-2 border-t-2 border-primary/20">
                         <p className="text-sm font-bold text-foreground">
-                          Test Total: <span className="text-primary ml-1">{formatDualPrice(viewRx.tests.reduce((s, tt) => s + tt.price, 0))}</span>
+                          Test Total: <span className="text-primary ml-1">{formatPrice(viewRx.tests.reduce((s, tt) => s + tt.price, 0))}</span>
                         </p>
                       </div>
                     </div>

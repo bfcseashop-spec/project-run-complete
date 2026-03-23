@@ -9,7 +9,7 @@ import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, X } from "lucide-react";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
-import { formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import {
@@ -107,7 +107,7 @@ const InjectionsPage = () => {
     { key: "name", header: "Injection Name" },
     { key: "category", header: "Category" },
     { key: "unit", header: "Unit" },
-    { key: "price", header: "Price", render: (i: InjectionItem) => formatDualPrice(i.price) },
+    { key: "price", header: "Price", render: (i: InjectionItem) => formatPrice(i.price) },
     { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
@@ -120,7 +120,7 @@ const InjectionsPage = () => {
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
             id: i.id, name: i.name, category: i.category,
-            unit: i.unit, price: formatDualPrice(i.price), status: computeInjectionStatus(i.stock),
+            unit: i.unit, price: formatPrice(i.price), status: computeInjectionStatus(i.stock),
           })}>
             <Printer className="w-3.5 h-3.5 text-primary" />
           </Button>
@@ -252,7 +252,7 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
                 <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
                 <div><p className="text-xs text-muted-foreground">Unit</p><p className="font-medium text-foreground">{viewInj.unit}</p></div>
-                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatDualPrice(viewInj.price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
               </div>
             </div>
           )}
@@ -263,7 +263,7 @@ const InjectionsPage = () => {
             </Button>
             <Button variant="ghost" className="text-primary" onClick={() => { if (viewInj) printInjectionReport({
               id: viewInj.id, name: viewInj.name, category: viewInj.category,
-              unit: viewInj.unit, price: formatDualPrice(viewInj.price), status: computeInjectionStatus(viewInj.stock),
+              unit: viewInj.unit, price: formatPrice(viewInj.price), status: computeInjectionStatus(viewInj.stock),
             }); }}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>

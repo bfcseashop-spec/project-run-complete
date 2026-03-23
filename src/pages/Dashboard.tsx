@@ -9,7 +9,7 @@ import {
   MinusCircle, BarChart3, Star,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
-import { formatDualPrice, formatPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
 import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
@@ -314,7 +314,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-white/70">Total Bills</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.totalBills)}</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.totalBills)}</p>
                 <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">{stats.invoiceCount} invoices</span></p>
               </div>
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
@@ -329,7 +329,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-white/70">Profit</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.profit)}</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.profit)}</p>
                 <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
                   <TrendingUp className="w-3 h-3 inline mr-1" />earned
                 </span></p>
@@ -346,7 +346,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-white/70">Loss</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.loss)}</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.loss)}</p>
                 <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
                   <TrendingDown className="w-3 h-3 inline mr-1" />deficit
                 </span></p>
@@ -366,7 +366,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(38, 92%, 50%)" }}>Discount</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalDiscount)}</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalDiscount)}</p>
                 <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.invoiceCount} invoices</span></p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.12)" }}>
@@ -381,7 +381,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(350, 65%, 55%)" }}>Total Due</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalDue)}</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalDue)}</p>
                 <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.pendingInvoices} pending</span></p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(350, 65%, 55%, 0.12)" }}>
@@ -396,7 +396,7 @@ const Dashboard = () => {
             <div className="relative flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(15, 85%, 52%)" }}>Expense</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalExpense)}</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalExpense)}</p>
               </div>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(15, 85%, 52%, 0.12)" }}>
                 <Wallet className="w-5 h-5" style={{ color: "hsl(15, 85%, 52%)" }} />
