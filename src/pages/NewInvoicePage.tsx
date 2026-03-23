@@ -483,8 +483,11 @@ const NewInvoicePage = () => {
           <div>
             <h1 className="text-lg font-bold text-primary-foreground">
               {editData ? "Edit Invoice" : "New Invoice"}
+              {editRecordId && <span className="text-primary-foreground/60 font-mono ml-2 text-sm">{editRecordId}</span>}
             </h1>
-            <p className="text-primary-foreground/60 text-xs">{appSettings.clinicName}</p>
+            <p className="text-primary-foreground/60 text-xs">
+              {editData && patient ? patient : appSettings.clinicName}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
