@@ -84,6 +84,18 @@ const BillingPage = () => {
   useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
 
   const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
+  const refundAmountByInvoice = useMemo(() => {
+    const map = new Map<string, number>();
+    refunds.forEach(r => map.set(r.invoiceId, (map.get(r.invoiceId) || 0) + r.totalRefund));
+    return map;
+  }, [refunds]);
+
+  const getBillStatus = (record: BillingRecord): { label: string; color: string } => {
+    if (refundedInvoiceIds.has(record.id)) return { label: "Refunded", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800" };
+    if (record.due <= 0) return { label: "Paid", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" };
+    if (record.paid > 0) return { label: "Partial", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800" };
+    return { label: "Issued", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800" };
+  };
 
   // Pick up submitted invoice from the full-page form (only completed payments)
   useEffect(() => {
