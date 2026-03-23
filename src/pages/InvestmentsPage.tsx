@@ -252,6 +252,100 @@ const InvestmentsPage = () => {
         ))}
       </div>
 
+      {/* Monthly Contribution Charts */}
+      {(() => {
+        const monthlyData = (() => {
+          const map = new Map<string, { month: string; total: number; [key: string]: number | string }>();
+          contributions.forEach((c) => {
+            const m = c.date.slice(0, 7);
+            const inv = getInvestorById(c.investorId);
+            const invName = inv?.name || "Unknown";
+            if (!map.has(m)) map.set(m, { month: m, total: 0 });
+            const entry = map.get(m)!;
+            entry.total += c.amount;
+            entry[invName] = ((entry[invName] as number) || 0) + c.amount;
+          });
+          return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
+        })();
+        const categoryData = (() => {
+          const map = new Map<string, number>();
+          contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
+          return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+        })();
+        const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
+        const investorNames = investors.map(i => i.name);
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Monthly Contributions</h3>
+                <p className="text-xs text-muted-foreground">Breakdown by investor per month</p>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={monthlyData} barCategoryGap="20%">
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  {investorNames.map((name, i) => (
+                    <Bar key={name} dataKey={name} stackId="a" fill={investors[i]?.color || pieColors[i % pieColors.length]} radius={i === investorNames.length - 1 ? [4,4,0,0] : [0,0,0,0]} />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">By Category</h3>
+                <p className="text-xs text-muted-foreground">Expense distribution</p>
+              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={80} paddingAngle={2}>
+                    {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
+                  </Pie>
+                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-2 space-y-1 max-h-[120px] overflow-y-auto">
+                {categoryData.map((cat, i) => (
+                  <div key={cat.name} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
+                      <span className="text-muted-foreground truncate">{cat.name}</span>
+                    </div>
+                    <span className="font-semibold tabular-nums">{formatPrice(cat.value)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-3 bg-card border border-border rounded-xl p-5">
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Cumulative Investment Trend</h3>
+                <p className="text-xs text-muted-foreground">Running total of contributions over time</p>
+              </div>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={(() => { let cum = 0; return monthlyData.map((d) => { cum += d.total; return { month: d.month, total: d.total, cumulative: cum }; }); })()}>
+                  <defs>
+                    <linearGradient id="cumulativeGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(217,91%,60%)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(217,91%,60%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number, name: string) => [formatPrice(value), name === "cumulative" ? "Cumulative" : "Monthly"]} />
+                  <Area type="monotone" dataKey="cumulative" stroke="hsl(217,91%,60%)" fill="url(#cumulativeGrad)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="total" stroke="hsl(270,60%,55%)" fill="hsl(270,60%,55%)" fillOpacity={0.1} strokeWidth={2} strokeDasharray="5 5" />
+                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(value) => value === "cumulative" ? "Cumulative Total" : "Monthly Amount"} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Capital & Share */}
       <div>
         <div className="flex items-center justify-between mb-3">
