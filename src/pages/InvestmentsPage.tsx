@@ -228,13 +228,12 @@ const InvestmentsPage = () => {
   const handleUpdateTotalCapital = () => {
     const newTotal = parseFloat(totalCapitalInput);
     if (!newTotal || newTotal <= 0) { toast.error("Invalid amount"); return; }
-    // Redistribute proportionally
-    const oldTotal = totalCapital || 1;
+    // Redistribute based on each investor's share percentage
     investors.forEach((inv) => {
-      const newCap = (inv.capitalAmount / oldTotal) * newTotal;
-      updateInvestor(inv.id, { capitalAmount: Math.round(newCap * 100) / 100 });
+      const newCap = Math.round((inv.sharePercent / 100) * newTotal * 100) / 100;
+      updateInvestor(inv.id, { capitalAmount: newCap });
     });
-    toast.success("Total capital updated");
+    toast.success("Total capital updated — amounts recalculated from share %");
     setEditTotalCapital(false);
   };
 
