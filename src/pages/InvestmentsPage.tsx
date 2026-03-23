@@ -7,7 +7,6 @@ import {
   getTotalCapital, setTotalCapital,
   type Investor, type Contribution, type ContributionCategory,
 } from "@/data/investmentStore";
-import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +21,14 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import {
   Landmark, Receipt, CheckCircle, AlertTriangle,
   Plus, Pencil, Trash2, Eye, Download, Search,
   ChevronLeft, ChevronRight, LayoutList, LayoutGrid,
   Image as ImageIcon, Upload, X, ZoomIn,
+  TrendingUp, Wallet, Users, ArrowUpRight, ArrowDownRight,
+  PieChart as PieChartIcon, Calendar, DollarSign,
 } from "lucide-react";
 import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
