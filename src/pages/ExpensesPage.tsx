@@ -44,6 +44,11 @@ const emptyForm: Omit<ExpenseRecord, "id"> = {
   date: new Date().toISOString().split("T")[0], receipt: "", notes: "", status: "pending",
 };
 
+const CUSTOM_CATEGORIES_KEY = "expense_custom_categories";
+const loadCustomCategories = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_CATEGORIES_KEY) || "[]"); } catch { return []; }
+};
+
 const ExpensesPage = () => {
   
   const [records, setRecords] = useState<ExpenseRecord[]>(getExpenseRecords());
@@ -55,6 +60,27 @@ const ExpensesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+
+  // Custom categories
+  const [customCategories, setCustomCategories] = useState<string[]>(loadCustomCategories());
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const allCategories = [...expenseCategories, ...customCategories];
+
+  const addCustomCategory = () => {
+    const name = newCategoryName.trim().toLowerCase();
+    if (!name || allCategories.includes(name)) return;
+    const updated = [...customCategories, name];
+    setCustomCategories(updated);
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+    setNewCategoryName("");
+  };
+
+  const removeCustomCategory = (cat: string) => {
+    const updated = customCategories.filter(c => c !== cat);
+    setCustomCategories(updated);
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+  };
 
   // Sync with store
   useEffect(() => {
