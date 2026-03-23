@@ -229,7 +229,7 @@ const BillingTab = () => {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Billing settings saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Billing settings saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Billing
         </Button>
       </div>
