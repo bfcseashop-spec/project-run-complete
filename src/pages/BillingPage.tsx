@@ -11,7 +11,7 @@ import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriang
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
-import { getSettings } from "@/data/settingsStore";
+import { getSettings, updateSettings } from "@/data/settingsStore";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { toast } from "sonner";
@@ -95,6 +95,8 @@ const BillingPage = () => {
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);
+      // Increment invoice number
+      updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
     } catch { /* ignore */ }
   }, []);
 
