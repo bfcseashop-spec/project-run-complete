@@ -367,6 +367,7 @@ const NewInvoicePage = () => {
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",
       isEdit: !!editData,
+      editRecordId,
     }));
     goBack();
   };
