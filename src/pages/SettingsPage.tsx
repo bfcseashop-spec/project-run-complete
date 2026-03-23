@@ -550,6 +550,7 @@ const SettingsPage = () => {
           <TabsContent value="billing" className="mt-0"><BillingTab /></TabsContent>
           <TabsContent value="printer" className="mt-0"><PrinterTab /></TabsContent>
           <TabsContent value="currency" className="mt-0"><CurrencyLanguageTab /></TabsContent>
+          <TabsContent value="security" className="mt-0"><SecurityTab /></TabsContent>
         </div>
       </Tabs>
     </div>
