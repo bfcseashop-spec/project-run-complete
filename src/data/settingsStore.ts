@@ -63,7 +63,7 @@ export const isSettingsLoaded = (): boolean => loaded;
 
 export const loadSettings = async () => {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "global")
