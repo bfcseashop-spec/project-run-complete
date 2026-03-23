@@ -355,35 +355,13 @@ const MedicinePage = () => {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard title="Total Items" value={String(totalItems)} icon={Package} />
-        <StatCard title="In Stock" value={String(inStock)} icon={PackageCheck} />
-        <StatCard title="Low Stock" value={String(lowStock)} icon={AlertTriangle} />
-        <StatCard title="Out of Stock" value={String(outOfStock)} icon={PackageX} />
+        <StatCard title="Total Items" value={String(totalItems)} icon={Package} onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "ring-2 ring-primary" : "cursor-pointer hover:shadow-md transition-shadow"} />
+        <StatCard title="In Stock" value={String(inStock)} icon={PackageCheck} onClick={() => setFilterStatus(filterStatus === "in-stock" ? "all" : "in-stock")} className={filterStatus === "in-stock" ? "ring-2 ring-emerald-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
+        <StatCard title="Low Stock" value={String(lowStock)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "low-stock" ? "all" : "low-stock")} className={filterStatus === "low-stock" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
+        <StatCard title="Out of Stock" value={String(outOfStock)} icon={PackageX} onClick={() => setFilterStatus(filterStatus === "out-of-stock" ? "all" : "out-of-stock")} className={filterStatus === "out-of-stock" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="Purchase Value" value={`$${purchaseValue.toFixed(2)}`} icon={DollarSign} />
         <StatCard title="Sales Value" value={`$${salesValue.toFixed(2)}`} icon={TrendingUp} />
       </div>
-
-      {/* Low Stock Alert */}
-      {lowStockItems.length > 0 && (
-        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
-          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-            <AlertTriangle className="w-4 h-4" />
-            <span className="font-semibold text-sm">Low Stock Alert - {lowStockItems.length} medicine(s) below threshold</span>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {lowStockItems.slice(0, 5).map((m) => (
-              <Badge key={m.id} variant="outline" className="text-xs border-amber-300 text-amber-700 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/30">
-                {m.name} ({m.stock - m.soldOut} left)
-              </Badge>
-            ))}
-            {lowStockItems.length > 5 && (
-              <Badge variant="outline" className="text-xs border-amber-300 text-amber-600">
-                +{lowStockItems.length - 5} more
-              </Badge>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Search & Filters */}
       <div className="bg-card border border-border rounded-lg p-4 space-y-3">
