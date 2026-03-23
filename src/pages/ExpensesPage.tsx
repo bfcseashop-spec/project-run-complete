@@ -25,6 +25,7 @@ import {
 import {
   Plus, Pencil, Trash2, DollarSign, Clock, CheckCircle, AlertTriangle,
   Search, Home, Zap, Package, Users, Wrench, Megaphone, HelpCircle, Monitor, Eye, Printer,
+  Tag, X,
 } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { type ExpenseRecord, expenseCategories, paymentMethods } from "@/data/expenseRecords";
