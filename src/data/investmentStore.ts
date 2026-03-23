@@ -93,7 +93,8 @@ export const getInvestorById = (id: string) => investors.find((i) => i.id === id
 // --- Investor CRUD ---
 export const addInvestor = (data: Omit<Investor, "id">) => {
   investorCounter++;
-  const inv: Investor = { ...data, id: `inv-${investorCounter}` };
+  const capitalAmount = Math.round((data.sharePercent / 100) * totalCapitalAmount * 100) / 100;
+  const inv: Investor = { ...data, capitalAmount, id: `inv-${investorCounter}` };
   investors = [...investors, inv];
   notify();
   return inv;
