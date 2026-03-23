@@ -356,21 +356,25 @@ const MedicinePage = () => {
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
     if (rows.length > 0) {
-      rows.forEach((row) => {
-        addMedicine({
-          name: String(row.name || ""),
-          manufacturer: String(row.manufacturer || ""),
-          boxNo: String(row.boxNo || "-"),
-          category: String(row.category || "Other"),
-          purchasePrice: Number(row.purchasePrice) || 0,
-          price: Number(row.price) || 0,
-          stock: Number(row.stock) || 0,
-          unit: String(row.unit || "Pieces"),
-          soldOut: Number(row.soldOut) || 0,
-          image: "",
-          expiry: String(row.expiry || ""),
-        });
-      });
+      try {
+        for (const row of rows) {
+          await addMedicine({
+            name: String(row.name || ""),
+            manufacturer: String(row.manufacturer || ""),
+            boxNo: String(row.boxNo || "-"),
+            category: String(row.category || "Other"),
+            purchasePrice: Number(row.purchasePrice) || 0,
+            price: Number(row.price) || 0,
+            stock: Number(row.stock) || 0,
+            unit: String(row.unit || "Pieces"),
+            soldOut: Number(row.soldOut) || 0,
+            image: "",
+            expiry: String(row.expiry || ""),
+          });
+        }
+      } catch (err: any) {
+        toast.error(err.message || "Import failed");
+      }
     }
   };
 
