@@ -548,10 +548,8 @@ const InvestmentsPage = () => {
             </Select>
           </div>
         </div>
-      </div>
-          </div>
-        </div>
-      </div>
+
+
 
       {/* Capital Dialog */}
       <Dialog open={showCapitalDialog} onOpenChange={setShowCapitalDialog}>
