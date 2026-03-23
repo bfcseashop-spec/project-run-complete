@@ -61,6 +61,8 @@ const Dashboard = () => {
   const [medicines, setMedicines] = useState(getMedicines());
   const [injections, setInjections] = useState(getInjections());
   const [expenses, setExpenses] = useState(getExpenseRecords());
+  const [xrayRecs, setXrayRecs] = useState(getXrayRecords());
+  const [ultrasoundRecs, setUltrasoundRecs] = useState(getUltrasoundRecords());
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
