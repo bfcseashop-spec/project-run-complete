@@ -169,7 +169,13 @@ const NewInvoicePage = () => {
   const effectivePaid = splitMode ? splitTotal : paidAmount;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
-  const selectedPatient = patients.find((p) => p.name === patient);
+  const patientOptions = useMemo(() => {
+    if (!patient) return patients;
+    if (patients.some((p) => p.name === patient)) return patients;
+    return [{ id: "edit-patient", name: patient, phone: "", age: "", gender: "" }, ...patients];
+  }, [patients, patient]);
+
+  const selectedPatient = patientOptions.find((p) => p.name === patient);
   const patientPhone = selectedPatient?.phone || "";
   const patientAge = selectedPatient?.age || "";
   const patientGender = selectedPatient?.gender || "";
@@ -361,6 +367,7 @@ const NewInvoicePage = () => {
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",
       isEdit: !!editData,
+      editRecordId,
     }));
     goBack();
   };
@@ -486,7 +493,7 @@ const NewInvoicePage = () => {
               {editRecordId && <span className="text-primary-foreground/60 font-mono ml-2 text-sm">{editRecordId}</span>}
             </h1>
             <p className="text-primary-foreground/60 text-xs">
-              {editData && patient ? patient : appSettings.clinicName}
+              {editData ? `Patient: ${patient || editData.patient}` : appSettings.clinicName}
             </p>
           </div>
         </div>
@@ -517,7 +524,7 @@ const NewInvoicePage = () => {
               <Select value={patient} onValueChange={setPatient}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select patient..." /></SelectTrigger>
                 <SelectContent>
-                  {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>)}
+                  {patientOptions.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} {p.id !== "edit-patient" ? `(${p.id})` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -761,7 +768,7 @@ const NewInvoicePage = () => {
                       <SelectContent>
                         {paymentMethods.map((m) => (
                           <SelectItem key={m.value} value={m.value}>
-                            <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
+                            {m.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
