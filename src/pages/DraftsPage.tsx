@@ -104,8 +104,8 @@ const DraftsPage = () => {
       ) : (
         <DataTable
           columns={columns}
-          data={drafts as unknown as Record<string, unknown>[]}
-          renderCell={renderCell}
+          data={drafts}
+          keyExtractor={(d) => d.id}
         />
       )}
 
