@@ -21,7 +21,8 @@ import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { xrayRecords } from "@/data/xrayRecords";
 import { ultrasoundRecords } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
-import { parseISO, isWithinInterval, format } from "date-fns";
+import { parseISO, isWithinInterval, format, startOfDay, endOfDay } from "date-fns";
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
 const LazyWeeklyChart = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: m.WeeklyChart })));
