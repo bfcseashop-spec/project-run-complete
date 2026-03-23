@@ -387,7 +387,7 @@ const CurrencyLanguageTab = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Currency & language settings saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Currency & language settings saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Settings
         </Button>
       </div>
