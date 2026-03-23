@@ -231,15 +231,64 @@ const InvestmentsPage = () => {
     }
   };
 
+  const contribColumns = [
+    { key: "Date", header: "Date" }, { key: "Investment", header: "Investment" }, { key: "Investor", header: "Investor" },
+    { key: "Category", header: "Category" }, { key: "Amount", header: "Amount" }, { key: "Note", header: "Note" },
+  ];
+
   const handleExport = () => {
     const data = filtered.map((c) => ({
-      Date: c.date, Investment: c.investmentName, Investor: getInvestorById(c.investorId)?.name || "", Category: c.category, Amount: c.amount, Slips: c.slipCount, Note: c.note,
+      Date: c.date, Investment: c.investmentName, Investor: getInvestorById(c.investorId)?.name || "", Category: c.category, Amount: c.amount, Note: c.note,
     }));
-    exportToExcel(data, [
-      { key: "Date", header: "Date" }, { key: "Investment", header: "Investment" }, { key: "Investor", header: "Investor" },
-      { key: "Category", header: "Category" }, { key: "Amount", header: "Amount" }, { key: "Slips", header: "Slips" }, { key: "Note", header: "Note" },
-    ], "Investments");
+    exportToExcel(data, contribColumns, "Investments");
     toast.success("Exported");
+  };
+
+  const handleDownloadSample = () => {
+    generateSampleExcel(contribColumns, "Contributions", [
+      { Date: "2025-01-15", Investment: "Capital Amount Investment", Investor: "John Doe", Category: "Rental", Amount: 5000, Note: "January rent" },
+      { Date: "2025-02-01", Investment: "Capital Amount Investment", Investor: "Jane Smith", Category: "Salary", Amount: 3000, Note: "Staff salary" },
+    ]);
+    toast.success("Sample file downloaded");
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    try {
+      const rows = await importFromExcel(file, contribColumns);
+      let imported = 0;
+      let skipped = 0;
+      for (const row of rows) {
+        const date = String(row.Date || "").trim();
+        const investmentName = String(row.Investment || "Capital Amount Investment").trim();
+        const investorName = String(row.Investor || "").trim();
+        const category = String(row.Category || "Other").trim();
+        const amount = parseFloat(String(row.Amount || 0));
+        const note = String(row.Note || "").trim();
+
+        if (!investorName || !amount || amount <= 0) { skipped++; continue; }
+
+        const inv = investors.find((i) => i.name.toLowerCase() === investorName.toLowerCase());
+        if (!inv) { skipped++; toast.error(`Investor "${investorName}" not found — skipped`); continue; }
+
+        await addContribution({
+          date: date || new Date().toISOString().slice(0, 10),
+          investmentName,
+          investorId: inv.id,
+          category: (allCategoriesCombined.includes(category as any) ? category : "Other") as ContributionCategory,
+          amount,
+          slipCount: 0,
+          note,
+          slipImages: [],
+        });
+        imported++;
+      }
+      toast.success(`Imported ${imported} contribution(s)${skipped ? `, ${skipped} skipped` : ""}`);
+    } catch (err) {
+      toast.error("Failed to import file");
+    }
   };
 
   const handleUpdateTotalCapital = () => {
