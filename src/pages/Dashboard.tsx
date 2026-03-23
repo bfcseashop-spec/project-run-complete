@@ -260,7 +260,9 @@ const Dashboard = () => {
       {(stats.lowStockMeds + stats.outOfStockMeds + stats.lowStockInj + stats.outOfStockInj > 0) && (
         <section>
           <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(38,92%,50%), hsl(25,90%,50%))" }}>
+              <AlertTriangle className="w-4 h-4 text-white" />
+            </span>
             Inventory Alerts
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
