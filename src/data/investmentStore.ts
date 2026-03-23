@@ -46,6 +46,20 @@ export interface Contribution {
   slipImages: string[];
 }
 
+// --- Independent Total Capital ---
+let totalCapitalAmount = 250000;
+
+export const getTotalCapital = () => totalCapitalAmount;
+export const setTotalCapital = (amount: number) => {
+  totalCapitalAmount = amount;
+  // Recalculate all investor capital amounts based on share %
+  investors = investors.map(inv => ({
+    ...inv,
+    capitalAmount: Math.round((inv.sharePercent / 100) * totalCapitalAmount * 100) / 100,
+  }));
+  notify();
+};
+
 // --- Initial Data ---
 let investors: Investor[] = [
   { id: "inv-1", name: "JamesBond", sharePercent: 85, investmentName: "Capital Amount Investment", capitalAmount: 212500, paid: 147837.60, color: "hsl(217, 91%, 60%)" },
