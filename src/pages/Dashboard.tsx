@@ -243,7 +243,9 @@ const Dashboard = () => {
       {/* ── Clinical Overview ── */}
       <section>
         <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-          <Stethoscope className="w-5 h-5 text-primary" />
+          <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(220,70%,50%))" }}>
+            <Stethoscope className="w-4 h-4 text-white" />
+          </span>
           Clinical Overview
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
