@@ -253,33 +253,33 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 w-full">
       {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl p-6 lg:p-7 text-white"
+      <div className="relative overflow-hidden rounded-2xl p-4 sm:p-6 lg:p-7 text-white"
         style={{ background: "linear-gradient(135deg, hsl(168,80%,30%) 0%, hsl(200,80%,40%) 50%, hsl(240,60%,50%) 100%)" }}>
         <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
         <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
         <div className="absolute right-20 bottom-2 w-24 h-24 rounded-full bg-yellow-300/10" />
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
-            <p className="text-white/60 text-sm mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
+            <p className="text-white/60 text-xs sm:text-sm mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Activity className="w-4 h-4" />
-              <span className="text-lg font-bold font-number">{stats.totalPatients}</span>
-              <span className="text-xs opacity-70">patients</span>
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
+              <Activity className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+              <span className="text-sm sm:text-lg font-bold font-number">{stats.totalPatients}</span>
+              <span className="text-[10px] sm:text-xs opacity-70">patients</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Clock className="w-4 h-4" />
-              <span className="text-lg font-bold font-number">{stats.pendingPatients}</span>
-              <span className="text-xs opacity-70">in queue</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
+              <Clock className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+              <span className="text-sm sm:text-lg font-bold font-number">{stats.pendingPatients}</span>
+              <span className="text-[10px] sm:text-xs opacity-70">in queue</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <ClipboardList className="w-4 h-4" />
-              <span className="text-lg font-bold font-number">{stats.invoiceCount}</span>
-              <span className="text-xs opacity-70">invoices</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
+              <ClipboardList className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+              <span className="text-sm sm:text-lg font-bold font-number">{stats.invoiceCount}</span>
+              <span className="text-[10px] sm:text-xs opacity-70">invoices</span>
             </div>
           </div>
         </div>
