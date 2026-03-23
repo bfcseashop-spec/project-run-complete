@@ -37,9 +37,7 @@ const LazyRoles = lazy(() =>
   import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage }))
 );
 const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
-const LazyInvestments = lazy(() =>
-  import("@/pages/PlaceholderPages").then((m) => ({ default: m.InvestmentsPage }))
-);
+const LazyInvestments = lazy(() => import("@/pages/InvestmentsPage"));
 
 const queryClient = new QueryClient();
 

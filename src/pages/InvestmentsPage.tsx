@@ -43,7 +43,7 @@ const InvestmentsPage = () => {
       setInvestors([...getInvestors()]);
       setContributions([...getContributions()]);
     });
-    return u;
+    return () => { u(); };
   }, []);
 
   // Filters
