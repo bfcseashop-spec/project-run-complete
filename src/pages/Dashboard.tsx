@@ -166,7 +166,7 @@ const Dashboard = () => {
       { name: "Ultrasound", value: Math.round((usCount / total) * 100), fill: "hsl(270, 60%, 55%)" },
       { name: "Injections", value: Math.round((otherCount / total) * 100), fill: "hsl(350, 65%, 55%)" },
     ];
-  }, [patients, labReports, injections]);
+  }, [patients, labReports, injections, xrayRecs, ultrasoundRecs]);
 
   // Sales by Category from line items
   const salesByCategory = useMemo(() => {
