@@ -134,7 +134,7 @@ const Dashboard = () => {
       pendingXrays, pendingUltrasounds,
       lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections, filterPreset, customRange]);
+  }, [filteredBilling, patients, labReports, medicines, injections, expenses, filterPreset, customRange]);
 
   // Payment chart data
   const paymentData = useMemo(() => {
