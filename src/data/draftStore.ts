@@ -1,4 +1,5 @@
-/* Draft invoice store */
+/* Draft invoice store — persisted via Supabase */
+import { supabase } from "@/integrations/supabase/client";
 import type { InvoiceFormData } from "@/components/NewInvoiceDialog";
 
 export interface DraftInvoice {
@@ -14,44 +15,65 @@ export interface DraftInvoice {
 
 type Listener = () => void;
 let drafts: DraftInvoice[] = [];
+let loaded = false;
 const listeners = new Set<Listener>();
-
 function notify() { listeners.forEach((fn) => fn()); }
 
-// Persist to localStorage
-function save() { localStorage.setItem("clinic-drafts", JSON.stringify(drafts)); }
-function load() {
-  try {
-    const raw = localStorage.getItem("clinic-drafts");
-    if (raw) drafts = JSON.parse(raw);
-  } catch { /* ignore */ }
-}
+const toDraft = (r: any): DraftInvoice => ({
+  id: r.id, patient: r.patient, doctor: r.doctor, date: r.date,
+  total: Number(r.total), itemCount: r.item_count, savedAt: r.saved_at,
+  formData: r.form_data as InvoiceFormData,
+});
+
+const load = async () => {
+  const { data, error } = await supabase.from("drafts").select("*").order("created_at", { ascending: false });
+  if (!error && data) { drafts = data.map(toDraft); loaded = true; notify(); }
+};
 load();
 
 export function getDrafts(): DraftInvoice[] { return drafts; }
+export function isDraftsLoaded() { return loaded; }
 
-export function addDraft(draft: DraftInvoice) {
-  drafts = [draft, ...drafts];
-  save(); notify();
+export async function addDraft(draft: DraftInvoice) {
+  const { error } = await supabase.from("drafts").insert({
+    id: draft.id, patient: draft.patient, doctor: draft.doctor, date: draft.date,
+    total: draft.total, item_count: draft.itemCount, saved_at: draft.savedAt,
+    form_data: JSON.parse(JSON.stringify(draft.formData)),
+  });
+  if (error) throw error;
+  drafts = [draft, ...drafts]; notify();
 }
 
-export function removeDraft(id: string) {
-  drafts = drafts.filter((d) => d.id !== id);
-  save(); notify();
+export async function removeDraft(id: string) {
+  const { error } = await supabase.from("drafts").delete().eq("id", id);
+  if (error) throw error;
+  drafts = drafts.filter((d) => d.id !== id); notify();
 }
 
-export function updateDraft(id: string, updates: Partial<DraftInvoice>) {
-  drafts = drafts.map((d) => d.id === id ? { ...d, ...updates } : d);
-  save(); notify();
+export async function updateDraft(id: string, updates: Partial<DraftInvoice>) {
+  const dbUp: Record<string, any> = {};
+  if (updates.patient !== undefined) dbUp.patient = updates.patient;
+  if (updates.doctor !== undefined) dbUp.doctor = updates.doctor;
+  if (updates.date !== undefined) dbUp.date = updates.date;
+  if (updates.total !== undefined) dbUp.total = updates.total;
+  if (updates.itemCount !== undefined) dbUp.item_count = updates.itemCount;
+  if (updates.savedAt !== undefined) dbUp.saved_at = updates.savedAt;
+  if (updates.formData !== undefined) dbUp.form_data = JSON.parse(JSON.stringify(updates.formData));
+  const { error } = await supabase.from("drafts").update(dbUp).eq("id", id);
+  if (error) throw error;
+  drafts = drafts.map((d) => d.id === id ? { ...d, ...updates } : d); notify();
 }
 
 export function subscribeDrafts(fn: Listener): () => void {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
+  listeners.add(fn); return () => listeners.delete(fn);
 }
 
-let draftCounter = drafts.length;
+let draftCounter = 0;
 export function nextDraftId(): string {
   draftCounter++;
-  return `DRF-${String(draftCounter).padStart(3, "0")}`;
+  const maxExisting = drafts.reduce((max, d) => {
+    const num = parseInt(d.id.replace("DRF-", ""));
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
+  return `DRF-${String(Math.max(draftCounter, maxExisting + 1)).padStart(3, "0")}`;
 }

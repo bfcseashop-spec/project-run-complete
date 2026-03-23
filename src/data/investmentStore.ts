@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 type Listener = () => void;
 
 export interface Investor {
@@ -46,113 +48,145 @@ export interface Contribution {
   slipImages: string[];
 }
 
-// --- Independent Total Capital ---
 let totalCapitalAmount = 250000;
+let investors: Investor[] = [];
+let contributions: Contribution[] = [];
+let loaded = false;
+const listeners = new Set<Listener>();
+const notify = () => listeners.forEach((fn) => fn());
+
+const toInvestor = (r: any): Investor => ({
+  id: r.id, name: r.name, sharePercent: Number(r.share_percent),
+  investmentName: r.investment_name, capitalAmount: Number(r.capital_amount),
+  paid: Number(r.paid), color: r.color,
+});
+
+const toContribution = (r: any): Contribution => ({
+  id: r.id, date: r.date, investmentName: r.investment_name,
+  investorId: r.investor_id, category: r.category as ContributionCategory,
+  amount: Number(r.amount), slipCount: r.slip_count, note: r.note,
+  slipImages: (r.slip_images as string[]) || [],
+});
+
+const load = async () => {
+  const [invRes, conRes, setRes] = await Promise.all([
+    supabase.from("investors").select("*").order("created_at", { ascending: true }),
+    supabase.from("contributions").select("*").order("created_at", { ascending: false }),
+    supabase.from("investment_settings").select("*").eq("key", "total_capital").maybeSingle(),
+  ]);
+  if (!invRes.error && invRes.data) investors = invRes.data.map(toInvestor);
+  if (!conRes.error && conRes.data) contributions = conRes.data.map(toContribution);
+  if (!setRes.error && setRes.data) totalCapitalAmount = Number(setRes.data.value);
+  loaded = true;
+  notify();
+};
+load();
 
 export const getTotalCapital = () => totalCapitalAmount;
-export const setTotalCapital = (amount: number) => {
+export const setTotalCapital = async (amount: number) => {
   totalCapitalAmount = amount;
-  // Recalculate all investor capital amounts based on share %
   investors = investors.map(inv => ({
-    ...inv,
-    capitalAmount: Math.round((inv.sharePercent / 100) * totalCapitalAmount * 100) / 100,
+    ...inv, capitalAmount: Math.round((inv.sharePercent / 100) * totalCapitalAmount * 100) / 100,
   }));
+  await supabase.from("investment_settings").update({ value: amount }).eq("key", "total_capital");
+  for (const inv of investors) {
+    await supabase.from("investors").update({ capital_amount: inv.capitalAmount }).eq("id", inv.id);
+  }
   notify();
 };
 
-// --- Initial Data ---
-let investors: Investor[] = [
-  { id: "inv-1", name: "JamesBond", sharePercent: 85, investmentName: "Capital Amount Investment", capitalAmount: 212500, paid: 147837.60, color: "hsl(217, 91%, 60%)" },
-  { id: "inv-2", name: "Vvaple", sharePercent: 15, investmentName: "Capital Amount Investment", capitalAmount: 37500, paid: 30413.09, color: "hsl(270, 60%, 55%)" },
-];
-
-let contributions: Contribution[] = [
-  { id: "c-001", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Rental", amount: 2000, slipCount: 1, note: "Sister Paid to Me - fro Clinic Rental - 2k", slipImages: [] },
-  { id: "c-002", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Rental", amount: 3800, slipCount: 2, note: "Sister Paid - 2k And me -3800", slipImages: [] },
-  { id: "c-003", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Water Bill", amount: 155.40, slipCount: 1, note: "-", slipImages: [] },
-  { id: "c-004", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Electricity", amount: 802.55, slipCount: 1, note: "-", slipImages: [] },
-  { id: "c-005", date: "2026-03-06", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Internet Service", amount: 220, slipCount: 1, note: "Internet service bill", slipImages: [] },
-  { id: "c-006", date: "2026-03-01", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Salary", amount: 2100, slipCount: 5, note: "Dr- 1050 nurse- 200, Reception - 200- pahrmacis -200, ...", slipImages: [] },
-  { id: "c-007", date: "2026-02-22", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medical Instrument", amount: 351.80, slipCount: 1, note: "Oxygen cylinder- purchased", slipImages: [] },
-  { id: "c-008", date: "2026-02-21", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medicine", amount: 125, slipCount: 1, note: "pay to Dr- buy Medicine", slipImages: [] },
-  { id: "c-009", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Ultrasound Payment", amount: 1000, slipCount: 1, note: "Tbs - ultrasound machine", slipImages: [] },
-  { id: "c-010", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Water Bill", amount: 7.40, slipCount: 1, note: "Water-bill.jan", slipImages: [] },
-];
-
-let investorCounter = investors.length;
-let contribCounter = contributions.length;
-const listeners = new Set<Listener>();
-
-const notify = () => listeners.forEach((fn) => fn());
-
-// --- Getters ---
 export const getInvestors = () => investors;
 export const getContributions = () => contributions;
 export const getInvestorById = (id: string) => investors.find((i) => i.id === id);
 
-// --- Investor CRUD ---
-export const addInvestor = (data: Omit<Investor, "id">) => {
-  investorCounter++;
+export const addInvestor = async (data: Omit<Investor, "id">) => {
+  const id = `inv-${Date.now()}`;
   const capitalAmount = Math.round((data.sharePercent / 100) * totalCapitalAmount * 100) / 100;
-  const inv: Investor = { ...data, capitalAmount, id: `inv-${investorCounter}` };
-  investors = [...investors, inv];
-  notify();
+  const inv: Investor = { ...data, capitalAmount, id };
+  const { error } = await supabase.from("investors").insert({
+    id, name: data.name, share_percent: data.sharePercent, investment_name: data.investmentName,
+    capital_amount: capitalAmount, paid: data.paid, color: data.color,
+  });
+  if (error) throw error;
+  investors = [...investors, inv]; notify();
   return inv;
 };
 
-export const updateInvestor = (id: string, updates: Partial<Investor>) => {
+export const updateInvestor = async (id: string, updates: Partial<Investor>) => {
+  const dbUp: Record<string, any> = {};
+  if (updates.name !== undefined) dbUp.name = updates.name;
+  if (updates.sharePercent !== undefined) dbUp.share_percent = updates.sharePercent;
+  if (updates.investmentName !== undefined) dbUp.investment_name = updates.investmentName;
+  if (updates.paid !== undefined) dbUp.paid = updates.paid;
+  if (updates.color !== undefined) dbUp.color = updates.color;
+
   investors = investors.map((i) => {
     if (i.id !== id) return i;
     const merged = { ...i, ...updates };
-    // If share % changed, recalculate capital
     if (updates.sharePercent !== undefined) {
       merged.capitalAmount = Math.round((merged.sharePercent / 100) * totalCapitalAmount * 100) / 100;
     }
     return merged;
   });
+
+  const inv = investors.find(i => i.id === id);
+  if (inv) dbUp.capital_amount = inv.capitalAmount;
+  await supabase.from("investors").update(dbUp).eq("id", id);
   notify();
 };
 
-export const removeInvestor = (id: string) => {
-  investors = investors.filter((i) => i.id !== id);
-  notify();
+export const removeInvestor = async (id: string) => {
+  await supabase.from("investors").delete().eq("id", id);
+  investors = investors.filter((i) => i.id !== id); notify();
 };
 
-// --- Contribution CRUD ---
-export const addContribution = (data: Omit<Contribution, "id">) => {
-  contribCounter++;
-  const c: Contribution = { ...data, id: `c-${String(contribCounter).padStart(3, "0")}` };
+export const addContribution = async (data: Omit<Contribution, "id">) => {
+  const id = `c-${String(Date.now()).slice(-6)}`;
+  const c: Contribution = { ...data, id };
+  const { error } = await supabase.from("contributions").insert({
+    id, date: data.date, investment_name: data.investmentName, investor_id: data.investorId,
+    category: data.category, amount: data.amount, slip_count: data.slipCount,
+    note: data.note, slip_images: JSON.parse(JSON.stringify(data.slipImages)),
+  });
+  if (error) throw error;
   contributions = [c, ...contributions];
-  // Auto-update investor paid amount
   const inv = investors.find((i) => i.id === data.investorId);
-  if (inv) updateInvestor(inv.id, { paid: inv.paid + data.amount });
+  if (inv) await updateInvestor(inv.id, { paid: inv.paid + data.amount });
   notify();
   return c;
 };
 
-export const updateContribution = (id: string, updates: Partial<Contribution>) => {
+export const updateContribution = async (id: string, updates: Partial<Contribution>) => {
   const old = contributions.find((c) => c.id === id);
+  const dbUp: Record<string, any> = {};
+  if (updates.date !== undefined) dbUp.date = updates.date;
+  if (updates.investmentName !== undefined) dbUp.investment_name = updates.investmentName;
+  if (updates.investorId !== undefined) dbUp.investor_id = updates.investorId;
+  if (updates.category !== undefined) dbUp.category = updates.category;
+  if (updates.amount !== undefined) dbUp.amount = updates.amount;
+  if (updates.slipCount !== undefined) dbUp.slip_count = updates.slipCount;
+  if (updates.note !== undefined) dbUp.note = updates.note;
+  if (updates.slipImages !== undefined) dbUp.slip_images = JSON.parse(JSON.stringify(updates.slipImages));
+  await supabase.from("contributions").update(dbUp).eq("id", id);
   contributions = contributions.map((c) => (c.id === id ? { ...c, ...updates } : c));
-  // Adjust investor paid if amount changed
   if (old && updates.amount !== undefined && updates.amount !== old.amount) {
     const diff = updates.amount - old.amount;
     const inv = investors.find((i) => i.id === (updates.investorId || old.investorId));
-    if (inv) updateInvestor(inv.id, { paid: inv.paid + diff });
+    if (inv) await updateInvestor(inv.id, { paid: inv.paid + diff });
   }
   notify();
 };
 
-export const removeContribution = (id: string) => {
+export const removeContribution = async (id: string) => {
   const c = contributions.find((x) => x.id === id);
   if (c) {
     const inv = investors.find((i) => i.id === c.investorId);
-    if (inv) updateInvestor(inv.id, { paid: Math.max(0, inv.paid - c.amount) });
+    if (inv) await updateInvestor(inv.id, { paid: Math.max(0, inv.paid - c.amount) });
   }
-  contributions = contributions.filter((x) => x.id !== id);
-  notify();
+  await supabase.from("contributions").delete().eq("id", id);
+  contributions = contributions.filter((x) => x.id !== id); notify();
 };
 
 export const subscribeInvestments = (fn: Listener) => {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
+  listeners.add(fn); return () => listeners.delete(fn);
 };
