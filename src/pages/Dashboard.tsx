@@ -164,6 +164,57 @@ const Dashboard = () => {
     ];
   }, [patients, labReports, injections]);
 
+  // Sales by Category from line items
+  const salesByCategory = useMemo(() => {
+    const catMap: Record<string, number> = {};
+    filteredBilling.forEach(r => {
+      if (r.formData?.lineItems) {
+        r.formData.lineItems.forEach(li => {
+          const typeMap: Record<string, string> = { SVC: "Service", MED: "Medicine", INJ: "Injection", PKG: "Package", CUSTOM: "Custom" };
+          const cat = typeMap[li.type] || "Other";
+          catMap[cat] = (catMap[cat] || 0) + li.price * li.qty;
+        });
+      } else {
+        catMap["Other"] = (catMap["Other"] || 0) + r.amount;
+      }
+    });
+    return Object.entries(catMap)
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [filteredBilling]);
+
+  // Today's Sales by Payment
+  const todaySalesByPayment = useMemo(() => {
+    const today = new Date();
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+    const todayBills = billingRecords.filter(r => {
+      try { return isWithinInterval(parseISO(r.date), { start: todayStart, end: todayEnd }); }
+      catch { return false; }
+    });
+    const methodMap: Record<string, number> = {};
+    todayBills.forEach(r => {
+      if (r.method && r.method !== "—") {
+        methodMap[r.method] = (methodMap[r.method] || 0) + r.paid;
+      }
+      if (r.due > 0) {
+        methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
+      }
+    });
+    return Object.entries(methodMap)
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [billingRecords]);
+
+  // Popular Medicine
+  const popularMedicine = useMemo(() => {
+    return [...medicines]
+      .filter(m => m.soldOut > 0)
+      .sort((a, b) => b.soldOut - a.soldOut)
+      .slice(0, 5)
+      .map(m => ({ id: m.id, name: m.name, sold: m.soldOut, price: m.price }));
+  }, [medicines]);
+
   // Recent activity from real billing records
   const recentActivity = useMemo(() => {
     const iconMap: Record<string, { icon: React.ElementType; color: string; type: string }> = {
