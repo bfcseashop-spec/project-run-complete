@@ -249,14 +249,119 @@ const Dashboard = () => {
             onCustomRangeChange={setCustomRange}
           />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard icon={Percent} title="Discount" value={formatDualPrice(stats.totalDiscount)} change={`${stats.invoiceCount} invoices`} accentColor="hsl(38, 92%, 50%)" />
-          <StatCard icon={Wallet} title="Expense" value={formatDualPrice(stats.totalExpense)} accentColor="hsl(15, 85%, 52%)" />
-          <StatCard icon={Receipt} title="Total Bills" value={formatDualPrice(stats.totalBills)} accentColor="hsl(200, 70%, 50%)" />
-          <StatCard icon={ClipboardList} title="Total Invoice" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(217, 91%, 60%)" />
-          <StatCard icon={TrendingDown} title="Total Due" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
-          <StatCard icon={DollarSign} title="Profit" value={formatDualPrice(stats.profit)} accentColor="hsl(160, 84%, 39%)" />
-          <StatCard icon={MinusCircle} title="Loss" value={formatDualPrice(stats.loss)} accentColor="hsl(0, 70%, 50%)" />
+        {/* Row 1: Hero cards - Total Bills, Profit, Loss */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
+            style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
+            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
+            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Total Bills</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.totalBills)}</p>
+                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">{stats.invoiceCount} invoices</span></p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
+                <Receipt className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
+            style={{ background: "linear-gradient(135deg, hsl(152,60%,38%), hsl(168,80%,30%))" }}>
+            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
+            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Profit</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.profit)}</p>
+                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
+                  <TrendingUp className="w-3 h-3 inline mr-1" />earned
+                </span></p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
+            style={{ background: "linear-gradient(135deg, hsl(0,65%,50%), hsl(350,70%,42%))" }}>
+            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
+            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Loss</p>
+                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatDualPrice(stats.loss)}</p>
+                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
+                  <TrendingDown className="w-3 h-3 inline mr-1" />deficit
+                </span></p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
+                <TrendingDown className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Secondary cards - Discount, Total Due, Expense, Total Invoice */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
+            style={{ borderLeft: "3px solid hsl(38, 92%, 50%)" }}>
+            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(38, 92%, 50%)" }} />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(38, 92%, 50%)" }}>Discount</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalDiscount)}</p>
+                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.invoiceCount} invoices</span></p>
+              </div>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.12)" }}>
+                <Percent className="w-5 h-5" style={{ color: "hsl(38, 92%, 50%)" }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
+            style={{ borderLeft: "3px solid hsl(350, 65%, 55%)" }}>
+            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(350, 65%, 55%)" }} />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(350, 65%, 55%)" }}>Total Due</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalDue)}</p>
+                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.pendingInvoices} pending</span></p>
+              </div>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(350, 65%, 55%, 0.12)" }}>
+                <TrendingDown className="w-5 h-5" style={{ color: "hsl(350, 65%, 55%)" }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
+            style={{ borderLeft: "3px solid hsl(15, 85%, 52%)" }}>
+            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(15, 85%, 52%)" }} />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(15, 85%, 52%)" }}>Expense</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatDualPrice(stats.totalExpense)}</p>
+              </div>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(15, 85%, 52%, 0.12)" }}>
+                <Wallet className="w-5 h-5" style={{ color: "hsl(15, 85%, 52%)" }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
+            style={{ borderLeft: "3px solid hsl(270, 60%, 55%)" }}>
+            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(270, 60%, 55%)" }} />
+            <div className="relative flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(270, 60%, 55%)" }}>Total Invoice</p>
+                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{String(stats.invoiceCount)}</p>
+                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.completedInvoices} completed</span></p>
+              </div>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(270, 60%, 55%, 0.12)" }}>
+                <ClipboardList className="w-5 h-5" style={{ color: "hsl(270, 60%, 55%)" }} />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="mt-4">
