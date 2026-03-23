@@ -250,7 +250,6 @@ const Dashboard = () => {
           />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
           <StatCard icon={Percent} title="Discount" value={formatDualPrice(stats.totalDiscount)} change={`${stats.invoiceCount} invoices`} accentColor="hsl(38, 92%, 50%)" />
           <StatCard icon={Wallet} title="Expense" value={formatDualPrice(stats.totalExpense)} accentColor="hsl(15, 85%, 52%)" />
           <StatCard icon={Receipt} title="Total Bills" value={formatDualPrice(stats.totalBills)} accentColor="hsl(200, 70%, 50%)" />
