@@ -30,6 +30,11 @@ const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = 
   ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
   ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
   Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
+  Wing: { color: "hsl(195, 80%, 45%)", icon: Smartphone },
+  "Binance(USDT)": { color: "hsl(45, 90%, 48%)", icon: Coins },
+  "True Money": { color: "hsl(15, 85%, 52%)", icon: Smartphone },
+  "Bank Transfer": { color: "hsl(200, 50%, 40%)", icon: Send },
+  Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
 };
 
 const operationsData = [
