@@ -120,11 +120,16 @@ const LayoutInner = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 text-muted-foreground hover:text-primary"
+              className="relative gap-1.5 text-muted-foreground hover:text-primary"
               onClick={() => navigate("/billing/drafts")}
             >
               <FileText className="w-4 h-4" />
               <span className="hidden md:inline text-xs font-medium">Drafts</span>
+              {draftCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none">
+                  {draftCount}
+                </span>
+              )}
             </Button>
 
             {/* Language Shortcut */}
