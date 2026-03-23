@@ -524,8 +524,8 @@ const Dashboard = () => {
               {[
                 { icon: Users, title: "Patients", value: stats.totalPatients, sub: `${stats.activePatients} active`, color: "hsl(160, 50%, 38%)" },
                 { icon: TestTube, title: "Lab Reports", value: stats.totalLabs, sub: `${stats.pendingLabs} pending`, color: "hsl(200, 80%, 45%)" },
-                { icon: ScanLine, title: "X-Ray", value: xrayRecords.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
-                { icon: Heart, title: "Ultrasound", value: ultrasoundRecords.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
+                { icon: ScanLine, title: "X-Ray", value: xrayRecs.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
+                { icon: Heart, title: "Ultrasound", value: ultrasoundRecs.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
               ].map((item) => (
                 <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>
