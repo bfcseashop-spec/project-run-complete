@@ -35,7 +35,7 @@ import { formatPrice } from "@/lib/currency";
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip,
 } from "recharts";
-import { exportToExcel } from "@/lib/exportUtils";
+import { exportToExcel, importFromExcel, generateSampleExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 
 const InvestmentsPage = () => {
