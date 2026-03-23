@@ -76,7 +76,7 @@ function applyModeQuick(mode: string) {
 }
 
 const LayoutInner = () => {
-  const { collapsed } = useSidebarState();
+  const { collapsed, isMobile, setMobileOpen } = useSidebarState();
   const navigate = useNavigate();
   const now = useDateTime();
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
