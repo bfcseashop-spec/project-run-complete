@@ -548,9 +548,7 @@ const InvestmentsPage = () => {
             </Select>
           </div>
         </div>
-
-
-
+      </div>
       {/* Capital Dialog */}
       <Dialog open={showCapitalDialog} onOpenChange={setShowCapitalDialog}>
         <DialogContent className="max-w-md">
