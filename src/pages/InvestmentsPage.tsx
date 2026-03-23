@@ -35,8 +35,7 @@ import {
 import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
-  ResponsiveContainer, Legend, PieChart, Pie, Cell, AreaChart, Area,
+  ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip,
 } from "recharts";
 import { exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
@@ -274,47 +273,16 @@ const InvestmentsPage = () => {
       {/* Charts + Investor Cards - Side by side layout */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
         {/* Charts Section */}
-        <div className="xl:col-span-3 space-y-4">
+        <div className="xl:col-span-3">
           {(() => {
-            const monthlyData = (() => {
-              const map = new Map<string, { month: string; total: number; [key: string]: number | string }>();
-              contributions.forEach((c) => {
-                const m = c.date.slice(0, 7);
-                const inv = getInvestorById(c.investorId);
-                const invName = inv?.name || "Unknown";
-                if (!map.has(m)) map.set(m, { month: m, total: 0 });
-                const entry = map.get(m)!;
-                entry.total += c.amount;
-                entry[invName] = ((entry[invName] as number) || 0) + c.amount;
-              });
-              return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
-            })();
             const categoryData = (() => {
               const map = new Map<string, number>();
               contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
               return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
             })();
             const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
-            const investorNames = investors.map(i => i.name);
             return (
               <>
-                {/* Bar Chart */}
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-foreground mb-1">Monthly Contributions</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Breakdown by investor per month</p>
-                  <ResponsiveContainer width="100%" height={240}>
-                    <BarChart data={monthlyData} barCategoryGap="20%">
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
-                      <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
-                      {investorNames.map((name, i) => (
-                        <Bar key={name} dataKey={name} stackId="a" fill={investors[i]?.color || pieColors[i % pieColors.length]} radius={i === investorNames.length - 1 ? [4,4,0,0] : [0,0,0,0]} />
-                      ))}
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
                 {/* Pie Chart */}
                 <div className="bg-card border border-border rounded-xl p-5">
                   <h3 className="text-sm font-bold text-foreground mb-1">Category Breakdown</h3>
