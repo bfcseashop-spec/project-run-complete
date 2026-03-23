@@ -186,7 +186,7 @@ const Dashboard = () => {
         <div className="relative flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
-            <p className="text-primary-foreground/60 text-sm mt-1">
+            <p className="text-white/60 text-sm mt-1">
               {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
