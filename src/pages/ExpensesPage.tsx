@@ -25,6 +25,7 @@ import {
 import {
   Plus, Pencil, Trash2, DollarSign, Clock, CheckCircle, AlertTriangle,
   Search, Home, Zap, Package, Users, Wrench, Megaphone, HelpCircle, Monitor, Eye, Printer,
+  Tag, X,
 } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { type ExpenseRecord, expenseCategories, paymentMethods } from "@/data/expenseRecords";
@@ -43,6 +44,11 @@ const emptyForm: Omit<ExpenseRecord, "id"> = {
   date: new Date().toISOString().split("T")[0], receipt: "", notes: "", status: "pending",
 };
 
+const CUSTOM_CATEGORIES_KEY = "expense_custom_categories";
+const loadCustomCategories = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_CATEGORIES_KEY) || "[]"); } catch { return []; }
+};
+
 const ExpensesPage = () => {
   
   const [records, setRecords] = useState<ExpenseRecord[]>(getExpenseRecords());
@@ -54,6 +60,27 @@ const ExpensesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+
+  // Custom categories
+  const [customCategories, setCustomCategories] = useState<string[]>(loadCustomCategories());
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const allCategories = [...expenseCategories, ...customCategories];
+
+  const addCustomCategory = () => {
+    const name = newCategoryName.trim().toLowerCase();
+    if (!name || allCategories.includes(name)) return;
+    const updated = [...customCategories, name];
+    setCustomCategories(updated);
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+    setNewCategoryName("");
+  };
+
+  const removeCustomCategory = (cat: string) => {
+    const updated = customCategories.filter(c => c !== cat);
+    setCustomCategories(updated);
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+  };
 
   // Sync with store
   useEffect(() => {
@@ -191,6 +218,7 @@ const ExpensesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Expenses" description="Track and categorize clinic expenditures">
+        <Button variant="outline" onClick={() => setShowCategoryDialog(true)}><Tag className="w-4 h-4 mr-2" /> Category</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Expense</Button>
       </PageHeader>
 
@@ -221,7 +249,7 @@ const ExpensesPage = () => {
           <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Category" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {expenseCategories.map(c => (
+            {allCategories.map(c => (
               <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
             ))}
           </SelectContent>
@@ -252,7 +280,7 @@ const ExpensesPage = () => {
                 <Select value={form.category} onValueChange={v => setForm({ ...form, category: v as ExpenseRecord["category"] })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {expenseCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
+                    {allCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -372,6 +400,50 @@ const ExpensesPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Tag className="w-4 h-4" /> Manage Expense Categories</DialogTitle>
+            <DialogDescription>Add or remove custom expense categories.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name..."
+                value={newCategoryName}
+                onChange={e => setNewCategoryName(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && addCustomCategory()}
+              />
+              <Button onClick={addCustomCategory} disabled={!newCategoryName.trim()}><Plus className="w-4 h-4" /></Button>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Default Categories</p>
+              <div className="flex flex-wrap gap-1.5">
+                {expenseCategories.map(c => (
+                  <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs font-medium capitalize text-muted-foreground">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {customCategories.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Custom Categories</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {customCategories.map(c => (
+                    <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-xs font-medium capitalize text-primary">
+                      {c}
+                      <button onClick={() => removeCustomCategory(c)} className="ml-0.5 hover:text-destructive transition-colors"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
