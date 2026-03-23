@@ -202,21 +202,21 @@ const RefundPage = () => {
     if (refundMode === "replace" && replacements.length === 0) { toast.error("Please select replacement medicines"); return; }
 
     // 1. Restock returned items into inventory
-    selectedItems.forEach((item) => {
+    for (const item of selectedItems) {
       if (item.type === "INJ") {
         const inj = injections.find((i) => i.name === item.name);
         if (inj) updateInjection(inj.id, { stock: inj.stock + item.refundQty, status: computeInjectionStatus(inj.stock + item.refundQty) });
       } else if (item.type === "MED") {
-        restockMedicine(item.name, item.refundQty);
+        await restockMedicine(item.name, item.refundQty);
       }
-    });
+    }
 
     // 2. If replacing, deduct replacement medicines from inventory
     if (refundMode === "replace") {
-      replacements.forEach((r) => {
-        const ok = deductMedicine(r.name, r.qty);
+      for (const r of replacements) {
+        const ok = await deductMedicine(r.name, r.qty);
         if (!ok) toast.warning(`Could not deduct ${r.name} — insufficient stock`);
-      });
+      }
     }
 
     const refundItems: RefundItem[] = selectedItems.map((i) => ({
