@@ -336,10 +336,11 @@ const Dashboard = () => {
         </div>
 
         {/* Weekly Trend */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(200,80%,45%), hsl(38,92%,50%), hsl(350,65%,55%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Calendar className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(38,92%,50%))" }}>
+              <Calendar className="w-3.5 h-3.5 text-white" />
             </span>
             Weekly Billing Trend
           </h3>
