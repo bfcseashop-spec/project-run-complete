@@ -195,7 +195,7 @@ const RefundPage = () => {
     setReplacements((prev) => prev.filter((r) => r.medicineId !== medId));
   };
 
-  const handleProcessRefund = () => {
+  const handleProcessRefund = async () => {
     if (selectedItems.length === 0) { toast.error("Please select items to return"); return; }
     if (!refundMode) { toast.error("Please choose Refund Money or Replace Medicine"); return; }
     if (!refundReason.trim()) { toast.error("Please provide a reason"); return; }
