@@ -176,7 +176,110 @@ const radiusOptions = [
   { label: "Full", value: "1.25rem" },
 ];
 
-const SystemManagePage = () => {
+/* ── Branding Tab Component ── */
+const BrandingTab = () => {
+  const { settings: appSettings, update: updateApp } = useSettings();
+  const logoRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500_000) { toast.error("Logo must be under 500 KB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateApp({ clinicLogo: reader.result as string });
+      saveSettingsNow();
+      toast.success("Logo uploaded");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBrandingSave = async () => {
+    await saveSettingsNow();
+    toast.success("Branding settings saved!");
+  };
+
+  return (
+    <TabsContent value="branding" className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">System Logo</CardTitle>
+          <CardDescription>Upload your clinic or business logo (max 500 KB). This appears in the sidebar and reports.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-6">
+            <div className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden">
+              {appSettings.clinicLogo ? (
+                <>
+                  <img src={appSettings.clinicLogo} alt="Logo" className="w-full h-full object-contain p-1" />
+                  <button
+                    onClick={() => { updateApp({ clinicLogo: "" }); saveSettingsNow(); }}
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </>
+              ) : (
+                <div className="text-center">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground/40 mx-auto" />
+                  <p className="text-[9px] text-muted-foreground mt-1">No logo</p>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              <Button variant="outline" size="sm" onClick={() => logoRef.current?.click()} className="gap-1.5">
+                <Upload className="w-3.5 h-3.5" /> Upload Logo
+              </Button>
+              <p className="text-[10px] text-muted-foreground">PNG, JPG, SVG — max 500 KB</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">System Name</CardTitle>
+            <CardDescription>The name shown in the sidebar and browser tab</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input
+              value={appSettings.clinicName}
+              onChange={e => updateApp({ clinicName: e.target.value })}
+              placeholder="ClinicPOS"
+            />
+            <div className="p-3 rounded-lg bg-muted/50 border border-border">
+              <p className="text-sm font-bold" style={{ fontFamily: "var(--font-heading)" }}>
+                {appSettings.clinicName || "ClinicPOS"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{appSettings.clinicTagline || "Management System"}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Tagline</CardTitle>
+            <CardDescription>A short description shown under the system name</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input
+              value={appSettings.clinicTagline}
+              onChange={e => updateApp({ clinicTagline: e.target.value })}
+              placeholder="Management System"
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex justify-end">
+        <Button onClick={handleBrandingSave} className="px-6">Save Branding</Button>
+      </div>
+    </TabsContent>
+  );
+};
+
   const [settings, setSettings] = useState<SystemSettings>(loadSystemSettings);
 
   useEffect(() => {
