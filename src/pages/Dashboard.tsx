@@ -214,7 +214,9 @@ const Dashboard = () => {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-primary" />
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(142,71%,45%), hsl(160,84%,39%))" }}>
+              <DollarSign className="w-4 h-4 text-white" />
+            </span>
             Financial Overview
           </h2>
           <DashboardDateFilter
