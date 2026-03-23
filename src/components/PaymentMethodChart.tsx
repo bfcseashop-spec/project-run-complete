@@ -91,7 +91,7 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
           </div>
 
           {/* Payment Grid */}
-          <div className="flex-1 grid grid-cols-3 gap-x-6 gap-y-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
             {data.map((d) => {
               const pct = total > 0 ? Math.round((d.amount / total) * 100) : 0;
               return (
