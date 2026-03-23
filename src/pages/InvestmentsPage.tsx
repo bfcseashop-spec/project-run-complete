@@ -515,11 +515,46 @@ const InvestmentsPage = () => {
                 <SelectContent>{allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs mb-1 block">Amount</Label><Input type="number" min={0} value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} /></div>
-              <div><Label className="text-xs mb-1 block">Slip Count</Label><Input type="number" min={0} value={contribForm.slipCount || ""} onChange={(e) => setContribForm(p => ({ ...p, slipCount: parseInt(e.target.value) || 0 }))} /></div>
+            <div>
+              <Label className="text-xs mb-1 block">Amount</Label>
+              <Input type="number" min={0} value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} />
             </div>
             <div><Label className="text-xs mb-1 block">Note</Label><Input value={contribForm.note} onChange={(e) => setContribForm(p => ({ ...p, note: e.target.value }))} placeholder="Description..." /></div>
+            
+            {/* Slip/Receipt Upload */}
+            <div>
+              <Label className="text-xs mb-1 block">Slip / Receipt Images ({contribForm.slipImages.length})</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={handleSlipUpload}
+                  className="hidden"
+                  id="slip-upload"
+                />
+                <label htmlFor="slip-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                  <Upload className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Click to upload slips/receipts (JPG, PNG, PDF)</span>
+                </label>
+              </div>
+              {contribForm.slipImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-3">
+                  {contribForm.slipImages.map((img, idx) => (
+                    <div key={idx} className="relative group rounded-lg overflow-hidden border border-border aspect-square">
+                      <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeSlipImage(idx)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowContribDialog(false)}>Cancel</Button>
