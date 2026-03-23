@@ -34,6 +34,7 @@ import {
   getMedicines, addMedicine, updateMedicine, deleteMedicine, subscribeMedicines, Medicine,
 } from "@/data/medicineStore";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import { exportToExcel, generateSampleExcel } from "@/lib/exportUtils";
 import { formatDualPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 
@@ -112,7 +113,7 @@ const MedicinePage = () => {
       name: m.name, manufacturer: m.manufacturer, boxNo: m.boxNo, category: m.category,
       purchasePrice: m.purchasePrice, price: m.price, stock: m.stock, unit: m.unit,
       soldOut: m.soldOut, image: m.image, expiry: m.expiry,
-      batchNo: "", stockAlert: 10, imageUrl: "",
+      batchNo: m.batchNo || "", stockAlert: m.stockAlert ?? 10, imageUrl: "",
     });
     setDialogOpen(true);
   };
@@ -351,31 +352,86 @@ const MedicinePage = () => {
     },
   ];
 
-  const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns: columns.map((c) => ({ key: c.key, header: c.header })), title: "Medicines" });
+  // Import/export columns matching user's desired format
+  const importExportColumns = [
+    { key: "name", header: "Medicine Name" },
+    { key: "category", header: "Category" },
+    { key: "unit", header: "Unit Type" },
+    { key: "stock", header: "Total Pcs" },
+    { key: "totalPurchasePrice", header: "Total Purchase Price" },
+    { key: "purchaseEachPrice", header: "Purchase Each Price (auto)" },
+    { key: "totalSalesPrice", header: "Total Sales Price" },
+    { key: "salesEachPrice", header: "Sales Each Price (auto)" },
+    { key: "available", header: "Stock Available pcs" },
+    { key: "expiry", header: "Expiry Date" },
+    { key: "manufacturer", header: "Manufacturer" },
+    { key: "batchNo", header: "Batch No" },
+    { key: "stockAlert", header: "Stock Alert" },
+  ];
+
+  const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns: importExportColumns, title: "Medicines" });
 
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
     if (rows.length > 0) {
       try {
         for (const row of rows) {
+          const totalPcs = Number(row.stock) || Number(row["Total Pcs"]) || 0;
+          const totalPurchase = Number(row.totalPurchasePrice) || Number(row["Total Purchase Price"]) || 0;
+          const totalSales = Number(row.totalSalesPrice) || Number(row["Total Sales Price"]) || 0;
+          const purchaseEach = totalPcs > 0 ? totalPurchase / totalPcs : 0;
+          const salesEach = totalPcs > 0 ? totalSales / totalPcs : 0;
+          const stockAvail = Number(row.available) || Number(row["Stock Available pcs"]) || totalPcs;
+
           await addMedicine({
             name: String(row.name || ""),
             manufacturer: String(row.manufacturer || ""),
-            boxNo: String(row.boxNo || "-"),
+            boxNo: "-",
             category: String(row.category || "Other"),
-            purchasePrice: Number(row.purchasePrice) || 0,
-            price: Number(row.price) || 0,
-            stock: Number(row.stock) || 0,
+            purchasePrice: Number(purchaseEach.toFixed(2)),
+            price: Number(salesEach.toFixed(2)),
+            stock: stockAvail,
             unit: String(row.unit || "Pieces"),
-            soldOut: Number(row.soldOut) || 0,
+            soldOut: Math.max(0, totalPcs - stockAvail),
             image: "",
             expiry: String(row.expiry || ""),
+            batchNo: String(row.batchNo || "-"),
+            stockAlert: Number(row.stockAlert) || 10,
           });
         }
       } catch (err: any) {
         toast.error(err.message || "Import failed");
       }
     }
+  };
+
+  // Custom sample data matching the user's desired format
+  const handleDownloadSample = () => {
+    const sampleRows = [
+      { name: "10% GS 500ml", category: "IV Fluid", unit: "Pieces", stock: 120, totalPurchasePrice: 0.50, purchaseEachPrice: 0.00, totalSalesPrice: 1200.00, salesEachPrice: 10.00, available: 118, expiry: "2028-09-26", manufacturer: "BBCA Pharma.", batchNo: "", stockAlert: 10 },
+      { name: "Paracetamol 500mg", category: "Tablet", unit: "Pieces", stock: 2500, totalPurchasePrice: 112.50, purchaseEachPrice: 0.04, totalSalesPrice: 625.00, salesEachPrice: 0.25, available: 2500, expiry: "2028-01-31", manufacturer: "Square", batchNo: "", stockAlert: 10 },
+      { name: "Amoxicillin 500mg", category: "Capsule", unit: "Pieces", stock: 1000, totalPurchasePrice: 70.00, purchaseEachPrice: 0.07, totalSalesPrice: 150.00, salesEachPrice: 0.15, available: 960, expiry: "2028-01-10", manufacturer: "PT Medifarma Lab", batchNo: "", stockAlert: 10 },
+      { name: "Actrapid", category: "Injection", unit: "Pieces", stock: 1, totalPurchasePrice: 8.50, purchaseEachPrice: 8.50, totalSalesPrice: 50.00, salesEachPrice: 50.00, available: 1, expiry: "2026-08-31", manufacturer: "Novo Nordisk", batchNo: "", stockAlert: 10 },
+      { name: "Alatrol", category: "Syrup", unit: "Pieces", stock: 100, totalPurchasePrice: 80.00, purchaseEachPrice: 0.80, totalSalesPrice: 499.00, salesEachPrice: 4.99, available: 97, expiry: "2028-08-30", manufacturer: "Square", batchNo: "", stockAlert: 10 },
+    ];
+    generateSampleExcel(importExportColumns, "Medicines", sampleRows);
+    toast.success("Sample template downloaded");
+  };
+
+  // Custom export with computed fields
+  const handleExportExcel = () => {
+    const exportData = data.map(m => ({
+      name: m.name, category: m.category, unit: m.unit, stock: m.stock,
+      totalPurchasePrice: (m.purchasePrice * m.stock).toFixed(2),
+      purchaseEachPrice: m.purchasePrice.toFixed(2),
+      totalSalesPrice: (m.price * m.stock).toFixed(2),
+      salesEachPrice: m.price.toFixed(2),
+      available: m.stock - m.soldOut,
+      expiry: m.expiry, manufacturer: m.manufacturer,
+      batchNo: m.batchNo || "-", stockAlert: m.stockAlert,
+    }));
+    exportToExcel(exportData as unknown as Record<string, unknown>[], importExportColumns, "Medicines");
+    toast.success(`Exported ${data.length} records to Excel`);
   };
 
   return (
@@ -390,7 +446,7 @@ const MedicinePage = () => {
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
       </PageHeader>
 
-      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={handleDownloadSample} />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">

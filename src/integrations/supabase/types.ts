@@ -421,6 +421,7 @@ export type Database = {
       }
       medicines: {
         Row: {
+          batch_no: string
           box_no: string
           category: string
           created_at: string
@@ -434,9 +435,11 @@ export type Database = {
           sold_out: number
           status: string
           stock: number
+          stock_alert: number
           unit: string
         }
         Insert: {
+          batch_no?: string
           box_no?: string
           category?: string
           created_at?: string
@@ -450,9 +453,11 @@ export type Database = {
           sold_out?: number
           status?: string
           stock?: number
+          stock_alert?: number
           unit?: string
         }
         Update: {
+          batch_no?: string
           box_no?: string
           category?: string
           created_at?: string
@@ -466,6 +471,7 @@ export type Database = {
           sold_out?: number
           status?: string
           stock?: number
+          stock_alert?: number
           unit?: string
         }
         Relationships: []

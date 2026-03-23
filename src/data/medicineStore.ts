@@ -16,6 +16,8 @@ export interface Medicine {
   image: string;
   expiry: string;
   status: "in-stock" | "low-stock" | "out-of-stock";
+  batchNo: string;
+  stockAlert: number;
 }
 
 const computeStatus = (stock: number): Medicine["status"] =>
@@ -42,6 +44,8 @@ const toMedicine = (r: any): Medicine => ({
   image: r.image,
   expiry: r.expiry,
   status: r.status as Medicine["status"],
+  batchNo: r.batch_no || "-",
+  stockAlert: r.stock_alert ?? 10,
 });
 
 /* ── fetch from DB ── */
@@ -84,6 +88,8 @@ export const addMedicine = async (med: Omit<Medicine, "id" | "status">) => {
       image: med.image,
       expiry: med.expiry,
       status,
+      batch_no: med.batchNo || "-",
+      stock_alert: med.stockAlert ?? 10,
     })
     .select()
     .single();
@@ -107,6 +113,8 @@ export const updateMedicine = async (id: string, updates: Partial<Medicine>) => 
   if (updates.soldOut !== undefined) dbUpdates.sold_out = updates.soldOut;
   if (updates.image !== undefined) dbUpdates.image = updates.image;
   if (updates.expiry !== undefined) dbUpdates.expiry = updates.expiry;
+  if (updates.batchNo !== undefined) dbUpdates.batch_no = updates.batchNo;
+  if (updates.stockAlert !== undefined) dbUpdates.stock_alert = updates.stockAlert;
 
   // Recompute status
   const existing = medicines.find((m) => m.id === id);

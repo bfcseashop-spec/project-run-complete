@@ -45,15 +45,25 @@ export function exportToPDF<T extends Record<string, unknown>>(
   setTimeout(() => printWin.print(), 300);
 }
 
-export function generateSampleExcel(columns: { key: string; header: string }[], filename: string) {
-  const sampleRow: Record<string, string> = {};
-  columns.forEach((col) => {
-    sampleRow[col.header] = `Sample ${col.header}`;
-  });
-  const ws = XLSX.utils.json_to_sheet([sampleRow]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Template");
-  XLSX.writeFile(wb, `${filename}_template.xlsx`);
+export function generateSampleExcel(columns: { key: string; header: string }[], filename: string, sampleRows?: Record<string, unknown>[]) {
+  if (sampleRows && sampleRows.length > 0) {
+    const rows = sampleRows.map((row) => {
+      const mapped: Record<string, unknown> = {};
+      columns.forEach((col) => { mapped[col.header] = row[col.key] ?? ""; });
+      return mapped;
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, `${filename}_template.xlsx`);
+  } else {
+    const sampleRow: Record<string, string> = {};
+    columns.forEach((col) => { sampleRow[col.header] = `Sample ${col.header}`; });
+    const ws = XLSX.utils.json_to_sheet([sampleRow]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, `${filename}_template.xlsx`);
+  }
 }
 
 export function importFromExcel(
