@@ -31,7 +31,7 @@ import {
   ChevronLeft, ChevronRight, LayoutList, LayoutGrid,
   Image as ImageIcon, Upload, X, ZoomIn,
 } from "lucide-react";
-import ImageLightbox from "@/components/ImageLightbox";
+import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
 import { exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
