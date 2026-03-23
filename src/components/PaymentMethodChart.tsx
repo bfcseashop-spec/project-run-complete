@@ -49,7 +49,7 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
       </div>
 
       <div className="px-5 pb-5">
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col sm:flex-row gap-6 items-start">
           {/* Donut Chart */}
           <div className="flex-shrink-0 w-[120px] h-[120px] relative">
             {hasData ? (
