@@ -7,7 +7,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
