@@ -101,7 +101,15 @@ export const addInvestor = (data: Omit<Investor, "id">) => {
 };
 
 export const updateInvestor = (id: string, updates: Partial<Investor>) => {
-  investors = investors.map((i) => (i.id === id ? { ...i, ...updates } : i));
+  investors = investors.map((i) => {
+    if (i.id !== id) return i;
+    const merged = { ...i, ...updates };
+    // If share % changed, recalculate capital
+    if (updates.sharePercent !== undefined) {
+      merged.capitalAmount = Math.round((merged.sharePercent / 100) * totalCapitalAmount * 100) / 100;
+    }
+    return merged;
+  });
   notify();
 };
 
