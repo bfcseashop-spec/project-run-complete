@@ -18,8 +18,8 @@ import { opdPatients } from "@/data/opdPatients";
 import { getLabReports, subscribeLabReports } from "@/data/labReportStore";
 import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
-import { xrayRecords } from "@/data/xrayRecords";
-import { ultrasoundRecords } from "@/data/ultrasoundRecords";
+import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
+import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
 import { parseISO, isWithinInterval, format, startOfDay, endOfDay } from "date-fns";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -61,6 +61,8 @@ const Dashboard = () => {
   const [medicines, setMedicines] = useState(getMedicines());
   const [injections, setInjections] = useState(getInjections());
   const [expenses, setExpenses] = useState(getExpenseRecords());
+  const [xrayRecs, setXrayRecs] = useState(getXrayRecords());
+  const [ultrasoundRecs, setUltrasoundRecs] = useState(getUltrasoundRecords());
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
@@ -77,6 +79,8 @@ const Dashboard = () => {
       subscribeMedicines(() => setMedicines([...getMedicines()])),
       subscribeInjections(() => setInjections([...getInjections()])),
       subscribeExpenses(() => setExpenses([...getExpenseRecords()])),
+      subscribeXray(() => setXrayRecs([...getXrayRecords()])),
+      subscribeUltrasound(() => setUltrasoundRecs([...getUltrasoundRecords()])),
     ];
     return () => unsubs.forEach(u => u());
   }, []);
@@ -119,8 +123,8 @@ const Dashboard = () => {
     const completedLabs = labReports.filter(r => r.status === "completed").length;
     const totalLabs = labReports.length;
 
-    const pendingXrays = xrayRecords.filter(r => r.status === "pending" || r.status === "in-progress").length;
-    const pendingUltrasounds = ultrasoundRecords.filter(r => r.status === "pending" || r.status === "in-progress").length;
+    const pendingXrays = xrayRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
+    const pendingUltrasounds = ultrasoundRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
 
     const lowStockMeds = medicines.filter(m => m.status === "low-stock").length;
     const outOfStockMeds = medicines.filter(m => m.status === "out-of-stock").length;
@@ -135,7 +139,7 @@ const Dashboard = () => {
       pendingXrays, pendingUltrasounds,
       lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections, expenses, filterPreset, customRange]);
+  }, [filteredBilling, patients, labReports, medicines, injections, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
 
   // Payment chart data
   const paymentData = useMemo(() => {
@@ -151,8 +155,8 @@ const Dashboard = () => {
   const departmentData = useMemo(() => {
     const opdCount = patients.length;
     const labCount = labReports.length;
-    const xrayCount = xrayRecords.length;
-    const usCount = ultrasoundRecords.length;
+    const xrayCount = xrayRecs.length;
+    const usCount = ultrasoundRecs.length;
     const otherCount = injections.length;
     const total = opdCount + labCount + xrayCount + usCount + otherCount || 1;
     return [
@@ -162,7 +166,7 @@ const Dashboard = () => {
       { name: "Ultrasound", value: Math.round((usCount / total) * 100), fill: "hsl(270, 60%, 55%)" },
       { name: "Injections", value: Math.round((otherCount / total) * 100), fill: "hsl(350, 65%, 55%)" },
     ];
-  }, [patients, labReports, injections]);
+  }, [patients, labReports, injections, xrayRecs, ultrasoundRecs]);
 
   // Sales by Category from line items
   const salesByCategory = useMemo(() => {
@@ -520,8 +524,8 @@ const Dashboard = () => {
               {[
                 { icon: Users, title: "Patients", value: stats.totalPatients, sub: `${stats.activePatients} active`, color: "hsl(160, 50%, 38%)" },
                 { icon: TestTube, title: "Lab Reports", value: stats.totalLabs, sub: `${stats.pendingLabs} pending`, color: "hsl(200, 80%, 45%)" },
-                { icon: ScanLine, title: "X-Ray", value: xrayRecords.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
-                { icon: Heart, title: "Ultrasound", value: ultrasoundRecords.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
+                { icon: ScanLine, title: "X-Ray", value: xrayRecs.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
+                { icon: Heart, title: "Ultrasound", value: ultrasoundRecs.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
               ].map((item) => (
                 <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>

@@ -63,7 +63,7 @@ export const isSettingsLoaded = (): boolean => loaded;
 
 export const loadSettings = async () => {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("app_settings")
       .select("value")
       .eq("key", "global")
@@ -85,7 +85,7 @@ let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const persistToDb = async () => {
   try {
-    await (supabase as any)
+    await supabase
       .from("app_settings")
       .update({ value: JSON.parse(JSON.stringify(settings)), updated_at: new Date().toISOString() })
       .eq("key", "global");
