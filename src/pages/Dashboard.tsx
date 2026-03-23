@@ -6,7 +6,7 @@ import {
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
   Beaker, Package, Smartphone, Coins, Send, Shield,
-  MinusCircle,
+  MinusCircle, BarChart3, Star,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
