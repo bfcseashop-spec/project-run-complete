@@ -88,6 +88,7 @@ const NewInvoicePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editData = (location.state as { editData?: InvoiceFormData })?.editData || null;
+  const editRecordId = (location.state as { editRecordId?: string })?.editRecordId || null;
   const draftId = (location.state as { draftId?: string })?.draftId || null;
   const onSubmitCallback = (location.state as { onSubmitAction?: string })?.onSubmitAction || null;
 
