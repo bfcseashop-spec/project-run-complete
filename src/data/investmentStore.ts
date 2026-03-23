@@ -43,6 +43,7 @@ export interface Contribution {
   amount: number;
   slipCount: number;
   note: string;
+  slipImages: string[];
 }
 
 // --- Initial Data ---
@@ -52,16 +53,16 @@ let investors: Investor[] = [
 ];
 
 let contributions: Contribution[] = [
-  { id: "c-001", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Rental", amount: 2000, slipCount: 1, note: "Sister Paid to Me - fro Clinic Rental - 2k" },
-  { id: "c-002", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Rental", amount: 3800, slipCount: 2, note: "Sister Paid - 2k And me -3800" },
-  { id: "c-003", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Water Bill", amount: 155.40, slipCount: 1, note: "-" },
-  { id: "c-004", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Electricity", amount: 802.55, slipCount: 1, note: "-" },
-  { id: "c-005", date: "2026-03-06", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Internet Service", amount: 220, slipCount: 1, note: "Internet service bill" },
-  { id: "c-006", date: "2026-03-01", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Salary", amount: 2100, slipCount: 5, note: "Dr- 1050 nurse- 200, Reception - 200- pahrmacis -200, ..." },
-  { id: "c-007", date: "2026-02-22", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medical Instrument", amount: 351.80, slipCount: 1, note: "Oxygen cylinder- purchased" },
-  { id: "c-008", date: "2026-02-21", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medicine", amount: 125, slipCount: 1, note: "pay to Dr- buy Medicine" },
-  { id: "c-009", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Ultrasound Payment", amount: 1000, slipCount: 1, note: "Tbs - ultrasound machine" },
-  { id: "c-010", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Water Bill", amount: 7.40, slipCount: 1, note: "Water-bill.jan" },
+  { id: "c-001", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Rental", amount: 2000, slipCount: 1, note: "Sister Paid to Me - fro Clinic Rental - 2k", slipImages: [] },
+  { id: "c-002", date: "2026-03-12", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Rental", amount: 3800, slipCount: 2, note: "Sister Paid - 2k And me -3800", slipImages: [] },
+  { id: "c-003", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Water Bill", amount: 155.40, slipCount: 1, note: "-", slipImages: [] },
+  { id: "c-004", date: "2026-03-11", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Electricity", amount: 802.55, slipCount: 1, note: "-", slipImages: [] },
+  { id: "c-005", date: "2026-03-06", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Internet Service", amount: 220, slipCount: 1, note: "Internet service bill", slipImages: [] },
+  { id: "c-006", date: "2026-03-01", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Salary", amount: 2100, slipCount: 5, note: "Dr- 1050 nurse- 200, Reception - 200- pahrmacis -200, ...", slipImages: [] },
+  { id: "c-007", date: "2026-02-22", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medical Instrument", amount: 351.80, slipCount: 1, note: "Oxygen cylinder- purchased", slipImages: [] },
+  { id: "c-008", date: "2026-02-21", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Medicine", amount: 125, slipCount: 1, note: "pay to Dr- buy Medicine", slipImages: [] },
+  { id: "c-009", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-1", category: "Ultrasound Payment", amount: 1000, slipCount: 1, note: "Tbs - ultrasound machine", slipImages: [] },
+  { id: "c-010", date: "2026-02-19", investmentName: "Capital Amount Investment", investorId: "inv-2", category: "Water Bill", amount: 7.40, slipCount: 1, note: "Water-bill.jan", slipImages: [] },
 ];
 
 let investorCounter = investors.length;

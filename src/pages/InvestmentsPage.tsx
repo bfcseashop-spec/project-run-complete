@@ -29,8 +29,9 @@ import {
   Landmark, Receipt, CheckCircle, AlertTriangle,
   Plus, Pencil, Trash2, Eye, Download, Search,
   ChevronLeft, ChevronRight, LayoutList, LayoutGrid,
-  Image as ImageIcon,
+  Image as ImageIcon, Upload, X, ZoomIn,
 } from "lucide-react";
+import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
 import { exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
@@ -62,12 +63,15 @@ const InvestmentsPage = () => {
   const [editContrib, setEditContrib] = useState<Contribution | null>(null);
   const [deleteContrib, setDeleteContrib] = useState<Contribution | null>(null);
   const [viewContrib, setViewContrib] = useState<Contribution | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<LightboxImage[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [editTotalCapital, setEditTotalCapital] = useState(false);
   const [totalCapitalInput, setTotalCapitalInput] = useState("");
 
   // Form states
   const [invForm, setInvForm] = useState({ name: "", sharePercent: 0, investmentName: "Capital Amount Investment", capitalAmount: 0, paid: 0, color: "hsl(217, 91%, 60%)" });
-  const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "" });
+  const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "", slipImages: [] });
 
   // Stats
   const totalCapital = investors.reduce((s, i) => s + i.capitalAmount, 0);
@@ -137,26 +141,52 @@ const InvestmentsPage = () => {
   };
 
   const openAddContrib = () => {
-    setContribForm({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: investors[0]?.id || "", category: "Rental", amount: 0, slipCount: 1, note: "" });
+    setContribForm({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: investors[0]?.id || "", category: "Rental", amount: 0, slipCount: 1, note: "", slipImages: [] });
     setEditContrib(null);
     setShowContribDialog(true);
   };
   const openEditContrib = (c: Contribution) => {
-    setContribForm({ date: c.date, investmentName: c.investmentName, investorId: c.investorId, category: c.category, amount: c.amount, slipCount: c.slipCount, note: c.note });
+    setContribForm({ date: c.date, investmentName: c.investmentName, investorId: c.investorId, category: c.category, amount: c.amount, slipCount: c.slipCount, note: c.note, slipImages: c.slipImages || [] });
     setEditContrib(c);
     setShowContribDialog(true);
   };
   const saveContrib = () => {
     if (!contribForm.investorId) { toast.error("Select an investor"); return; }
     if (contribForm.amount <= 0) { toast.error("Amount must be > 0"); return; }
+    const dataToSave = { ...contribForm, slipCount: contribForm.slipImages.length || contribForm.slipCount };
     if (editContrib) {
-      updateContribution(editContrib.id, contribForm);
+      updateContribution(editContrib.id, dataToSave);
       toast.success("Contribution updated");
     } else {
-      addContribution(contribForm);
+      addContribution(dataToSave);
       toast.success("Contribution added");
     }
     setShowContribDialog(false);
+  };
+
+  const handleSlipUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+        toast.error(`Unsupported file: ${file.name}`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        setContribForm((p) => ({ ...p, slipImages: [...p.slipImages, dataUrl], slipCount: p.slipImages.length + 1 }));
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const removeSlipImage = (index: number) => {
+    setContribForm((p) => {
+      const updated = p.slipImages.filter((_, i) => i !== index);
+      return { ...p, slipImages: updated, slipCount: updated.length };
+    });
   };
   const handleDeleteContrib = () => {
     if (deleteContrib) { removeContribution(deleteContrib.id); toast.success("Contribution deleted"); setDeleteContrib(null); }
@@ -486,11 +516,46 @@ const InvestmentsPage = () => {
                 <SelectContent>{allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs mb-1 block">Amount</Label><Input type="number" min={0} value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} /></div>
-              <div><Label className="text-xs mb-1 block">Slip Count</Label><Input type="number" min={0} value={contribForm.slipCount || ""} onChange={(e) => setContribForm(p => ({ ...p, slipCount: parseInt(e.target.value) || 0 }))} /></div>
+            <div>
+              <Label className="text-xs mb-1 block">Amount</Label>
+              <Input type="number" min={0} value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} />
             </div>
             <div><Label className="text-xs mb-1 block">Note</Label><Input value={contribForm.note} onChange={(e) => setContribForm(p => ({ ...p, note: e.target.value }))} placeholder="Description..." /></div>
+            
+            {/* Slip/Receipt Upload */}
+            <div>
+              <Label className="text-xs mb-1 block">Slip / Receipt Images ({contribForm.slipImages.length})</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={handleSlipUpload}
+                  className="hidden"
+                  id="slip-upload"
+                />
+                <label htmlFor="slip-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                  <Upload className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Click to upload slips/receipts (JPG, PNG, PDF)</span>
+                </label>
+              </div>
+              {contribForm.slipImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-3">
+                  {contribForm.slipImages.map((img, idx) => (
+                    <div key={idx} className="relative group rounded-lg overflow-hidden border border-border aspect-square">
+                      <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeSlipImage(idx)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowContribDialog(false)}>Cancel</Button>
@@ -501,7 +566,7 @@ const InvestmentsPage = () => {
 
       {/* View Contribution */}
       <Dialog open={!!viewContrib} onOpenChange={() => setViewContrib(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Contribution Details</DialogTitle></DialogHeader>
           {viewContrib && (
             <div className="space-y-3 py-2 text-sm">
@@ -510,13 +575,49 @@ const InvestmentsPage = () => {
               <div className="flex justify-between"><span className="text-muted-foreground">Investor</span><span className="font-medium">{getInvestorById(viewContrib.investorId)?.name}</span></div>
               <div className="flex justify-between items-center"><span className="text-muted-foreground">Category</span><span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[viewContrib.category]}`}>{viewContrib.category}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Amount</span><span className="font-bold text-primary">{formatPrice(viewContrib.amount)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Slips</span><span>{viewContrib.slipCount}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Slips</span><span>{viewContrib.slipImages?.length || viewContrib.slipCount}</span></div>
               <div><span className="text-muted-foreground block mb-1">Note</span><p className="text-foreground">{viewContrib.note || "—"}</p></div>
+              
+              {/* Slip Images Gallery */}
+              {viewContrib.slipImages && viewContrib.slipImages.length > 0 && (
+                <div>
+                  <span className="text-muted-foreground block mb-2">Attached Slips/Receipts</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {viewContrib.slipImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          const lbImages: LightboxImage[] = viewContrib.slipImages.map((img, i) => ({
+                            id: `slip-${i}`, name: `Slip ${i + 1}`, url: img, type: (img.includes("application/pdf") ? "pdf" : "image") as "image" | "pdf",
+                          }));
+                          setLightboxImages(lbImages);
+                          setLightboxIndex(idx);
+                          setLightboxOpen(true);
+                        }}
+                        className="relative rounded-lg overflow-hidden border border-border aspect-square group hover:ring-2 hover:ring-primary transition-all"
+                      >
+                        <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter><Button variant="outline" onClick={() => setViewContrib(null)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={(open) => { setLightboxOpen(open); if (!open) setLightboxImages([]); }}
+      />
 
       {/* Edit Total Capital */}
       <Dialog open={editTotalCapital} onOpenChange={setEditTotalCapital}>
