@@ -355,6 +355,7 @@ const NewInvoicePage = () => {
   };
 
   const handleConfirmAndSave = () => {
+    if (draftId) removeDraft(draftId); // Remove from drafts on payment completion
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",
