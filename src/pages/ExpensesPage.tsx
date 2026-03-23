@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { type ExpenseRecord, expenseCategories, paymentMethods } from "@/data/expenseRecords";
+import { supabase } from "@/integrations/supabase/client";
 import {
   getExpenseRecords, setExpenseRecords, addExpenseRecord, removeExpenseRecord,
   updateExpenseRecord, subscribeExpenses,
