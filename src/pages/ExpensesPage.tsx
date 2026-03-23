@@ -218,6 +218,7 @@ const ExpensesPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Expenses" description="Track and categorize clinic expenditures">
+        <Button variant="outline" onClick={() => setShowCategoryDialog(true)}><Tag className="w-4 h-4 mr-2" /> Category</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Expense</Button>
       </PageHeader>
 
