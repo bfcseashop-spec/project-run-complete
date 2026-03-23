@@ -4,6 +4,7 @@ import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Langu
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
+import { getDrafts, subscribeDrafts } from "@/data/draftStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,6 +82,9 @@ const LayoutInner = () => {
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
   const [currentMode, setCurrentMode] = useState(() => getStoredSettings().mode || "light");
 
+  const [draftCount, setDraftCount] = useState(getDrafts().length);
+  useEffect(() => { const unsub = subscribeDrafts(() => setDraftCount(getDrafts().length)); return unsub; }, []);
+
   const { settings, update: updateAppSettings } = useSettings();
   const currentLang = availableLanguages.find(l => l.id === settings.language) || availableLanguages[0];
 
@@ -116,11 +120,16 @@ const LayoutInner = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 text-muted-foreground hover:text-primary"
+              className="relative gap-1.5 text-muted-foreground hover:text-primary"
               onClick={() => navigate("/billing/drafts")}
             >
               <FileText className="w-4 h-4" />
               <span className="hidden md:inline text-xs font-medium">Drafts</span>
+              {draftCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none">
+                  {draftCount}
+                </span>
+              )}
             </Button>
 
             {/* Language Shortcut */}
