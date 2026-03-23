@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,8 +8,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Paintbrush, Type, Palette, Sun, Moon, Monitor, Check } from "lucide-react";
+import { Paintbrush, Type, Palette, Sun, Moon, Monitor, Check, ImageIcon, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { useSettings } from "@/hooks/use-settings";
+import { saveSettingsNow } from "@/data/settingsStore";
 
 /* ── Font options ── */
 const numberFontFamilies = [
