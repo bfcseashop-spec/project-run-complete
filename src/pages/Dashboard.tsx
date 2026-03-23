@@ -178,9 +178,11 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 w-full">
       {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/90 to-primary/70 p-6 lg:p-7 text-primary-foreground">
-        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/5" />
-        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/3" />
+      <div className="relative overflow-hidden rounded-2xl p-6 lg:p-7 text-white"
+        style={{ background: "linear-gradient(135deg, hsl(168,80%,30%) 0%, hsl(200,80%,40%) 50%, hsl(240,60%,50%) 100%)" }}>
+        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
+        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
+        <div className="absolute right-20 bottom-2 w-24 h-24 rounded-full bg-yellow-300/10" />
         <div className="relative flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
