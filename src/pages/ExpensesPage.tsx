@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import { type ExpenseRecord, expenseCategories, paymentMethods } from "@/data/expenseRecords";
+import { supabase } from "@/integrations/supabase/client";
 import {
   getExpenseRecords, setExpenseRecords, addExpenseRecord, removeExpenseRecord,
   updateExpenseRecord, subscribeExpenses,
@@ -44,10 +45,7 @@ const emptyForm: Omit<ExpenseRecord, "id"> = {
   date: new Date().toISOString().split("T")[0], receipt: "", notes: "", status: "pending",
 };
 
-const CUSTOM_CATEGORIES_KEY = "expense_custom_categories";
-const loadCustomCategories = (): string[] => {
-  try { return JSON.parse(localStorage.getItem(CUSTOM_CATEGORIES_KEY) || "[]"); } catch { return []; }
-};
+const DB_KEY = "expense_custom_categories";
 
 const ExpensesPage = () => {
   
@@ -61,25 +59,39 @@ const ExpensesPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
-  // Custom categories
-  const [customCategories, setCustomCategories] = useState<string[]>(loadCustomCategories());
+  // Custom categories persisted to app_settings
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const allCategories = [...expenseCategories, ...customCategories];
+
+  // Load from DB on mount
+  useEffect(() => {
+    supabase.from("app_settings").select("value").eq("key", DB_KEY).maybeSingle().then(({ data }) => {
+      if (data?.value && Array.isArray(data.value)) setCustomCategories(data.value as string[]);
+    });
+  }, []);
+
+  const persistCategories = useCallback(async (cats: string[]) => {
+    await supabase.from("app_settings").upsert(
+      { key: DB_KEY, value: cats as any, updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+  }, []);
 
   const addCustomCategory = () => {
     const name = newCategoryName.trim().toLowerCase();
     if (!name || allCategories.includes(name)) return;
     const updated = [...customCategories, name];
     setCustomCategories(updated);
-    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+    persistCategories(updated);
     setNewCategoryName("");
   };
 
   const removeCustomCategory = (cat: string) => {
     const updated = customCategories.filter(c => c !== cat);
     setCustomCategories(updated);
-    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(updated));
+    persistCategories(updated);
   };
 
   // Sync with store
