@@ -586,7 +586,14 @@ const InvestmentsPage = () => {
                     {viewContrib.slipImages.map((img, idx) => (
                       <button
                         key={idx}
-                        onClick={() => { setLightboxImages(viewContrib.slipImages); setLightboxIndex(idx); }}
+                        onClick={() => {
+                          const lbImages: LightboxImage[] = viewContrib.slipImages.map((img, i) => ({
+                            id: `slip-${i}`, name: `Slip ${i + 1}`, url: img, type: (img.includes("application/pdf") ? "pdf" : "image") as "image" | "pdf",
+                          }));
+                          setLightboxImages(lbImages);
+                          setLightboxIndex(idx);
+                          setLightboxOpen(true);
+                        }}
                         className="relative rounded-lg overflow-hidden border border-border aspect-square group hover:ring-2 hover:ring-primary transition-all"
                       >
                         <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
