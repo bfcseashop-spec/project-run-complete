@@ -280,6 +280,7 @@ const BrandingTab = () => {
   );
 };
 
+const SystemManagePage = () => {
   const [settings, setSettings] = useState<SystemSettings>(loadSystemSettings);
 
   useEffect(() => {
