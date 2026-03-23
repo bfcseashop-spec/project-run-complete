@@ -530,6 +530,11 @@ const InvestmentsPage = () => {
                 <button onClick={() => setViewMode("grid")} className={`p-1.5 transition-colors ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutGrid className="w-3.5 h-3.5" /></button>
               </div>
               <Button variant="outline" size="sm" onClick={handleExport} className="h-8 gap-1 text-xs"><Download className="w-3.5 h-3.5" /> Export</Button>
+              <Button variant="outline" size="sm" onClick={handleDownloadSample} className="h-8 gap-1 text-xs"><Download className="w-3.5 h-3.5" /> Sample</Button>
+              <div className="relative">
+                <input type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" id="contrib-import" />
+                <Button variant="outline" size="sm" onClick={() => document.getElementById("contrib-import")?.click()} className="h-8 gap-1 text-xs"><Upload className="w-3.5 h-3.5" /> Import</Button>
+              </div>
               <Button size="sm" onClick={openAddContrib} className="h-8 gap-1 text-xs"><Plus className="w-3.5 h-3.5" /> Add</Button>
             </div>
           </div>
