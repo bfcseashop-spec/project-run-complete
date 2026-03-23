@@ -404,9 +404,6 @@ const SettingsPage = () => {
           <TabsTrigger value="clinic" className="flex items-center gap-1.5 text-xs">
             <Building2 className="w-3.5 h-3.5" /> Clinic Profile
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs">
-            <Users className="w-3.5 h-3.5" /> Users & Access
-          </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-1.5 text-xs">
             <Palette className="w-3.5 h-3.5" /> Preferences
           </TabsTrigger>
