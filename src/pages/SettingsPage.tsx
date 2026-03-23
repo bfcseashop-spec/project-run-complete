@@ -420,7 +420,7 @@ const SettingsPage = () => {
 
         <div className="mt-6 rounded-lg border border-border bg-card p-6">
           <TabsContent value="clinic" className="mt-0"><ClinicProfileTab /></TabsContent>
-          <TabsContent value="users" className="mt-0"><UserAccessTab /></TabsContent>
+          
           <TabsContent value="preferences" className="mt-0"><PreferencesTab /></TabsContent>
           <TabsContent value="billing" className="mt-0"><BillingTab /></TabsContent>
           <TabsContent value="printer" className="mt-0"><PrinterTab /></TabsContent>
