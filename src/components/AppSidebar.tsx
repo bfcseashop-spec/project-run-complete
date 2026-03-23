@@ -218,9 +218,9 @@ const AppSidebar = () => {
                                 key={sub.path}
                                 to={sub.path}
                                 end
-                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all duration-200 ${
+                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
                                   isActive(sub.path)
-                                    ? "text-sidebar-accent-foreground font-medium"
+                                    ? "text-sidebar-accent-foreground"
                                     : "text-sidebar-muted hover:text-sidebar-foreground"
                                 }`}
                               >
