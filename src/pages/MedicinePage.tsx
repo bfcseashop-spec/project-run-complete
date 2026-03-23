@@ -35,7 +35,7 @@ import {
 } from "@/data/medicineStore";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { exportToExcel, generateSampleExcel } from "@/lib/exportUtils";
-import { formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 
 const defaultCategories = [

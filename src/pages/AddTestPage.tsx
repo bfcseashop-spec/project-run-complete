@@ -1,4 +1,4 @@
-import { formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { useState, useMemo, useSyncExternalStore } from "react";
 import { addSampleRecords } from "@/data/sampleStore";
@@ -245,7 +245,7 @@ const AddTestPage = () => {
                               <SelectContent>
                                 {activeTests.map((at) => (
                                   <SelectItem key={at.id} value={at.name}>
-                                    {at.name} — {formatDualPrice(at.price)}
+                                    {at.name} — {formatPrice(at.price)}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -291,7 +291,7 @@ const AddTestPage = () => {
                 {tests.length > 0 && (
                   <div className="mt-4 flex justify-end">
                     <div className="text-sm font-semibold text-foreground bg-muted px-4 py-2 rounded-md">
-                      Total: {formatDualPrice(totalPrice)}
+                      Total: {formatPrice(totalPrice)}
                     </div>
                   </div>
                 )}

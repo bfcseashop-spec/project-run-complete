@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { printHealthServiceReport } from "@/lib/printUtils";
 import PageHeader from "@/components/PageHeader";
-import { formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import DataGridView from "@/components/DataGridView";
@@ -179,7 +179,7 @@ const HealthServicesPage = () => {
         );
       },
     },
-    { key: "price", header: "Price", render: (s: HealthService) => <span className="font-bold text-foreground">{formatDualPrice(s.price)}</span> },
+    { key: "price", header: "Price", render: (s: HealthService) => <span className="font-bold text-foreground">{formatPrice(s.price)}</span> },
     { key: "status", header: "Status", render: (s: HealthService) => <StatusBadge status={s.status} /> },
     {
       key: "actions", header: "Actions", render: (s: HealthService) => (
@@ -274,7 +274,7 @@ const HealthServicesPage = () => {
           <div className="relative flex items-start justify-between">
             <div className="space-y-1.5">
               <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "hsl(45, 70%, 50%)" }}>Avg. Price</p>
-              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{formatDualPrice(Math.round(totalRevenue / services.length))}</p>
+              <p className="text-3xl font-black text-card-foreground tracking-tight leading-none">{formatPrice(Math.round(totalRevenue / services.length))}</p>
               <p className="text-xs text-muted-foreground">Per service</p>
             </div>
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "hsl(45, 70%, 50%, 0.12)" }}>
@@ -365,7 +365,7 @@ const HealthServicesPage = () => {
                     color: categoryColors[viewService.category] || "hsl(var(--primary))",
                   }}>{viewService.category}</Badge>
                 </div>
-                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-bold text-foreground text-lg">{formatDualPrice(viewService.price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-bold text-foreground text-lg">{formatPrice(viewService.price)}</p></div>
               </div>
               <div className="rounded-lg bg-muted/30 p-3">
                 <p className="text-xs text-muted-foreground mb-1">Description</p>

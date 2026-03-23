@@ -1,4 +1,4 @@
-import { formatPrice, formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { useState, useMemo, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
@@ -398,7 +398,7 @@ const TestNamePage = () => {
                       <TableCell><Badge variant="outline" className={categoryColors[t.category] || categoryColors.General}>{t.category}</Badge></TableCell>
                       <TableCell className="capitalize">{t.sampleType}</TableCell>
                       <TableCell className="text-xs">{t.normalRange}</TableCell>
-                      <TableCell className="text-right font-medium">{formatDualPrice(t.price)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatPrice(t.price)}</TableCell>
                       <TableCell>
                         <Badge
                           className={`cursor-pointer ${t.active ? "bg-success/15 text-success border-success/30" : "bg-destructive/10 text-destructive border-destructive/30"}`}
@@ -453,7 +453,7 @@ const TestNamePage = () => {
                       <div><span className="text-muted-foreground">Category:</span> <Badge variant="outline" className={`ml-1 text-[10px] px-1.5 py-0 ${categoryColors[t.category] || categoryColors.General}`}>{t.category}</Badge></div>
                       <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
                       <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
-                      <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatDualPrice(t.price)}</span></div>
+                      <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatPrice(t.price)}</span></div>
                     </div>
                     <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => setViewTest(t)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
@@ -539,7 +539,7 @@ const TestNamePage = () => {
                 <div><p className="text-muted-foreground text-xs">Category</p><p className="font-medium">{viewTest.category}</p></div>
                 <div><p className="text-muted-foreground text-xs">Sample Type</p><p className="font-medium capitalize">{viewTest.sampleType}</p></div>
                 <div><p className="text-muted-foreground text-xs">Normal Range</p><p className="font-medium">{viewTest.normalRange}</p></div>
-                <div><p className="text-muted-foreground text-xs">Price</p><p className="font-medium text-primary">{formatDualPrice(viewTest.price)}</p></div>
+                <div><p className="text-muted-foreground text-xs">Price</p><p className="font-medium text-primary">{formatPrice(viewTest.price)}</p></div>
               </div>
             </div>
           )}

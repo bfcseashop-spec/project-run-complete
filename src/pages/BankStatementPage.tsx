@@ -16,7 +16,7 @@ import {
   ArrowLeft, Download, Plus, ArrowUpRight, ArrowDownLeft,
 } from "lucide-react";
 import { getBillingRecords, subscribeBilling, type BillingRecord } from "@/data/billingStore";
-import { formatPrice, formatDualPrice, convertToSecondary, getCurrencySymbol } from "@/lib/currency";
+import { formatPrice, convertToSecondary, getCurrencySymbol } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { getSettings } from "@/data/settingsStore";
 import { DatePreset, filterByDate } from "@/lib/dateFilters";

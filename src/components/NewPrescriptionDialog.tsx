@@ -19,7 +19,7 @@ import { opdPatients } from "@/data/opdPatients";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { toast } from "sonner";
-import { formatPrice, formatDualPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 
 initPatients(opdPatients);
 
@@ -327,7 +327,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                   <div className="mb-2 rounded-md border border-primary/20 bg-primary/5 p-2">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-semibold">{form.tests.length} test(s)</span>
-                      <span className="text-xs font-bold text-primary">{formatDualPrice(totalTestPrice)}</span>
+                      <span className="text-xs font-bold text-primary">{formatPrice(totalTestPrice)}</span>
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {form.tests.map((t) => (
@@ -370,7 +370,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                               <p className="text-xs truncate">{test.name}</p>
                               <p className="text-[10px] text-muted-foreground">{test.category}</p>
                             </div>
-                            <span className="text-[10px] tabular-nums text-muted-foreground">{formatDualPrice(test.price)}</span>
+                            <span className="text-[10px] tabular-nums text-muted-foreground">{formatPrice(test.price)}</span>
                           </label>
                         );
                       })}

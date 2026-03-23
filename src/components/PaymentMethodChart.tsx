@@ -1,6 +1,6 @@
 import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { formatDualPrice, formatPrice } from "@/lib/currency";
+import { formatPrice } from "@/lib/currency";
 
 interface PaymentData {
   name: string;
@@ -44,7 +44,7 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-black text-card-foreground font-number">{formatDualPrice(total)}</p>
+          <p className="text-lg font-black text-card-foreground font-number">{formatPrice(total)}</p>
         </div>
       </div>
 
