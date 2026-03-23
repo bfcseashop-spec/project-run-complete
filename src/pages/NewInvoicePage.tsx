@@ -493,7 +493,7 @@ const NewInvoicePage = () => {
               {editRecordId && <span className="text-primary-foreground/60 font-mono ml-2 text-sm">{editRecordId}</span>}
             </h1>
             <p className="text-primary-foreground/60 text-xs">
-              {editData && patient ? patient : appSettings.clinicName}
+              {editData ? `Patient: ${patient || editData.patient}` : appSettings.clinicName}
             </p>
           </div>
         </div>
