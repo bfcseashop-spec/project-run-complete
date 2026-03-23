@@ -415,7 +415,7 @@ const InvestmentsPage = () => {
                     <div className="mb-3">
                       <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
                         <span className="font-medium">{progressPct}% paid</span>
-                        <span className="tabular-nums">{formatPrice(inv.paid)} / {formatPrice(inv.capitalAmount)}</span>
+                        <span className="tabular-nums">{formatPrice(investorPaid)} / {formatPrice(inv.capitalAmount)}</span>
                       </div>
                       <Progress value={progressPct} className="h-1.5" />
                     </div>
