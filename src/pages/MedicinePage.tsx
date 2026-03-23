@@ -297,12 +297,21 @@ const MedicinePage = () => {
     },
     {
       key: "expiry", header: "Expiry Date",
-      render: (m: Medicine) => (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Calendar className="w-3 h-3" />
-          {m.expiry}
-        </div>
-      ),
+      render: (m: Medicine) => {
+        const es = getExpiryStatus(m.expiry);
+        return (
+          <div className={`flex items-center gap-1.5 text-xs font-medium ${
+            es === "expired" ? "text-red-600 dark:text-red-400" :
+            es === "expiring" ? "text-amber-600 dark:text-amber-400" :
+            "text-muted-foreground"
+          }`}>
+            <Calendar className={`w-3 h-3 ${es === "expired" ? "text-red-500" : es === "expiring" ? "text-amber-500" : ""}`} />
+            {m.expiry || "—"}
+            {es === "expired" && <span className="ml-1 px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-bold">EXPIRED</span>}
+            {es === "expiring" && <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[10px] font-bold">SOON</span>}
+          </div>
+        );
+      },
     },
     {
       key: "actions", header: "Actions",
