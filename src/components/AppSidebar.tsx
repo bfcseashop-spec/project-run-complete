@@ -184,8 +184,10 @@ const AppSidebar = () => {
                           onClick={() => toggleExpand(item.path)}
                           className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 w-full group ${
                             parentActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent/60"
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium border-l-[3px]"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
+                          }`}
+                          style={parentActive ? { borderLeftColor: iconColor } : undefined}
                           }`}
                         >
                           <div
