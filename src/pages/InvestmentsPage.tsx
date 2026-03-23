@@ -343,8 +343,8 @@ const InvestmentsPage = () => {
       </div>
 
       {/* ─── Investor Cards ─── */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" /> Investors
             <span className="text-[10px] font-semibold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">{investors.length}</span>
@@ -355,22 +355,22 @@ const InvestmentsPage = () => {
         </div>
 
         {investors.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-10 text-center text-muted-foreground text-sm">
+          <div className="px-6 pb-6 text-center text-muted-foreground text-sm">
             No investors added yet. Click "Add Investor" to get started.
           </div>
         ) : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, 380px), 1fr))` }}>
+          <div className="px-6 pb-6 grid gap-4" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 300px), 1fr))` }}>
             {investors.map((inv) => {
               const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
               const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
               return (
-                <div key={inv.id} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
+                <div key={inv.id} className="group bg-background border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                   {/* Colored top strip */}
                   <div className="h-1.5" style={{ background: inv.color }} />
-                  <div className="p-4">
+                  <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm" style={{ background: inv.color }}>
+                        <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm" style={{ background: inv.color }}>
                           {inv.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -397,11 +397,11 @@ const InvestmentsPage = () => {
                     <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/50">
                       <div>
                         <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Capital</p>
-                        <p className="text-xs font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Due</p>
-                        <p className={`text-xs font-bold tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{formatPrice(dueAmount)}</p>
+                        <p className={`text-sm font-bold tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{formatPrice(dueAmount)}</p>
                       </div>
                     </div>
                   </div>
