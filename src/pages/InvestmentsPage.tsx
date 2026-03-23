@@ -4,6 +4,7 @@ import {
   addInvestor, updateInvestor, removeInvestor,
   addContribution, updateContribution, removeContribution,
   subscribeInvestments, allCategories, categoryColors,
+  getTotalCapital, setTotalCapital,
   type Investor, type Contribution, type ContributionCategory,
 } from "@/data/investmentStore";
 import PageHeader from "@/components/PageHeader";
