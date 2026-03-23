@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from "react
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   Calendar, Syringe, ScanLine, Heart, FileText,
-  Activity, Clock, ArrowRight,
+  Activity, Clock, ArrowRight, Percent, Receipt, Wallet,
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
   Beaker, Package, Smartphone, Coins, Send, Shield,
+  MinusCircle,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
@@ -19,6 +20,7 @@ import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { xrayRecords } from "@/data/xrayRecords";
 import { ultrasoundRecords } from "@/data/ultrasoundRecords";
+import { expenseRecords } from "@/data/expenseRecords";
 import { parseISO, isWithinInterval, format } from "date-fns";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
@@ -88,10 +90,23 @@ const Dashboard = () => {
   // Real computed stats
   const stats = useMemo(() => {
     const revenue = filteredBilling.reduce((s, r) => s + r.paid, 0);
+    const totalBills = filteredBilling.reduce((s, r) => s + r.total, 0);
+    const totalDiscount = filteredBilling.reduce((s, r) => s + r.discount, 0);
     const totalDue = filteredBilling.reduce((s, r) => s + r.due, 0);
     const invoiceCount = filteredBilling.length;
     const completedInvoices = filteredBilling.filter(r => r.status === "completed").length;
     const pendingInvoices = filteredBilling.filter(r => r.status === "pending" || r.status === "critical").length;
+
+    // Expenses filtered by date range
+    const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
+    const filteredExpenses = expenseRecords.filter(e => {
+      try { return isWithinInterval(parseISO(e.date), { start: range.from, end: range.to }); }
+      catch { return false; }
+    });
+    const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+
+    const profit = revenue > totalExpense ? revenue - totalExpense : 0;
+    const loss = totalExpense > revenue ? totalExpense - revenue : 0;
 
     const activePatients = patients.filter(p => p.status === "active").length;
     const pendingPatients = patients.filter(p => p.status === "pending").length;
@@ -110,13 +125,14 @@ const Dashboard = () => {
     const outOfStockInj = injections.filter(i => i.status === "out-of-stock").length;
 
     return {
-      revenue, totalDue, invoiceCount, completedInvoices, pendingInvoices,
+      revenue, totalBills, totalDiscount, totalDue, totalExpense, profit, loss,
+      invoiceCount, completedInvoices, pendingInvoices,
       activePatients, pendingPatients, totalPatients,
       pendingLabs, completedLabs, totalLabs,
       pendingXrays, pendingUltrasounds,
       lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections]);
+  }, [filteredBilling, patients, labReports, medicines, injections, filterPreset, customRange]);
 
   // Payment chart data
   const paymentData = useMemo(() => {
@@ -231,11 +247,15 @@ const Dashboard = () => {
             onCustomRangeChange={setCustomRange}
           />
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           <StatCard icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 70%, 50%)" />
-          <StatCard icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(270, 55%, 55%)" />
+          <StatCard icon={Percent} title="Discount" value={formatDualPrice(stats.totalDiscount)} change={`${stats.invoiceCount} invoices`} accentColor="hsl(38, 92%, 50%)" />
+          <StatCard icon={Wallet} title="Expense" value={formatDualPrice(stats.totalExpense)} accentColor="hsl(15, 85%, 52%)" />
+          <StatCard icon={Receipt} title="Total Bills" value={formatDualPrice(stats.totalBills)} accentColor="hsl(200, 70%, 50%)" />
+          <StatCard icon={ClipboardList} title="Total Invoice" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(217, 91%, 60%)" />
+          <StatCard icon={TrendingDown} title="Total Due" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
+          <StatCard icon={DollarSign} title="Profit" value={formatDualPrice(stats.profit)} accentColor="hsl(160, 84%, 39%)" />
+          <StatCard icon={MinusCircle} title="Loss" value={formatDualPrice(stats.loss)} accentColor="hsl(0, 70%, 50%)" />
         </div>
 
         <div className="mt-4">
