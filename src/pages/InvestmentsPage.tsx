@@ -72,6 +72,11 @@ const InvestmentsPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [editTotalCapital, setEditTotalCapital] = useState(false);
   const [totalCapitalInput, setTotalCapitalInput] = useState("");
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+
+  const allCategoriesCombined = [...allCategories, ...customCategories as ContributionCategory[]];
 
   // Form states
   const [invForm, setInvForm] = useState({ name: "", sharePercent: 0, investmentName: "Capital Amount Investment", capitalAmount: 0, paid: 0, color: "hsl(217, 91%, 60%)" });
