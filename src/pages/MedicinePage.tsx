@@ -128,31 +128,43 @@ const MedicinePage = () => {
     e.target.value = "";
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name.trim()) { toast.error("Medicine name is required"); return; }
-    if (editMed) {
-      updateMedicine(editMed.id, { ...form });
-      toast.success("Medicine updated");
-    } else {
-      addMedicine({ ...form });
-      toast.success("Medicine added");
+    try {
+      if (editMed) {
+        await updateMedicine(editMed.id, { ...form });
+        toast.success("Medicine updated");
+      } else {
+        await addMedicine({ ...form });
+        toast.success("Medicine added");
+      }
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save medicine");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteMed) {
-      deleteMedicine(deleteMed.id);
-      setDeleteMed(null);
-      toast.success("Medicine deleted");
+      try {
+        await deleteMedicine(deleteMed.id);
+        setDeleteMed(null);
+        toast.success("Medicine deleted");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete");
+      }
     }
   };
 
-  const handleBulkDelete = () => {
-    selectedIds.forEach((id) => deleteMedicine(id));
-    setSelectedIds(new Set());
-    setBulkDeleteOpen(false);
-    toast.success("Selected medicines deleted");
+  const handleBulkDelete = async () => {
+    try {
+      await Promise.all([...selectedIds].map((id) => deleteMedicine(id)));
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      toast.success("Selected medicines deleted");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    }
   };
 
   const handlePrint = (m: Medicine) => {
