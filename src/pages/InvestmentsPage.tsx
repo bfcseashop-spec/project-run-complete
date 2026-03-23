@@ -565,7 +565,7 @@ const InvestmentsPage = () => {
 
       {/* View Contribution */}
       <Dialog open={!!viewContrib} onOpenChange={() => setViewContrib(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Contribution Details</DialogTitle></DialogHeader>
           {viewContrib && (
             <div className="space-y-3 py-2 text-sm">
@@ -574,13 +574,43 @@ const InvestmentsPage = () => {
               <div className="flex justify-between"><span className="text-muted-foreground">Investor</span><span className="font-medium">{getInvestorById(viewContrib.investorId)?.name}</span></div>
               <div className="flex justify-between items-center"><span className="text-muted-foreground">Category</span><span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[viewContrib.category]}`}>{viewContrib.category}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Amount</span><span className="font-bold text-primary">{formatPrice(viewContrib.amount)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Slips</span><span>{viewContrib.slipCount}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Slips</span><span>{viewContrib.slipImages?.length || viewContrib.slipCount}</span></div>
               <div><span className="text-muted-foreground block mb-1">Note</span><p className="text-foreground">{viewContrib.note || "—"}</p></div>
+              
+              {/* Slip Images Gallery */}
+              {viewContrib.slipImages && viewContrib.slipImages.length > 0 && (
+                <div>
+                  <span className="text-muted-foreground block mb-2">Attached Slips/Receipts</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {viewContrib.slipImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => { setLightboxImages(viewContrib.slipImages); setLightboxIndex(idx); }}
+                        className="relative rounded-lg overflow-hidden border border-border aspect-square group hover:ring-2 hover:ring-primary transition-all"
+                      >
+                        <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter><Button variant="outline" onClick={() => setViewContrib(null)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      {lightboxImages.length > 0 && (
+        <ImageLightbox
+          images={lightboxImages}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxImages([])}
+        />
+      )}
 
       {/* Edit Total Capital */}
       <Dialog open={editTotalCapital} onOpenChange={setEditTotalCapital}>
