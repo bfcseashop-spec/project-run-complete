@@ -539,42 +539,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* ── Inventory Alerts ── */}
-      {(stats.lowStockMeds + stats.outOfStockMeds + stats.lowStockInj + stats.outOfStockInj > 0) && (
-        <section>
-          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(38,92%,50%), hsl(25,90%,50%))" }}>
-                <AlertTriangle className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-card-foreground font-heading">Inventory Alerts</h3>
-                <p className="text-[10px] text-muted-foreground">Stock level warnings</p>
-              </div>
-            </div>
-            <div className="px-5 pb-5">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { icon: Pill, title: "Low Stock Meds", value: stats.lowStockMeds, color: "hsl(38, 92%, 50%)" },
-                  { icon: Package, title: "Out of Stock", value: stats.outOfStockMeds, color: "hsl(0, 70%, 50%)" },
-                  { icon: Syringe, title: "Low Stock Inj.", value: stats.lowStockInj, color: "hsl(38, 70%, 48%)" },
-                  { icon: Beaker, title: "Out of Stock Inj.", value: stats.outOfStockInj, color: "hsl(0, 60%, 45%)" },
-                ].map((item) => (
-                  <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>
-                      <item.icon className="w-5 h-5" style={{ color: item.color }} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: item.color }}>{item.title}</p>
-                      <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none mt-0.5">{item.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+
 
       {/* ── Quick Actions ── */}
       <section>
@@ -609,7 +574,7 @@ const Dashboard = () => {
       </section>
 
       {/* ── Analytics Grid ── */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Activity - from real billing */}
         <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(160,84%,39%), hsl(200,80%,45%), hsl(270,60%,55%))" }} />
@@ -635,20 +600,6 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Weekly Trend */}
-        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(200,80%,45%), hsl(38,92%,50%), hsl(350,65%,55%))" }} />
-          <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(38,92%,50%))" }}>
-              <Calendar className="w-3.5 h-3.5 text-white" />
-            </span>
-            Weekly Billing Trend
-          </h3>
-          <Suspense fallback={<div className="h-[130px] bg-muted/30 rounded-lg animate-pulse" />}>
-            <LazyWeeklyChart data={weeklyData} />
-          </Suspense>
         </div>
 
         {/* Department Distribution */}
