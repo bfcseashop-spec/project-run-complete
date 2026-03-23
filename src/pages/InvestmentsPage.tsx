@@ -586,7 +586,7 @@ const InvestmentsPage = () => {
             <div><Label className="text-xs mb-1 block">Investor Name</Label><Input value={invForm.name} onChange={(e) => setInvForm(p => ({ ...p, name: e.target.value }))} /></div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs mb-1 block">Share %</Label>
+                <Label className="text-xs mb-1 block">Share % <span className="text-muted-foreground font-normal">(Available: {(100 - investors.filter(i => i.id !== editInvestor?.id).reduce((s, i) => s + i.sharePercent, 0)).toFixed(1)}%)</span></Label>
                 <Input type="number" min={0} max={100} value={invForm.sharePercent || ""} onChange={(e) => {
                   const pct = parseFloat(e.target.value) || 0;
                   const cap = Math.round((pct / 100) * totalCapital * 100) / 100;
