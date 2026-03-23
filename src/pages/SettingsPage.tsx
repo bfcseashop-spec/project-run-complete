@@ -172,7 +172,7 @@ const PreferencesTab = () => {
         <Switch checked={settings.notifications} onCheckedChange={(v) => update({ notifications: v })} />
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Preferences saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Preferences saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Preferences
         </Button>
       </div>
