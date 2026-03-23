@@ -248,7 +248,6 @@ const AppSidebar = () => {
                           : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
                       } ${collapsed ? "justify-center px-0 border-l-0" : ""}`}
                       style={parentActive && !collapsed ? { borderLeftColor: iconColor } : undefined}
-                      } ${collapsed ? "justify-center px-0" : ""}`}
                       title={collapsed ? t(item.labelKey, lang) : undefined}
                     >
                       <div
