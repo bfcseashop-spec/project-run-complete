@@ -169,7 +169,13 @@ const NewInvoicePage = () => {
   const effectivePaid = splitMode ? splitTotal : paidAmount;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
-  const selectedPatient = patients.find((p) => p.name === patient);
+  const patientOptions = useMemo(() => {
+    if (!patient) return patients;
+    if (patients.some((p) => p.name === patient)) return patients;
+    return [{ id: "edit-patient", name: patient, phone: "", age: "", gender: "" }, ...patients];
+  }, [patients, patient]);
+
+  const selectedPatient = patientOptions.find((p) => p.name === patient);
   const patientPhone = selectedPatient?.phone || "";
   const patientAge = selectedPatient?.age || "";
   const patientGender = selectedPatient?.gender || "";
