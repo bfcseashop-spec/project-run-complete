@@ -620,7 +620,10 @@ const InvestmentsPage = () => {
               </div>
             </div>
             <div><Label className="text-xs mb-1 block">Investment Name</Label><Input value={invForm.investmentName} onChange={(e) => setInvForm(p => ({ ...p, investmentName: e.target.value }))} /></div>
-            <div><Label className="text-xs mb-1 block">Already Paid</Label><Input type="number" min={0} value={invForm.paid || ""} onChange={(e) => setInvForm(p => ({ ...p, paid: parseFloat(e.target.value) || 0 }))} /></div>
+            <div>
+              <Label className="text-xs mb-1 block">Paid from Contributions</Label>
+              <Input type="number" value={invForm.paid || 0} readOnly className="bg-muted/50 cursor-not-allowed" />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCapitalDialog(false)}>Cancel</Button>
