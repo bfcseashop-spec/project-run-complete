@@ -52,7 +52,7 @@ const operationsData = [
 
 const Dashboard = () => {
   useSettings();
-  const [filterPreset, setFilterPreset] = useState<DashboardFilterPreset>("today");
+  const [filterPreset, setFilterPreset] = useState<DashboardFilterPreset>("this_month");
   const [customRange, setCustomRange] = useState<{ from: Date; to: Date } | null>(null);
   const [billingRecords, setBillingRecords] = useState(getBillingRecords());
   const [patients, setPatients] = useState(getPatients());
