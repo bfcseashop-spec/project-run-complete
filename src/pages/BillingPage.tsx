@@ -95,6 +95,8 @@ const BillingPage = () => {
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);
+      // Increment invoice number
+      updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
     } catch { /* ignore */ }
   }, []);
 
