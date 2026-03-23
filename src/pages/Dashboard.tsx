@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from "react
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
   Calendar, Syringe, ScanLine, Heart, FileText,
-  Activity, Clock, ArrowRight,
+  Activity, Clock, ArrowRight, Percent, Receipt, Wallet,
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
   Beaker, Package, Smartphone, Coins, Send, Shield,
+  MinusCircle,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
