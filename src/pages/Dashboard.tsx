@@ -155,8 +155,8 @@ const Dashboard = () => {
   const departmentData = useMemo(() => {
     const opdCount = patients.length;
     const labCount = labReports.length;
-    const xrayCount = xrayRecords.length;
-    const usCount = ultrasoundRecords.length;
+    const xrayCount = xrayRecs.length;
+    const usCount = ultrasoundRecs.length;
     const otherCount = injections.length;
     const total = opdCount + labCount + xrayCount + usCount + otherCount || 1;
     return [
