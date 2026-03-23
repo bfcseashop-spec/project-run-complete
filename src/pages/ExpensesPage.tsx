@@ -55,6 +55,12 @@ const ExpensesPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
+  // Sync with store
+  useEffect(() => {
+    const unsub = subscribeExpenses(() => setRecords([...getExpenseRecords()]));
+    return () => unsub();
+  }, []);
+
   const openAdd = () => { setEditRecord(null); setForm(emptyForm); setDialogOpen(true); };
   const openEdit = (r: ExpenseRecord) => {
     setEditRecord(r);
@@ -66,17 +72,18 @@ const ExpensesPage = () => {
   const handleSubmit = () => {
     if (!form.title || !form.paidTo || form.amount <= 0) return;
     if (editRecord) {
-      setRecords(prev => prev.map(r => r.id === editRecord.id ? { ...editRecord, ...form } : r));
+      updateExpenseRecord(editRecord.id, form);
     } else {
-      const nextId = `EXP-${String(records.length + 1).padStart(3, "0")}`;
-      setRecords(prev => [...prev, { id: nextId, ...form }]);
+      const allRecs = getExpenseRecords();
+      const nextId = `EXP-${String(allRecs.length + 1).padStart(3, "0")}`;
+      addExpenseRecord({ id: nextId, ...form });
     }
     setDialogOpen(false);
   };
 
   const handleDelete = () => {
     if (deleteRecord) {
-      setRecords(prev => prev.filter(r => r.id !== deleteRecord.id));
+      removeExpenseRecord(deleteRecord.id);
       setDeleteRecord(null);
     }
   };
