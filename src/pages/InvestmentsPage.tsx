@@ -201,8 +201,16 @@ const InvestmentsPage = () => {
       return { ...p, slipImages: updated, slipCount: updated.length };
     });
   };
-  const handleDeleteContrib = () => {
-    if (deleteContrib) { removeContribution(deleteContrib.id); toast.success("Contribution deleted"); setDeleteContrib(null); }
+  const handleDeleteContrib = async () => {
+    if (deleteContrib) {
+      try {
+        await removeContribution(deleteContrib.id);
+        toast.success("Contribution deleted");
+      } catch (e) {
+        toast.error("Failed to delete contribution");
+      }
+      setDeleteContrib(null);
+    }
   };
 
   const handleExport = () => {
