@@ -14,7 +14,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from "@/components/ui/tabs";
 import {
-  Building2, Palette, Receipt, Printer, Globe, Save, Upload, X,
+  Building2, Palette, Receipt, Printer, Globe, Save, Upload, X, KeyRound, Eye, EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
