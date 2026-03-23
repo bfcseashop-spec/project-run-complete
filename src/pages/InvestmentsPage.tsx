@@ -63,6 +63,8 @@ const InvestmentsPage = () => {
   const [editContrib, setEditContrib] = useState<Contribution | null>(null);
   const [deleteContrib, setDeleteContrib] = useState<Contribution | null>(null);
   const [viewContrib, setViewContrib] = useState<Contribution | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [editTotalCapital, setEditTotalCapital] = useState(false);
   const [totalCapitalInput, setTotalCapitalInput] = useState("");
 
