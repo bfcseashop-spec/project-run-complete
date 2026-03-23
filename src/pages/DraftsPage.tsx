@@ -90,6 +90,9 @@ const DraftsPage = () => {
     };
     addBillingRecord(record);
     removeDraft(draft.id);
+    // Increment invoice number
+    const nextNum = parseInt(s.nextInvoiceNumber) || 1001;
+    updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
     setViewDraft(null);
     toast.success(`Payment completed — Invoice ${invoiceId} created`);
   };
