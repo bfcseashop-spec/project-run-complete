@@ -7,7 +7,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
@@ -66,6 +66,7 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
 };
 
 import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getRefunds, subscribeRefunds } from "@/data/refundStore";
 
 const BillingPage = () => {
   const navigate = useNavigate();
@@ -77,8 +78,12 @@ const BillingPage = () => {
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
+  const [refunds, setRefunds] = useState(getRefunds());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
+  useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
+
+  const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
 
   // Pick up submitted invoice from the full-page form (only completed payments)
   useEffect(() => {
@@ -131,7 +136,17 @@ const BillingPage = () => {
   };
 
   const columns = [
-    { key: "id", header: "Invoice" },
+    { key: "id", header: "Invoice", render: (d: BillingRecord) => (
+      <div className="flex items-center gap-1.5">
+        <span>{d.id}</span>
+        {refundedInvoiceIds.has(d.id) && (
+          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+            <RotateCcw className="w-3 h-3" />
+            Refunded
+          </span>
+        )}
+      </div>
+    )},
     { key: "date", header: t("date", lang) },
     { key: "patient", header: t("patient", lang) },
     { key: "service", header: "Service" },
