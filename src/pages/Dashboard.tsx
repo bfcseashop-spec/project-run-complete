@@ -5,7 +5,7 @@ import {
   Activity, Clock, ArrowRight,
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
-  Beaker, Package,
+  Beaker, Package, Smartphone, Coins, Send, Shield,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
