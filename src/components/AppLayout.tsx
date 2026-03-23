@@ -112,6 +112,17 @@ const LayoutInner = () => {
               <span className="hidden md:inline text-xs font-medium">Billing</span>
             </Button>
 
+            {/* Drafts Shortcut */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground hover:text-primary"
+              onClick={() => navigate("/billing/drafts")}
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden md:inline text-xs font-medium">Drafts</span>
+            </Button>
+
             {/* Language Shortcut */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
