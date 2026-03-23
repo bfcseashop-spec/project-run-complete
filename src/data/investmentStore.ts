@@ -46,6 +46,20 @@ export interface Contribution {
   slipImages: string[];
 }
 
+// --- Independent Total Capital ---
+let totalCapitalAmount = 250000;
+
+export const getTotalCapital = () => totalCapitalAmount;
+export const setTotalCapital = (amount: number) => {
+  totalCapitalAmount = amount;
+  // Recalculate all investor capital amounts based on share %
+  investors = investors.map(inv => ({
+    ...inv,
+    capitalAmount: Math.round((inv.sharePercent / 100) * totalCapitalAmount * 100) / 100,
+  }));
+  notify();
+};
+
 // --- Initial Data ---
 let investors: Investor[] = [
   { id: "inv-1", name: "JamesBond", sharePercent: 85, investmentName: "Capital Amount Investment", capitalAmount: 212500, paid: 147837.60, color: "hsl(217, 91%, 60%)" },
@@ -79,14 +93,23 @@ export const getInvestorById = (id: string) => investors.find((i) => i.id === id
 // --- Investor CRUD ---
 export const addInvestor = (data: Omit<Investor, "id">) => {
   investorCounter++;
-  const inv: Investor = { ...data, id: `inv-${investorCounter}` };
+  const capitalAmount = Math.round((data.sharePercent / 100) * totalCapitalAmount * 100) / 100;
+  const inv: Investor = { ...data, capitalAmount, id: `inv-${investorCounter}` };
   investors = [...investors, inv];
   notify();
   return inv;
 };
 
 export const updateInvestor = (id: string, updates: Partial<Investor>) => {
-  investors = investors.map((i) => (i.id === id ? { ...i, ...updates } : i));
+  investors = investors.map((i) => {
+    if (i.id !== id) return i;
+    const merged = { ...i, ...updates };
+    // If share % changed, recalculate capital
+    if (updates.sharePercent !== undefined) {
+      merged.capitalAmount = Math.round((merged.sharePercent / 100) * totalCapitalAmount * 100) / 100;
+    }
+    return merged;
+  });
   notify();
 };
 

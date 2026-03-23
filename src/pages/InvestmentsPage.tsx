@@ -4,6 +4,7 @@ import {
   addInvestor, updateInvestor, removeInvestor,
   addContribution, updateContribution, removeContribution,
   subscribeInvestments, allCategories, categoryColors,
+  getTotalCapital, setTotalCapital,
   type Investor, type Contribution, type ContributionCategory,
 } from "@/data/investmentStore";
 import PageHeader from "@/components/PageHeader";
@@ -83,7 +84,7 @@ const InvestmentsPage = () => {
   const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "", slipImages: [] });
 
   // Stats
-  const totalCapital = investors.reduce((s, i) => s + i.capitalAmount, 0);
+  const totalCapital = getTotalCapital();
   const totalPaid = investors.reduce((s, i) => s + i.paid, 0);
   const totalContributions = contributions.reduce((s, c) => s + c.amount, 0);
   const remaining = totalCapital - totalPaid;
@@ -137,31 +138,18 @@ const InvestmentsPage = () => {
   const saveCapital = () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
     if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
-    // Validate total share % doesn't exceed 100
     const othersTotal = investors.filter(i => i.id !== editInvestor?.id).reduce((s, i) => s + i.sharePercent, 0);
     if (othersTotal + invForm.sharePercent > 100) {
       toast.error(`Total share exceeds 100%. Available: ${(100 - othersTotal).toFixed(2)}%`);
       return;
     }
-    // Recalculate capital from share % and total capital
-    const capitalAmount = Math.round((invForm.sharePercent / 100) * totalCapital * 100) / 100;
-    const formData = { ...invForm, capitalAmount };
     if (editInvestor) {
-      updateInvestor(editInvestor.id, formData);
+      updateInvestor(editInvestor.id, invForm);
       toast.success("Investor updated");
     } else {
-      addInvestor(formData);
+      addInvestor(invForm);
       toast.success("Investor added");
     }
-    // Recalculate all other investors' capital amounts based on their share %
-    investors.forEach(inv => {
-      if (inv.id !== editInvestor?.id) {
-        const newCap = Math.round((inv.sharePercent / 100) * totalCapital * 100) / 100;
-        if (Math.abs(newCap - inv.capitalAmount) > 0.01) {
-          updateInvestor(inv.id, { capitalAmount: newCap });
-        }
-      }
-    });
     setShowCapitalDialog(false);
   };
   const handleDeleteInvestor = () => {
@@ -234,12 +222,8 @@ const InvestmentsPage = () => {
   const handleUpdateTotalCapital = () => {
     const newTotal = parseFloat(totalCapitalInput);
     if (!newTotal || newTotal <= 0) { toast.error("Invalid amount"); return; }
-    // Redistribute based on each investor's share percentage
-    investors.forEach((inv) => {
-      const newCap = Math.round((inv.sharePercent / 100) * newTotal * 100) / 100;
-      updateInvestor(inv.id, { capitalAmount: newCap });
-    });
-    toast.success("Total capital updated — amounts recalculated from share %");
+    setTotalCapital(newTotal);
+    toast.success("Total capital updated — all amounts recalculated from share %");
     setEditTotalCapital(false);
   };
 
