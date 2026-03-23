@@ -387,8 +387,9 @@ const InvestmentsPage = () => {
         ) : (
           <div className="px-6 pb-6 grid gap-4" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 300px), 1fr))` }}>
             {investors.map((inv) => {
-              const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
-              const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
+              const investorPaid = paidByInvestor.get(inv.id) || 0;
+              const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((investorPaid / inv.capitalAmount) * 100)) : 0;
+              const dueAmount = Math.max(0, inv.capitalAmount - investorPaid);
               return (
                 <div key={inv.id} className="group bg-background border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                   {/* Colored top strip */}
