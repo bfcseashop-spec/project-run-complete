@@ -14,7 +14,7 @@ export interface StatCardProps {
   className?: string;
 }
 
-const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, accentColor, variant = "default" }: StatCardProps) => {
+const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, accentColor, variant = "default", onClick, className = "" }: StatCardProps) => {
   const color = accentColor || "hsl(var(--primary))";
 
   if (variant === "gradient") {
