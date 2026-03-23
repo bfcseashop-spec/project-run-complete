@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
-import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages, FileText } from "lucide-react";
+import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages, FileText, Menu } from "lucide-react";
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -76,7 +76,7 @@ function applyModeQuick(mode: string) {
 }
 
 const LayoutInner = () => {
-  const { collapsed } = useSidebarState();
+  const { collapsed, isMobile, setMobileOpen } = useSidebarState();
   const navigate = useNavigate();
   const now = useDateTime();
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
@@ -94,25 +94,33 @@ const LayoutInner = () => {
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar />
-      <div className={`transition-all duration-300 ${collapsed ? "ml-[68px]" : "ml-[260px]"}`}>
+      <div className={`transition-all duration-300 ${isMobile ? "ml-0" : collapsed ? "ml-[68px]" : "ml-[260px]"}`}>
         <header
-          className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 shadow-md"
+          className="sticky top-0 z-20 h-14 flex items-center justify-between px-3 sm:px-5 shadow-md"
           style={{ background: "linear-gradient(135deg, hsl(160, 50%, 28%) 0%, hsl(168, 60%, 22%) 50%, hsl(175, 55%, 20%) 100%)" }}
         >
-          {/* Search */}
-          <div className="flex items-center gap-2.5 flex-1 max-w-md">
+          {/* Mobile hamburger + Search */}
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            {isMobile && (
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all flex-shrink-0"
+              >
+                <Menu className="w-5 h-5 text-white" />
+              </button>
+            )}
             <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/10 flex-1 transition-all focus-within:border-white/25 focus-within:bg-white/15">
               <Search className="w-4 h-4 text-white/50 flex-shrink-0" />
               <input
                 type="text"
-                placeholder="Search patients, tests, medicines..."
+                placeholder={isMobile ? "Search..." : "Search patients, tests, medicines..."}
                 className="bg-transparent text-sm outline-none w-full text-white placeholder:text-white/40"
               />
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             {/* Billing */}
             <Button
               variant="ghost"
@@ -250,7 +258,7 @@ const LayoutInner = () => {
             </div>
           </div>
         </header>
-        <main className="p-6">
+        <main className="p-3 sm:p-4 lg:p-6">
           <Outlet />
         </main>
       </div>
