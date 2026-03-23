@@ -291,7 +291,7 @@ const Dashboard = () => {
               className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
             >
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
                 style={{ background: op.bg }}
               >
                 <op.icon className="w-5 h-5 text-white" />
