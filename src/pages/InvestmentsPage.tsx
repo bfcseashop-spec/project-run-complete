@@ -80,10 +80,18 @@ const InvestmentsPage = () => {
   const [invForm, setInvForm] = useState({ name: "", sharePercent: 0, investmentName: "Capital Amount Investment", capitalAmount: 0, paid: 0, color: "hsl(217, 91%, 60%)" });
   const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "", slipImages: [] });
 
+  const paidByInvestor = useMemo(() => {
+    const map = new Map<string, number>();
+    contributions.forEach((contribution) => {
+      map.set(contribution.investorId, (map.get(contribution.investorId) || 0) + contribution.amount);
+    });
+    return map;
+  }, [contributions]);
+
   // Stats
   const totalCapital = getTotalCapital();
-  const totalPaid = investors.reduce((s, i) => s + i.paid, 0);
-  const totalContributions = contributions.reduce((s, c) => s + c.amount, 0);
+  const totalPaid = contributions.reduce((s, c) => s + c.amount, 0);
+  const totalContributions = totalPaid;
   const remaining = totalCapital - totalPaid;
 
   // Filtered contributions
