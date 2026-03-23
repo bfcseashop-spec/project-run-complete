@@ -43,6 +43,7 @@ export interface Contribution {
   amount: number;
   slipCount: number;
   note: string;
+  slipImages: string[];
 }
 
 // --- Initial Data ---
