@@ -31,6 +31,7 @@ const InjectionsPage = lazy(() => import("@/pages/InjectionsPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const SystemManagePage = lazy(() => import("@/pages/SystemManagePage"));
 const RefundPage = lazy(() => import("@/pages/RefundPage"));
+const UsersAccessPage = lazy(() => import("@/pages/UsersAccessPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const LazyRoles = lazy(() =>
@@ -124,6 +125,7 @@ const App = () => (
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/system-manage" element={<SystemManagePage />} />
               <Route path="/refund" element={<RefundPage />} />
+              <Route path="/users-access" element={<UsersAccessPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

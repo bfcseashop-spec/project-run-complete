@@ -13,7 +13,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
 } from "@/components/ui/tabs";
 import {
-  Building2, Users, Palette, Receipt, Printer, Globe, Save, Upload, X,
+  Building2, Palette, Receipt, Printer, Globe, Save, Upload, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
@@ -107,55 +107,8 @@ const ClinicProfileTab = () => {
   );
 };
 
-/* ─── User & Access Settings ─── */
-const UserAccessTab = () => {
-  const users = [
-    { id: 1, name: "Admin User", email: "admin@clinic.com", role: "Admin", active: true },
-    { id: 2, name: "Dr. Sarah Smith", email: "sarah@clinic.com", role: "Doctor", active: true },
-    { id: 3, name: "Nurse Priya", email: "priya@clinic.com", role: "Nurse", active: true },
-    { id: 4, name: "Reception Desk", email: "reception@clinic.com", role: "Receptionist", active: false },
-  ];
 
-  const roles = ["Admin", "Doctor", "Nurse", "Receptionist", "Lab Technician", "Pharmacist"];
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{users.length} users configured</p>
-        <Button size="sm" onClick={() => toast.info("User management coming soon")}>
-          Add User
-        </Button>
-      </div>
-      <div className="rounded-lg border border-border divide-y divide-border">
-        {users.map((u) => (
-          <div key={u.id} className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                {u.name.split(" ").map((w) => w[0]).join("")}
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">{u.name}</p>
-                <p className="text-xs text-muted-foreground">{u.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant={u.role === "Admin" ? "default" : "secondary"} className="text-xs">{u.role}</Badge>
-              <Badge variant={u.active ? "default" : "outline"} className="text-xs">{u.active ? "Active" : "Inactive"}</Badge>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="rounded-lg border border-border p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-3">Available Roles</h4>
-        <div className="flex flex-wrap gap-2">
-          {roles.map((r) => (
-            <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 /* ─── General Preferences ─── */
 const PreferencesTab = () => {
@@ -451,9 +404,6 @@ const SettingsPage = () => {
           <TabsTrigger value="clinic" className="flex items-center gap-1.5 text-xs">
             <Building2 className="w-3.5 h-3.5" /> Clinic Profile
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs">
-            <Users className="w-3.5 h-3.5" /> Users & Access
-          </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-1.5 text-xs">
             <Palette className="w-3.5 h-3.5" /> Preferences
           </TabsTrigger>
@@ -470,7 +420,7 @@ const SettingsPage = () => {
 
         <div className="mt-6 rounded-lg border border-border bg-card p-6">
           <TabsContent value="clinic" className="mt-0"><ClinicProfileTab /></TabsContent>
-          <TabsContent value="users" className="mt-0"><UserAccessTab /></TabsContent>
+          
           <TabsContent value="preferences" className="mt-0"><PreferencesTab /></TabsContent>
           <TabsContent value="billing" className="mt-0"><BillingTab /></TabsContent>
           <TabsContent value="printer" className="mt-0"><PrinterTab /></TabsContent>
