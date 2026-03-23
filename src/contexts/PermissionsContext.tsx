@@ -33,24 +33,32 @@ export const PermissionsProvider = ({ children }: { children: ReactNode }) => {
   const isAdmin = profile?.role_name === "Admin";
 
   useEffect(() => {
-    if (!profile?.role_id) {
-      // No role assigned - give no permissions (unless no role means first user = admin)
+    if (!profile) {
+      setPermissions([]);
+      setLoading(false);
+      return;
+    }
+
+    if (!profile.role_id) {
       setPermissions([]);
       setLoading(false);
       return;
     }
 
     const fetchPermissions = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("role_permissions")
         .select("module, can_view, can_create, can_edit, can_delete")
         .eq("role_id", profile.role_id!);
-      setPermissions(data || []);
+      if (error) {
+        console.error("Failed to fetch permissions:", error.message);
+      }
+      setPermissions((data as ModulePermission[]) || []);
       setLoading(false);
     };
 
     fetchPermissions();
-  }, [profile?.role_id]);
+  }, [profile?.role_id, profile]);
 
   const can = (module: string, action: PermissionAction): boolean => {
     if (isAdmin) return true;
