@@ -180,8 +180,9 @@ const MedicinePage = () => {
       m.boxNo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchCat = filterCategory === "all" || m.category === filterCategory;
     const matchStatus = filterStatus === "all" || m.status === filterStatus;
-    return matchSearch && matchCat && matchStatus;
-  });
+    const matchExpiry = filterStatus === "expiring" ? getExpiryStatus(m.expiry) === "expiring" :
+                       filterStatus === "expired" ? getExpiryStatus(m.expiry) === "expired" : true;
+    return matchSearch && matchCat && (filterStatus === "expiring" || filterStatus === "expired" ? matchExpiry : matchStatus) && matchExpiry;
 
   // Stats
   const totalItems = data.length;
