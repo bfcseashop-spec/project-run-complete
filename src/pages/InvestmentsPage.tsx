@@ -136,13 +136,26 @@ const InvestmentsPage = () => {
   };
   const saveCapital = () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
+    if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
+    // Recalculate capital from share % and total capital
+    const capitalAmount = Math.round((invForm.sharePercent / 100) * totalCapital * 100) / 100;
+    const formData = { ...invForm, capitalAmount };
     if (editInvestor) {
-      updateInvestor(editInvestor.id, invForm);
+      updateInvestor(editInvestor.id, formData);
       toast.success("Investor updated");
     } else {
-      addInvestor(invForm);
+      addInvestor(formData);
       toast.success("Investor added");
     }
+    // Recalculate all other investors' capital amounts based on their share %
+    investors.forEach(inv => {
+      if (inv.id !== editInvestor?.id) {
+        const newCap = Math.round((inv.sharePercent / 100) * totalCapital * 100) / 100;
+        if (Math.abs(newCap - inv.capitalAmount) > 0.01) {
+          updateInvestor(inv.id, { capitalAmount: newCap });
+        }
+      }
+    });
     setShowCapitalDialog(false);
   };
   const handleDeleteInvestor = () => {
@@ -215,13 +228,12 @@ const InvestmentsPage = () => {
   const handleUpdateTotalCapital = () => {
     const newTotal = parseFloat(totalCapitalInput);
     if (!newTotal || newTotal <= 0) { toast.error("Invalid amount"); return; }
-    // Redistribute proportionally
-    const oldTotal = totalCapital || 1;
+    // Redistribute based on each investor's share percentage
     investors.forEach((inv) => {
-      const newCap = (inv.capitalAmount / oldTotal) * newTotal;
-      updateInvestor(inv.id, { capitalAmount: Math.round(newCap * 100) / 100 });
+      const newCap = Math.round((inv.sharePercent / 100) * newTotal * 100) / 100;
+      updateInvestor(inv.id, { capitalAmount: newCap });
     });
-    toast.success("Total capital updated");
+    toast.success("Total capital updated — amounts recalculated from share %");
     setEditTotalCapital(false);
   };
 
@@ -567,8 +579,19 @@ const InvestmentsPage = () => {
           <div className="space-y-3 py-2">
             <div><Label className="text-xs mb-1 block">Investor Name</Label><Input value={invForm.name} onChange={(e) => setInvForm(p => ({ ...p, name: e.target.value }))} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs mb-1 block">Share %</Label><Input type="number" min={0} max={100} value={invForm.sharePercent || ""} onChange={(e) => setInvForm(p => ({ ...p, sharePercent: parseFloat(e.target.value) || 0 }))} /></div>
-              <div><Label className="text-xs mb-1 block">Capital Amount</Label><Input type="number" min={0} value={invForm.capitalAmount || ""} onChange={(e) => setInvForm(p => ({ ...p, capitalAmount: parseFloat(e.target.value) || 0 }))} /></div>
+              <div>
+                <Label className="text-xs mb-1 block">Share %</Label>
+                <Input type="number" min={0} max={100} value={invForm.sharePercent || ""} onChange={(e) => {
+                  const pct = parseFloat(e.target.value) || 0;
+                  const cap = Math.round((pct / 100) * totalCapital * 100) / 100;
+                  setInvForm(p => ({ ...p, sharePercent: pct, capitalAmount: cap }));
+                }} />
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Capital Amount</Label>
+                <Input type="number" min={0} value={invForm.capitalAmount || ""} readOnly className="bg-muted/50 cursor-not-allowed" />
+                <p className="text-[10px] text-muted-foreground mt-1">Auto-calculated from share %</p>
+              </div>
             </div>
             <div><Label className="text-xs mb-1 block">Investment Name</Label><Input value={invForm.investmentName} onChange={(e) => setInvForm(p => ({ ...p, investmentName: e.target.value }))} /></div>
             <div><Label className="text-xs mb-1 block">Already Paid</Label><Input type="number" min={0} value={invForm.paid || ""} onChange={(e) => setInvForm(p => ({ ...p, paid: parseFloat(e.target.value) || 0 }))} /></div>
