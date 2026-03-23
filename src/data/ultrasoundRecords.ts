@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { type XRayImage } from "@/data/xrayRecords";
 
 export type UltrasoundImage = XRayImage;
@@ -17,45 +18,79 @@ export interface UltrasoundRecord {
   images: UltrasoundImage[];
 }
 
-export const ultrasoundRecords: UltrasoundRecord[] = [
-  { id: "US-3001", patient: "Sarah Johnson", examination: "Whole Abdomen USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "2026-03-19", status: "completed", region: "abdomen", findings: "Normal liver, GB, pancreas, spleen, kidneys", impression: "Normal study", remarks: "No focal lesion seen", images: [] },
-  { id: "US-3002", patient: "Michael Chen", examination: "Obstetric USG (2nd Trimester)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "pending", region: "obstetric", findings: "", impression: "", remarks: "", images: [] },
-  { id: "US-3003", patient: "Emily Davis", examination: "Thyroid USG", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "2026-03-18", status: "completed", region: "thyroid", findings: "Small nodule right lobe", impression: "Benign thyroid nodule (TIRADS 2)", remarks: "6mm hypoechoic nodule, follow-up in 6 months", images: [] },
-  { id: "US-3004", patient: "James Wilson", examination: "Pelvic USG", doctor: "Dr. Patel", date: "2026-03-19", reportDate: "", status: "in-progress", region: "pelvis", findings: "", impression: "", remarks: "Scan in progress", images: [] },
-  { id: "US-3005", patient: "Maria Garcia", examination: "Breast USG (Bilateral)", doctor: "Dr. Smith", date: "2026-03-17", reportDate: "2026-03-18", status: "completed", region: "breast", findings: "Normal bilateral breast parenchyma", impression: "BIRADS 1 - Normal", remarks: "No mass or cyst identified", images: [] },
-  { id: "US-3006", patient: "Robert Brown", examination: "Carotid Doppler", doctor: "Dr. Lee", date: "2026-03-18", reportDate: "", status: "pending", region: "vascular", findings: "", impression: "", remarks: "", images: [] },
-  { id: "US-3007", patient: "Linda Martinez", examination: "Echocardiography", doctor: "Dr. Patel", date: "2026-03-18", reportDate: "2026-03-19", status: "completed", region: "cardiac", findings: "Normal LV function, EF 60%", impression: "Normal echocardiogram", remarks: "No valvular abnormality", images: [] },
-  { id: "US-3008", patient: "David Kim", examination: "Musculoskeletal USG (Right Shoulder)", doctor: "Dr. Smith", date: "2026-03-19", reportDate: "", status: "in-progress", region: "musculoskeletal", findings: "", impression: "", remarks: "Evaluating rotator cuff", images: [] },
-];
+type Listener = () => void;
+let records: UltrasoundRecord[] = [];
+let loaded = false;
+const listeners = new Set<Listener>();
+const notify = () => listeners.forEach((fn) => fn());
+
+const toRecord = (r: any): UltrasoundRecord => ({
+  id: r.id, patient: r.patient, examination: r.examination, doctor: r.doctor,
+  date: r.date, reportDate: r.report_date, status: r.status, region: r.region,
+  findings: r.findings, impression: r.impression, remarks: r.remarks,
+  images: (r.images as UltrasoundImage[]) || [],
+});
+
+const load = async () => {
+  const { data, error } = await supabase.from("ultrasound_records").select("*").order("created_at", { ascending: false });
+  if (!error && data) { records = data.map(toRecord); loaded = true; notify(); }
+};
+load();
+
+export const getUltrasoundRecords = () => records;
+export const isUltrasoundLoaded = () => loaded;
+
+export const addUltrasoundRecord = async (record: UltrasoundRecord) => {
+  const { error } = await supabase.from("ultrasound_records").insert({
+    id: record.id, patient: record.patient, examination: record.examination, doctor: record.doctor,
+    date: record.date, report_date: record.reportDate, status: record.status, region: record.region,
+    findings: record.findings, impression: record.impression, remarks: record.remarks,
+    images: JSON.parse(JSON.stringify(record.images)),
+  });
+  if (error) throw error;
+  records = [record, ...records]; notify();
+};
+
+export const updateUltrasoundRecord = async (id: string, updates: Partial<UltrasoundRecord>) => {
+  const dbUp: Record<string, any> = {};
+  if (updates.patient !== undefined) dbUp.patient = updates.patient;
+  if (updates.examination !== undefined) dbUp.examination = updates.examination;
+  if (updates.doctor !== undefined) dbUp.doctor = updates.doctor;
+  if (updates.date !== undefined) dbUp.date = updates.date;
+  if (updates.reportDate !== undefined) dbUp.report_date = updates.reportDate;
+  if (updates.status !== undefined) dbUp.status = updates.status;
+  if (updates.region !== undefined) dbUp.region = updates.region;
+  if (updates.findings !== undefined) dbUp.findings = updates.findings;
+  if (updates.impression !== undefined) dbUp.impression = updates.impression;
+  if (updates.remarks !== undefined) dbUp.remarks = updates.remarks;
+  if (updates.images !== undefined) dbUp.images = JSON.parse(JSON.stringify(updates.images));
+  await supabase.from("ultrasound_records").update(dbUp).eq("id", id);
+  records = records.map((r) => (r.id === id ? { ...r, ...updates } : r)); notify();
+};
+
+export const removeUltrasoundRecord = async (id: string) => {
+  await supabase.from("ultrasound_records").delete().eq("id", id);
+  records = records.filter((r) => r.id !== id); notify();
+};
+
+export const subscribeUltrasound = (fn: Listener) => {
+  listeners.add(fn); return () => listeners.delete(fn);
+};
+
+// Keep these exports for backward compat
+export const ultrasoundRecords = records; // deprecated, use getUltrasoundRecords()
 
 export const regions = [
   "abdomen", "pelvis", "obstetric", "thyroid", "breast", "musculoskeletal", "vascular", "cardiac",
 ] as const;
 
 export const examinationNames = [
-  "Whole Abdomen USG",
-  "Upper Abdomen USG",
-  "KUB (Kidney, Ureter, Bladder)",
-  "Liver & GB USG",
-  "Pelvic USG",
-  "Transvaginal USG",
-  "Obstetric USG (1st Trimester)",
-  "Obstetric USG (2nd Trimester)",
-  "Obstetric USG (3rd Trimester)",
-  "NT Scan",
-  "Anomaly Scan",
-  "Growth Scan",
-  "Thyroid USG",
-  "Breast USG (Bilateral)",
-  "Breast USG (Unilateral)",
-  "Carotid Doppler",
-  "Venous Doppler (Lower Limb)",
-  "Arterial Doppler (Lower Limb)",
-  "Renal Doppler",
-  "Echocardiography",
-  "Musculoskeletal USG (Shoulder)",
-  "Musculoskeletal USG (Knee)",
-  "Musculoskeletal USG (Other)",
-  "Scrotal USG",
-  "Soft Tissue USG",
+  "Whole Abdomen USG", "Upper Abdomen USG", "KUB (Kidney, Ureter, Bladder)",
+  "Liver & GB USG", "Pelvic USG", "Transvaginal USG",
+  "Obstetric USG (1st Trimester)", "Obstetric USG (2nd Trimester)", "Obstetric USG (3rd Trimester)",
+  "NT Scan", "Anomaly Scan", "Growth Scan", "Thyroid USG",
+  "Breast USG (Bilateral)", "Breast USG (Unilateral)", "Carotid Doppler",
+  "Venous Doppler (Lower Limb)", "Arterial Doppler (Lower Limb)", "Renal Doppler",
+  "Echocardiography", "Musculoskeletal USG (Shoulder)", "Musculoskeletal USG (Knee)",
+  "Musculoskeletal USG (Other)", "Scrotal USG", "Soft Tissue USG",
 ];
