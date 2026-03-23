@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
+import { saveSettingsNow } from "@/data/settingsStore";
 import { currencies, getCurrencySymbol } from "@/lib/currency";
 
 /* ─── Clinic Profile ─── */
@@ -100,7 +101,7 @@ const ClinicProfileTab = () => {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Clinic profile saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Clinic profile saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Profile
         </Button>
       </div>
@@ -171,7 +172,7 @@ const PreferencesTab = () => {
         <Switch checked={settings.notifications} onCheckedChange={(v) => update({ notifications: v })} />
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Preferences saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Preferences saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Preferences
         </Button>
       </div>
@@ -228,7 +229,7 @@ const BillingTab = () => {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Billing settings saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Billing settings saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Billing
         </Button>
       </div>
@@ -386,7 +387,7 @@ const CurrencyLanguageTab = () => {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Currency & language settings saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Currency & language settings saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Settings
         </Button>
       </div>

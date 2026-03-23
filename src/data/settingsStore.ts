@@ -74,7 +74,9 @@ export const loadSettings = async () => {
       loaded = true;
       notify();
     } else {
+      // No row yet – create it with defaults
       loaded = true;
+      await persistToDb();
     }
   } catch {
     loaded = true;
@@ -85,10 +87,13 @@ let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const persistToDb = async () => {
   try {
+    // Use upsert so it works whether or not the row exists
     await supabase
       .from("app_settings")
-      .update({ value: JSON.parse(JSON.stringify(settings)), updated_at: new Date().toISOString() })
-      .eq("key", "global");
+      .upsert(
+        { key: "global", value: JSON.parse(JSON.stringify(settings)), updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      );
   } catch {
     // silent fail
   }
@@ -99,6 +104,12 @@ export const updateSettings = (partial: Partial<AppSettings>) => {
   notify();
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(persistToDb, 500);
+};
+
+/** Force-save settings immediately (for explicit Save buttons) */
+export const saveSettingsNow = async () => {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  await persistToDb();
 };
 
 export const subscribeSettings = (fn: Listener) => {
