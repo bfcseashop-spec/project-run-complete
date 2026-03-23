@@ -101,7 +101,7 @@ const Dashboard = () => {
 
     // Expenses filtered by date range
     const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
-    const filteredExpenses = expenseRecords.filter(e => {
+    const filteredExpenses = expenses.filter(e => {
       try { return isWithinInterval(parseISO(e.date), { start: range.from, end: range.to }); }
       catch { return false; }
     });
