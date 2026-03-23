@@ -72,6 +72,11 @@ const InvestmentsPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [editTotalCapital, setEditTotalCapital] = useState(false);
   const [totalCapitalInput, setTotalCapitalInput] = useState("");
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+
+  const allCategoriesCombined = [...allCategories, ...customCategories as ContributionCategory[]];
 
   // Form states
   const [invForm, setInvForm] = useState({ name: "", sharePercent: 0, investmentName: "Capital Amount Investment", capitalAmount: 0, paid: 0, color: "hsl(217, 91%, 60%)" });
@@ -222,7 +227,13 @@ const InvestmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Investments" description="Track capital, shares, and contribution history" />
+      <div className="flex items-center justify-between">
+        <PageHeader title="Investments" description="Track capital, shares, and contribution history" />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={openAddCapital} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Manage Investors</Button>
+          <Button variant="outline" onClick={() => setShowCategoryDialog(true)} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Category</Button>
+        </div>
+      </div>
 
       {/* Top Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -318,29 +329,6 @@ const InvestmentsPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="lg:col-span-3 bg-card border border-border rounded-xl p-5">
-              <div className="mb-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Cumulative Investment Trend</h3>
-                <p className="text-xs text-muted-foreground">Running total of contributions over time</p>
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={(() => { let cum = 0; return monthlyData.map((d) => { cum += d.total; return { month: d.month, total: d.total, cumulative: cum }; }); })()}>
-                  <defs>
-                    <linearGradient id="cumulativeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(217,91%,60%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(217,91%,60%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
-                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number, name: string) => [formatPrice(value), name === "cumulative" ? "Cumulative" : "Monthly"]} />
-                  <Area type="monotone" dataKey="cumulative" stroke="hsl(217,91%,60%)" fill="url(#cumulativeGrad)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="total" stroke="hsl(270,60%,55%)" fill="hsl(270,60%,55%)" fillOpacity={0.1} strokeWidth={2} strokeDasharray="5 5" />
-                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(value) => value === "cumulative" ? "Cumulative Total" : "Monthly Amount"} />
-                </AreaChart>
-              </ResponsiveContainer>
             </div>
           </div>
         );
@@ -628,7 +616,7 @@ const InvestmentsPage = () => {
               <Label className="text-sm font-semibold mb-1.5 block">Category</Label>
               <Select value={contribForm.category} onValueChange={(v) => setContribForm(p => ({ ...p, category: v as ContributionCategory }))}>
                 <SelectTrigger className="h-11 text-sm border-border"><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>{allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                <SelectContent>{allCategoriesCombined.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
 
@@ -787,6 +775,49 @@ const InvestmentsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Manage Categories</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input placeholder="New category name..." value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="h-10 text-sm" />
+              <Button onClick={() => {
+                const name = newCategory.trim();
+                if (!name) { toast.error("Enter a category name"); return; }
+                if ([...allCategories, ...customCategories].includes(name as ContributionCategory)) { toast.error("Category already exists"); return; }
+                setCustomCategories(p => [...p, name]);
+                setNewCategory("");
+                toast.success(`Category "${name}" added`);
+              }} className="h-10 px-4 shrink-0"><Plus className="w-4 h-4" /></Button>
+            </div>
+            <div className="space-y-1 max-h-[300px] overflow-y-auto">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Default Categories</p>
+              {allCategories.map(c => (
+                <div key={c} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm">
+                  <span>{c}</span>
+                  <span className="text-[10px] text-muted-foreground">Default</span>
+                </div>
+              ))}
+              {customCategories.length > 0 && (
+                <>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 mt-3">Custom Categories</p>
+                  {customCategories.map(c => (
+                    <div key={c} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm">
+                      <span>{c}</span>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setCustomCategories(p => p.filter(x => x !== c)); toast.success(`Category "${c}" removed`); }}>
+                        <Trash2 className="w-3 h-3 text-destructive/70" />
+                      </Button>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setShowCategoryDialog(false)}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
