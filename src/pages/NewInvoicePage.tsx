@@ -218,9 +218,26 @@ const NewInvoicePage = () => {
 
   const handleAction = (action: "draft" | "print" | "payment") => {
     if (!patient) { toast.error("Please select a patient"); return; }
+    if (action === "draft") {
+      const formData = buildFormData();
+      addDraft({
+        id: draftId || nextDraftId(),
+        patient, doctor, date,
+        total: grandTotal,
+        itemCount: lineItems.length,
+        savedAt: new Date().toISOString(),
+        formData,
+      });
+      // If editing an existing draft with a different ID, remove old one
+      if (draftId) removeDraft(draftId);
+      toast.success("Invoice saved as draft");
+      navigate("/billing/drafts");
+      return;
+    }
     // Store in sessionStorage for BillingPage to pick up
+    if (draftId) removeDraft(draftId); // Remove from drafts when completing
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData }));
-    toast.success(action === "draft" ? "Invoice saved" : action === "print" ? "Invoice created — printing..." : "Payment received");
+    toast.success(action === "print" ? "Invoice created — printing..." : "Payment received");
     goBack();
   };
 
