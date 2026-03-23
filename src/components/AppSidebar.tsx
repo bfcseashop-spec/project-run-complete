@@ -5,11 +5,13 @@ import {
   MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
   Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
-  RotateCcw, Package,
+  RotateCcw, Package, LogOut,
 } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/hooks/use-settings";
 import { t, TranslationKey } from "@/lib/i18n";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SubItem {
   icon: React.ElementType;
@@ -21,6 +23,7 @@ interface MenuItem {
   icon: React.ElementType;
   labelKey: TranslationKey;
   path: string;
+  module?: string; // maps to permission module name
   subItems?: SubItem[];
 }
 
@@ -33,65 +36,64 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "overview",
     items: [
-      { icon: LayoutDashboard, labelKey: "dashboard", path: "/" },
-      { icon: Receipt, labelKey: "billing", path: "/billing" },
+      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard" },
+      { icon: Receipt, labelKey: "billing", path: "/billing", module: "Billing" },
     ],
   },
   {
     labelKey: "patientCare",
     items: [
-      { icon: ClipboardList, labelKey: "opdSection", path: "/opd" },
-      { icon: FileText, labelKey: "prescriptions", path: "/prescriptions" },
-      { icon: Heart, labelKey: "healthServices", path: "/health-services",
+      { icon: ClipboardList, labelKey: "opdSection", path: "/opd", module: "OPD Section" },
+      { icon: FileText, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions" },
+      { icon: Heart, labelKey: "healthServices", path: "/health-services", module: "Health Services",
         subItems: [
           { icon: Plus, labelKey: "addService", path: "/health-services" },
           { icon: Package, labelKey: "healthPackages", path: "/health-services/packages" },
         ],
       },
-      { icon: Syringe, labelKey: "injections", path: "/injections" },
+      { icon: Syringe, labelKey: "injections", path: "/injections", module: "Injections" },
     ],
   },
   {
     labelKey: "diagnostics",
     items: [
       {
-        icon: TestTube, labelKey: "labTests", path: "/lab-tests",
+        icon: TestTube, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests",
         subItems: [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
           { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection" },
           { icon: TestTube, labelKey: "name", path: "/lab-tests/names" },
         ],
       },
-      { icon: FileText, labelKey: "labReports", path: "/lab-reports" },
-      { icon: Scan, labelKey: "xray", path: "/xray" },
-      { icon: MonitorSpeaker, labelKey: "ultrasound", path: "/ultrasound" },
+      { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports" },
+      { icon: Scan, labelKey: "xray", path: "/xray", module: "X-Ray" },
+      { icon: MonitorSpeaker, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound" },
     ],
   },
   {
     labelKey: "management",
     items: [
-      { icon: Stethoscope, labelKey: "doctors", path: "/doctors" },
-      { icon: Pill, labelKey: "medicine", path: "/medicine" },
-      
-      { icon: UserCog, labelKey: "roles", path: "/roles" },
+      { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors" },
+      { icon: Pill, labelKey: "medicine", path: "/medicine", module: "Medicine" },
+      { icon: UserCog, labelKey: "roles", path: "/roles", module: "Roles" },
     ],
   },
   {
     labelKey: "finance",
     items: [
-      { icon: RotateCcw, labelKey: "refund", path: "/refund" },
-      { icon: Receipt, labelKey: "dueManagement", path: "/dues" },
-      { icon: DollarSign, labelKey: "expenses", path: "/expenses" },
-      { icon: CreditCard, labelKey: "bankTransactions", path: "/bank" },
-      { icon: TrendingUp, labelKey: "investments", path: "/investments" },
+      { icon: RotateCcw, labelKey: "refund", path: "/refund", module: "Refund" },
+      { icon: Receipt, labelKey: "dueManagement", path: "/dues", module: "Due Management" },
+      { icon: DollarSign, labelKey: "expenses", path: "/expenses", module: "Expenses" },
+      { icon: CreditCard, labelKey: "bankTransactions", path: "/bank", module: "Bank Transactions" },
+      { icon: TrendingUp, labelKey: "investments", path: "/investments", module: "Investments" },
     ],
   },
   {
     labelKey: "system",
     items: [
-      { icon: SlidersHorizontal, labelKey: "systemManage", path: "/system-manage" },
-      { icon: Settings, labelKey: "settings", path: "/settings" },
-      { icon: Users, labelKey: "usersAccess", path: "/users-access" },
+      { icon: SlidersHorizontal, labelKey: "systemManage", path: "/system-manage", module: "System Manage" },
+      { icon: Settings, labelKey: "settings", path: "/settings", module: "Settings" },
+      { icon: Users, labelKey: "usersAccess", path: "/users-access", module: "Users & Access" },
     ],
   },
 ];
@@ -102,6 +104,8 @@ const AppSidebar = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests", "/health-services", "/medicine"]);
   const { settings } = useSettings();
   const lang = settings.language;
+  const { can, isAdmin } = usePermissions();
+  const { signOut, profile } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
   const isParentActive = (item: MenuItem) =>
@@ -111,6 +115,12 @@ const AppSidebar = () => {
     setExpandedItems((prev) =>
       prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path]
     );
+  };
+
+  // Filter menu items based on permissions
+  const canViewModule = (module?: string) => {
+    if (!module) return true;
+    return isAdmin || can(module, "view");
   };
 
   return (
@@ -136,87 +146,110 @@ const AppSidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-        {menuSections.map((section) => (
-          <div key={section.labelKey}>
-            {!collapsed && (
-              <p className="text-[10px] uppercase tracking-widest text-sidebar-muted px-3 mb-1.5 font-semibold">
-                {t(section.labelKey, lang)}
-              </p>
-            )}
-            <div className="space-y-0.5">
-              {section.items.map((item) => {
-                const hasChildren = item.subItems && item.subItems.length > 0;
-                const isExpanded = expandedItems.includes(item.path);
-                const parentActive = isParentActive(item);
+        {menuSections.map((section) => {
+          const visibleItems = section.items.filter((item) => canViewModule(item.module));
+          if (visibleItems.length === 0) return null;
 
-                if (hasChildren && !collapsed) {
-                  return (
-                    <div key={item.path}>
-                      <button
-                        onClick={() => toggleExpand(item.path)}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full ${
-                          parentActive
-                            ? "bg-sidebar-primary/10 text-sidebar-primary-foreground font-medium"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        }`}
-                      >
-                        <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
-                        <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
-                        <ChevronDown
-                          className={`w-4 h-4 text-sidebar-muted transition-transform duration-200 ${
-                            isExpanded ? "rotate-180" : ""
+          return (
+            <div key={section.labelKey}>
+              {!collapsed && (
+                <p className="text-[10px] uppercase tracking-widest text-sidebar-muted px-3 mb-1.5 font-semibold">
+                  {t(section.labelKey, lang)}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {visibleItems.map((item) => {
+                  const hasChildren = item.subItems && item.subItems.length > 0;
+                  const isExpanded = expandedItems.includes(item.path);
+                  const parentActive = isParentActive(item);
+
+                  if (hasChildren && !collapsed) {
+                    return (
+                      <div key={item.path}>
+                        <button
+                          onClick={() => toggleExpand(item.path)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full ${
+                            parentActive
+                              ? "bg-sidebar-primary/10 text-sidebar-primary-foreground font-medium"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           }`}
-                        />
-                      </button>
+                        >
+                          <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
+                          <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
+                          <ChevronDown
+                            className={`w-4 h-4 text-sidebar-muted transition-transform duration-200 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
 
-                      <div
-                        className={`overflow-hidden transition-all duration-200 ${
-                          isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-                        }`}
-                      >
-                        <div className="ml-4 pl-3 border-l border-sidebar-border space-y-0.5 mt-0.5">
-                          {item.subItems!.map((sub) => (
-                            <NavLink
-                              key={sub.path}
-                              to={sub.path}
-                              end
-                              className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                                isActive(sub.path)
-                                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
-                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                              }`}
-                            >
-                              <sub.icon className="w-4 h-4 flex-shrink-0" />
-                              <span>{t(sub.labelKey, lang)}</span>
-                            </NavLink>
-                          ))}
+                        <div
+                          className={`overflow-hidden transition-all duration-200 ${
+                            isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="ml-4 pl-3 border-l border-sidebar-border space-y-0.5 mt-0.5">
+                            {item.subItems!.map((sub) => (
+                              <NavLink
+                                key={sub.path}
+                                to={sub.path}
+                                end
+                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                                  isActive(sub.path)
+                                    ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                }`}
+                              >
+                                <sub.icon className="w-4 h-4 flex-shrink-0" />
+                                <span>{t(sub.labelKey, lang)}</span>
+                              </NavLink>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                }
+                    );
+                  }
 
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    end={item.path === "/"}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                      parentActive
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    } ${collapsed ? "justify-center" : ""}`}
-                    title={collapsed ? t(item.labelKey, lang) : undefined}
-                  >
-                    <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
-                    {!collapsed && <span>{t(item.labelKey, lang)}</span>}
-                  </NavLink>
-                );
-              })}
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      end={item.path === "/"}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        parentActive
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      } ${collapsed ? "justify-center" : ""}`}
+                      title={collapsed ? t(item.labelKey, lang) : undefined}
+                    >
+                      <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
+                      {!collapsed && <span>{t(item.labelKey, lang)}</span>}
+                    </NavLink>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
+
+      {/* User info + Sign out */}
+      {!collapsed && profile && (
+        <div className="px-3 py-2 border-t border-sidebar-border">
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="w-7 h-7 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-[10px] font-bold flex-shrink-0">
+              {profile.full_name?.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-sidebar-foreground truncate">{profile.full_name || "User"}</p>
+              <p className="text-[10px] text-sidebar-muted truncate">{profile.role_name || "No role"}</p>
+            </div>
+            <button onClick={signOut} className="text-sidebar-muted hover:text-sidebar-foreground transition-colors" title="Sign out">
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Collapse toggle */}
       <button
