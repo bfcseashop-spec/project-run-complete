@@ -54,13 +54,16 @@ const DraftsPage = () => {
     }
   };
 
-  const renderCell = (row: Record<string, unknown>, col: { key: string }) => {
-    const draft = row as unknown as DraftInvoice;
-    if (col.key === "total") return <span className="font-semibold tabular-nums">{formatPrice(draft.total)}</span>;
-    if (col.key === "itemCount") return <span className="text-center">{draft.itemCount}</span>;
-    if (col.key === "savedAt") return <span className="text-xs text-muted-foreground">{new Date(draft.savedAt).toLocaleString()}</span>;
-    if (col.key === "actions") {
-      return (
+  const columns: { key: string; header: string; sortable?: boolean; render?: (item: DraftInvoice) => React.ReactNode }[] = [
+    { key: "id", header: "Draft ID", sortable: true },
+    { key: "date", header: "Date", sortable: true },
+    { key: "patient", header: "Patient", sortable: true },
+    { key: "doctor", header: "Doctor", sortable: true },
+    { key: "itemCount", header: "Items", sortable: true, render: (d) => <span>{d.itemCount}</span> },
+    { key: "total", header: "Total", sortable: true, render: (d) => <span className="font-semibold tabular-nums">{formatPrice(d.total)}</span> },
+    { key: "savedAt", header: "Saved At", sortable: true, render: (d) => <span className="text-xs text-muted-foreground">{new Date(d.savedAt).toLocaleString()}</span> },
+    {
+      key: "actions", header: "Actions", render: (draft) => (
         <TooltipProvider>
           <div className="flex items-center gap-1">
             <Tooltip><TooltipTrigger asChild>
@@ -80,10 +83,9 @@ const DraftsPage = () => {
             </TooltipTrigger><TooltipContent>Delete</TooltipContent></Tooltip>
           </div>
         </TooltipProvider>
-      );
-    }
-    return null;
-  };
+      )
+    },
+  ];
 
   return (
     <div className="space-y-6">
