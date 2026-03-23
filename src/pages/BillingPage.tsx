@@ -233,7 +233,7 @@ const BillingPage = () => {
   };
 
   const handleEdit = (record: BillingRecord) => {
-    navigate("/billing/edit", { state: { editData: record.formData } });
+    navigate("/billing/edit", { state: { editData: record.formData, editRecordId: record.id } });
   };
   const handleDelete = () => { if (deleteRecord) { removeBillingRecord(deleteRecord.id); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const printInvoiceWindow = (record: BillingRecord) => {
