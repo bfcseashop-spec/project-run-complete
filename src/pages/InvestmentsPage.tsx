@@ -136,11 +136,11 @@ const InvestmentsPage = () => {
     setShowCapitalDialog(true);
   };
   const openEditCapital = (inv: Investor) => {
-    setInvForm({ name: inv.name, sharePercent: inv.sharePercent, investmentName: inv.investmentName, capitalAmount: inv.capitalAmount, paid: inv.paid, color: inv.color });
+    setInvForm({ name: inv.name, sharePercent: inv.sharePercent, investmentName: inv.investmentName, capitalAmount: inv.capitalAmount, paid: paidByInvestor.get(inv.id) || 0, color: inv.color });
     setEditInvestor(inv);
     setShowCapitalDialog(true);
   };
-  const saveCapital = () => {
+  const saveCapital = async () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
     if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
     const othersTotal = investors.filter(i => i.id !== editInvestor?.id).reduce((s, i) => s + i.sharePercent, 0);
@@ -148,11 +148,21 @@ const InvestmentsPage = () => {
       toast.error(`Total share exceeds 100%. Available: ${(100 - othersTotal).toFixed(2)}%`);
       return;
     }
+
+    const payload = {
+      name: invForm.name,
+      sharePercent: invForm.sharePercent,
+      investmentName: invForm.investmentName,
+      capitalAmount: invForm.capitalAmount,
+      paid: 0,
+      color: invForm.color,
+    };
+
     if (editInvestor) {
-      updateInvestor(editInvestor.id, invForm);
+      await updateInvestor(editInvestor.id, payload);
       toast.success("Investor updated");
     } else {
-      addInvestor(invForm);
+      await addInvestor(payload);
       toast.success("Investor added");
     }
     setShowCapitalDialog(false);
