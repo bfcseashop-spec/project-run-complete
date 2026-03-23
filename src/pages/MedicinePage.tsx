@@ -113,7 +113,7 @@ const MedicinePage = () => {
       name: m.name, manufacturer: m.manufacturer, boxNo: m.boxNo, category: m.category,
       purchasePrice: m.purchasePrice, price: m.price, stock: m.stock, unit: m.unit,
       soldOut: m.soldOut, image: m.image, expiry: m.expiry,
-      batchNo: "", stockAlert: 10, imageUrl: "",
+      batchNo: m.batchNo || "", stockAlert: m.stockAlert ?? 10, imageUrl: "",
     });
     setDialogOpen(true);
   };
