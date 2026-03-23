@@ -7,7 +7,6 @@ import {
   getTotalCapital, setTotalCapital,
   type Investor, type Contribution, type ContributionCategory,
 } from "@/data/investmentStore";
-import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +21,14 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import {
   Landmark, Receipt, CheckCircle, AlertTriangle,
   Plus, Pencil, Trash2, Eye, Download, Search,
   ChevronLeft, ChevronRight, LayoutList, LayoutGrid,
   Image as ImageIcon, Upload, X, ZoomIn,
+  TrendingUp, Wallet, Users, ArrowUpRight, ArrowDownRight,
+  PieChart as PieChartIcon, Calendar, DollarSign,
 } from "lucide-react";
 import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
@@ -226,190 +224,232 @@ const InvestmentsPage = () => {
     setEditTotalCapital(false);
   };
 
+  // Category chart data
+  const categoryData = useMemo(() => {
+    const map = new Map<string, number>();
+    contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
+    return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+  }, [contributions]);
+  const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)"];
+  const catTotal = categoryData.reduce((s, c) => s + c.value, 0);
+  const paidPct = totalCapital > 0 ? Math.round((totalPaid / totalCapital) * 100) : 0;
+
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-6">
+      {/* ─── Header ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Investments</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Track capital, shares & contribution history</p>
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Investments</h1>
+              <p className="text-xs text-muted-foreground">Capital tracking, investor shares & contribution ledger</p>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={openAddCapital} className="gap-1.5 h-9 text-xs font-medium border-border">
-            <Landmark className="w-3.5 h-3.5" /> Manage Investors
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowCategoryDialog(true)} className="gap-1.5 h-9 text-xs font-medium border-border">
+          <Button variant="outline" size="sm" onClick={() => setShowCategoryDialog(true)} className="gap-1.5 h-9 text-xs">
             <Plus className="w-3.5 h-3.5" /> Category
+          </Button>
+          <Button variant="outline" size="sm" onClick={openAddCapital} className="gap-1.5 h-9 text-xs">
+            <Users className="w-3.5 h-3.5" /> Manage Investors
+          </Button>
+          <Button size="sm" onClick={openAddContrib} className="gap-1.5 h-9 text-xs">
+            <Plus className="w-3.5 h-3.5" /> New Contribution
           </Button>
         </div>
       </div>
 
-      {/* Stats + Investors Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left: Stats + Category Chart */}
-        <div className="lg:col-span-7 space-y-4">
-          {/* Compact Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Total Capital", value: formatPrice(totalCapital), icon: Landmark, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10", editable: true },
-              { label: "Contributions", value: formatPrice(totalContributions), icon: Receipt, color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-500/10", sub: `${contributions.length} records` },
-              { label: "Total Paid", value: formatPrice(totalPaid), icon: CheckCircle, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10" },
-              { label: "Remaining", value: formatPrice(remaining), icon: AlertTriangle, color: remaining > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400", bg: remaining > 0 ? "bg-orange-500/10" : "bg-emerald-500/10" },
-            ].map((s) => (
-              <div key={s.label} className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.bg}`}>
-                    <s.icon className={`w-4 h-4 ${s.color}`} />
-                  </div>
-                  {s.editable && (
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
-                      <Pencil className="w-3 h-3 text-muted-foreground" />
-                    </Button>
-                  )}
+      {/* ─── Overview Banner ─── */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Left: Key Metrics */}
+          <div className="p-6 lg:border-r border-border">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-primary" /> Financial Overview
+              </h2>
+              <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] text-muted-foreground" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
+                <Pencil className="w-3 h-3" /> Edit Capital
+              </Button>
+            </div>
+
+            {/* Big Number */}
+            <div className="mb-6">
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Total Capital</p>
+              <p className="text-3xl font-extrabold text-foreground tabular-nums tracking-tight">{formatPrice(totalCapital)}</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${paidPct}%` }} />
                 </div>
-                <div>
-                  <p className="text-lg font-extrabold text-foreground tabular-nums leading-tight">{s.value}</p>
-                  <p className="text-[10px] font-medium text-muted-foreground mt-0.5">{s.label}</p>
-                  {s.sub && <p className="text-[9px] text-muted-foreground/60">{s.sub}</p>}
-                </div>
+                <span className="text-[11px] font-bold text-primary tabular-nums">{paidPct}%</span>
               </div>
-            ))}
+            </div>
+
+            {/* Mini Stats Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: "Total Paid", value: formatPrice(totalPaid), icon: ArrowUpRight, accent: "text-emerald-600 dark:text-emerald-400", bgAccent: "bg-emerald-500/10" },
+                { label: "Remaining", value: formatPrice(remaining), icon: ArrowDownRight, accent: remaining > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400", bgAccent: remaining > 0 ? "bg-orange-500/10" : "bg-emerald-500/10" },
+                { label: "Contributions", value: String(contributions.length), icon: Receipt, accent: "text-violet-600 dark:text-violet-400", bgAccent: "bg-violet-500/10", sub: formatPrice(totalContributions) },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <div className={`w-9 h-9 rounded-xl mx-auto mb-2 flex items-center justify-center ${s.bgAccent}`}>
+                    <s.icon className={`w-4 h-4 ${s.accent}`} />
+                  </div>
+                  <p className="text-base font-extrabold text-foreground tabular-nums leading-tight">{s.value}</p>
+                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{s.label}</p>
+                  {s.sub && <p className="text-[10px] text-muted-foreground/60 tabular-nums">{s.sub}</p>}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Category Breakdown Chart */}
-          {(() => {
-            const categoryData = (() => {
-              const map = new Map<string, number>();
-              contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
-              return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-            })();
-            const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
-            const total = categoryData.reduce((s, c) => s + c.value, 0);
-            return (
-              <div className="bg-card border border-border rounded-xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">Category Breakdown</h3>
-                    <p className="text-xs text-muted-foreground">Expense distribution by type</p>
-                  </div>
-                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">{formatPrice(total)} total</span>
-                </div>
-                <div className="flex items-center gap-6">
-                  <ResponsiveContainer width={160} height={160}>
-                    <PieChart>
-                      <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={38} outerRadius={70} paddingAngle={2} strokeWidth={0}>
-                        {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
-                      </Pie>
-                      <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-1.5 max-h-[160px] overflow-y-auto">
-                    {categoryData.map((cat, i) => (
-                      <div key={cat.name} className="flex items-center gap-2 text-xs py-0.5">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
-                        <span className="text-muted-foreground truncate flex-1">{cat.name}</span>
-                        <span className="font-semibold tabular-nums text-foreground">{formatPrice(cat.value)}</span>
-                      </div>
-                    ))}
-                  </div>
+          {/* Right: Category Donut */}
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4 text-primary" /> Category Breakdown
+              </h2>
+              <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">{formatPrice(catTotal)}</span>
+            </div>
+            {categoryData.length > 0 ? (
+              <div className="flex items-center gap-6">
+                <ResponsiveContainer width={150} height={150}>
+                  <PieChart>
+                    <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={68} paddingAngle={2} strokeWidth={0}>
+                      {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
+                    </Pie>
+                    <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-1.5 max-h-[150px] overflow-y-auto pr-2">
+                  {categoryData.map((cat, i) => (
+                    <div key={cat.name} className="flex items-center gap-2.5 text-xs">
+                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
+                      <span className="text-muted-foreground truncate flex-1">{cat.name}</span>
+                      <span className="font-bold tabular-nums text-foreground">{formatPrice(cat.value)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            );
-          })()}
+            ) : (
+              <div className="flex items-center justify-center h-[150px] text-muted-foreground text-sm">No contributions yet</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Investor Cards ─── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" /> Investors
+            <span className="text-[10px] font-semibold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">{investors.length}</span>
+          </h2>
+          <Button size="sm" variant="outline" onClick={openAddCapital} className="h-7 gap-1 text-[11px]">
+            <Plus className="w-3 h-3" /> Add Investor
+          </Button>
         </div>
 
-        {/* Right: Investor Cards */}
-        <div className="lg:col-span-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">Investors</h3>
-            <Button size="sm" variant="outline" onClick={openAddCapital} className="h-7 gap-1 text-[11px]">
-              <Plus className="w-3 h-3" /> Add
-            </Button>
+        {investors.length === 0 ? (
+          <div className="bg-card border border-border rounded-xl p-10 text-center text-muted-foreground text-sm">
+            No investors added yet. Click "Add Investor" to get started.
           </div>
-
-          <div className="space-y-2.5">
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {investors.map((inv) => {
               const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
               const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
               return (
-                <div key={inv.id} className="bg-card border border-border rounded-xl p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm" style={{ background: inv.color }}>
-                        {inv.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-bold text-foreground text-sm leading-tight">{inv.name}</p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] font-semibold px-1.5 py-px rounded bg-primary/10 text-primary">{inv.sharePercent}% share</span>
+                <div key={inv.id} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
+                  {/* Colored top strip */}
+                  <div className="h-1.5" style={{ background: inv.color }} />
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm" style={{ background: inv.color }}>
+                          {inv.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-bold text-foreground text-sm leading-tight">{inv.name}</p>
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary mt-0.5 inline-block">{inv.sharePercent}% share</span>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-0.5">
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
-                    </div>
-                  </div>
-                  <div className="mb-2">
-                    <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                      <span>{progressPct}% paid</span>
-                      <span className="tabular-nums">{formatPrice(inv.paid)} / {formatPrice(inv.capitalAmount)}</span>
-                    </div>
-                    <Progress value={progressPct} className="h-1.5" />
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[11px]">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <span className="text-muted-foreground">Capital: </span>
-                        <span className="font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Paid: </span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(inv.paid)}</span>
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
                       </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Due: </span>
-                      <span className={`font-bold tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{formatPrice(dueAmount)}</span>
+
+                    {/* Progress */}
+                    <div className="mb-3">
+                      <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
+                        <span className="font-medium">{progressPct}% paid</span>
+                        <span className="tabular-nums">{formatPrice(inv.paid)} / {formatPrice(inv.capitalAmount)}</span>
+                      </div>
+                      <Progress value={progressPct} className="h-1.5" />
+                    </div>
+
+                    {/* Bottom stats */}
+                    <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/50">
+                      <div>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Capital</p>
+                        <p className="text-xs font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Due</p>
+                        <p className={`text-xs font-bold tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{formatPrice(dueAmount)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Contribution History */}
+      {/* ─── Contribution History ─── */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {/* Toolbar */}
-        <div className="px-5 py-3.5 border-b border-border">
+        <div className="px-5 py-4 border-b border-border">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <h3 className="text-sm font-bold text-foreground whitespace-nowrap">Contributions</h3>
-              <span className="text-[11px] text-muted-foreground tabular-nums bg-muted/60 px-2 py-0.5 rounded-md">{filtered.length} records</span>
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-primary" /> Contribution History
+              </h3>
+              <span className="text-[10px] font-semibold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full tabular-nums">{filtered.length} records</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input placeholder="Search..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                  className="pl-8 h-8 w-[150px] text-xs" />
+              </div>
               <Select value={monthFilter} onValueChange={(v) => { setMonthFilter(v); setPage(1); }}>
-                <SelectTrigger className="h-8 w-[110px] text-xs"><SelectValue placeholder="Month" /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <Calendar className="w-3.5 h-3.5 mr-1 text-muted-foreground" />
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All months</SelectItem>
                   {months.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Select value={investorFilter} onValueChange={(v) => { setInvestorFilter(v); setPage(1); }}>
-                <SelectTrigger className="h-8 w-[110px] text-xs"><SelectValue placeholder="Investor" /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <Users className="w-3.5 h-3.5 mr-1 text-muted-foreground" />
+                  <SelectValue placeholder="Investor" />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All investors</SelectItem>
                   {investors.map((i) => <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                  className="pl-8 h-8 w-[140px] text-xs" />
-              </div>
-              <div className="flex border border-border rounded-md overflow-hidden">
+              <div className="flex border border-border rounded-lg overflow-hidden">
                 <button onClick={() => setViewMode("list")} className={`p-1.5 transition-colors ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutList className="w-3.5 h-3.5" /></button>
                 <button onClick={() => setViewMode("grid")} className={`p-1.5 transition-colors ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutGrid className="w-3.5 h-3.5" /></button>
               </div>
@@ -425,7 +465,7 @@ const InvestmentsPage = () => {
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   {["Date", "Investor", "Category", "Amount", "Slips", "Note", "Actions"].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -433,34 +473,37 @@ const InvestmentsPage = () => {
                 {paginated.map((c, idx) => {
                   const inv = getInvestorById(c.investorId);
                   return (
-                    <tr key={c.id} className={`border-b border-border/40 hover:bg-muted/20 transition-colors ${idx % 2 === 0 ? "" : "bg-muted/10"}`}>
-                      <td className="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap tabular-nums">{c.date}</td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex items-center gap-2">
-                          {inv && <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
-                          <span className="text-xs font-medium text-foreground">{inv?.name || "—"}</span>
+                    <tr key={c.id} className={`border-b border-border/30 hover:bg-muted/20 transition-colors ${idx % 2 === 0 ? "" : "bg-muted/5"}`}>
+                      <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap tabular-nums">{c.date}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          {inv && <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-sm" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
+                          <span className="text-xs font-semibold text-foreground">{inv?.name || "—"}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-2.5">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[c.category] || "bg-muted text-muted-foreground"}`}>{c.category}</span>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${categoryColors[c.category] || "bg-muted text-muted-foreground"}`}>{c.category}</span>
                       </td>
-                      <td className="px-4 py-2.5 font-bold tabular-nums text-foreground text-xs">{formatPrice(c.amount)}</td>
-                      <td className="px-4 py-2.5">
-                        <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><ImageIcon className="w-3 h-3" />{c.slipCount}</span>
+                      <td className="px-4 py-3 font-bold tabular-nums text-foreground text-xs">{formatPrice(c.amount)}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full"><ImageIcon className="w-3 h-3" />{c.slipCount}</span>
                       </td>
-                      <td className="px-4 py-2.5 text-muted-foreground text-[11px] max-w-[200px] truncate">{c.note || "—"}</td>
-                      <td className="px-4 py-2.5">
+                      <td className="px-4 py-3 text-muted-foreground text-[11px] max-w-[200px] truncate">{c.note || "—"}</td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-0.5">
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3 text-primary" /></Button>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3.5 h-3.5 text-primary" /></Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
                         </div>
                       </td>
                     </tr>
                   );
                 })}
                 {paginated.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-16 text-muted-foreground text-sm">No contributions found</td></tr>
+                  <tr><td colSpan={7} className="text-center py-20 text-muted-foreground text-sm">
+                    <Receipt className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+                    No contributions found
+                  </td></tr>
                 )}
               </tbody>
             </table>
@@ -470,28 +513,36 @@ const InvestmentsPage = () => {
             {paginated.map((c) => {
               const inv = getInvestorById(c.investorId);
               return (
-                <div key={c.id} className="border border-border rounded-xl p-4 space-y-2.5 hover:shadow-md transition-all bg-card">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                      {inv && <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
-                      <div>
-                        <p className="font-semibold text-xs text-foreground">{inv?.name}</p>
-                        <p className="text-[10px] text-muted-foreground tabular-nums">{c.date}</p>
+                <div key={c.id} className="group border border-border rounded-xl overflow-hidden hover:shadow-md transition-all bg-card">
+                  <div className="h-1" style={{ background: inv?.color || "hsl(var(--primary))" }} />
+                  <div className="p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2.5">
+                        {inv && <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
+                        <div>
+                          <p className="font-bold text-xs text-foreground">{inv?.name}</p>
+                          <p className="text-[10px] text-muted-foreground tabular-nums">{c.date}</p>
+                        </div>
                       </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-semibold ${categoryColors[c.category]}`}>{c.category}</span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-semibold ${categoryColors[c.category]}`}>{c.category}</span>
-                  </div>
-                  <p className="text-base font-extrabold text-foreground tabular-nums">{formatPrice(c.amount)}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{c.note || "—"}</p>
-                  <div className="flex gap-0.5 pt-2 border-t border-border/50">
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3" /></Button>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3" /></Button>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
+                    <p className="text-lg font-extrabold text-foreground tabular-nums">{formatPrice(c.amount)}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{c.note || "—"}</p>
+                    <div className="flex gap-0.5 pt-3 border-t border-border/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3" /></Button>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3" /></Button>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
+                    </div>
                   </div>
                 </div>
               );
             })}
-            {paginated.length === 0 && <p className="col-span-full text-center py-16 text-muted-foreground text-sm">No contributions found</p>}
+            {paginated.length === 0 && (
+              <p className="col-span-full text-center py-20 text-muted-foreground text-sm">
+                <Receipt className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+                No contributions found
+              </p>
+            )}
           </div>
         )}
 
@@ -508,7 +559,7 @@ const InvestmentsPage = () => {
               else p = page - 2 + i;
               return (
                 <button key={p} onClick={() => setPage(p)}
-                  className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${p === page ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{p}</button>
+                  className={`h-7 w-7 rounded-lg text-xs font-medium transition-colors ${p === page ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{p}</button>
               );
             })}
             <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="h-7 gap-1 text-xs"><ChevronRight className="w-3.5 h-3.5" /></Button>
