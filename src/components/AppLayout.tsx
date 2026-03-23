@@ -82,6 +82,9 @@ const LayoutInner = () => {
   const [currentTheme, setCurrentTheme] = useState(() => getStoredSettings().colorTheme || "teal");
   const [currentMode, setCurrentMode] = useState(() => getStoredSettings().mode || "light");
 
+  const [draftCount, setDraftCount] = useState(getDrafts().length);
+  useEffect(() => { const unsub = subscribeDrafts(() => setDraftCount(getDrafts().length)); return unsub; }, []);
+
   const { settings, update: updateAppSettings } = useSettings();
   const currentLang = availableLanguages.find(l => l.id === settings.language) || availableLanguages[0];
 
