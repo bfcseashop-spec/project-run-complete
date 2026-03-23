@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
-import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages } from "lucide-react";
+import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages, FileText } from "lucide-react";
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -110,6 +110,17 @@ const LayoutInner = () => {
             >
               <Receipt className="w-4 h-4" />
               <span className="hidden md:inline text-xs font-medium">Billing</span>
+            </Button>
+
+            {/* Drafts Shortcut */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground hover:text-primary"
+              onClick={() => navigate("/billing/drafts")}
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden md:inline text-xs font-medium">Drafts</span>
             </Button>
 
             {/* Language Shortcut */}

@@ -24,6 +24,7 @@ import { barcodeSVG } from "@/lib/barcode";
 // QR code removed per user request
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
+import { addDraft, removeDraft, nextDraftId } from "@/data/draftStore";
 
 initPatients(opdPatients);
 
@@ -87,6 +88,7 @@ const NewInvoicePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editData = (location.state as { editData?: InvoiceFormData })?.editData || null;
+  const draftId = (location.state as { draftId?: string })?.draftId || null;
   const onSubmitCallback = (location.state as { onSubmitAction?: string })?.onSubmitAction || null;
 
   const { settings } = useSettings();
@@ -216,9 +218,26 @@ const NewInvoicePage = () => {
 
   const handleAction = (action: "draft" | "print" | "payment") => {
     if (!patient) { toast.error("Please select a patient"); return; }
+    if (action === "draft") {
+      const formData = buildFormData();
+      addDraft({
+        id: draftId || nextDraftId(),
+        patient, doctor, date,
+        total: grandTotal,
+        itemCount: lineItems.length,
+        savedAt: new Date().toISOString(),
+        formData,
+      });
+      // If editing an existing draft with a different ID, remove old one
+      if (draftId) removeDraft(draftId);
+      toast.success("Invoice saved as draft");
+      navigate("/billing/drafts");
+      return;
+    }
     // Store in sessionStorage for BillingPage to pick up
+    if (draftId) removeDraft(draftId); // Remove from drafts when completing
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData }));
-    toast.success(action === "draft" ? "Invoice saved" : action === "print" ? "Invoice created — printing..." : "Payment received");
+    toast.success(action === "print" ? "Invoice created — printing..." : "Payment received");
     goBack();
   };
 
@@ -336,6 +355,7 @@ const NewInvoicePage = () => {
   };
 
   const handleConfirmAndSave = () => {
+    if (draftId) removeDraft(draftId); // Remove from drafts on payment completion
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
       data: { ...buildFormData(), paidAmount: grandTotal },
       action: "payment",

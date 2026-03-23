@@ -16,6 +16,7 @@ const DoctorPage = lazy(() => import("@/pages/DoctorPage"));
 const DuesPage = lazy(() => import("@/pages/DuesPage"));
 const BillingPage = lazy(() => import("@/pages/BillingPage"));
 const NewInvoicePage = lazy(() => import("@/pages/NewInvoicePage"));
+const DraftsPage = lazy(() => import("@/pages/DraftsPage"));
 const LabTestsPage = lazy(() => import("@/pages/LabTestsPage"));
 const AddTestPage = lazy(() => import("@/pages/AddTestPage"));
 const TestNamePage = lazy(() => import("@/pages/TestNamePage"));
@@ -102,6 +103,7 @@ const App = () => (
               <Route path="/billing" element={<BillingPage />} />
               <Route path="/billing/new" element={<NewInvoicePage />} />
               <Route path="/billing/edit" element={<NewInvoicePage />} />
+              <Route path="/billing/drafts" element={<DraftsPage />} />
               <Route path="/medicine" element={<MedicinePage />} />
               
               <Route path="/opd" element={<OPDPage />} />
