@@ -88,6 +88,8 @@ export const addMedicine = async (med: Omit<Medicine, "id" | "status">) => {
       image: med.image,
       expiry: med.expiry,
       status,
+      batch_no: med.batchNo || "-",
+      stock_alert: med.stockAlert ?? 10,
     })
     .select()
     .single();
