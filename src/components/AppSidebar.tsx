@@ -75,7 +75,6 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors" },
       { icon: Pill, labelKey: "medicine", path: "/medicine", module: "Medicine" },
-      { icon: UserCog, labelKey: "roles", path: "/roles", module: "Roles" },
     ],
   },
   {
