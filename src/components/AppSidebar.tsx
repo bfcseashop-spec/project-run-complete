@@ -188,7 +188,6 @@ const AppSidebar = () => {
                               : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
                           }`}
                           style={parentActive ? { borderLeftColor: iconColor } : undefined}
-                          }`}
                         >
                           <div
                             className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
