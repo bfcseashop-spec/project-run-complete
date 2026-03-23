@@ -280,7 +280,7 @@ const ExpensesPage = () => {
                 <Select value={form.category} onValueChange={v => setForm({ ...form, category: v as ExpenseRecord["category"] })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {expenseCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
+                    {allCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
