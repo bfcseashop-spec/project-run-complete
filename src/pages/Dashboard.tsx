@@ -350,10 +350,11 @@ const Dashboard = () => {
         </div>
 
         {/* Department Distribution */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(270,60%,55%), hsl(340,70%,55%), hsl(142,71%,45%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Stethoscope className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(340,70%,55%))" }}>
+              <Stethoscope className="w-3.5 h-3.5 text-white" />
             </span>
             Department Distribution
           </h3>
