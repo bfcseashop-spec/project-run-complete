@@ -359,7 +359,7 @@ const InvestmentsPage = () => {
             No investors added yet. Click "Add Investor" to get started.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, 280px), 1fr))` }}>
             {investors.map((inv) => {
               const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
               const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
