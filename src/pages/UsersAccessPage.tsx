@@ -565,6 +565,32 @@ const UsersAccessPage = () => {
   const [roles, setRoles] = useState<Role[]>(defaultRoles);
   const [permissions, setPermissions] = useState<RolePermissions[]>(initialDefaultPermissions);
 
+  // Wrapper to sync new roles into permissions with no access by default
+  const setRolesWithPermissions: React.Dispatch<React.SetStateAction<Role[]>> = (action) => {
+    setRoles((prev) => {
+      const next = typeof action === "function" ? action(prev) : action;
+      // Find newly added roles
+      const prevIds = new Set(prev.map((r) => r.id));
+      const newRoles = next.filter((r) => !prevIds.has(r.id));
+      if (newRoles.length > 0) {
+        setPermissions((pp) => [
+          ...pp,
+          ...newRoles.map((r) => ({
+            roleId: r.id,
+            modules: allModules.map((m) => ({ module: m, actions: makeNoAccess() })),
+          })),
+        ]);
+      }
+      // Remove permissions for deleted roles
+      const nextIds = new Set(next.map((r) => r.id));
+      const removedIds = prev.filter((r) => !nextIds.has(r.id)).map((r) => r.id);
+      if (removedIds.length > 0) {
+        setPermissions((pp) => pp.filter((p) => !removedIds.includes(p.roleId)));
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader title="Users & Access" description="Manage user accounts, roles and permissions" />
@@ -587,7 +613,7 @@ const UsersAccessPage = () => {
             <UserManagementTab users={users} setUsers={setUsers} roles={roles} />
           </TabsContent>
           <TabsContent value="roles" className="mt-0">
-            <RolesManagementTab roles={roles} setRoles={setRoles} />
+            <RolesManagementTab roles={roles} setRoles={setRolesWithPermissions} />
           </TabsContent>
           <TabsContent value="permissions" className="mt-0">
             <GroupPermissionsTab roles={roles} permissions={permissions} setPermissions={setPermissions} />
