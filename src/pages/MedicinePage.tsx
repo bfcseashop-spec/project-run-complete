@@ -16,6 +16,7 @@ import {
   Plus, Trash2, Pencil, Eye, Printer, Search, Package, PackageCheck,
   AlertTriangle, PackageX, DollarSign, TrendingUp, Upload, X, Calendar,
   Barcode as BarcodeIcon, Image as ImageIcon, Pill, ShoppingCart, Tag, Info, Link,
+  Clock,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
@@ -180,7 +181,9 @@ const MedicinePage = () => {
       m.boxNo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchCat = filterCategory === "all" || m.category === filterCategory;
     const matchStatus = filterStatus === "all" || m.status === filterStatus;
-    return matchSearch && matchCat && matchStatus;
+    const matchExpiry = filterStatus === "expiring" ? getExpiryStatus(m.expiry) === "expiring" :
+                       filterStatus === "expired" ? getExpiryStatus(m.expiry) === "expired" : true;
+    return matchSearch && matchCat && (filterStatus === "expiring" || filterStatus === "expired" ? matchExpiry : matchStatus);
   });
 
   // Stats
@@ -191,8 +194,19 @@ const MedicinePage = () => {
   const purchaseValue = data.reduce((s, m) => s + m.purchasePrice * m.stock, 0);
   const salesValue = data.reduce((s, m) => s + m.price * m.stock, 0);
 
-  // Low stock alerts
-  const lowStockItems = data.filter((m) => m.status === "low-stock" || m.status === "out-of-stock");
+  // Expiry alerts
+  const now = new Date();
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const getExpiryStatus = (expiry: string) => {
+    if (!expiry) return "ok";
+    const d = new Date(expiry);
+    if (isNaN(d.getTime())) return "ok";
+    if (d < now) return "expired";
+    if (d <= in30Days) return "expiring";
+    return "ok";
+  };
+  const expiringSoon = data.filter((m) => getExpiryStatus(m.expiry) === "expiring").length;
+  const expired = data.filter((m) => getExpiryStatus(m.expiry) === "expired").length;
 
   const usedCategories = [...new Set(data.map((m) => m.category))];
 
@@ -285,12 +299,21 @@ const MedicinePage = () => {
     },
     {
       key: "expiry", header: "Expiry Date",
-      render: (m: Medicine) => (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Calendar className="w-3 h-3" />
-          {m.expiry}
-        </div>
-      ),
+      render: (m: Medicine) => {
+        const es = getExpiryStatus(m.expiry);
+        return (
+          <div className={`flex items-center gap-1.5 text-xs font-medium ${
+            es === "expired" ? "text-red-600 dark:text-red-400" :
+            es === "expiring" ? "text-amber-600 dark:text-amber-400" :
+            "text-muted-foreground"
+          }`}>
+            <Calendar className={`w-3 h-3 ${es === "expired" ? "text-red-500" : es === "expiring" ? "text-amber-500" : ""}`} />
+            {m.expiry || "—"}
+            {es === "expired" && <span className="ml-1 px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-bold">EXPIRED</span>}
+            {es === "expiring" && <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[10px] font-bold">SOON</span>}
+          </div>
+        );
+      },
     },
     {
       key: "actions", header: "Actions",
@@ -354,11 +377,13 @@ const MedicinePage = () => {
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         <StatCard title="Total Items" value={String(totalItems)} icon={Package} onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "ring-2 ring-primary" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="In Stock" value={String(inStock)} icon={PackageCheck} onClick={() => setFilterStatus(filterStatus === "in-stock" ? "all" : "in-stock")} className={filterStatus === "in-stock" ? "ring-2 ring-emerald-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="Low Stock" value={String(lowStock)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "low-stock" ? "all" : "low-stock")} className={filterStatus === "low-stock" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="Out of Stock" value={String(outOfStock)} icon={PackageX} onClick={() => setFilterStatus(filterStatus === "out-of-stock" ? "all" : "out-of-stock")} className={filterStatus === "out-of-stock" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} />
+        <StatCard title="Expiring Soon" value={String(expiringSoon)} icon={Clock} onClick={() => setFilterStatus(filterStatus === "expiring" ? "all" : "expiring")} className={filterStatus === "expiring" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(30, 90%, 50%)" />
+        <StatCard title="Expired" value={String(expired)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "expired" ? "all" : "expired")} className={filterStatus === "expired" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(0, 70%, 50%)" />
         <StatCard title="Purchase Value" value={`$${purchaseValue.toFixed(2)}`} icon={DollarSign} />
         <StatCard title="Sales Value" value={`$${salesValue.toFixed(2)}`} icon={TrendingUp} />
       </div>
