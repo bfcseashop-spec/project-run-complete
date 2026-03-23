@@ -400,6 +400,50 @@ const ExpensesPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Tag className="w-4 h-4" /> Manage Expense Categories</DialogTitle>
+            <DialogDescription>Add or remove custom expense categories.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name..."
+                value={newCategoryName}
+                onChange={e => setNewCategoryName(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && addCustomCategory()}
+              />
+              <Button onClick={addCustomCategory} disabled={!newCategoryName.trim()}><Plus className="w-4 h-4" /></Button>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Default Categories</p>
+              <div className="flex flex-wrap gap-1.5">
+                {expenseCategories.map(c => (
+                  <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs font-medium capitalize text-muted-foreground">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {customCategories.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Custom Categories</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {customCategories.map(c => (
+                    <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-xs font-medium capitalize text-primary">
+                      {c}
+                      <button onClick={() => removeCustomCategory(c)} className="ml-0.5 hover:text-destructive transition-colors"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
