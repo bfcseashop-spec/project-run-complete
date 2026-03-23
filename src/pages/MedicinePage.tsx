@@ -182,7 +182,8 @@ const MedicinePage = () => {
     const matchStatus = filterStatus === "all" || m.status === filterStatus;
     const matchExpiry = filterStatus === "expiring" ? getExpiryStatus(m.expiry) === "expiring" :
                        filterStatus === "expired" ? getExpiryStatus(m.expiry) === "expired" : true;
-    return matchSearch && matchCat && (filterStatus === "expiring" || filterStatus === "expired" ? matchExpiry : matchStatus) && matchExpiry;
+    return matchSearch && matchCat && (filterStatus === "expiring" || filterStatus === "expired" ? matchExpiry : matchStatus);
+  });
 
   // Stats
   const totalItems = data.length;
