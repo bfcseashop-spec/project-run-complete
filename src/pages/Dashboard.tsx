@@ -5,7 +5,7 @@ import {
   Activity, Clock, ArrowRight,
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
-  Beaker, Package,
+  Beaker, Package, Smartphone, Coins, Send, Shield,
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
@@ -30,6 +30,11 @@ const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = 
   ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
   ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
   Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
+  Wing: { color: "hsl(195, 80%, 45%)", icon: Smartphone },
+  "Binance(USDT)": { color: "hsl(45, 90%, 48%)", icon: Coins },
+  "True Money": { color: "hsl(15, 85%, 52%)", icon: Smartphone },
+  "Bank Transfer": { color: "hsl(200, 50%, 40%)", icon: Send },
+  Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
 };
 
 const operationsData = [
@@ -115,7 +120,7 @@ const Dashboard = () => {
 
   // Payment chart data
   const paymentData = useMemo(() => {
-    const methods = ["Cash", "ABA", "ACleda", "Card"];
+    const methods = ["Cash", "ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer", "Insurance"];
     return methods.map((name) => {
       const matching = filteredBilling.filter((r) => r.method === name);
       const meta = paymentMeta[name];

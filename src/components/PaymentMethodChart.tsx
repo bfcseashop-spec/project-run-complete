@@ -19,6 +19,11 @@ const defaultData: PaymentData[] = [
   { name: "ABA", amount: 8200, count: 18, color: "hsl(217, 91%, 60%)", icon: Building2 },
   { name: "ACleda", amount: 6800, count: 15, color: "hsl(38, 92%, 50%)", icon: Landmark },
   { name: "Card", amount: 4500, count: 10, color: "hsl(270, 60%, 55%)", icon: CreditCard },
+  { name: "Wing", amount: 0, count: 0, color: "hsl(195, 80%, 45%)", icon: Banknote },
+  { name: "Binance(USDT)", amount: 0, count: 0, color: "hsl(45, 90%, 48%)", icon: Banknote },
+  { name: "True Money", amount: 0, count: 0, color: "hsl(15, 85%, 52%)", icon: Banknote },
+  { name: "Bank Transfer", amount: 0, count: 0, color: "hsl(200, 50%, 40%)", icon: Banknote },
+  { name: "Insurance", amount: 0, count: 0, color: "hsl(340, 60%, 50%)", icon: Banknote },
 ];
 
 const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => {
@@ -77,7 +82,7 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
         </div>
 
         {/* Payment Cards Grid */}
-        <div className="flex-1 grid grid-cols-2 gap-2.5">
+        <div className="flex-1 grid grid-cols-3 gap-2">
           {data.map((d) => {
             const pct = total > 0 ? Math.round((d.amount / total) * 100) : 0;
             return (
