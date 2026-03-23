@@ -136,7 +136,17 @@ const BillingPage = () => {
   };
 
   const columns = [
-    { key: "id", header: "Invoice" },
+    { key: "id", header: "Invoice", render: (d: BillingRecord) => (
+      <div className="flex items-center gap-1.5">
+        <span>{d.id}</span>
+        {refundedInvoiceIds.has(d.id) && (
+          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+            <RotateCcw className="w-3 h-3" />
+            Refunded
+          </span>
+        )}
+      </div>
+    )},
     { key: "date", header: t("date", lang) },
     { key: "patient", header: t("patient", lang) },
     { key: "service", header: "Service" },
