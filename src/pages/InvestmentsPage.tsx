@@ -319,29 +319,6 @@ const InvestmentsPage = () => {
                 ))}
               </div>
             </div>
-            <div className="lg:col-span-3 bg-card border border-border rounded-xl p-5">
-              <div className="mb-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Cumulative Investment Trend</h3>
-                <p className="text-xs text-muted-foreground">Running total of contributions over time</p>
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={(() => { let cum = 0; return monthlyData.map((d) => { cum += d.total; return { month: d.month, total: d.total, cumulative: cum }; }); })()}>
-                  <defs>
-                    <linearGradient id="cumulativeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(217,91%,60%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(217,91%,60%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
-                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number, name: string) => [formatPrice(value), name === "cumulative" ? "Cumulative" : "Monthly"]} />
-                  <Area type="monotone" dataKey="cumulative" stroke="hsl(217,91%,60%)" fill="url(#cumulativeGrad)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="total" stroke="hsl(270,60%,55%)" fill="hsl(270,60%,55%)" fillOpacity={0.1} strokeWidth={2} strokeDasharray="5 5" />
-                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(value) => value === "cumulative" ? "Cumulative Total" : "Monthly Amount"} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
           </div>
         );
       })()}
