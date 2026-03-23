@@ -1,6 +1,6 @@
 import { LucideIcon } from "lucide-react";
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: string;
   change?: string;
@@ -10,6 +10,8 @@ interface StatCardProps {
   gradient?: string;
   accentColor?: string;
   variant?: "default" | "gradient";
+  onClick?: () => void;
+  className?: string;
 }
 
 const StatCard = ({ title, value, change, changeType = "neutral", icon: Icon, accentColor, variant = "default" }: StatCardProps) => {
