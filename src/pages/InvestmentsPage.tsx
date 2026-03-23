@@ -227,7 +227,7 @@ const InvestmentsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -244,36 +244,39 @@ const InvestmentsPage = () => {
         </div>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { label: "Total Capital", value: formatPrice(totalCapital), icon: Landmark, gradient: "from-blue-500/10 to-blue-600/5", iconBg: "bg-blue-500/15", iconColor: "text-blue-600 dark:text-blue-400", editable: true },
-          { label: "Contributions", value: formatPrice(totalContributions), icon: Receipt, gradient: "from-violet-500/10 to-violet-600/5", iconBg: "bg-violet-500/15", iconColor: "text-violet-600 dark:text-violet-400", extra: `${contributions.length} records`, editable: false },
-          { label: "Total Paid", value: formatPrice(totalPaid), icon: CheckCircle, gradient: "from-emerald-500/10 to-emerald-600/5", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-600 dark:text-emerald-400", editable: false },
-          { label: "Remaining", value: formatPrice(remaining), icon: AlertTriangle, gradient: remaining > 0 ? "from-orange-500/10 to-orange-600/5" : "from-emerald-500/10 to-emerald-600/5", iconBg: remaining > 0 ? "bg-orange-500/15" : "bg-emerald-500/15", iconColor: remaining > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400", editable: false },
-        ].map((stat) => (
-          <div key={stat.label} className={`relative bg-gradient-to-br ${stat.gradient} border border-border/60 rounded-xl p-4 backdrop-blur-sm`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${stat.iconBg}`}>
-                <stat.icon className={`w-4.5 h-4.5 ${stat.iconColor}`} />
+      {/* Stats + Investors Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left: Stats + Category Chart */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Compact Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Total Capital", value: formatPrice(totalCapital), icon: Landmark, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10", editable: true },
+              { label: "Contributions", value: formatPrice(totalContributions), icon: Receipt, color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-500/10", sub: `${contributions.length} records` },
+              { label: "Total Paid", value: formatPrice(totalPaid), icon: CheckCircle, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10" },
+              { label: "Remaining", value: formatPrice(remaining), icon: AlertTriangle, color: remaining > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400", bg: remaining > 0 ? "bg-orange-500/10" : "bg-emerald-500/10" },
+            ].map((s) => (
+              <div key={s.label} className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.bg}`}>
+                    <s.icon className={`w-4 h-4 ${s.color}`} />
+                  </div>
+                  {s.editable && (
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
+                      <Pencil className="w-3 h-3 text-muted-foreground" />
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  <p className="text-lg font-extrabold text-foreground tabular-nums leading-tight">{s.value}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground mt-0.5">{s.label}</p>
+                  {s.sub && <p className="text-[9px] text-muted-foreground/60">{s.sub}</p>}
+                </div>
               </div>
-              {stat.editable && (
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-background/60" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
-                  <Pencil className="w-3 h-3 text-muted-foreground" />
-                </Button>
-              )}
-            </div>
-            <p className="text-xl font-extrabold text-foreground tabular-nums">{stat.value}</p>
-            <p className="text-[11px] font-medium text-muted-foreground mt-0.5">{stat.label}</p>
-            {stat.extra && <p className="text-[10px] text-muted-foreground/70 mt-0.5">{stat.extra}</p>}
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Charts + Investor Cards - Side by side layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
-        {/* Charts Section */}
-        <div className="xl:col-span-3">
+          {/* Category Breakdown Chart */}
           {(() => {
             const categoryData = (() => {
               const map = new Map<string, number>();
@@ -281,129 +284,130 @@ const InvestmentsPage = () => {
               return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
             })();
             const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
+            const total = categoryData.reduce((s, c) => s + c.value, 0);
             return (
-              <>
-                {/* Pie Chart */}
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-foreground mb-1">Category Breakdown</h3>
-                  <p className="text-xs text-muted-foreground mb-3">Distribution of expenses by type</p>
-                  <div className="flex items-start gap-6">
-                    <ResponsiveContainer width={180} height={180}>
-                      <PieChart>
-                        <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={75} paddingAngle={2}>
-                          {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
-                        </Pie>
-                        <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="flex-1 space-y-1.5 max-h-[180px] overflow-y-auto pt-1">
-                      {categoryData.map((cat, i) => (
-                        <div key={cat.name} className="flex items-center justify-between text-xs gap-3">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
-                            <span className="text-muted-foreground truncate">{cat.name}</span>
-                          </div>
-                          <span className="font-semibold tabular-nums text-foreground flex-shrink-0">{formatPrice(cat.value)}</span>
-                        </div>
-                      ))}
-                    </div>
+              <div className="bg-card border border-border rounded-xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">Category Breakdown</h3>
+                    <p className="text-xs text-muted-foreground">Expense distribution by type</p>
                   </div>
+                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">{formatPrice(total)} total</span>
                 </div>
-              </>
-            );
-          })()}
-        </div>
-
-        {/* Investor Cards */}
-        <div className="xl:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-foreground">Capital & Share</h3>
-              <p className="text-xs text-muted-foreground">Investor allocation & payment status</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={openAddCapital} className="h-8 gap-1 text-xs">
-              <Plus className="w-3.5 h-3.5" /> Add
-            </Button>
-          </div>
-
-          {investors.map((inv) => {
-            const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
-            const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
-            const isDue = dueAmount > 0;
-            return (
-              <div key={inv.id} className="bg-card border border-border rounded-xl p-4 space-y-3 hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm" style={{ background: inv.color }}>
-                      {inv.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-bold text-foreground text-sm">{inv.name}</p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">{inv.sharePercent}%</span>
-                        {isDue && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-destructive/10 text-destructive">Due</span>}
+                <div className="flex items-center gap-6">
+                  <ResponsiveContainer width={160} height={160}>
+                    <PieChart>
+                      <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={38} outerRadius={70} paddingAngle={2} strokeWidth={0}>
+                        {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
+                      </Pie>
+                      <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-1.5 max-h-[160px] overflow-y-auto">
+                    {categoryData.map((cat, i) => (
+                      <div key={cat.name} className="flex items-center gap-2 text-xs py-0.5">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
+                        <span className="text-muted-foreground truncate flex-1">{cat.name}</span>
+                        <span className="font-semibold tabular-nums text-foreground">{formatPrice(cat.value)}</span>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
-                    <span>Progress</span>
-                    <span className="font-bold text-foreground">{progressPct}%</span>
-                  </div>
-                  <Progress value={progressPct} className="h-1.5" />
-                </div>
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60">
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Capital</p>
-                    <p className="text-xs font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Paid</p>
-                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(inv.paid)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Due</p>
-                    <p className="text-xs font-bold text-destructive tabular-nums">{formatPrice(dueAmount)}</p>
+                    ))}
                   </div>
                 </div>
               </div>
             );
-          })}
+          })()}
+        </div>
+
+        {/* Right: Investor Cards */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">Investors</h3>
+            <Button size="sm" variant="outline" onClick={openAddCapital} className="h-7 gap-1 text-[11px]">
+              <Plus className="w-3 h-3" /> Add
+            </Button>
+          </div>
+
+          <div className="space-y-2.5">
+            {investors.map((inv) => {
+              const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
+              const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
+              return (
+                <div key={inv.id} className="bg-card border border-border rounded-xl p-4 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm" style={{ background: inv.color }}>
+                        {inv.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground text-sm leading-tight">{inv.name}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] font-semibold px-1.5 py-px rounded bg-primary/10 text-primary">{inv.sharePercent}% share</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
+                    </div>
+                  </div>
+                  <div className="mb-2">
+                    <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
+                      <span>{progressPct}% paid</span>
+                      <span className="tabular-nums">{formatPrice(inv.paid)} / {formatPrice(inv.capitalAmount)}</span>
+                    </div>
+                    <Progress value={progressPct} className="h-1.5" />
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[11px]">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <span className="text-muted-foreground">Capital: </span>
+                        <span className="font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Paid: </span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(inv.paid)}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Due: </span>
+                      <span className={`font-bold tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{formatPrice(dueAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Contributions Table */}
+      {/* Contribution History */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+        {/* Toolbar */}
+        <div className="px-5 py-3.5 border-b border-border">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-bold text-foreground">Contribution History</h3>
-              <p className="text-xs text-muted-foreground">{filtered.length} records · Payment tracking for all investments</p>
+            <div className="flex items-center gap-3">
+              <h3 className="text-sm font-bold text-foreground whitespace-nowrap">Contributions</h3>
+              <span className="text-[11px] text-muted-foreground tabular-nums bg-muted/60 px-2 py-0.5 rounded-md">{filtered.length} records</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select value={monthFilter} onValueChange={(v) => { setMonthFilter(v); setPage(1); }}>
-                <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="Month" /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[110px] text-xs"><SelectValue placeholder="Month" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All months</SelectItem>
                   {months.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Select value={investorFilter} onValueChange={(v) => { setInvestorFilter(v); setPage(1); }}>
-                <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="Investor" /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[110px] text-xs"><SelectValue placeholder="Investor" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Investors</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   {investors.map((i) => <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>)}
                 </SelectContent>
               </Select>
               <div className="relative">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input placeholder="Search..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                  className="pl-8 h-8 w-[150px] text-xs" />
+                  className="pl-8 h-8 w-[140px] text-xs" />
               </div>
               <div className="flex border border-border rounded-md overflow-hidden">
                 <button onClick={() => setViewMode("list")} className={`p-1.5 transition-colors ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutList className="w-3.5 h-3.5" /></button>
@@ -419,33 +423,33 @@ const InvestmentsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/40">
+                <tr className="border-b border-border bg-muted/30">
                   {["Date", "Investor", "Category", "Amount", "Slips", "Note", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((c) => {
+                {paginated.map((c, idx) => {
                   const inv = getInvestorById(c.investorId);
                   return (
-                    <tr key={c.id} className="border-b border-border/60 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{c.date}</td>
-                      <td className="px-4 py-3">
+                    <tr key={c.id} className={`border-b border-border/40 hover:bg-muted/20 transition-colors ${idx % 2 === 0 ? "" : "bg-muted/10"}`}>
+                      <td className="px-4 py-2.5 text-xs text-muted-foreground whitespace-nowrap tabular-nums">{c.date}</td>
+                      <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
-                          {inv && <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
-                          <span className="text-xs font-medium">{inv?.name || "—"}</span>
+                          {inv && <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
+                          <span className="text-xs font-medium text-foreground">{inv?.name || "—"}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[c.category] || "bg-muted text-muted-foreground"}`}>{c.category}</span>
                       </td>
-                      <td className="px-4 py-3 font-bold tabular-nums text-foreground text-xs">{formatPrice(c.amount)}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 font-bold tabular-nums text-foreground text-xs">{formatPrice(c.amount)}</td>
+                      <td className="px-4 py-2.5">
                         <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><ImageIcon className="w-3 h-3" />{c.slipCount}</span>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground text-[11px] max-w-[180px] truncate">{c.note || "—"}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5 text-muted-foreground text-[11px] max-w-[200px] truncate">{c.note || "—"}</td>
+                      <td className="px-4 py-2.5">
                         <div className="flex items-center gap-0.5">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3 text-primary" /></Button>
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
@@ -466,20 +470,20 @@ const InvestmentsPage = () => {
             {paginated.map((c) => {
               const inv = getInvestorById(c.investorId);
               return (
-                <div key={c.id} className="border border-border rounded-xl p-4 space-y-2.5 hover:shadow-md transition-all hover:border-border/80">
+                <div key={c.id} className="border border-border rounded-xl p-4 space-y-2.5 hover:shadow-md transition-all bg-card">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
                       {inv && <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
                       <div>
-                        <p className="font-semibold text-xs">{inv?.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{c.date}</p>
+                        <p className="font-semibold text-xs text-foreground">{inv?.name}</p>
+                        <p className="text-[10px] text-muted-foreground tabular-nums">{c.date}</p>
                       </div>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[9px] font-semibold ${categoryColors[c.category]}`}>{c.category}</span>
                   </div>
                   <p className="text-base font-extrabold text-foreground tabular-nums">{formatPrice(c.amount)}</p>
                   <p className="text-[11px] text-muted-foreground truncate">{c.note || "—"}</p>
-                  <div className="flex gap-0.5 pt-2 border-t border-border/60">
+                  <div className="flex gap-0.5 pt-2 border-t border-border/50">
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3" /></Button>
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3" /></Button>
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
@@ -493,7 +497,7 @@ const InvestmentsPage = () => {
 
         {/* Pagination */}
         <div className="px-5 py-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-          <span>Showing {filtered.length > 0 ? (page - 1) * perPage + 1 : 0}–{Math.min(page * perPage, filtered.length)} of {filtered.length}</span>
+          <span className="tabular-nums">Showing {filtered.length > 0 ? (page - 1) * perPage + 1 : 0}–{Math.min(page * perPage, filtered.length)} of {filtered.length}</span>
           <div className="flex items-center gap-1.5">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)} className="h-7 gap-1 text-xs"><ChevronLeft className="w-3.5 h-3.5" /></Button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
