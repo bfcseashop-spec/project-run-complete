@@ -538,6 +538,9 @@ const SettingsPage = () => {
           <TabsTrigger value="currency" className="flex items-center gap-1.5 text-xs">
             <Globe className="w-3.5 h-3.5" /> Currency & Language
           </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-1.5 text-xs">
+            <KeyRound className="w-3.5 h-3.5" /> Security
+          </TabsTrigger>
         </TabsList>
 
         <div className="mt-6 rounded-lg border border-border bg-card p-6">
