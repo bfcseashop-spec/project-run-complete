@@ -33,6 +33,10 @@ import {
 } from "lucide-react";
 import ImageLightbox, { type LightboxImage } from "@/components/ImageLightbox";
 import { formatPrice } from "@/lib/currency";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  ResponsiveContainer, Legend, PieChart, Pie, Cell, AreaChart, Area,
+} from "recharts";
 import { exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 
