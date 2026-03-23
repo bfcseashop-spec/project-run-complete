@@ -288,7 +288,7 @@ const Dashboard = () => {
             <a
               key={i}
               href={op.path}
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
             >
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
