@@ -101,7 +101,7 @@ const ClinicProfileTab = () => {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button onClick={() => toast.success("Clinic profile saved")}>
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Clinic profile saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Profile
         </Button>
       </div>
