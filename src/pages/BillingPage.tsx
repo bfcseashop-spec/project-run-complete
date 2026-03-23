@@ -154,28 +154,40 @@ const BillingPage = () => {
   };
 
   const columns = [
-    { key: "id", header: "Invoice", render: (d: BillingRecord) => (
-      <div className="flex items-center gap-1.5">
-        <span>{d.id}</span>
-        {refundedInvoiceIds.has(d.id) && (
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
-            <RotateCcw className="w-3 h-3" />
-            Refunded
+    { key: "id", header: "Invoice No.", render: (d: BillingRecord) => (
+      <span className="font-mono font-semibold text-sm">{d.id}</span>
+    )},
+    { key: "patient", header: t("patient", lang), render: (d: BillingRecord) => (
+      <span className="font-medium">{d.patient}</span>
+    )},
+    { key: "date", header: t("date", lang), render: (d: BillingRecord) => (
+      <span className="text-muted-foreground text-sm">{d.date}</span>
+    )},
+    { key: "service", header: "Items", render: (d: BillingRecord) => (
+      <span className="text-sm text-muted-foreground truncate max-w-[180px] block">{d.service}</span>
+    )},
+    { key: "total", header: "Amount", render: (d: BillingRecord) => (
+      <div>
+        <span className="font-semibold tabular-nums">{formatDualPrice(d.total)}</span>
+        {refundAmountByInvoice.has(d.id) && (
+          <span className="block text-[10px] text-orange-600 dark:text-orange-400 font-medium">
+            Refund: -{formatPrice(refundAmountByInvoice.get(d.id)!)}
           </span>
         )}
       </div>
     )},
-    { key: "date", header: t("date", lang) },
-    { key: "patient", header: t("patient", lang) },
-    { key: "service", header: "Service" },
-    { key: "medQty", header: "Qty (Med)", render: (d: BillingRecord) => <span className="font-number">{getMedQty(d) || "—"}</span> },
-    { key: "injection", header: "Injection", render: (d: BillingRecord) => <span className="text-sm">{getInjection(d)}</span> },
-    { key: "packages", header: "Packages", render: (d: BillingRecord) => <span className="text-sm">{getPackages(d)}</span> },
-    { key: "total", header: t("total", lang), render: (d: BillingRecord) => <span className="font-semibold font-number">{formatDualPrice(d.total)}</span> },
-    { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="font-number">{formatDualPrice(d.paid)}</span> },
-    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`font-number ${d.due > 0 ? "text-destructive font-medium" : ""}`}>{formatDualPrice(d.due)}</span> },
-    { key: "method", header: "PayBy" },
-    { key: "status", header: t("status", lang), render: (d: BillingRecord) => <StatusBadge status={d.status} /> },
+    { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="tabular-nums text-emerald-600 dark:text-emerald-400 font-medium">{formatDualPrice(d.paid)}</span> },
+    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`tabular-nums font-medium ${d.due > 0 ? "text-destructive" : "text-muted-foreground"}`}>{formatDualPrice(d.due)}</span> },
+    { key: "method", header: "PayBy", render: (d: BillingRecord) => <span className="text-sm">{d.method}</span> },
+    { key: "billStatus", header: "Status", render: (d: BillingRecord) => {
+      const st = getBillStatus(d);
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${st.color}`}>
+          {st.label === "Refunded" && <RotateCcw className="w-3 h-3" />}
+          {st.label}
+        </span>
+      );
+    }},
     {
       key: "actions", header: "Actions", render: (d: BillingRecord) => (
         <TooltipProvider delayDuration={200}>
