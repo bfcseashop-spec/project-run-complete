@@ -135,17 +135,21 @@ const AppSidebar = () => {
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 h-14 border-b border-sidebar-border">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
-            style={{ background: "linear-gradient(135deg, hsl(168, 80%, 35%), hsl(200, 80%, 40%))" }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden"
+            style={{ background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(168, 80%, 35%), hsl(200, 80%, 40%))" }}
           >
-            <Activity className="w-5 h-5 text-white" />
+            {settings.clinicLogo ? (
+              <img src={settings.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
+            ) : (
+              <Activity className="w-5 h-5 text-white" />
+            )}
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden flex-1">
-              <h1 className="text-base font-bold text-sidebar-accent-foreground font-heading tracking-tight">
-                ClinicPOS
+              <h1 className="text-base font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
+                {settings.clinicName || "ClinicPOS"}
               </h1>
-              <p className="text-[10px] text-sidebar-muted leading-none">Management System</p>
+              <p className="text-[10px] text-sidebar-muted leading-none truncate">{settings.clinicTagline || "Management System"}</p>
             </div>
           )}
           {isMobile && (
