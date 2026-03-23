@@ -24,6 +24,7 @@ import { barcodeSVG } from "@/lib/barcode";
 // QR code removed per user request
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
+import { addDraft, removeDraft, nextDraftId } from "@/data/draftStore";
 
 initPatients(opdPatients);
 
