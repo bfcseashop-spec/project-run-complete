@@ -95,57 +95,68 @@ const LayoutInner = () => {
     <div className="min-h-screen bg-background">
       <AppSidebar />
       <div className={`transition-all duration-300 ${collapsed ? "ml-[68px]" : "ml-[260px]"}`}>
-        <header className="sticky top-0 z-20 h-16 bg-card border-b border-border flex items-center justify-between px-6 shadow-card">
-          <div className="flex items-center gap-3 flex-1 max-w-md">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search patients, tests, medicines..."
-              className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
-            />
+        <header className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 border-b border-border/50 backdrop-blur-md bg-card/80">
+          {/* Search */}
+          <div className="flex items-center gap-2.5 flex-1 max-w-md">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-muted/50 border border-border/40 flex-1 transition-all focus-within:border-primary/40 focus-within:bg-background">
+              <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search patients, tests, medicines..."
+                className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
           </div>
+
+          {/* Actions */}
           <div className="flex items-center gap-1">
-            {/* Billing Shortcut */}
+            {/* Billing */}
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 text-muted-foreground hover:text-primary"
+              className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
               onClick={() => navigate("/billing")}
             >
-              <Receipt className="w-4 h-4" />
-              <span className="hidden md:inline text-xs font-medium">Billing</span>
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(200, 80%, 50%, 0.12)" }}>
+                <Receipt className="w-3.5 h-3.5" style={{ color: "hsl(200, 80%, 50%)" }} />
+              </div>
+              <span className="hidden md:inline text-xs font-semibold">Billing</span>
             </Button>
 
-            {/* Drafts Shortcut */}
+            {/* Drafts */}
             <Button
               variant="ghost"
               size="sm"
-              className="relative gap-1.5 text-muted-foreground hover:text-primary"
+              className="relative gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
               onClick={() => navigate("/billing/drafts")}
             >
-              <FileText className="w-4 h-4" />
-              <span className="hidden md:inline text-xs font-medium">Drafts</span>
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.12)" }}>
+                <FileText className="w-3.5 h-3.5" style={{ color: "hsl(38, 92%, 50%)" }} />
+              </div>
+              <span className="hidden md:inline text-xs font-semibold">Drafts</span>
               {draftCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-white text-[10px] font-bold leading-none shadow-md" style={{ background: "linear-gradient(135deg, hsl(38, 92%, 50%), hsl(25, 90%, 50%))" }}>
                   {draftCount}
                 </span>
               )}
             </Button>
 
-            {/* Language Shortcut */}
+            {/* Language */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
-                  <Languages className="w-4 h-4" />
-                  <span className="hidden md:inline text-xs font-medium">{currentLang.flag} {currentLang.id}</span>
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(270, 60%, 55%, 0.12)" }}>
+                    <Languages className="w-3.5 h-3.5" style={{ color: "hsl(270, 60%, 55%)" }} />
+                  </div>
+                  <span className="hidden md:inline text-xs font-semibold">{currentLang.flag} {currentLang.id}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Language</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-lg border-border/50">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Language</DropdownMenuLabel>
                 {availableLanguages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.id}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2 cursor-pointer rounded-lg"
                     onClick={() => updateAppSettings({ language: lang.id })}
                   >
                     <span className="text-base">{lang.flag}</span>
@@ -156,32 +167,35 @@ const LayoutInner = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Theme */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
-                  <Palette className="w-4 h-4" />
-                  <span className="hidden md:inline text-xs font-medium">Theme</span>
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(340, 70%, 55%, 0.12)" }}>
+                    <Palette className="w-3.5 h-3.5" style={{ color: "hsl(340, 70%, 55%)" }} />
+                  </div>
+                  <span className="hidden md:inline text-xs font-semibold">Theme</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Color Theme</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-lg border-border/50">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Color Theme</DropdownMenuLabel>
                 {colorThemes.map((t) => (
                   <DropdownMenuItem
                     key={t.id}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2 cursor-pointer rounded-lg"
                     onClick={() => { applyThemeQuick(t.id); setCurrentTheme(t.id); }}
                   >
-                    <span className="w-4 h-4 rounded-full border border-border shrink-0" style={{ background: `hsl(${t.primary})` }} />
+                    <span className="w-4 h-4 rounded-full border-2 shrink-0 shadow-sm" style={{ background: `hsl(${t.primary})`, borderColor: currentTheme === t.id ? `hsl(${t.primary})` : "transparent" }} />
                     <span className="text-sm">{t.name}</span>
                     {currentTheme === t.id && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Appearance</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Appearance</DropdownMenuLabel>
                 {modes.map((m) => (
                   <DropdownMenuItem
                     key={m.value}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2 cursor-pointer rounded-lg"
                     onClick={() => { applyModeQuick(m.value); setCurrentMode(m.value); }}
                   >
                     <m.icon className="w-4 h-4" />
@@ -195,12 +209,14 @@ const LayoutInner = () => {
             {/* Date & Time */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-primary">
-                  <Clock className="w-4 h-4" />
-                  <span className="hidden lg:inline text-xs font-medium tabular-nums">{timeStr}</span>
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(168, 80%, 45%, 0.12)" }}>
+                    <Clock className="w-3.5 h-3.5" style={{ color: "hsl(168, 80%, 45%)" }} />
+                  </div>
+                  <span className="hidden lg:inline text-xs font-semibold tabular-nums">{timeStr}</span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-56 p-4">
+              <PopoverContent align="end" className="w-56 p-4 rounded-xl shadow-lg border-border/50">
                 <div className="space-y-2 text-center">
                   <p className="text-2xl font-bold tabular-nums text-foreground">{timeStr}</p>
                   <p className="text-sm text-muted-foreground">{dateStr}</p>
@@ -208,19 +224,25 @@ const LayoutInner = () => {
               </PopoverContent>
             </Popover>
 
-            <div className="w-px h-6 bg-border mx-1" />
+            <div className="w-px h-7 bg-border/50 mx-1.5" />
 
-            <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+            {/* Notifications */}
+            <button className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 transition-all">
+              <Bell className="w-[18px] h-[18px] text-muted-foreground" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 border-card" style={{ background: "linear-gradient(135deg, hsl(0, 72%, 50%), hsl(350, 70%, 45%))" }} />
             </button>
-            <div className="flex items-center gap-3 ml-2">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
+
+            {/* User Avatar */}
+            <div className="flex items-center gap-2.5 ml-1.5 pl-1.5">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md"
+                style={{ background: "linear-gradient(135deg, hsl(168, 80%, 45%), hsl(200, 80%, 50%))" }}
+              >
                 A
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-medium text-foreground">Admin</p>
-                <p className="text-xs text-muted-foreground">Super Admin</p>
+                <p className="text-sm font-semibold text-foreground leading-tight">Admin</p>
+                <p className="text-[10px] text-muted-foreground font-medium">Super Admin</p>
               </div>
             </div>
           </div>
