@@ -89,10 +89,23 @@ const Dashboard = () => {
   // Real computed stats
   const stats = useMemo(() => {
     const revenue = filteredBilling.reduce((s, r) => s + r.paid, 0);
+    const totalBills = filteredBilling.reduce((s, r) => s + r.total, 0);
+    const totalDiscount = filteredBilling.reduce((s, r) => s + r.discount, 0);
     const totalDue = filteredBilling.reduce((s, r) => s + r.due, 0);
     const invoiceCount = filteredBilling.length;
     const completedInvoices = filteredBilling.filter(r => r.status === "completed").length;
     const pendingInvoices = filteredBilling.filter(r => r.status === "pending" || r.status === "critical").length;
+
+    // Expenses filtered by date range
+    const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
+    const filteredExpenses = expenseRecords.filter(e => {
+      try { return isWithinInterval(parseISO(e.date), { start: range.from, end: range.to }); }
+      catch { return false; }
+    });
+    const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+
+    const profit = revenue > totalExpense ? revenue - totalExpense : 0;
+    const loss = totalExpense > revenue ? totalExpense - revenue : 0;
 
     const activePatients = patients.filter(p => p.status === "active").length;
     const pendingPatients = patients.filter(p => p.status === "pending").length;
@@ -111,13 +124,14 @@ const Dashboard = () => {
     const outOfStockInj = injections.filter(i => i.status === "out-of-stock").length;
 
     return {
-      revenue, totalDue, invoiceCount, completedInvoices, pendingInvoices,
+      revenue, totalBills, totalDiscount, totalDue, totalExpense, profit, loss,
+      invoiceCount, completedInvoices, pendingInvoices,
       activePatients, pendingPatients, totalPatients,
       pendingLabs, completedLabs, totalLabs,
       pendingXrays, pendingUltrasounds,
       lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections]);
+  }, [filteredBilling, patients, labReports, medicines, injections, filterPreset, customRange]);
 
   // Payment chart data
   const paymentData = useMemo(() => {
