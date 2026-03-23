@@ -41,6 +41,57 @@ export type Database = {
         }
         Relationships: []
       }
+      medicines: {
+        Row: {
+          box_no: string
+          category: string
+          created_at: string
+          expiry: string
+          id: string
+          image: string
+          manufacturer: string
+          name: string
+          price: number
+          purchase_price: number
+          sold_out: number
+          status: string
+          stock: number
+          unit: string
+        }
+        Insert: {
+          box_no?: string
+          category?: string
+          created_at?: string
+          expiry?: string
+          id?: string
+          image?: string
+          manufacturer?: string
+          name: string
+          price?: number
+          purchase_price?: number
+          sold_out?: number
+          status?: string
+          stock?: number
+          unit?: string
+        }
+        Update: {
+          box_no?: string
+          category?: string
+          created_at?: string
+          expiry?: string
+          id?: string
+          image?: string
+          manufacturer?: string
+          name?: string
+          price?: number
+          purchase_price?: number
+          sold_out?: number
+          status?: string
+          stock?: number
+          unit?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           active: boolean | null
