@@ -524,7 +524,7 @@ const NewInvoicePage = () => {
               <Select value={patient} onValueChange={setPatient}>
                 <SelectTrigger className="h-10"><SelectValue placeholder="Select patient..." /></SelectTrigger>
                 <SelectContent>
-                  {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>)}
+                  {patientOptions.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} {p.id !== "edit-patient" ? `(${p.id})` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
