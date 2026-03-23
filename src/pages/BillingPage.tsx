@@ -81,7 +81,7 @@ const BillingPage = () => {
   const [refunds, setRefunds] = useState(getRefunds());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
-  useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return u; }, []);
+  useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
 
   const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
 
