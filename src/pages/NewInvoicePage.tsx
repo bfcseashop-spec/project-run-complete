@@ -768,7 +768,7 @@ const NewInvoicePage = () => {
                       <SelectContent>
                         {paymentMethods.map((m) => (
                           <SelectItem key={m.value} value={m.value}>
-                            <span className="flex items-center gap-2"><m.icon className="w-3.5 h-3.5" /> {m.label}</span>
+                            {m.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
