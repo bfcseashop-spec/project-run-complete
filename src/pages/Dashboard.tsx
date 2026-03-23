@@ -252,7 +252,7 @@ const Dashboard = () => {
           <StatCard icon={Users} title="Patients" value={String(stats.totalPatients)} change={`${stats.activePatients} active`} accentColor="hsl(160, 50%, 38%)" />
           <StatCard icon={TestTube} title="Lab Reports" value={String(stats.totalLabs)} change={`${stats.pendingLabs} pending`} accentColor="hsl(200, 80%, 45%)" />
           <StatCard icon={ScanLine} title="X-Ray" value={String(xrayRecords.length)} change={`${stats.pendingXrays} pending`} accentColor="hsl(38, 70%, 48%)" />
-          <StatCard icon={Heart} title="Ultrasound" value={String(ultrasoundRecords.length)} change={`${stats.pendingUltrasounds} pending`} accentColor="hsl(270, 60%, 55%)" />
+          <StatCard icon={Heart} title="Ultrasound" value={String(ultrasoundRecords.length)} change={`${stats.pendingUltrasounds} pending`} accentColor="hsl(280, 65%, 55%)" />
         </div>
       </section>
 
