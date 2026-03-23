@@ -237,7 +237,7 @@ const NewInvoicePage = () => {
     }
     // Store in sessionStorage for BillingPage to pick up
     if (draftId) removeDraft(draftId); // Remove from drafts when completing
-    sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData }));
+    sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData, editRecordId }));
     toast.success(action === "print" ? "Invoice created — printing..." : "Payment received");
     goBack();
   };
