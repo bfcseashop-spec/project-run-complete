@@ -113,6 +113,8 @@ export const updateMedicine = async (id: string, updates: Partial<Medicine>) => 
   if (updates.soldOut !== undefined) dbUpdates.sold_out = updates.soldOut;
   if (updates.image !== undefined) dbUpdates.image = updates.image;
   if (updates.expiry !== undefined) dbUpdates.expiry = updates.expiry;
+  if (updates.batchNo !== undefined) dbUpdates.batch_no = updates.batchNo;
+  if (updates.stockAlert !== undefined) dbUpdates.stock_alert = updates.stockAlert;
 
   // Recompute status
   const existing = medicines.find((m) => m.id === id);
