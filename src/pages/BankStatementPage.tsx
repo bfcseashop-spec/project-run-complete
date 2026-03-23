@@ -41,10 +41,9 @@ const allMethods = ["ABA", "ACleda", "Cash", "Due", "Card", "Wing", "Binance(USD
 const datePresets: { value: DatePreset; label: string }[] = [
   { value: "today", label: "Today" },
   { value: "yesterday", label: "Yesterday" },
-  { value: "thisWeek", label: "This Week" },
-  { value: "thisMonth", label: "This Month" },
-  { value: "lastMonth", label: "Last Month" },
-  { value: "thisYear", label: "This Year" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "year", label: "This Year" },
   { value: "all", label: "All Time" },
 ];
 
