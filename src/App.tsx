@@ -125,6 +125,7 @@ const App = () => (
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/system-manage" element={<SystemManagePage />} />
               <Route path="/refund" element={<RefundPage />} />
+              <Route path="/users-access" element={<UsersAccessPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

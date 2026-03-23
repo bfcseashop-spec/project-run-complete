@@ -91,6 +91,7 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: SlidersHorizontal, labelKey: "systemManage", path: "/system-manage" },
       { icon: Settings, labelKey: "settings", path: "/settings" },
+      { icon: Users, labelKey: "usersAccess", path: "/users-access" },
     ],
   },
 ];
