@@ -20,7 +20,7 @@ import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { xrayRecords } from "@/data/xrayRecords";
 import { ultrasoundRecords } from "@/data/ultrasoundRecords";
-import { expenseRecords } from "@/data/expenseRecords";
+import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
 import { parseISO, isWithinInterval, format } from "date-fns";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
@@ -59,6 +59,7 @@ const Dashboard = () => {
   const [labReports, setLabReports] = useState(getLabReports());
   const [medicines, setMedicines] = useState(getMedicines());
   const [injections, setInjections] = useState(getInjections());
+  const [expenses, setExpenses] = useState(getExpenseRecords());
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
@@ -74,6 +75,7 @@ const Dashboard = () => {
       subscribeLabReports(() => setLabReports([...getLabReports()])),
       subscribeMedicines(() => setMedicines([...getMedicines()])),
       subscribeInjections(() => setInjections([...getInjections()])),
+      subscribeExpenses(() => setExpenses([...getExpenseRecords()])),
     ];
     return () => unsubs.forEach(u => u());
   }, []);
@@ -99,7 +101,7 @@ const Dashboard = () => {
 
     // Expenses filtered by date range
     const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
-    const filteredExpenses = expenseRecords.filter(e => {
+    const filteredExpenses = expenses.filter(e => {
       try { return isWithinInterval(parseISO(e.date), { start: range.from, end: range.to }); }
       catch { return false; }
     });
@@ -132,7 +134,7 @@ const Dashboard = () => {
       pendingXrays, pendingUltrasounds,
       lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections, filterPreset, customRange]);
+  }, [filteredBilling, patients, labReports, medicines, injections, expenses, filterPreset, customRange]);
 
   // Payment chart data
   const paymentData = useMemo(() => {
