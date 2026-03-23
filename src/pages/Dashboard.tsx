@@ -120,7 +120,7 @@ const Dashboard = () => {
 
   // Payment chart data
   const paymentData = useMemo(() => {
-    const methods = ["Cash", "ABA", "ACleda", "Card"];
+    const methods = ["Cash", "ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer", "Insurance"];
     return methods.map((name) => {
       const matching = filteredBilling.filter((r) => r.method === name);
       const meta = paymentMeta[name];
