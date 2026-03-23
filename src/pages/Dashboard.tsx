@@ -247,11 +247,15 @@ const Dashboard = () => {
             onCustomRangeChange={setCustomRange}
           />
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           <StatCard icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 70%, 50%)" />
-          <StatCard icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(270, 55%, 55%)" />
+          <StatCard icon={Percent} title="Discount" value={formatDualPrice(stats.totalDiscount)} change={`${stats.invoiceCount} invoices`} accentColor="hsl(38, 92%, 50%)" />
+          <StatCard icon={Wallet} title="Expense" value={formatDualPrice(stats.totalExpense)} accentColor="hsl(15, 85%, 52%)" />
+          <StatCard icon={Receipt} title="Total Bills" value={formatDualPrice(stats.totalBills)} accentColor="hsl(200, 70%, 50%)" />
+          <StatCard icon={ClipboardList} title="Total Invoice" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(217, 91%, 60%)" />
+          <StatCard icon={TrendingDown} title="Total Due" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
+          <StatCard icon={DollarSign} title="Profit" value={formatDualPrice(stats.profit)} accentColor="hsl(160, 84%, 39%)" />
+          <StatCard icon={MinusCircle} title="Loss" value={formatDualPrice(stats.loss)} accentColor="hsl(0, 70%, 50%)" />
         </div>
 
         <div className="mt-4">
