@@ -567,8 +567,19 @@ const InvestmentsPage = () => {
           <div className="space-y-3 py-2">
             <div><Label className="text-xs mb-1 block">Investor Name</Label><Input value={invForm.name} onChange={(e) => setInvForm(p => ({ ...p, name: e.target.value }))} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs mb-1 block">Share %</Label><Input type="number" min={0} max={100} value={invForm.sharePercent || ""} onChange={(e) => setInvForm(p => ({ ...p, sharePercent: parseFloat(e.target.value) || 0 }))} /></div>
-              <div><Label className="text-xs mb-1 block">Capital Amount</Label><Input type="number" min={0} value={invForm.capitalAmount || ""} onChange={(e) => setInvForm(p => ({ ...p, capitalAmount: parseFloat(e.target.value) || 0 }))} /></div>
+              <div>
+                <Label className="text-xs mb-1 block">Share %</Label>
+                <Input type="number" min={0} max={100} value={invForm.sharePercent || ""} onChange={(e) => {
+                  const pct = parseFloat(e.target.value) || 0;
+                  const cap = Math.round((pct / 100) * totalCapital * 100) / 100;
+                  setInvForm(p => ({ ...p, sharePercent: pct, capitalAmount: cap }));
+                }} />
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Capital Amount</Label>
+                <Input type="number" min={0} value={invForm.capitalAmount || ""} readOnly className="bg-muted/50 cursor-not-allowed" />
+                <p className="text-[10px] text-muted-foreground mt-1">Auto-calculated from share %</p>
+              </div>
             </div>
             <div><Label className="text-xs mb-1 block">Investment Name</Label><Input value={invForm.investmentName} onChange={(e) => setInvForm(p => ({ ...p, investmentName: e.target.value }))} /></div>
             <div><Label className="text-xs mb-1 block">Already Paid</Label><Input type="number" min={0} value={invForm.paid || ""} onChange={(e) => setInvForm(p => ({ ...p, paid: parseFloat(e.target.value) || 0 }))} /></div>
