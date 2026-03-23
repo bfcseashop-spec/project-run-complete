@@ -103,12 +103,18 @@ const BillingPage = () => {
     if (!raw) return;
     sessionStorage.removeItem("invoiceSubmit");
     try {
-      const { data, action, isEdit } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean };
+      const { data, action, isEdit, editRecordId } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean; editRecordId?: string };
       // Only add to billing list when payment is completed
       if (action !== "payment") return;
-      if (isEdit) {
-        // For edits we'd need the ID — simplified: just add as new
+
+      if (isEdit && editRecordId) {
+        // Update existing record
+        const record = buildRecord(data, editRecordId);
+        updateBillingRecord(editRecordId, record);
+        toast.success(`Invoice ${editRecordId} updated`);
+        return;
       }
+
       const prefix = appSettings.invoicePrefix || "INV";
       // Ensure unique invoice number by checking existing records
       let nextNum = parseInt(appSettings.nextInvoiceNumber) || 1001;
