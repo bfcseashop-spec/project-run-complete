@@ -78,8 +78,12 @@ const BillingPage = () => {
   const [deleteRecord, setDeleteRecord] = useState<BillingRecord | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
+  const [refunds, setRefunds] = useState(getRefunds());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
+  useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return u; }, []);
+
+  const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
 
   // Pick up submitted invoice from the full-page form (only completed payments)
   useEffect(() => {
