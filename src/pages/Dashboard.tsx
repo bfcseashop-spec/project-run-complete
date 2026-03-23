@@ -75,6 +75,7 @@ const Dashboard = () => {
       subscribeLabReports(() => setLabReports([...getLabReports()])),
       subscribeMedicines(() => setMedicines([...getMedicines()])),
       subscribeInjections(() => setInjections([...getInjections()])),
+      subscribeExpenses(() => setExpenses([...getExpenseRecords()])),
     ];
     return () => unsubs.forEach(u => u());
   }, []);
