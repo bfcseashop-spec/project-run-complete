@@ -16,6 +16,8 @@ export interface Medicine {
   image: string;
   expiry: string;
   status: "in-stock" | "low-stock" | "out-of-stock";
+  batchNo: string;
+  stockAlert: number;
 }
 
 const computeStatus = (stock: number): Medicine["status"] =>
