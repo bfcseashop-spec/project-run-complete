@@ -98,54 +98,112 @@ const DraftsPage = () => {
     const s = getSettings();
     const fd = draft.formData;
     const items = fd.lineItems || [];
-    const subtotal = items.reduce((s, li) => s + li.price * li.qty, 0);
+    const subtotal = items.reduce((sum, li) => sum + li.price * li.qty, 0);
     const discAmt = fd.discountType === "percent" ? (subtotal * fd.discount) / 100 : fd.discount;
     const afterDisc = Math.max(0, subtotal - discAmt);
     const taxRate = s.taxEnabled ? parseFloat(s.taxRate) || 0 : 0;
     const tax = (afterDisc * taxRate) / 100;
     const total = afterDisc + tax;
-    const barcodeStr = barcodeSVG(draft.id, 200, 45);
+    const barcodeStr = barcodeSVG(draft.id, 220, 50);
+    const now = new Date();
+    const dateTimeStr = `${fd.date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    const payMethodStr = fd.paymentMethod || "—";
 
-    const rows = items.map((li, i) =>
-      `<tr><td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:12px">${i + 1}</td>
-       <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-weight:600;font-size:12px">${li.name}</td>
-       <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:12px">${li.qty}</td>
-       <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-size:12px;font-variant-numeric:tabular-nums">${formatPrice(li.price)}</td>
-       <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums">${formatPrice(li.price * li.qty)}</td></tr>`
-    ).join("");
+    // Group items by type (same as invoice)
+    const typeLabelsMap: Record<string, string> = { SVC: "Services", MED: "Medication", INJ: "Injections", PKG: "Packages", CUSTOM: "Custom Items" };
+    const groups: Record<string, { items: typeof items; label: string }> = {};
+    items.forEach((li) => {
+      if (!groups[li.type]) groups[li.type] = { items: [], label: typeLabelsMap[li.type] || li.type };
+      groups[li.type].items.push(li);
+    });
+    const previewItems = Object.entries(groups).filter(([, g]) => g.items.length > 0).map(([, g]) => {
+      const gTotal = g.items.reduce((s, li) => s + li.price * li.qty, 0);
+      const gQty = g.items.reduce((s, li) => s + li.qty, 0);
+      return { name: g.label, description: `${g.items.length} item(s)`, price: gTotal, qty: gQty, total: gTotal, subItems: g.items.map(li => ({ name: li.name, price: li.price, qty: li.qty, total: li.price * li.qty })) };
+    });
 
-    const win = window.open("", "_blank", "width=700,height=800");
+    const rows = previewItems.map((item, i) => {
+      const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px;font-weight:600">${item.qty}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600">${formatPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
+      const subRows = item.subItems.map((sub) =>
+        `<tr><td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
+      ).join("");
+      return mainRow + subRows;
+    }).join("");
+
+    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatPrice(subtotal)}</span></div>`;
+    if (discAmt > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discAmt)}</span></div>`;
+    if (tax > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(tax)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(total)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Status</span><span style="color:#f59e0b;font-weight:700">DRAFT — Unpaid</span></div></div>`;
+
+    const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
-    win.document.write(`<!DOCTYPE html><html><head><title>Draft - ${draft.id}</title>
-    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;padding:24px 32px;position:relative}
-    @media print{@page{margin:15mm}}</style></head><body>
-    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:10px;padding:16px 24px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
-      <div><h1 style="font-size:18px;font-weight:800">${s.clinicName}</h1><p style="font-size:11px;opacity:0.7">${s.clinicTagline}</p></div>
-      <div style="text-align:right"><p style="font-size:9px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Draft Invoice</p><p style="font-size:14px;font-weight:700;font-family:monospace">${draft.id}</p></div>
+    win.document.write(`<!DOCTYPE html><html><head><title>Draft Invoice - ${fd.patient}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff;padding:0;position:relative}
+.page{padding:32px 40px;position:relative;overflow:hidden}
+.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}
+.content{position:relative;z-index:1}
+@media print{@page{margin:15mm}body{padding:0}.page{padding:20px 30px}}</style></head><body>
+<div class="page">
+  <img src="${clinicLogo}" class="watermark" alt="" />
+  <div class="content">
+    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
+        <p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p>
+        <p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p>
+      </div>
+      <div style="text-align:right">
+        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Draft Invoice</p>
+        <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${draft.id}</p>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:12px">
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 14px"><p style="font-size:9px;text-transform:uppercase;color:#16a34a;font-weight:600;margin-bottom:4px">Patient</p><p><strong>${fd.patient}</strong></p></div>
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px"><p style="font-size:9px;text-transform:uppercase;color:#2563eb;font-weight:600;margin-bottom:4px">Doctor & Date</p><p><strong>${fd.doctor || "—"}</strong></p><p style="margin-top:2px">Date: <strong>${fd.date}</strong></p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
+        <p><strong>${fd.patient}</strong></p>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+        ${fd.doctor ? `<p><strong>${fd.doctor}</strong></p>` : ''}
+        <p style="margin-top:4px">Date: <strong>${dateTimeStr}</strong></p>
+        <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
+      </div>
     </div>
-    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:12px">
-      <thead><tr style="background:#f0fdfa"><th style="padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600">#</th><th style="padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600">Item</th><th style="padding:8px 12px;text-align:center;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600">Qty</th><th style="padding:8px 12px;text-align:right;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600">Price</th><th style="padding:8px 12px;text-align:right;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600">Total</th></tr></thead>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
+        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
+        <th style="padding:10px 14px;text-align:center;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Qty</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
+        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div style="margin-left:auto;width:260px;font-size:12px">
-      <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:#64748b">Subtotal</span><span>${formatPrice(subtotal)}</span></div>
-      ${discAmt > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444">-${formatPrice(discAmt)}</span></div>` : ''}
-      ${tax > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:#64748b">Tax</span><span>${formatPrice(tax)}</span></div>` : ''}
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #0f766e;margin-top:6px;font-weight:800;font-size:15px"><span>Total</span><span style="color:#0f766e">${formatPrice(total)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0;color:#f59e0b;font-weight:600"><span>Status</span><span>DRAFT — Unpaid</span></div>
-    </div>
-    <div style="text-align:center;margin-top:20px;padding-top:12px;border-top:1px dashed #cbd5e1">
+    ${totalsHtml}
+    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
       <div style="display:inline-block">${barcodeStr}</div>
-      <p style="font-family:monospace;font-size:11px;letter-spacing:2px;font-weight:600;margin-top:4px;color:#475569">${draft.id}</p>
+      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${draft.id}</p>
     </div>
-    <div style="text-align:center;margin-top:16px;padding:10px 0;background:#f0fdfa;border-radius:6px">
-      <p style="font-size:10px;color:#0f766e;font-weight:500">Draft Invoice — ${s.clinicName}</p>
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
+      <p style="font-size:11px;color:#0f766e;font-weight:500">Draft Invoice — ${s.clinicName} 🙏</p>
+      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
     </div>
-    </body></html>`);
+  </div>
+</div>
+</body></html>`);
     win.document.close();
     setTimeout(() => win.print(), 400);
   };
