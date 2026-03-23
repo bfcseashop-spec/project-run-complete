@@ -55,22 +55,31 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
       </div>
 
       {/* Bar Chart */}
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={data} layout="vertical" barSize={20}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-          <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPrice(v)} />
-          <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} width={55} />
-          <Tooltip
-            contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", boxShadow: "0 8px 32px -4px rgba(0,0,0,0.1)", fontSize: "13px" }}
-            formatter={(value: number) => [formatDualPrice(value), "Amount"]}
-          />
-          <Bar dataKey="amount" radius={[0, 6, 6, 0]}>
-            {data.map((d, i) => (
-              <Cell key={i} fill={d.color} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      {total > 0 ? (
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={data} layout="vertical" barSize={20}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+            <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPrice(v)} />
+            <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} width={55} />
+            <Tooltip
+              contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", boxShadow: "0 8px 32px -4px rgba(0,0,0,0.1)", fontSize: "13px" }}
+              formatter={(value: number) => [formatDualPrice(value), "Amount"]}
+            />
+            <Bar dataKey="amount" radius={[0, 6, 6, 0]}>
+              {data.map((d, i) => (
+                <Cell key={i} fill={d.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      ) : (
+        <div className="flex items-center justify-center h-[180px] rounded-xl bg-muted/20 border border-dashed border-border/60">
+          <div className="text-center">
+            <p className="text-sm font-semibold text-muted-foreground">No transactions yet</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Payment data will appear here once invoices are created</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
