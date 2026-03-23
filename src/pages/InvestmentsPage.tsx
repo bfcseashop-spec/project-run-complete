@@ -84,7 +84,7 @@ const InvestmentsPage = () => {
   const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "", slipImages: [] });
 
   // Stats
-  const totalCapital = investors.reduce((s, i) => s + i.capitalAmount, 0);
+  const totalCapital = getTotalCapital();
   const totalPaid = investors.reduce((s, i) => s + i.paid, 0);
   const totalContributions = contributions.reduce((s, c) => s + c.amount, 0);
   const remaining = totalCapital - totalPaid;
