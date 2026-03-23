@@ -404,6 +404,35 @@ const MedicinePage = () => {
     }
   };
 
+  // Custom sample data matching the user's desired format
+  const handleDownloadSample = () => {
+    const sampleRows = [
+      { name: "10% GS 500ml", category: "IV Fluid", unit: "Pieces", stock: 120, totalPurchasePrice: 0.50, purchaseEachPrice: 0.00, totalSalesPrice: 1200.00, salesEachPrice: 10.00, available: 118, expiry: "2028-09-26", manufacturer: "BBCA Pharma.", batchNo: "", stockAlert: 10 },
+      { name: "Paracetamol 500mg", category: "Tablet", unit: "Pieces", stock: 2500, totalPurchasePrice: 112.50, purchaseEachPrice: 0.04, totalSalesPrice: 625.00, salesEachPrice: 0.25, available: 2500, expiry: "2028-01-31", manufacturer: "Square", batchNo: "", stockAlert: 10 },
+      { name: "Amoxicillin 500mg", category: "Capsule", unit: "Pieces", stock: 1000, totalPurchasePrice: 70.00, purchaseEachPrice: 0.07, totalSalesPrice: 150.00, salesEachPrice: 0.15, available: 960, expiry: "2028-01-10", manufacturer: "PT Medifarma Lab", batchNo: "", stockAlert: 10 },
+      { name: "Actrapid", category: "Injection", unit: "Pieces", stock: 1, totalPurchasePrice: 8.50, purchaseEachPrice: 8.50, totalSalesPrice: 50.00, salesEachPrice: 50.00, available: 1, expiry: "2026-08-31", manufacturer: "Novo Nordisk", batchNo: "", stockAlert: 10 },
+      { name: "Alatrol", category: "Syrup", unit: "Pieces", stock: 100, totalPurchasePrice: 80.00, purchaseEachPrice: 0.80, totalSalesPrice: 499.00, salesEachPrice: 4.99, available: 97, expiry: "2028-08-30", manufacturer: "Square", batchNo: "", stockAlert: 10 },
+    ];
+    generateSampleExcel(importExportColumns, "Medicines", sampleRows);
+    toast.success("Sample template downloaded");
+  };
+
+  // Custom export with computed fields
+  const handleExportExcel = () => {
+    const exportData = data.map(m => ({
+      name: m.name, category: m.category, unit: m.unit, stock: m.stock,
+      totalPurchasePrice: (m.purchasePrice * m.stock).toFixed(2),
+      purchaseEachPrice: m.purchasePrice.toFixed(2),
+      totalSalesPrice: (m.price * m.stock).toFixed(2),
+      salesEachPrice: m.price.toFixed(2),
+      available: m.stock - m.soldOut,
+      expiry: m.expiry, manufacturer: m.manufacturer,
+      batchNo: m.batchNo || "-", stockAlert: m.stockAlert,
+    }));
+    exportToExcel(exportData as unknown as Record<string, unknown>[], importExportColumns, "Medicines");
+    toast.success(`Exported ${data.length} records to Excel`);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Medicine Management" description="Manage medicine inventory, stock levels, and pricing">
@@ -416,7 +445,7 @@ const MedicinePage = () => {
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
       </PageHeader>
 
-      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
+      <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={handleDownloadSample} />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
