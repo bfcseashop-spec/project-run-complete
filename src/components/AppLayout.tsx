@@ -95,15 +95,18 @@ const LayoutInner = () => {
     <div className="min-h-screen bg-background">
       <AppSidebar />
       <div className={`transition-all duration-300 ${collapsed ? "ml-[68px]" : "ml-[260px]"}`}>
-        <header className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 border-b border-border/50 backdrop-blur-md bg-card/80">
+        <header
+          className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 shadow-md"
+          style={{ background: "linear-gradient(135deg, hsl(160, 50%, 28%) 0%, hsl(168, 60%, 22%) 50%, hsl(175, 55%, 20%) 100%)" }}
+        >
           {/* Search */}
           <div className="flex items-center gap-2.5 flex-1 max-w-md">
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-muted/50 border border-border/40 flex-1 transition-all focus-within:border-primary/40 focus-within:bg-background">
-              <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/10 flex-1 transition-all focus-within:border-white/25 focus-within:bg-white/15">
+              <Search className="w-4 h-4 text-white/50 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search patients, tests, medicines..."
-                className="bg-transparent text-sm outline-none w-full text-foreground placeholder:text-muted-foreground"
+                className="bg-transparent text-sm outline-none w-full text-white placeholder:text-white/40"
               />
             </div>
           </div>
@@ -114,11 +117,11 @@ const LayoutInner = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
+              className="gap-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
               onClick={() => navigate("/billing")}
             >
-              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(200, 80%, 50%, 0.12)" }}>
-                <Receipt className="w-3.5 h-3.5" style={{ color: "hsl(200, 80%, 50%)" }} />
+              <div className="w-6 h-6 rounded-md flex items-center justify-center bg-white/15">
+                <Receipt className="w-3.5 h-3.5 text-white" />
               </div>
               <span className="hidden md:inline text-xs font-semibold">Billing</span>
             </Button>
@@ -127,11 +130,11 @@ const LayoutInner = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="relative gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
+              className="relative gap-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
               onClick={() => navigate("/billing/drafts")}
             >
-              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.12)" }}>
-                <FileText className="w-3.5 h-3.5" style={{ color: "hsl(38, 92%, 50%)" }} />
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.25)" }}>
+                <FileText className="w-3.5 h-3.5" style={{ color: "hsl(45, 100%, 72%)" }} />
               </div>
               <span className="hidden md:inline text-xs font-semibold">Drafts</span>
               {draftCount > 0 && (
@@ -144,9 +147,9 @@ const LayoutInner = () => {
             {/* Language */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
-                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(270, 60%, 55%, 0.12)" }}>
-                    <Languages className="w-3.5 h-3.5" style={{ color: "hsl(270, 60%, 55%)" }} />
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(270, 60%, 55%, 0.25)" }}>
+                    <Languages className="w-3.5 h-3.5" style={{ color: "hsl(280, 80%, 78%)" }} />
                   </div>
                   <span className="hidden md:inline text-xs font-semibold">{currentLang.flag} {currentLang.id}</span>
                 </Button>
@@ -170,9 +173,9 @@ const LayoutInner = () => {
             {/* Theme */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
-                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(340, 70%, 55%, 0.12)" }}>
-                    <Palette className="w-3.5 h-3.5" style={{ color: "hsl(340, 70%, 55%)" }} />
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(340, 70%, 55%, 0.25)" }}>
+                    <Palette className="w-3.5 h-3.5" style={{ color: "hsl(340, 80%, 75%)" }} />
                   </div>
                   <span className="hidden md:inline text-xs font-semibold">Theme</span>
                 </Button>
@@ -209,9 +212,9 @@ const LayoutInner = () => {
             {/* Date & Time */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all">
-                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "hsl(168, 80%, 45%, 0.12)" }}>
-                    <Clock className="w-3.5 h-3.5" style={{ color: "hsl(168, 80%, 45%)" }} />
+                <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center bg-white/15">
+                    <Clock className="w-3.5 h-3.5 text-white" />
                   </div>
                   <span className="hidden lg:inline text-xs font-semibold tabular-nums">{timeStr}</span>
                 </Button>
@@ -224,25 +227,25 @@ const LayoutInner = () => {
               </PopoverContent>
             </Popover>
 
-            <div className="w-px h-7 bg-border/50 mx-1.5" />
+            <div className="w-px h-7 bg-white/15 mx-1.5" />
 
             {/* Notifications */}
-            <button className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 transition-all">
-              <Bell className="w-[18px] h-[18px] text-muted-foreground" />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 border-card" style={{ background: "linear-gradient(135deg, hsl(0, 72%, 50%), hsl(350, 70%, 45%))" }} />
+            <button className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all">
+              <Bell className="w-[18px] h-[18px] text-white/70" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: "hsl(160, 50%, 28%)", background: "linear-gradient(135deg, hsl(0, 72%, 50%), hsl(350, 70%, 45%))" }} />
             </button>
 
             {/* User Avatar */}
             <div className="flex items-center gap-2.5 ml-1.5 pl-1.5">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md"
-                style={{ background: "linear-gradient(135deg, hsl(168, 80%, 45%), hsl(200, 80%, 50%))" }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shadow-md"
+                style={{ background: "linear-gradient(135deg, hsl(45, 100%, 65%), hsl(38, 92%, 50%))", color: "hsl(25, 50%, 15%)" }}
               >
                 A
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-foreground leading-tight">Admin</p>
-                <p className="text-[10px] text-muted-foreground font-medium">Super Admin</p>
+                <p className="text-sm font-semibold text-white leading-tight">Admin</p>
+                <p className="text-[10px] text-white/50 font-medium">Super Admin</p>
               </div>
             </div>
           </div>
