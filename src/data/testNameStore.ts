@@ -1,4 +1,4 @@
-import { labTestNames, sampleTypes as defaultSampleTypes } from "@/data/labTests";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface TestNameEntry {
   id: string;
@@ -16,79 +16,93 @@ export const defaultCategories = [
   "Radiology", "Cardiology", "Urology", "Endocrinology", "General",
 ];
 
-// Keep backward compat export
 export const testCategories = defaultCategories;
 
-const initialTests: TestNameEntry[] = labTestNames.map((name, i) => ({
-  id: `TN-${(i + 1).toString().padStart(3, "0")}`,
-  name,
-  category: ["Hematology", "Biochemistry", "Biochemistry", "Biochemistry", "Endocrinology", "Biochemistry", "Biochemistry", "Biochemistry", "Urology", "Microbiology", "Microbiology", "Radiology", "Cardiology", "Radiology", "Hematology", "Immunology", "Biochemistry", "Biochemistry", "Hematology", "Hematology", "Microbiology", "Microbiology", "Microbiology"][i] || "General",
-  sampleType: ["blood", "blood", "blood", "blood", "blood", "blood", "blood", "blood", "urine", "urine", "blood", "other", "other", "other", "blood", "blood", "blood", "blood", "blood", "blood", "stool", "sputum", "csf"][i] || "other",
-  normalRange: ["4.5-11.0", "70-100", "70-140", "<200", "0.4-4.0", "<5.7", "7-56", "0.7-1.3", "Normal", "No Growth", "No Growth", "Normal", "NSR", "Normal", "0-20", "<6", "30-100", "200-900", "60-170", "11-13.5", "Normal", "No Growth", "Normal"][i] || "-",
-  unit: ["x10³/µL", "mg/dL", "mg/dL", "mg/dL", "mIU/L", "%", "U/L", "mg/dL", "", "", "", "", "", "", "mm/hr", "mg/L", "ng/mL", "pg/mL", "µg/dL", "seconds", "", "", ""][i] || "",
-  price: [350, 150, 150, 800, 600, 500, 900, 800, 200, 400, 1200, 1500, 300, 2000, 100, 400, 1200, 800, 600, 500, 200, 800, 1500][i] || 500,
-  active: true,
-}));
-
-// Simple module-level mutable store so all pages share the same list
-let _tests: TestNameEntry[] = [...initialTests];
+let _tests: TestNameEntry[] = [];
 let _categories: string[] = [...defaultCategories];
-let _sampleTypes: string[] = [...defaultSampleTypes];
+let _sampleTypes: string[] = ["blood", "urine", "stool", "sputum", "swab", "tissue", "csf", "other"];
+let loaded = false;
 let _listeners: Array<() => void> = [];
 
-function notify() {
-  _listeners.forEach((fn) => fn());
-}
+function notify() { _listeners.forEach((fn) => fn()); }
+
+const toTest = (r: any): TestNameEntry => ({
+  id: r.id, name: r.name, category: r.category, sampleType: r.sample_type,
+  normalRange: r.normal_range, unit: r.unit, price: Number(r.price), active: r.active,
+});
+
+const load = async () => {
+  const [testRes, catRes, stRes] = await Promise.all([
+    supabase.from("test_names").select("*").order("created_at", { ascending: true }),
+    supabase.from("test_categories").select("*").order("name", { ascending: true }),
+    supabase.from("test_sample_types").select("*").order("name", { ascending: true }),
+  ]);
+  if (!testRes.error && testRes.data) _tests = testRes.data.map(toTest);
+  if (!catRes.error && catRes.data) _categories = catRes.data.map((r: any) => r.name);
+  if (!stRes.error && stRes.data) _sampleTypes = stRes.data.map((r: any) => r.name);
+  loaded = true;
+  notify();
+};
+load();
 
 export const testNameStore = {
   getTests: () => _tests,
   getActiveTests: () => _tests.filter((t) => t.active),
   getActiveTestNames: () => _tests.filter((t) => t.active).map((t) => t.name),
-
   findByName: (name: string) => _tests.find((t) => t.name === name),
 
-  addTest: (entry: Omit<TestNameEntry, "id">) => {
-    const nextNum = _tests.length + 1;
-    const newTest: TestNameEntry = { id: `TN-${nextNum.toString().padStart(3, "0")}`, ...entry };
-    _tests = [..._tests, newTest];
-    notify();
+  addTest: async (entry: Omit<TestNameEntry, "id">) => {
+    const id = `TN-${String(Date.now()).slice(-6)}`;
+    const newTest: TestNameEntry = { id, ...entry };
+    const { error } = await supabase.from("test_names").insert({
+      id, name: entry.name, category: entry.category, sample_type: entry.sampleType,
+      normal_range: entry.normalRange, unit: entry.unit, price: entry.price, active: entry.active,
+    });
+    if (error) throw error;
+    _tests = [..._tests, newTest]; notify();
     return newTest;
   },
 
-  updateTest: (id: string, updates: Partial<Omit<TestNameEntry, "id">>) => {
-    _tests = _tests.map((t) => (t.id === id ? { ...t, ...updates } : t));
-    notify();
+  updateTest: async (id: string, updates: Partial<Omit<TestNameEntry, "id">>) => {
+    const dbUp: Record<string, any> = {};
+    if (updates.name !== undefined) dbUp.name = updates.name;
+    if (updates.category !== undefined) dbUp.category = updates.category;
+    if (updates.sampleType !== undefined) dbUp.sample_type = updates.sampleType;
+    if (updates.normalRange !== undefined) dbUp.normal_range = updates.normalRange;
+    if (updates.unit !== undefined) dbUp.unit = updates.unit;
+    if (updates.price !== undefined) dbUp.price = updates.price;
+    if (updates.active !== undefined) dbUp.active = updates.active;
+    await supabase.from("test_names").update(dbUp).eq("id", id);
+    _tests = _tests.map((t) => (t.id === id ? { ...t, ...updates } : t)); notify();
   },
 
-  removeTest: (id: string) => {
-    _tests = _tests.filter((t) => t.id !== id);
-    notify();
+  removeTest: async (id: string) => {
+    await supabase.from("test_names").delete().eq("id", id);
+    _tests = _tests.filter((t) => t.id !== id); notify();
   },
 
-  // Category management
   getCategories: () => _categories,
-  addCategory: (name: string) => {
+  addCategory: async (name: string) => {
     if (!_categories.includes(name)) {
-      _categories = [..._categories, name];
-      notify();
+      await supabase.from("test_categories").insert({ name });
+      _categories = [..._categories, name]; notify();
     }
   },
-  removeCategory: (name: string) => {
-    _categories = _categories.filter((c) => c !== name);
-    notify();
+  removeCategory: async (name: string) => {
+    await supabase.from("test_categories").delete().eq("name", name);
+    _categories = _categories.filter((c) => c !== name); notify();
   },
 
-  // Sample type management
   getSampleTypes: () => _sampleTypes,
-  addSampleType: (name: string) => {
+  addSampleType: async (name: string) => {
     if (!_sampleTypes.includes(name)) {
-      _sampleTypes = [..._sampleTypes, name];
-      notify();
+      await supabase.from("test_sample_types").insert({ name });
+      _sampleTypes = [..._sampleTypes, name]; notify();
     }
   },
-  removeSampleType: (name: string) => {
-    _sampleTypes = _sampleTypes.filter((s) => s !== name);
-    notify();
+  removeSampleType: async (name: string) => {
+    await supabase.from("test_sample_types").delete().eq("name", name);
+    _sampleTypes = _sampleTypes.filter((s) => s !== name); notify();
   },
 
   subscribe: (fn: () => void) => {

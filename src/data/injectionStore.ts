@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export interface InjectionItem {
   id: string;
   name: string;
@@ -10,47 +12,59 @@ export interface InjectionItem {
   status: "in-stock" | "low-stock" | "out-of-stock";
 }
 
-const initialInjections: InjectionItem[] = [
-  { id: "INJ-001", name: "Insulin (Regular)", category: "Antidiabetic", strength: "10 IU/ml", route: "SC", stock: 120, unit: "Vials", price: 250, status: "in-stock" },
-  { id: "INJ-002", name: "Insulin (Mixtard)", category: "Antidiabetic", strength: "20 IU/ml", route: "SC", stock: 85, unit: "Vials", price: 320, status: "in-stock" },
-  { id: "INJ-003", name: "Ceftriaxone", category: "Antibiotic", strength: "1g", route: "IV/IM", stock: 200, unit: "Vials", price: 180, status: "in-stock" },
-  { id: "INJ-004", name: "Gentamicin", category: "Antibiotic", strength: "80mg/2ml", route: "IM", stock: 15, unit: "Amps", price: 45, status: "low-stock" },
-  { id: "INJ-005", name: "Ondansetron", category: "Antiemetic", strength: "4mg/2ml", route: "IV/IM", stock: 90, unit: "Amps", price: 35, status: "in-stock" },
-  { id: "INJ-006", name: "Ranitidine", category: "Antacid", strength: "50mg/2ml", route: "IV/IM", stock: 0, unit: "Amps", price: 25, status: "out-of-stock" },
-  { id: "INJ-007", name: "Dexamethasone", category: "Corticosteroid", strength: "4mg/ml", route: "IV/IM", stock: 60, unit: "Amps", price: 40, status: "in-stock" },
-  { id: "INJ-008", name: "Diclofenac", category: "Analgesic", strength: "75mg/3ml", route: "IM", stock: 10, unit: "Amps", price: 30, status: "low-stock" },
-  { id: "INJ-009", name: "Tramadol", category: "Analgesic", strength: "50mg/ml", route: "IV/IM", stock: 45, unit: "Amps", price: 55, status: "in-stock" },
-  { id: "INJ-010", name: "Vitamin B12", category: "Supplement", strength: "1000mcg/ml", route: "IM", stock: 150, unit: "Amps", price: 20, status: "in-stock" },
-  { id: "INJ-011", name: "Furosemide", category: "Diuretic", strength: "20mg/2ml", route: "IV/IM", stock: 70, unit: "Amps", price: 15, status: "in-stock" },
-  { id: "INJ-012", name: "Metoclopramide", category: "Antiemetic", strength: "10mg/2ml", route: "IV/IM", stock: 0, unit: "Amps", price: 18, status: "out-of-stock" },
-];
-
 type Listener = () => void;
-let injections: InjectionItem[] = [...initialInjections];
+let injections: InjectionItem[] = [];
+let loaded = false;
 const listeners: Set<Listener> = new Set();
-
 const notify = () => listeners.forEach((fn) => fn());
 
+const toItem = (r: any): InjectionItem => ({
+  id: r.id, name: r.name, category: r.category, strength: r.strength,
+  route: r.route, stock: r.stock, unit: r.unit, price: Number(r.price),
+  status: r.status as InjectionItem["status"],
+});
+
+const load = async () => {
+  const { data, error } = await supabase.from("injections").select("*").order("created_at", { ascending: false });
+  if (!error && data) { injections = data.map(toItem); loaded = true; notify(); }
+};
+load();
+
 export const getInjections = () => injections;
+export const isInjectionsLoaded = () => loaded;
 
-export const addInjection = (inj: InjectionItem) => {
-  injections = [inj, ...injections];
-  notify();
+export const addInjection = async (inj: InjectionItem) => {
+  const { error } = await supabase.from("injections").insert({
+    id: inj.id, name: inj.name, category: inj.category, strength: inj.strength,
+    route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, status: inj.status,
+  });
+  if (error) throw error;
+  injections = [inj, ...injections]; notify();
 };
 
-export const updateInjection = (id: string, data: Partial<InjectionItem>) => {
-  injections = injections.map((i) => (i.id === id ? { ...i, ...data } : i));
-  notify();
+export const updateInjection = async (id: string, data: Partial<InjectionItem>) => {
+  const dbUp: Record<string, any> = {};
+  if (data.name !== undefined) dbUp.name = data.name;
+  if (data.category !== undefined) dbUp.category = data.category;
+  if (data.strength !== undefined) dbUp.strength = data.strength;
+  if (data.route !== undefined) dbUp.route = data.route;
+  if (data.stock !== undefined) dbUp.stock = data.stock;
+  if (data.unit !== undefined) dbUp.unit = data.unit;
+  if (data.price !== undefined) dbUp.price = data.price;
+  if (data.status !== undefined) dbUp.status = data.status;
+  const { error } = await supabase.from("injections").update(dbUp).eq("id", id);
+  if (error) throw error;
+  injections = injections.map((i) => (i.id === id ? { ...i, ...data } : i)); notify();
 };
 
-export const deleteInjection = (id: string) => {
-  injections = injections.filter((i) => i.id !== id);
-  notify();
+export const deleteInjection = async (id: string) => {
+  const { error } = await supabase.from("injections").delete().eq("id", id);
+  if (error) throw error;
+  injections = injections.filter((i) => i.id !== id); notify();
 };
 
 export const subscribeInjections = (fn: Listener) => {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
+  listeners.add(fn); return () => listeners.delete(fn);
 };
 
 export const computeInjectionStatus = (stock: number): InjectionItem["status"] => {
