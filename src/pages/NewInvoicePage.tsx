@@ -88,6 +88,7 @@ const NewInvoicePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editData = (location.state as { editData?: InvoiceFormData })?.editData || null;
+  const editRecordId = (location.state as { editRecordId?: string })?.editRecordId || null;
   const draftId = (location.state as { draftId?: string })?.draftId || null;
   const onSubmitCallback = (location.state as { onSubmitAction?: string })?.onSubmitAction || null;
 
@@ -236,7 +237,7 @@ const NewInvoicePage = () => {
     }
     // Store in sessionStorage for BillingPage to pick up
     if (draftId) removeDraft(draftId); // Remove from drafts when completing
-    sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData }));
+    sessionStorage.setItem("invoiceSubmit", JSON.stringify({ data: buildFormData(), action, isEdit: !!editData, editRecordId }));
     toast.success(action === "print" ? "Invoice created — printing..." : "Payment received");
     goBack();
   };
@@ -482,8 +483,11 @@ const NewInvoicePage = () => {
           <div>
             <h1 className="text-lg font-bold text-primary-foreground">
               {editData ? "Edit Invoice" : "New Invoice"}
+              {editRecordId && <span className="text-primary-foreground/60 font-mono ml-2 text-sm">{editRecordId}</span>}
             </h1>
-            <p className="text-primary-foreground/60 text-xs">{appSettings.clinicName}</p>
+            <p className="text-primary-foreground/60 text-xs">
+              {editData && patient ? patient : appSettings.clinicName}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">

@@ -4,7 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
-import StatusBadge from "@/components/StatusBadge";
+
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from "lucide-react";
@@ -65,7 +65,7 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
     });
 };
 
-import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, subscribeBilling } from "@/data/billingStore";
+import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, updateBillingRecord, subscribeBilling } from "@/data/billingStore";
 import { getRefunds, subscribeRefunds } from "@/data/refundStore";
 
 const BillingPage = () => {
@@ -84,6 +84,18 @@ const BillingPage = () => {
   useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
 
   const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
+  const refundAmountByInvoice = useMemo(() => {
+    const map = new Map<string, number>();
+    refunds.forEach(r => map.set(r.invoiceId, (map.get(r.invoiceId) || 0) + r.totalRefund));
+    return map;
+  }, [refunds]);
+
+  const getBillStatus = (record: BillingRecord): { label: string; color: string } => {
+    if (refundedInvoiceIds.has(record.id)) return { label: "Refunded", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800" };
+    if (record.due <= 0) return { label: "Paid", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" };
+    if (record.paid > 0) return { label: "Partial", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800" };
+    return { label: "Issued", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800" };
+  };
 
   // Pick up submitted invoice from the full-page form (only completed payments)
   useEffect(() => {
@@ -91,12 +103,18 @@ const BillingPage = () => {
     if (!raw) return;
     sessionStorage.removeItem("invoiceSubmit");
     try {
-      const { data, action, isEdit } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean };
+      const { data, action, isEdit, editRecordId } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean; editRecordId?: string };
       // Only add to billing list when payment is completed
       if (action !== "payment") return;
-      if (isEdit) {
-        // For edits we'd need the ID — simplified: just add as new
+
+      if (isEdit && editRecordId) {
+        // Update existing record
+        const record = buildRecord(data, editRecordId);
+        updateBillingRecord(editRecordId, record);
+        toast.success(`Invoice ${editRecordId} updated`);
+        return;
       }
+
       const prefix = appSettings.invoicePrefix || "INV";
       // Ensure unique invoice number by checking existing records
       let nextNum = parseInt(appSettings.nextInvoiceNumber) || 1001;
@@ -136,28 +154,40 @@ const BillingPage = () => {
   };
 
   const columns = [
-    { key: "id", header: "Invoice", render: (d: BillingRecord) => (
-      <div className="flex items-center gap-1.5">
-        <span>{d.id}</span>
-        {refundedInvoiceIds.has(d.id) && (
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
-            <RotateCcw className="w-3 h-3" />
-            Refunded
+    { key: "id", header: "Invoice No.", render: (d: BillingRecord) => (
+      <span className="font-mono font-semibold text-sm">{d.id}</span>
+    )},
+    { key: "patient", header: t("patient", lang), render: (d: BillingRecord) => (
+      <span className="font-medium">{d.patient}</span>
+    )},
+    { key: "date", header: t("date", lang), render: (d: BillingRecord) => (
+      <span className="text-muted-foreground text-sm">{d.date}</span>
+    )},
+    { key: "service", header: "Items", render: (d: BillingRecord) => (
+      <span className="text-sm text-muted-foreground truncate max-w-[180px] block">{d.service}</span>
+    )},
+    { key: "total", header: "Amount", render: (d: BillingRecord) => (
+      <div>
+        <span className="font-semibold tabular-nums">{formatDualPrice(d.total)}</span>
+        {refundAmountByInvoice.has(d.id) && (
+          <span className="block text-[10px] text-orange-600 dark:text-orange-400 font-medium">
+            Refund: -{formatPrice(refundAmountByInvoice.get(d.id)!)}
           </span>
         )}
       </div>
     )},
-    { key: "date", header: t("date", lang) },
-    { key: "patient", header: t("patient", lang) },
-    { key: "service", header: "Service" },
-    { key: "medQty", header: "Qty (Med)", render: (d: BillingRecord) => <span className="font-number">{getMedQty(d) || "—"}</span> },
-    { key: "injection", header: "Injection", render: (d: BillingRecord) => <span className="text-sm">{getInjection(d)}</span> },
-    { key: "packages", header: "Packages", render: (d: BillingRecord) => <span className="text-sm">{getPackages(d)}</span> },
-    { key: "total", header: t("total", lang), render: (d: BillingRecord) => <span className="font-semibold font-number">{formatDualPrice(d.total)}</span> },
-    { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="font-number">{formatDualPrice(d.paid)}</span> },
-    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`font-number ${d.due > 0 ? "text-destructive font-medium" : ""}`}>{formatDualPrice(d.due)}</span> },
-    { key: "method", header: "PayBy" },
-    { key: "status", header: t("status", lang), render: (d: BillingRecord) => <StatusBadge status={d.status} /> },
+    { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="tabular-nums text-emerald-600 dark:text-emerald-400 font-medium">{formatDualPrice(d.paid)}</span> },
+    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`tabular-nums font-medium ${d.due > 0 ? "text-destructive" : "text-muted-foreground"}`}>{formatDualPrice(d.due)}</span> },
+    { key: "method", header: "PayBy", render: (d: BillingRecord) => <span className="text-sm">{d.method}</span> },
+    { key: "billStatus", header: "Status", render: (d: BillingRecord) => {
+      const st = getBillStatus(d);
+      return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${st.color}`}>
+          {st.label === "Refunded" && <RotateCcw className="w-3 h-3" />}
+          {st.label}
+        </span>
+      );
+    }},
     {
       key: "actions", header: "Actions", render: (d: BillingRecord) => (
         <TooltipProvider delayDuration={200}>
@@ -203,7 +233,7 @@ const BillingPage = () => {
   };
 
   const handleEdit = (record: BillingRecord) => {
-    navigate("/billing/edit", { state: { editData: record.formData } });
+    navigate("/billing/edit", { state: { editData: record.formData, editRecordId: record.id } });
   };
   const handleDelete = () => { if (deleteRecord) { removeBillingRecord(deleteRecord.id); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const printInvoiceWindow = (record: BillingRecord) => {
