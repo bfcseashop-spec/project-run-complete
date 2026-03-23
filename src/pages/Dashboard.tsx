@@ -423,7 +423,87 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* ── Clinical Overview ── */}
+      {/* ── Sales by Category / Today's Sales by Payment / Popular Medicine ── */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Sales by Category */}
+        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(168,80%,30%), hsl(160,84%,39%))" }}>
+              <BarChart3 className="w-4 h-4 text-white" />
+            </span>
+            Sales by Category
+          </h3>
+          {salesByCategory.length > 0 ? (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={salesByCategory} barSize={28}>
+                <defs>
+                  <linearGradient id="catBarGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(168, 80%, 36%)" stopOpacity={1} />
+                    <stop offset="100%" stopColor="hsl(168, 80%, 36%)" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <Bar dataKey="amount" fill="url(#catBarGrad)" radius={[6, 6, 0, 0]} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }}
+                  formatter={(value: number) => [formatPrice(value), "Amount"]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales data</div>
+          )}
+        </div>
+
+        {/* Today's Sales by Payment */}
+        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
+              <Banknote className="w-4 h-4 text-white" />
+            </span>
+            Today's Sales by Payment
+          </h3>
+          {todaySalesByPayment.length > 0 ? (
+            <div className="space-y-0">
+              {todaySalesByPayment.map((item, i) => (
+                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < todaySalesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
+                  <span className="text-sm font-semibold text-card-foreground">{item.name}</span>
+                  <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales today</div>
+          )}
+        </div>
+
+        {/* Popular Medicine */}
+        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(300,60%,50%))" }}>
+              <Star className="w-4 h-4 text-white" />
+            </span>
+            Popular Medicine
+          </h3>
+          {popularMedicine.length > 0 ? (
+            <div className="space-y-0">
+              {popularMedicine.map((item, i) => (
+                <div key={item.id} className={`flex items-center justify-between py-3 px-1 ${i < popularMedicine.length - 1 ? "border-b border-border/40" : ""}`}>
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">{item.name}</p>
+                    <p className="text-[11px] text-primary font-medium">{item.sold} sold</p>
+                  </div>
+                  <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.price)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No medicine data</div>
+          )}
+        </div>
+      </section>
+
+
       <section>
         <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
           <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
