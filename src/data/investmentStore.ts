@@ -55,6 +55,8 @@ let loaded = false;
 const listeners = new Set<Listener>();
 const notify = () => listeners.forEach((fn) => fn());
 
+const roundAmount = (value: number) => Math.round(value * 100) / 100;
+
 const toInvestor = (r: any): Investor => ({
   id: r.id, name: r.name, sharePercent: Number(r.share_percent),
   investmentName: r.investment_name, capitalAmount: Number(r.capital_amount),
@@ -68,6 +70,28 @@ const toContribution = (r: any): Contribution => ({
   slipImages: (r.slip_images as string[]) || [],
 });
 
+const getPaidFromContributions = (investorId: string, source = contributions) => roundAmount(
+  source
+    .filter((contribution) => contribution.investorId === investorId)
+    .reduce((sum, contribution) => sum + Number(contribution.amount || 0), 0)
+);
+
+const applyDerivedPaid = (source = contributions) => {
+  investors = investors.map((investor) => ({
+    ...investor,
+    paid: getPaidFromContributions(investor.id, source),
+  }));
+};
+
+const persistPaidTotals = async (investorIds?: string[]) => {
+  const ids = investorIds ?? investors.map((investor) => investor.id);
+  await Promise.all(ids.map(async (id) => {
+    const investor = investors.find((item) => item.id === id);
+    if (!investor) return;
+    await supabase.from("investors").update({ paid: investor.paid }).eq("id", id);
+  }));
+};
+
 const load = async () => {
   const [invRes, conRes, setRes] = await Promise.all([
     supabase.from("investors").select("*").order("created_at", { ascending: true }),
@@ -77,6 +101,8 @@ const load = async () => {
   if (!invRes.error && invRes.data) investors = invRes.data.map(toInvestor);
   if (!conRes.error && conRes.data) contributions = conRes.data.map(toContribution);
   if (!setRes.error && setRes.data) totalCapitalAmount = Number(setRes.data.value);
+  applyDerivedPaid();
+  persistPaidTotals().catch(() => undefined);
   loaded = true;
   notify();
 };
@@ -86,7 +112,7 @@ export const getTotalCapital = () => totalCapitalAmount;
 export const setTotalCapital = async (amount: number) => {
   totalCapitalAmount = amount;
   investors = investors.map(inv => ({
-    ...inv, capitalAmount: Math.round((inv.sharePercent / 100) * totalCapitalAmount * 100) / 100,
+    ...inv, capitalAmount: roundAmount((inv.sharePercent / 100) * totalCapitalAmount),
   }));
   await supabase.from("investment_settings").update({ value: amount }).eq("key", "total_capital");
   for (const inv of investors) {
@@ -101,11 +127,11 @@ export const getInvestorById = (id: string) => investors.find((i) => i.id === id
 
 export const addInvestor = async (data: Omit<Investor, "id">) => {
   const id = `inv-${Date.now()}`;
-  const capitalAmount = Math.round((data.sharePercent / 100) * totalCapitalAmount * 100) / 100;
-  const inv: Investor = { ...data, capitalAmount, id };
+  const capitalAmount = roundAmount((data.sharePercent / 100) * totalCapitalAmount);
+  const inv: Investor = { ...data, capitalAmount, paid: 0, id };
   const { error } = await supabase.from("investors").insert({
     id, name: data.name, share_percent: data.sharePercent, investment_name: data.investmentName,
-    capital_amount: capitalAmount, paid: data.paid, color: data.color,
+    capital_amount: capitalAmount, paid: 0, color: data.color,
   });
   if (error) throw error;
   investors = [...investors, inv]; notify();
@@ -117,20 +143,23 @@ export const updateInvestor = async (id: string, updates: Partial<Investor>) => 
   if (updates.name !== undefined) dbUp.name = updates.name;
   if (updates.sharePercent !== undefined) dbUp.share_percent = updates.sharePercent;
   if (updates.investmentName !== undefined) dbUp.investment_name = updates.investmentName;
-  if (updates.paid !== undefined) dbUp.paid = updates.paid;
   if (updates.color !== undefined) dbUp.color = updates.color;
 
   investors = investors.map((i) => {
     if (i.id !== id) return i;
     const merged = { ...i, ...updates };
     if (updates.sharePercent !== undefined) {
-      merged.capitalAmount = Math.round((merged.sharePercent / 100) * totalCapitalAmount * 100) / 100;
+      merged.capitalAmount = roundAmount((merged.sharePercent / 100) * totalCapitalAmount);
     }
+    merged.paid = getPaidFromContributions(id);
     return merged;
   });
 
   const inv = investors.find(i => i.id === id);
-  if (inv) dbUp.capital_amount = inv.capitalAmount;
+  if (inv) {
+    dbUp.capital_amount = inv.capitalAmount;
+    dbUp.paid = inv.paid;
+  }
   await supabase.from("investors").update(dbUp).eq("id", id);
   notify();
 };
@@ -150,8 +179,8 @@ export const addContribution = async (data: Omit<Contribution, "id">) => {
   });
   if (error) throw error;
   contributions = [c, ...contributions];
-  const inv = investors.find((i) => i.id === data.investorId);
-  if (inv) await updateInvestor(inv.id, { paid: inv.paid + data.amount });
+  applyDerivedPaid();
+  await persistPaidTotals([data.investorId]);
   notify();
   return c;
 };
@@ -169,22 +198,19 @@ export const updateContribution = async (id: string, updates: Partial<Contributi
   if (updates.slipImages !== undefined) dbUp.slip_images = JSON.parse(JSON.stringify(updates.slipImages));
   await supabase.from("contributions").update(dbUp).eq("id", id);
   contributions = contributions.map((c) => (c.id === id ? { ...c, ...updates } : c));
-  if (old && updates.amount !== undefined && updates.amount !== old.amount) {
-    const diff = updates.amount - old.amount;
-    const inv = investors.find((i) => i.id === (updates.investorId || old.investorId));
-    if (inv) await updateInvestor(inv.id, { paid: inv.paid + diff });
-  }
+  applyDerivedPaid();
+  const affectedInvestorIds = Array.from(new Set([old?.investorId, updates.investorId].filter(Boolean) as string[]));
+  await persistPaidTotals(affectedInvestorIds);
   notify();
 };
 
 export const removeContribution = async (id: string) => {
   const c = contributions.find((x) => x.id === id);
-  if (c) {
-    const inv = investors.find((i) => i.id === c.investorId);
-    if (inv) await updateInvestor(inv.id, { paid: Math.max(0, inv.paid - c.amount) });
-  }
   await supabase.from("contributions").delete().eq("id", id);
-  contributions = contributions.filter((x) => x.id !== id); notify();
+  contributions = contributions.filter((x) => x.id !== id);
+  applyDerivedPaid();
+  if (c) await persistPaidTotals([c.investorId]);
+  notify();
 };
 
 export const subscribeInvestments = (fn: Listener) => {

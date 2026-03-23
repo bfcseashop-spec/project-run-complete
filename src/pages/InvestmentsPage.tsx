@@ -80,10 +80,18 @@ const InvestmentsPage = () => {
   const [invForm, setInvForm] = useState({ name: "", sharePercent: 0, investmentName: "Capital Amount Investment", capitalAmount: 0, paid: 0, color: "hsl(217, 91%, 60%)" });
   const [contribForm, setContribForm] = useState<Omit<Contribution, "id">>({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: "", category: "Rental" as ContributionCategory, amount: 0, slipCount: 1, note: "", slipImages: [] });
 
+  const paidByInvestor = useMemo(() => {
+    const map = new Map<string, number>();
+    contributions.forEach((contribution) => {
+      map.set(contribution.investorId, (map.get(contribution.investorId) || 0) + contribution.amount);
+    });
+    return map;
+  }, [contributions]);
+
   // Stats
   const totalCapital = getTotalCapital();
-  const totalPaid = investors.reduce((s, i) => s + i.paid, 0);
-  const totalContributions = contributions.reduce((s, c) => s + c.amount, 0);
+  const totalPaid = contributions.reduce((s, c) => s + c.amount, 0);
+  const totalContributions = totalPaid;
   const remaining = totalCapital - totalPaid;
 
   // Filtered contributions
@@ -128,11 +136,11 @@ const InvestmentsPage = () => {
     setShowCapitalDialog(true);
   };
   const openEditCapital = (inv: Investor) => {
-    setInvForm({ name: inv.name, sharePercent: inv.sharePercent, investmentName: inv.investmentName, capitalAmount: inv.capitalAmount, paid: inv.paid, color: inv.color });
+    setInvForm({ name: inv.name, sharePercent: inv.sharePercent, investmentName: inv.investmentName, capitalAmount: inv.capitalAmount, paid: paidByInvestor.get(inv.id) || 0, color: inv.color });
     setEditInvestor(inv);
     setShowCapitalDialog(true);
   };
-  const saveCapital = () => {
+  const saveCapital = async () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
     if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
     const othersTotal = investors.filter(i => i.id !== editInvestor?.id).reduce((s, i) => s + i.sharePercent, 0);
@@ -140,11 +148,21 @@ const InvestmentsPage = () => {
       toast.error(`Total share exceeds 100%. Available: ${(100 - othersTotal).toFixed(2)}%`);
       return;
     }
+
+    const payload = {
+      name: invForm.name,
+      sharePercent: invForm.sharePercent,
+      investmentName: invForm.investmentName,
+      capitalAmount: invForm.capitalAmount,
+      paid: 0,
+      color: invForm.color,
+    };
+
     if (editInvestor) {
-      updateInvestor(editInvestor.id, invForm);
+      await updateInvestor(editInvestor.id, payload);
       toast.success("Investor updated");
     } else {
-      addInvestor(invForm);
+      await addInvestor(payload);
       toast.success("Investor added");
     }
     setShowCapitalDialog(false);
@@ -369,8 +387,9 @@ const InvestmentsPage = () => {
         ) : (
           <div className="px-6 pb-6 grid gap-4" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 300px), 1fr))` }}>
             {investors.map((inv) => {
-              const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
-              const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
+              const investorPaid = paidByInvestor.get(inv.id) || 0;
+              const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((investorPaid / inv.capitalAmount) * 100)) : 0;
+              const dueAmount = Math.max(0, inv.capitalAmount - investorPaid);
               return (
                 <div key={inv.id} className="group bg-background border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                   {/* Colored top strip */}
@@ -396,7 +415,7 @@ const InvestmentsPage = () => {
                     <div className="mb-3">
                       <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
                         <span className="font-medium">{progressPct}% paid</span>
-                        <span className="tabular-nums">{formatPrice(inv.paid)} / {formatPrice(inv.capitalAmount)}</span>
+                        <span className="tabular-nums">{formatPrice(investorPaid)} / {formatPrice(inv.capitalAmount)}</span>
                       </div>
                       <Progress value={progressPct} className="h-1.5" />
                     </div>
@@ -602,7 +621,10 @@ const InvestmentsPage = () => {
               </div>
             </div>
             <div><Label className="text-xs mb-1 block">Investment Name</Label><Input value={invForm.investmentName} onChange={(e) => setInvForm(p => ({ ...p, investmentName: e.target.value }))} /></div>
-            <div><Label className="text-xs mb-1 block">Already Paid</Label><Input type="number" min={0} value={invForm.paid || ""} onChange={(e) => setInvForm(p => ({ ...p, paid: parseFloat(e.target.value) || 0 }))} /></div>
+            <div>
+              <Label className="text-xs mb-1 block">Paid from Contributions</Label>
+              <Input type="number" value={invForm.paid || 0} readOnly className="bg-muted/50 cursor-not-allowed" />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCapitalDialog(false)}>Cancel</Button>
