@@ -152,14 +152,40 @@ const InvestmentsPage = () => {
   const saveContrib = () => {
     if (!contribForm.investorId) { toast.error("Select an investor"); return; }
     if (contribForm.amount <= 0) { toast.error("Amount must be > 0"); return; }
+    const dataToSave = { ...contribForm, slipCount: contribForm.slipImages.length || contribForm.slipCount };
     if (editContrib) {
-      updateContribution(editContrib.id, contribForm);
+      updateContribution(editContrib.id, dataToSave);
       toast.success("Contribution updated");
     } else {
-      addContribution(contribForm);
+      addContribution(dataToSave);
       toast.success("Contribution added");
     }
     setShowContribDialog(false);
+  };
+
+  const handleSlipUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+        toast.error(`Unsupported file: ${file.name}`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        setContribForm((p) => ({ ...p, slipImages: [...p.slipImages, dataUrl], slipCount: p.slipImages.length + 1 }));
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const removeSlipImage = (index: number) => {
+    setContribForm((p) => {
+      const updated = p.slipImages.filter((_, i) => i !== index);
+      return { ...p, slipImages: updated, slipCount: updated.length };
+    });
   };
   const handleDeleteContrib = () => {
     if (deleteContrib) { removeContribution(deleteContrib.id); toast.success("Contribution deleted"); setDeleteContrib(null); }
