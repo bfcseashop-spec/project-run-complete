@@ -594,47 +594,64 @@ const InvestmentsPage = () => {
 
       {/* Contribution Dialog */}
       <Dialog open={showContribDialog} onOpenChange={setShowContribDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editContrib ? "Edit Contribution" : "Add Contribution"}</DialogTitle></DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs mb-1 block">Date</Label><Input type="date" value={contribForm.date} onChange={(e) => setContribForm(p => ({ ...p, date: e.target.value }))} /></div>
-              <div>
-                <Label className="text-xs mb-1 block">Investor</Label>
-                <Select value={contribForm.investorId} onValueChange={(v) => setContribForm(p => ({ ...p, investorId: v }))}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select..." /></SelectTrigger>
-                  <SelectContent>{investors.map(i => <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-            </div>
+        <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
+          <div className="px-6 pt-6 pb-4 border-b border-border">
+            <DialogTitle className="text-lg font-bold text-foreground">Record Contribution</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">Record a payment made by an investor toward an investment</p>
+          </div>
+          <div className="px-6 py-5 space-y-5">
+            {/* Investment */}
             <div>
-              <Label className="text-xs mb-1 block">Category</Label>
+              <Label className="text-sm font-semibold mb-1.5 block">Investment *</Label>
+              <Select value={contribForm.investmentName} onValueChange={(v) => setContribForm(p => ({ ...p, investmentName: v }))}>
+                <SelectTrigger className="h-11 text-sm border-border"><SelectValue placeholder="Select investment" /></SelectTrigger>
+                <SelectContent>
+                  {Array.from(new Set(investors.map(i => i.investmentName))).map(name => {
+                    const total = investors.filter(i => i.investmentName === name).reduce((s, i) => s + i.capitalAmount, 0);
+                    return <SelectItem key={name} value={name}>{name} ({formatPrice(total)})</SelectItem>;
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Investor */}
+            <div>
+              <Label className="text-sm font-semibold mb-1.5 block">Investor *</Label>
+              <Select value={contribForm.investorId} onValueChange={(v) => setContribForm(p => ({ ...p, investorId: v }))}>
+                <SelectTrigger className="h-11 text-sm border-border"><SelectValue placeholder="Select investor" /></SelectTrigger>
+                <SelectContent>{investors.map(i => <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+
+            {/* Category */}
+            <div>
+              <Label className="text-sm font-semibold mb-1.5 block">Category</Label>
               <Select value={contribForm.category} onValueChange={(v) => setContribForm(p => ({ ...p, category: v as ContributionCategory }))}>
-                <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-11 text-sm border-border"><SelectValue placeholder="Select category" /></SelectTrigger>
                 <SelectContent>{allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-xs mb-1 block">Amount</Label>
-              <Input type="number" min={0} value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} />
+
+            {/* Amount & Date */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm font-semibold mb-1.5 block">Amount ($) *</Label>
+                <Input type="number" min={0} className="h-11 text-sm" value={contribForm.amount || ""} onChange={(e) => setContribForm(p => ({ ...p, amount: parseFloat(e.target.value) || 0 }))} />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold mb-1.5 block">Date *</Label>
+                <Input type="date" className="h-11 text-sm" value={contribForm.date} onChange={(e) => setContribForm(p => ({ ...p, date: e.target.value }))} />
+              </div>
             </div>
-            <div><Label className="text-xs mb-1 block">Note</Label><Input value={contribForm.note} onChange={(e) => setContribForm(p => ({ ...p, note: e.target.value }))} placeholder="Description..." /></div>
-            
-            {/* Slip/Receipt Upload */}
+
+            {/* Images */}
             <div>
-              <Label className="text-xs mb-1 block">Slip / Receipt Images ({contribForm.slipImages.length})</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf"
-                  onChange={handleSlipUpload}
-                  className="hidden"
-                  id="slip-upload"
-                />
-                <label htmlFor="slip-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                  <Upload className="w-6 h-6 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Click to upload slips/receipts (JPG, PNG, PDF)</span>
+              <Label className="text-sm font-semibold mb-1.5 block">Images</Label>
+              <div className="border border-border rounded-lg overflow-hidden">
+                <input type="file" multiple accept="image/*,.pdf" onChange={handleSlipUpload} className="hidden" id="slip-upload" />
+                <label htmlFor="slip-upload" className="cursor-pointer flex items-center gap-2 px-4 py-3 hover:bg-muted/50 transition-colors">
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Add Image</span>
                 </label>
               </div>
               {contribForm.slipImages.length > 0 && (
@@ -642,11 +659,8 @@ const InvestmentsPage = () => {
                   {contribForm.slipImages.map((img, idx) => (
                     <div key={idx} className="relative group rounded-lg overflow-hidden border border-border aspect-square">
                       <img src={img} alt={`Slip ${idx + 1}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeSlipImage(idx)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
+                      <button type="button" onClick={() => removeSlipImage(idx)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -654,11 +668,24 @@ const InvestmentsPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Note */}
+            <div>
+              <Label className="text-sm font-semibold mb-1.5 block">Note</Label>
+              <textarea
+                value={contribForm.note}
+                onChange={(e) => setContribForm(p => ({ ...p, note: e.target.value }))}
+                placeholder="Add any additional details..."
+                rows={3}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowContribDialog(false)}>Cancel</Button>
-            <Button onClick={saveContrib}>{editContrib ? "Update" : "Add"}</Button>
-          </DialogFooter>
+          <div className="px-6 pb-6">
+            <Button onClick={saveContrib} className="w-full h-11 text-sm font-semibold">
+              {editContrib ? "Update Contribution" : "Record Contribution"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
