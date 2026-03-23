@@ -309,10 +309,11 @@ const Dashboard = () => {
       {/* ── Analytics Grid ── */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Recent Activity - from real billing */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
+        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(160,84%,39%), hsl(200,80%,45%), hsl(270,60%,55%))" }} />
           <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center">
-              <Activity className="w-3.5 h-3.5 text-primary" />
+            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(160,84%,39%), hsl(200,80%,45%))" }}>
+              <Activity className="w-3.5 h-3.5 text-white" />
             </span>
             Recent Activity
           </h3>
