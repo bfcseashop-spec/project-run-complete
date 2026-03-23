@@ -10,7 +10,7 @@ import {
 import { getDrafts, subscribeDrafts, removeDraft, type DraftInvoice } from "@/data/draftStore";
 import { addBillingRecord, getBillingRecords } from "@/data/billingStore";
 import { formatPrice, formatDualPrice } from "@/lib/currency";
-import { getSettings } from "@/data/settingsStore";
+import { getSettings, updateSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import { toast } from "sonner";
