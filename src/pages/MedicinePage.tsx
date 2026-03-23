@@ -377,11 +377,13 @@ const MedicinePage = () => {
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={toolbar.handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={toolbar.handleDownloadSample} />
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         <StatCard title="Total Items" value={String(totalItems)} icon={Package} onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "ring-2 ring-primary" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="In Stock" value={String(inStock)} icon={PackageCheck} onClick={() => setFilterStatus(filterStatus === "in-stock" ? "all" : "in-stock")} className={filterStatus === "in-stock" ? "ring-2 ring-emerald-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="Low Stock" value={String(lowStock)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "low-stock" ? "all" : "low-stock")} className={filterStatus === "low-stock" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
         <StatCard title="Out of Stock" value={String(outOfStock)} icon={PackageX} onClick={() => setFilterStatus(filterStatus === "out-of-stock" ? "all" : "out-of-stock")} className={filterStatus === "out-of-stock" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} />
+        <StatCard title="Expiring Soon" value={String(expiringSoon)} icon={Clock} onClick={() => setFilterStatus(filterStatus === "expiring" ? "all" : "expiring")} className={filterStatus === "expiring" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(30, 90%, 50%)" />
+        <StatCard title="Expired" value={String(expired)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "expired" ? "all" : "expired")} className={filterStatus === "expired" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(0, 70%, 50%)" />
         <StatCard title="Purchase Value" value={`$${purchaseValue.toFixed(2)}`} icon={DollarSign} />
         <StatCard title="Sales Value" value={`$${salesValue.toFixed(2)}`} icon={TrendingUp} />
       </div>
