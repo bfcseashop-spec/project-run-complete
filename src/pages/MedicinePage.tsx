@@ -351,25 +351,51 @@ const MedicinePage = () => {
     },
   ];
 
-  const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns: columns.map((c) => ({ key: c.key, header: c.header })), title: "Medicines" });
+  // Import/export columns matching user's desired format
+  const importExportColumns = [
+    { key: "name", header: "Medicine Name" },
+    { key: "category", header: "Category" },
+    { key: "unit", header: "Unit Type" },
+    { key: "stock", header: "Total Pcs" },
+    { key: "totalPurchasePrice", header: "Total Purchase Price" },
+    { key: "purchaseEachPrice", header: "Purchase Each Price (auto)" },
+    { key: "totalSalesPrice", header: "Total Sales Price" },
+    { key: "salesEachPrice", header: "Sales Each Price (auto)" },
+    { key: "available", header: "Stock Available pcs" },
+    { key: "expiry", header: "Expiry Date" },
+    { key: "manufacturer", header: "Manufacturer" },
+    { key: "batchNo", header: "Batch No" },
+    { key: "stockAlert", header: "Stock Alert" },
+  ];
+
+  const toolbar = useDataToolbar({ data: data as unknown as Record<string, unknown>[], dateKey: "expiry", columns: importExportColumns, title: "Medicines" });
 
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
     if (rows.length > 0) {
       try {
         for (const row of rows) {
+          const totalPcs = Number(row.stock) || Number(row["Total Pcs"]) || 0;
+          const totalPurchase = Number(row.totalPurchasePrice) || Number(row["Total Purchase Price"]) || 0;
+          const totalSales = Number(row.totalSalesPrice) || Number(row["Total Sales Price"]) || 0;
+          const purchaseEach = totalPcs > 0 ? totalPurchase / totalPcs : 0;
+          const salesEach = totalPcs > 0 ? totalSales / totalPcs : 0;
+          const stockAvail = Number(row.available) || Number(row["Stock Available pcs"]) || totalPcs;
+
           await addMedicine({
             name: String(row.name || ""),
             manufacturer: String(row.manufacturer || ""),
-            boxNo: String(row.boxNo || "-"),
+            boxNo: "-",
             category: String(row.category || "Other"),
-            purchasePrice: Number(row.purchasePrice) || 0,
-            price: Number(row.price) || 0,
-            stock: Number(row.stock) || 0,
+            purchasePrice: Number(purchaseEach.toFixed(2)),
+            price: Number(salesEach.toFixed(2)),
+            stock: stockAvail,
             unit: String(row.unit || "Pieces"),
-            soldOut: Number(row.soldOut) || 0,
+            soldOut: Math.max(0, totalPcs - stockAvail),
             image: "",
             expiry: String(row.expiry || ""),
+            batchNo: String(row.batchNo || "-"),
+            stockAlert: Number(row.stockAlert) || 10,
           });
         }
       } catch (err: any) {
