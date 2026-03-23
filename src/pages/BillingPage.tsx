@@ -4,7 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
-import StatusBadge from "@/components/StatusBadge";
+
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from "lucide-react";
