@@ -229,184 +229,178 @@ const InvestmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageHeader title="Investments" description="Track capital, shares, and contribution history" />
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">Investments</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Track capital, shares & contribution history</p>
+        </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={openAddCapital} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Manage Investors</Button>
-          <Button variant="outline" onClick={() => setShowCategoryDialog(true)} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Category</Button>
+          <Button variant="outline" size="sm" onClick={openAddCapital} className="gap-1.5 h-9 text-xs font-medium border-border">
+            <Landmark className="w-3.5 h-3.5" /> Manage Investors
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowCategoryDialog(true)} className="gap-1.5 h-9 text-xs font-medium border-border">
+            <Plus className="w-3.5 h-3.5" /> Category
+          </Button>
         </div>
       </div>
 
-      {/* Top Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "TOTAL CAPITAL", value: formatPrice(totalCapital), icon: Landmark, color: "hsl(217, 91%, 60%)", extra: null, editable: true },
-          { label: "CONTRIBUTIONS", value: formatPrice(totalContributions), icon: Receipt, color: "hsl(270, 60%, 55%)", extra: `${contributions.length} records`, editable: false },
-          { label: "TOTAL PAID", value: formatPrice(totalPaid), icon: CheckCircle, color: "hsl(142, 71%, 45%)", extra: null, editable: false },
-          { label: "REMAINING", value: formatPrice(remaining), icon: AlertTriangle, color: remaining > 0 ? "hsl(15, 85%, 52%)" : "hsl(142, 71%, 45%)", extra: null, editable: false },
+          { label: "Total Capital", value: formatPrice(totalCapital), icon: Landmark, gradient: "from-blue-500/10 to-blue-600/5", iconBg: "bg-blue-500/15", iconColor: "text-blue-600 dark:text-blue-400", editable: true },
+          { label: "Contributions", value: formatPrice(totalContributions), icon: Receipt, gradient: "from-violet-500/10 to-violet-600/5", iconBg: "bg-violet-500/15", iconColor: "text-violet-600 dark:text-violet-400", extra: `${contributions.length} records`, editable: false },
+          { label: "Total Paid", value: formatPrice(totalPaid), icon: CheckCircle, gradient: "from-emerald-500/10 to-emerald-600/5", iconBg: "bg-emerald-500/15", iconColor: "text-emerald-600 dark:text-emerald-400", editable: false },
+          { label: "Remaining", value: formatPrice(remaining), icon: AlertTriangle, gradient: remaining > 0 ? "from-orange-500/10 to-orange-600/5" : "from-emerald-500/10 to-emerald-600/5", iconBg: remaining > 0 ? "bg-orange-500/15" : "bg-emerald-500/15", iconColor: remaining > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400", editable: false },
         ].map((stat) => (
-          <div key={stat.label} className="relative bg-card border border-border rounded-xl p-5 flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${stat.color}15` }}>
-                  <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
-                </div>
+          <div key={stat.label} className={`relative bg-gradient-to-br ${stat.gradient} border border-border/60 rounded-xl p-4 backdrop-blur-sm`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${stat.iconBg}`}>
+                <stat.icon className={`w-4.5 h-4.5 ${stat.iconColor}`} />
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-2">{stat.label}</p>
-              <p className="text-2xl font-black text-foreground mt-0.5">{stat.value}</p>
-              {stat.extra && <p className="text-xs text-muted-foreground mt-1">{stat.extra}</p>}
+              {stat.editable && (
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-background/60" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
+                  <Pencil className="w-3 h-3 text-muted-foreground" />
+                </Button>
+              )}
             </div>
-            {stat.editable && (
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 absolute top-3 right-3" onClick={() => { setTotalCapitalInput(String(totalCapital)); setEditTotalCapital(true); }}>
-                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-              </Button>
-            )}
+            <p className="text-xl font-extrabold text-foreground tabular-nums">{stat.value}</p>
+            <p className="text-[11px] font-medium text-muted-foreground mt-0.5">{stat.label}</p>
+            {stat.extra && <p className="text-[10px] text-muted-foreground/70 mt-0.5">{stat.extra}</p>}
           </div>
         ))}
       </div>
 
-      {/* Monthly Contribution Charts */}
-      {(() => {
-        const monthlyData = (() => {
-          const map = new Map<string, { month: string; total: number; [key: string]: number | string }>();
-          contributions.forEach((c) => {
-            const m = c.date.slice(0, 7);
-            const inv = getInvestorById(c.investorId);
-            const invName = inv?.name || "Unknown";
-            if (!map.has(m)) map.set(m, { month: m, total: 0 });
-            const entry = map.get(m)!;
-            entry.total += c.amount;
-            entry[invName] = ((entry[invName] as number) || 0) + c.amount;
-          });
-          return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
-        })();
-        const categoryData = (() => {
-          const map = new Map<string, number>();
-          contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
-          return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-        })();
-        const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
-        const investorNames = investors.map(i => i.name);
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
-              <div className="mb-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">Monthly Contributions</h3>
-                <p className="text-xs text-muted-foreground">Breakdown by investor per month</p>
-              </div>
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={monthlyData} barCategoryGap="20%">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
-                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  {investorNames.map((name, i) => (
-                    <Bar key={name} dataKey={name} stackId="a" fill={investors[i]?.color || pieColors[i % pieColors.length]} radius={i === investorNames.length - 1 ? [4,4,0,0] : [0,0,0,0]} />
-                  ))}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="bg-card border border-border rounded-xl p-5">
-              <div className="mb-4">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">By Category</h3>
-                <p className="text-xs text-muted-foreground">Expense distribution</p>
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={80} paddingAngle={2}>
-                    {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
-                  </Pie>
-                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-2 space-y-1 max-h-[120px] overflow-y-auto">
-                {categoryData.map((cat, i) => (
-                  <div key={cat.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
-                      <span className="text-muted-foreground truncate">{cat.name}</span>
+      {/* Charts + Investor Cards - Side by side layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+        {/* Charts Section */}
+        <div className="xl:col-span-3 space-y-4">
+          {(() => {
+            const monthlyData = (() => {
+              const map = new Map<string, { month: string; total: number; [key: string]: number | string }>();
+              contributions.forEach((c) => {
+                const m = c.date.slice(0, 7);
+                const inv = getInvestorById(c.investorId);
+                const invName = inv?.name || "Unknown";
+                if (!map.has(m)) map.set(m, { month: m, total: 0 });
+                const entry = map.get(m)!;
+                entry.total += c.amount;
+                entry[invName] = ((entry[invName] as number) || 0) + c.amount;
+              });
+              return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
+            })();
+            const categoryData = (() => {
+              const map = new Map<string, number>();
+              contributions.forEach((c) => map.set(c.category, (map.get(c.category) || 0) + c.amount));
+              return Array.from(map.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+            })();
+            const pieColors = ["hsl(217,91%,60%)","hsl(270,60%,55%)","hsl(142,71%,45%)","hsl(15,85%,52%)","hsl(45,93%,47%)","hsl(330,65%,50%)","hsl(190,80%,45%)","hsl(95,55%,45%)","hsl(0,72%,51%)","hsl(210,40%,55%)","hsl(280,50%,60%)","hsl(160,60%,45%)","hsl(30,80%,55%)","hsl(350,70%,55%)"];
+            const investorNames = investors.map(i => i.name);
+            return (
+              <>
+                {/* Bar Chart */}
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <h3 className="text-sm font-bold text-foreground mb-1">Monthly Contributions</h3>
+                  <p className="text-xs text-muted-foreground mb-4">Breakdown by investor per month</p>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={monthlyData} barCategoryGap="20%">
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `$${v}`} />
+                      <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      {investorNames.map((name, i) => (
+                        <Bar key={name} dataKey={name} stackId="a" fill={investors[i]?.color || pieColors[i % pieColors.length]} radius={i === investorNames.length - 1 ? [4,4,0,0] : [0,0,0,0]} />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Pie Chart */}
+                <div className="bg-card border border-border rounded-xl p-5">
+                  <h3 className="text-sm font-bold text-foreground mb-1">Category Breakdown</h3>
+                  <p className="text-xs text-muted-foreground mb-3">Distribution of expenses by type</p>
+                  <div className="flex items-start gap-6">
+                    <ResponsiveContainer width={180} height={180}>
+                      <PieChart>
+                        <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={75} paddingAngle={2}>
+                          {categoryData.map((_, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
+                        </Pie>
+                        <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(value: number) => formatPrice(value)} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex-1 space-y-1.5 max-h-[180px] overflow-y-auto pt-1">
+                      {categoryData.map((cat, i) => (
+                        <div key={cat.name} className="flex items-center justify-between text-xs gap-3">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: pieColors[i % pieColors.length] }} />
+                            <span className="text-muted-foreground truncate">{cat.name}</span>
+                          </div>
+                          <span className="font-semibold tabular-nums text-foreground flex-shrink-0">{formatPrice(cat.value)}</span>
+                        </div>
+                      ))}
                     </div>
-                    <span className="font-semibold tabular-nums">{formatPrice(cat.value)}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Capital & Share */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Capital & Share</h3>
-            <p className="text-xs text-muted-foreground">Investor shares per investment — create, edit, or remove below</p>
-          </div>
-          <Button onClick={openAddCapital} className="gap-2"><Plus className="w-4 h-4" /> Add Capital</Button>
+                </div>
+              </>
+            );
+          })()}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Investor Cards */}
+        <div className="xl:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Capital & Share</h3>
+              <p className="text-xs text-muted-foreground">Investor allocation & payment status</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={openAddCapital} className="h-8 gap-1 text-xs">
+              <Plus className="w-3.5 h-3.5" /> Add
+            </Button>
+          </div>
+
           {investors.map((inv) => {
             const progressPct = inv.capitalAmount > 0 ? Math.min(100, Math.round((inv.paid / inv.capitalAmount) * 100)) : 0;
             const dueAmount = Math.max(0, inv.capitalAmount - inv.paid);
-            const payableAmount = dueAmount;
             const isDue = dueAmount > 0;
             return (
-              <div key={inv.id} className="bg-card border border-border rounded-xl p-5 space-y-3">
-                {/* Header */}
-                <div className="flex items-start justify-between">
+              <div key={inv.id} className="bg-card border border-border rounded-xl p-4 space-y-3 hover:shadow-sm transition-shadow">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: inv.color }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm" style={{ background: inv.color }}>
                       {inv.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <p className="font-bold text-foreground text-sm">{inv.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{inv.sharePercent}% share</span>
-                        <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">{inv.investmentName}</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">{inv.sharePercent}%</span>
+                        {isDue && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-destructive/10 text-destructive">Due</span>}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {isDue && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">Due</span>
-                    )}
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}>
-                      <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}>
-                      <Trash2 className="w-3.5 h-3.5 text-destructive/70" />
-                    </Button>
+                  <div className="flex items-center gap-0.5">
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditCapital(inv)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteInvestor(inv)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
                   </div>
                 </div>
-
-                {/* Progress */}
                 <div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                    <span>Payment Progress</span>
-                    <span className="font-bold">{progressPct}%</span>
+                  <div className="flex justify-between text-[10px] text-muted-foreground mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-bold text-foreground">{progressPct}%</span>
                   </div>
-                  <Progress value={progressPct} className="h-2" />
+                  <Progress value={progressPct} className="h-1.5" />
                 </div>
-
-                {/* Amounts */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-1 border-t border-border">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60">
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Capital Amount</p>
-                    <p className="text-sm font-bold text-foreground">{formatPrice(inv.capitalAmount)}</p>
+                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Capital</p>
+                    <p className="text-xs font-bold text-foreground tabular-nums">{formatPrice(inv.capitalAmount)}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Paid</p>
-                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatPrice(inv.paid)}</p>
+                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Paid</p>
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatPrice(inv.paid)}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Due Investment</p>
-                    <p className="text-sm font-bold text-destructive">{formatPrice(dueAmount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Payable Amount</p>
-                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatPrice(payableAmount)}</p>
+                    <p className="text-[9px] font-semibold uppercase text-muted-foreground">Due</p>
+                    <p className="text-xs font-bold text-destructive tabular-nums">{formatPrice(dueAmount)}</p>
                   </div>
                 </div>
               </div>
@@ -415,43 +409,37 @@ const InvestmentsPage = () => {
         </div>
       </div>
 
-      {/* Contributions */}
+      {/* Contributions Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-border">
+        <div className="px-5 py-4 border-b border-border">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-muted-foreground" />
-              <div>
-                <h3 className="text-base font-bold text-foreground">Contributions</h3>
-                <p className="text-xs text-muted-foreground">Payment history for all investments</p>
-              </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Contribution History</h3>
+              <p className="text-xs text-muted-foreground">{filtered.length} records · Payment tracking for all investments</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span>Filter by Month</span>
-                <Select value={monthFilter} onValueChange={(v) => { setMonthFilter(v); setPage(1); }}>
-                  <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All months</SelectItem>
-                    {months.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search by investor, invest..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                  className="pl-8 h-8 w-[180px] text-xs" />
-              </div>
+              <Select value={monthFilter} onValueChange={(v) => { setMonthFilter(v); setPage(1); }}>
+                <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="Month" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All months</SelectItem>
+                  {months.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
               <Select value={investorFilter} onValueChange={(v) => { setInvestorFilter(v); setPage(1); }}>
-                <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="Investor" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Investors</SelectItem>
                   {investors.map((i) => <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>)}
                 </SelectContent>
               </Select>
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input placeholder="Search..." value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                  className="pl-8 h-8 w-[150px] text-xs" />
+              </div>
               <div className="flex border border-border rounded-md overflow-hidden">
-                <button onClick={() => setViewMode("list")} className={`p-1.5 ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><LayoutList className="w-4 h-4" /></button>
-                <button onClick={() => setViewMode("grid")} className={`p-1.5 ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><LayoutGrid className="w-4 h-4" /></button>
+                <button onClick={() => setViewMode("list")} className={`p-1.5 transition-colors ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutList className="w-3.5 h-3.5" /></button>
+                <button onClick={() => setViewMode("grid")} className={`p-1.5 transition-colors ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}><LayoutGrid className="w-3.5 h-3.5" /></button>
               </div>
               <Button variant="outline" size="sm" onClick={handleExport} className="h-8 gap-1 text-xs"><Download className="w-3.5 h-3.5" /> Export</Button>
               <Button size="sm" onClick={openAddContrib} className="h-8 gap-1 text-xs"><Plus className="w-3.5 h-3.5" /> Add</Button>
@@ -463,9 +451,9 @@ const InvestmentsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  {["Date", "Investment", "Investor", "Category", "Amount", "Slip", "Note", "Actions"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
+                <tr className="border-b border-border bg-muted/40">
+                  {["Date", "Investor", "Category", "Amount", "Slips", "Note", "Actions"].map((h) => (
+                    <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -473,36 +461,34 @@ const InvestmentsPage = () => {
                 {paginated.map((c) => {
                   const inv = getInvestorById(c.investorId);
                   return (
-                    <tr key={c.id} className="border-b border-border hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 text-muted-foreground">{c.date}</td>
-                      <td className="px-4 py-3 font-medium">{c.investmentName}</td>
-                      <td className="px-4 py-3">{inv?.name || "—"}</td>
+                    <tr key={c.id} className="border-b border-border/60 hover:bg-muted/20 transition-colors">
+                      <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{c.date}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[c.category] || "bg-muted text-muted-foreground"}`}>
-                          {c.category}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {inv && <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
+                          <span className="text-xs font-medium">{inv?.name || "—"}</span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3 font-semibold tabular-nums text-primary">{formatPrice(c.amount)}</td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                          <ImageIcon className="w-3 h-3" /> {c.slipCount}
-                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[c.category] || "bg-muted text-muted-foreground"}`}>{c.category}</span>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground text-xs max-w-[200px] truncate">{c.note}</td>
+                      <td className="px-4 py-3 font-bold tabular-nums text-foreground text-xs">{formatPrice(c.amount)}</td>
                       <td className="px-4 py-3">
-                        <TooltipProvider delayDuration={200}>
-                          <div className="flex items-center gap-0.5">
-                            <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3.5 h-3.5 text-primary" /></Button></TooltipTrigger><TooltipContent>View</TooltipContent></Tooltip>
-                            <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button></TooltipTrigger><TooltipContent>Edit</TooltipContent></Tooltip>
-                            <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3.5 h-3.5 text-destructive/70" /></Button></TooltipTrigger><TooltipContent>Delete</TooltipContent></Tooltip>
-                          </div>
-                        </TooltipProvider>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><ImageIcon className="w-3 h-3" />{c.slipCount}</span>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground text-[11px] max-w-[180px] truncate">{c.note || "—"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-0.5">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3 text-primary" /></Button>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3 text-muted-foreground" /></Button>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
+                        </div>
                       </td>
                     </tr>
                   );
                 })}
                 {paginated.length === 0 && (
-                  <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">No contributions found</td></tr>
+                  <tr><td colSpan={7} className="text-center py-16 text-muted-foreground text-sm">No contributions found</td></tr>
                 )}
               </tbody>
             </table>
@@ -512,33 +498,36 @@ const InvestmentsPage = () => {
             {paginated.map((c) => {
               const inv = getInvestorById(c.investorId);
               return (
-                <div key={c.id} className="border border-border rounded-lg p-4 space-y-2 hover:shadow-md transition-shadow">
+                <div key={c.id} className="border border-border rounded-xl p-4 space-y-2.5 hover:shadow-md transition-all hover:border-border/80">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-sm">{c.investmentName}</p>
-                      <p className="text-xs text-muted-foreground">{inv?.name} · {c.date}</p>
+                    <div className="flex items-center gap-2">
+                      {inv && <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold" style={{ background: inv.color }}>{inv.name.charAt(0)}</div>}
+                      <div>
+                        <p className="font-semibold text-xs">{inv?.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{c.date}</p>
+                      </div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[c.category]}`}>{c.category}</span>
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-semibold ${categoryColors[c.category]}`}>{c.category}</span>
                   </div>
-                  <p className="text-lg font-bold text-primary tabular-nums">{formatPrice(c.amount)}</p>
-                  <p className="text-xs text-muted-foreground truncate">{c.note}</p>
-                  <div className="flex gap-1 pt-1 border-t border-border">
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3.5 h-3.5 text-destructive/70" /></Button>
+                  <p className="text-base font-extrabold text-foreground tabular-nums">{formatPrice(c.amount)}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{c.note || "—"}</p>
+                  <div className="flex gap-0.5 pt-2 border-t border-border/60">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setViewContrib(c)}><Eye className="w-3 h-3" /></Button>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => openEditContrib(c)}><Pencil className="w-3 h-3" /></Button>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setDeleteContrib(c)}><Trash2 className="w-3 h-3 text-destructive/60" /></Button>
                   </div>
                 </div>
               );
             })}
-            {paginated.length === 0 && <p className="col-span-full text-center py-12 text-muted-foreground text-sm">No contributions found</p>}
+            {paginated.length === 0 && <p className="col-span-full text-center py-16 text-muted-foreground text-sm">No contributions found</p>}
           </div>
         )}
 
         {/* Pagination */}
         <div className="px-5 py-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
           <span>Showing {filtered.length > 0 ? (page - 1) * perPage + 1 : 0}–{Math.min(page * perPage, filtered.length)} of {filtered.length}</span>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)} className="h-7 gap-1 text-xs"><ChevronLeft className="w-3.5 h-3.5" /> Previous</Button>
+          <div className="flex items-center gap-1.5">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)} className="h-7 gap-1 text-xs"><ChevronLeft className="w-3.5 h-3.5" /></Button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               let p: number;
               if (totalPages <= 5) p = i + 1;
@@ -547,17 +536,19 @@ const InvestmentsPage = () => {
               else p = page - 2 + i;
               return (
                 <button key={p} onClick={() => setPage(p)}
-                  className={`h-7 w-7 rounded-md text-xs font-medium ${p === page ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{p}</button>
+                  className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${p === page ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{p}</button>
               );
             })}
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="h-7 gap-1 text-xs">Next <ChevronRight className="w-3.5 h-3.5" /></Button>
-            <span className="ml-2">Per page</span>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="h-7 gap-1 text-xs"><ChevronRight className="w-3.5 h-3.5" /></Button>
             <Select value={String(perPage)} onValueChange={(v) => { setPerPage(parseInt(v)); setPage(1); }}>
-              <SelectTrigger className="h-7 w-[60px] text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-7 w-[55px] text-xs ml-2"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {[10, 20, 50].map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </div>
           </div>
         </div>
       </div>
