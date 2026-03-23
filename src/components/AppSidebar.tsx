@@ -182,9 +182,9 @@ const AppSidebar = () => {
                       <div key={item.path}>
                         <button
                           onClick={() => toggleExpand(item.path)}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 w-full group ${
+                          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 w-full group ${
                             parentActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium border-l-[3px]"
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-[3px]"
                               : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
                           }`}
                           style={parentActive ? { borderLeftColor: iconColor } : undefined}
@@ -218,9 +218,9 @@ const AppSidebar = () => {
                                 key={sub.path}
                                 to={sub.path}
                                 end
-                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] transition-all duration-200 ${
+                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
                                   isActive(sub.path)
-                                    ? "text-sidebar-accent-foreground font-medium"
+                                    ? "text-sidebar-accent-foreground"
                                     : "text-sidebar-muted hover:text-sidebar-foreground"
                                 }`}
                               >
@@ -242,9 +242,9 @@ const AppSidebar = () => {
                       key={item.path}
                       to={item.path}
                       end={item.path === "/"}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200 group ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 group ${
                         parentActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium border-l-[3px]"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-[3px]"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
                       } ${collapsed ? "justify-center px-0 border-l-0" : ""}`}
                       style={parentActive && !collapsed ? { borderLeftColor: iconColor } : undefined}
