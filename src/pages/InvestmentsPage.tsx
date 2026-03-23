@@ -137,7 +137,7 @@ const InvestmentsPage = () => {
   };
 
   const openAddContrib = () => {
-    setContribForm({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: investors[0]?.id || "", category: "Rental", amount: 0, slipCount: 1, note: "" });
+    setContribForm({ date: new Date().toISOString().slice(0, 10), investmentName: "Capital Amount Investment", investorId: investors[0]?.id || "", category: "Rental", amount: 0, slipCount: 1, note: "", slipImages: [] });
     setEditContrib(null);
     setShowContribDialog(true);
   };
