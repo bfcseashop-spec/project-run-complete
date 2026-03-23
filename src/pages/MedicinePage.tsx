@@ -191,8 +191,19 @@ const MedicinePage = () => {
   const purchaseValue = data.reduce((s, m) => s + m.purchasePrice * m.stock, 0);
   const salesValue = data.reduce((s, m) => s + m.price * m.stock, 0);
 
-  // Low stock alerts
-  const lowStockItems = data.filter((m) => m.status === "low-stock" || m.status === "out-of-stock");
+  // Expiry alerts
+  const now = new Date();
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const getExpiryStatus = (expiry: string) => {
+    if (!expiry) return "ok";
+    const d = new Date(expiry);
+    if (isNaN(d.getTime())) return "ok";
+    if (d < now) return "expired";
+    if (d <= in30Days) return "expiring";
+    return "ok";
+  };
+  const expiringSoon = data.filter((m) => getExpiryStatus(m.expiry) === "expiring").length;
+  const expired = data.filter((m) => getExpiryStatus(m.expiry) === "expired").length;
 
   const usedCategories = [...new Set(data.map((m) => m.category))];
 
