@@ -775,6 +775,49 @@ const InvestmentsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Management Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Manage Categories</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input placeholder="New category name..." value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="h-10 text-sm" />
+              <Button onClick={() => {
+                const name = newCategory.trim();
+                if (!name) { toast.error("Enter a category name"); return; }
+                if ([...allCategories, ...customCategories].includes(name as ContributionCategory)) { toast.error("Category already exists"); return; }
+                setCustomCategories(p => [...p, name]);
+                setNewCategory("");
+                toast.success(`Category "${name}" added`);
+              }} className="h-10 px-4 shrink-0"><Plus className="w-4 h-4" /></Button>
+            </div>
+            <div className="space-y-1 max-h-[300px] overflow-y-auto">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Default Categories</p>
+              {allCategories.map(c => (
+                <div key={c} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm">
+                  <span>{c}</span>
+                  <span className="text-[10px] text-muted-foreground">Default</span>
+                </div>
+              ))}
+              {customCategories.length > 0 && (
+                <>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 mt-3">Custom Categories</p>
+                  {customCategories.map(c => (
+                    <div key={c} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm">
+                      <span>{c}</span>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setCustomCategories(p => p.filter(x => x !== c)); toast.success(`Category "${c}" removed`); }}>
+                        <Trash2 className="w-3 h-3 text-destructive/70" />
+                      </Button>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setShowCategoryDialog(false)}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
