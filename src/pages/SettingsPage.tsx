@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
+import { saveSettingsNow } from "@/data/settingsStore";
 import { currencies, getCurrencySymbol } from "@/lib/currency";
 
 /* ─── Clinic Profile ─── */
