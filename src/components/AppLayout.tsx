@@ -4,6 +4,7 @@ import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Langu
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
+import { getDrafts, subscribeDrafts } from "@/data/draftStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
