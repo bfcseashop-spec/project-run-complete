@@ -227,10 +227,10 @@ const Dashboard = () => {
           />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
-          <StatCard icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
-          <StatCard icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 60%, 45%)" />
-          <StatCard icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(260, 45%, 50%)" />
+          <StatCard variant="gradient" icon={TrendingUp} title="Revenue" value={formatDualPrice(stats.revenue)} change={`${stats.completedInvoices} paid`} accentColor="hsl(142, 71%, 45%)" />
+          <StatCard variant="gradient" icon={TrendingDown} title="Outstanding" value={formatDualPrice(stats.totalDue)} change={`${stats.pendingInvoices} pending`} accentColor="hsl(350, 65%, 55%)" />
+          <StatCard variant="gradient" icon={ClipboardList} title="Invoices" value={String(stats.invoiceCount)} change={`${stats.completedInvoices} completed`} accentColor="hsl(200, 70%, 50%)" />
+          <StatCard variant="gradient" icon={DollarSign} title="Avg Invoice" value={formatDualPrice(stats.invoiceCount ? Math.round(stats.revenue / stats.invoiceCount) : 0)} accentColor="hsl(270, 55%, 55%)" />
         </div>
 
         <div className="mt-4">
