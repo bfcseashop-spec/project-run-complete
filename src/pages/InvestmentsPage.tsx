@@ -612,13 +612,12 @@ const InvestmentsPage = () => {
       </Dialog>
 
       {/* Image Lightbox */}
-      {lightboxImages.length > 0 && (
-        <ImageLightbox
-          images={lightboxImages}
-          initialIndex={lightboxIndex}
-          onClose={() => setLightboxImages([])}
-        />
-      )}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={(open) => { setLightboxOpen(open); if (!open) setLightboxImages([]); }}
+      />
 
       {/* Edit Total Capital */}
       <Dialog open={editTotalCapital} onOpenChange={setEditTotalCapital}>
