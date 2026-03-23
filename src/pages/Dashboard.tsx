@@ -123,8 +123,8 @@ const Dashboard = () => {
     const completedLabs = labReports.filter(r => r.status === "completed").length;
     const totalLabs = labReports.length;
 
-    const pendingXrays = xrayRecords.filter(r => r.status === "pending" || r.status === "in-progress").length;
-    const pendingUltrasounds = ultrasoundRecords.filter(r => r.status === "pending" || r.status === "in-progress").length;
+    const pendingXrays = xrayRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
+    const pendingUltrasounds = ultrasoundRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
 
     const lowStockMeds = medicines.filter(m => m.status === "low-stock").length;
     const outOfStockMeds = medicines.filter(m => m.status === "out-of-stock").length;
