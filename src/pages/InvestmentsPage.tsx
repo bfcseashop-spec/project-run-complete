@@ -142,7 +142,7 @@ const InvestmentsPage = () => {
     setShowContribDialog(true);
   };
   const openEditContrib = (c: Contribution) => {
-    setContribForm({ date: c.date, investmentName: c.investmentName, investorId: c.investorId, category: c.category, amount: c.amount, slipCount: c.slipCount, note: c.note });
+    setContribForm({ date: c.date, investmentName: c.investmentName, investorId: c.investorId, category: c.category, amount: c.amount, slipCount: c.slipCount, note: c.note, slipImages: c.slipImages || [] });
     setEditContrib(c);
     setShowContribDialog(true);
   };
