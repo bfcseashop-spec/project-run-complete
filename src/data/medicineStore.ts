@@ -44,6 +44,8 @@ const toMedicine = (r: any): Medicine => ({
   image: r.image,
   expiry: r.expiry,
   status: r.status as Medicine["status"],
+  batchNo: r.batch_no || "-",
+  stockAlert: r.stock_alert ?? 10,
 });
 
 /* ── fetch from DB ── */
