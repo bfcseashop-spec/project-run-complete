@@ -136,13 +136,26 @@ const InvestmentsPage = () => {
   };
   const saveCapital = () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
+    if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
+    // Recalculate capital from share % and total capital
+    const capitalAmount = Math.round((invForm.sharePercent / 100) * totalCapital * 100) / 100;
+    const formData = { ...invForm, capitalAmount };
     if (editInvestor) {
-      updateInvestor(editInvestor.id, invForm);
+      updateInvestor(editInvestor.id, formData);
       toast.success("Investor updated");
     } else {
-      addInvestor(invForm);
+      addInvestor(formData);
       toast.success("Investor added");
     }
+    // Recalculate all other investors' capital amounts based on their share %
+    investors.forEach(inv => {
+      if (inv.id !== editInvestor?.id) {
+        const newCap = Math.round((inv.sharePercent / 100) * totalCapital * 100) / 100;
+        if (Math.abs(newCap - inv.capitalAmount) > 0.01) {
+          updateInvestor(inv.id, { capitalAmount: newCap });
+        }
+      }
+    });
     setShowCapitalDialog(false);
   };
   const handleDeleteInvestor = () => {
