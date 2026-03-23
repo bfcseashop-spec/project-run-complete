@@ -5,11 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
 import AppLayout from "@/components/AppLayout";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { PermissionsProvider } from "@/contexts/PermissionsContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Lazy load all pages
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const MedicinePage = lazy(() => import("@/pages/MedicinePage"));
-
 const OPDPage = lazy(() => import("@/pages/OPDPage"));
 const PrescriptionPage = lazy(() => import("@/pages/PrescriptionPage"));
 const DoctorPage = lazy(() => import("@/pages/DoctorPage"));
@@ -33,10 +36,7 @@ const SystemManagePage = lazy(() => import("@/pages/SystemManagePage"));
 const RefundPage = lazy(() => import("@/pages/RefundPage"));
 const UsersAccessPage = lazy(() => import("@/pages/UsersAccessPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
-
-const LazyRoles = lazy(() =>
-  import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage }))
-);
+const LazyRoles = lazy(() => import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage })));
 const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
 const LazyInvestments = lazy(() => import("@/pages/InvestmentsPage"));
 
@@ -44,7 +44,6 @@ const queryClient = new QueryClient();
 
 const PageLoader = () => (
   <div className="space-y-6 p-6 animate-pulse">
-    {/* Header skeleton */}
     <div className="flex items-center justify-between">
       <div className="space-y-2">
         <div className="h-7 w-48 bg-muted rounded-md" />
@@ -52,7 +51,6 @@ const PageLoader = () => (
       </div>
       <div className="h-9 w-32 bg-muted rounded-md" />
     </div>
-    {/* Stat cards skeleton */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="bg-card border border-border rounded-xl p-4 space-y-3">
@@ -65,7 +63,6 @@ const PageLoader = () => (
         </div>
       ))}
     </div>
-    {/* Toolbar skeleton */}
     <div className="flex items-center gap-3">
       <div className="h-9 w-36 bg-muted rounded-md" />
       <div className="h-9 w-24 bg-muted/60 rounded-md" />
@@ -73,7 +70,6 @@ const PageLoader = () => (
       <div className="h-9 w-20 bg-muted/60 rounded-md" />
       <div className="h-9 w-20 bg-muted/60 rounded-md" />
     </div>
-    {/* Table skeleton */}
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-muted/30">
         {[...Array(6)].map((_, i) => <div key={i} className="h-4 bg-muted rounded" />)}
@@ -93,43 +89,52 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/billing" element={<BillingPage />} />
-              <Route path="/billing/new" element={<NewInvoicePage />} />
-              <Route path="/billing/edit" element={<NewInvoicePage />} />
-              <Route path="/billing/drafts" element={<DraftsPage />} />
-              <Route path="/medicine" element={<MedicinePage />} />
-              
-              <Route path="/opd" element={<OPDPage />} />
-              <Route path="/prescriptions" element={<PrescriptionPage />} />
-              <Route path="/doctors" element={<DoctorPage />} />
-              <Route path="/dues" element={<DuesPage />} />
-              <Route path="/lab-tests" element={<LabTestsPage />} />
-              <Route path="/lab-tests/add" element={<AddTestPage />} />
-              <Route path="/lab-tests/names" element={<TestNamePage />} />
-              <Route path="/lab-reports" element={<LabReportsPage />} />
-              <Route path="/xray" element={<XRayPage />} />
-              <Route path="/ultrasound" element={<UltrasoundPage />} />
-              <Route path="/sample-collection" element={<SampleCollectionPage />} />
-              <Route path="/health-services" element={<HealthServicesPage />} />
-              <Route path="/health-services/packages" element={<HealthPackagesPage />} />
-              <Route path="/injections" element={<InjectionsPage />} />
-              
-              <Route path="/roles" element={<LazyRoles />} />
-              <Route path="/expenses" element={<ExpensesPage />} />
-              <Route path="/bank" element={<LazyBank />} />
-              <Route path="/investments" element={<LazyInvestments />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/system-manage" element={<SystemManagePage />} />
-              <Route path="/refund" element={<RefundPage />} />
-              <Route path="/users-access" element={<UsersAccessPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <PermissionsProvider>
+                      <AppLayout />
+                    </PermissionsProvider>
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/billing" element={<BillingPage />} />
+                <Route path="/billing/new" element={<NewInvoicePage />} />
+                <Route path="/billing/edit" element={<NewInvoicePage />} />
+                <Route path="/billing/drafts" element={<DraftsPage />} />
+                <Route path="/medicine" element={<MedicinePage />} />
+                <Route path="/opd" element={<OPDPage />} />
+                <Route path="/prescriptions" element={<PrescriptionPage />} />
+                <Route path="/doctors" element={<DoctorPage />} />
+                <Route path="/dues" element={<DuesPage />} />
+                <Route path="/lab-tests" element={<LabTestsPage />} />
+                <Route path="/lab-tests/add" element={<AddTestPage />} />
+                <Route path="/lab-tests/names" element={<TestNamePage />} />
+                <Route path="/lab-reports" element={<LabReportsPage />} />
+                <Route path="/xray" element={<XRayPage />} />
+                <Route path="/ultrasound" element={<UltrasoundPage />} />
+                <Route path="/sample-collection" element={<SampleCollectionPage />} />
+                <Route path="/health-services" element={<HealthServicesPage />} />
+                <Route path="/health-services/packages" element={<HealthPackagesPage />} />
+                <Route path="/injections" element={<InjectionsPage />} />
+                <Route path="/roles" element={<LazyRoles />} />
+                <Route path="/expenses" element={<ExpensesPage />} />
+                <Route path="/bank" element={<LazyBank />} />
+                <Route path="/investments" element={<LazyInvestments />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/system-manage" element={<SystemManagePage />} />
+                <Route path="/refund" element={<RefundPage />} />
+                <Route path="/users-access" element={<UsersAccessPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
