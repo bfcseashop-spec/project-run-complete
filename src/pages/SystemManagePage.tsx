@@ -207,12 +207,16 @@ const SystemManagePage = () => {
         <Button variant="outline" onClick={resetAll}>Reset to Defaults</Button>
       </PageHeader>
 
-      <Tabs defaultValue="fonts" className="space-y-4">
+      <Tabs defaultValue="branding" className="space-y-4">
         <TabsList className="bg-muted">
+          <TabsTrigger value="branding" className="gap-1.5"><ImageIcon className="w-4 h-4" /> Branding</TabsTrigger>
           <TabsTrigger value="fonts" className="gap-1.5"><Type className="w-4 h-4" /> Fonts</TabsTrigger>
           <TabsTrigger value="colors" className="gap-1.5"><Palette className="w-4 h-4" /> Colors & Theme</TabsTrigger>
           <TabsTrigger value="appearance" className="gap-1.5"><Paintbrush className="w-4 h-4" /> Appearance</TabsTrigger>
         </TabsList>
+
+        {/* ── BRANDING TAB ── */}
+        <BrandingTab />
 
         {/* ── FONTS TAB ── */}
         <TabsContent value="fonts" className="space-y-4">
