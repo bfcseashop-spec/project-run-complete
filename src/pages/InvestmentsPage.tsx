@@ -227,7 +227,13 @@ const InvestmentsPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Investments" description="Track capital, shares, and contribution history" />
+      <div className="flex items-center justify-between">
+        <PageHeader title="Investments" description="Track capital, shares, and contribution history" />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={openAddCapital} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Manage Investors</Button>
+          <Button variant="outline" onClick={() => setShowCategoryDialog(true)} className="gap-2 text-sm"><Plus className="w-4 h-4" /> Category</Button>
+        </div>
+      </div>
 
       {/* Top Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
