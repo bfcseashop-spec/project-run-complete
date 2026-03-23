@@ -137,6 +137,12 @@ const InvestmentsPage = () => {
   const saveCapital = () => {
     if (!invForm.name) { toast.error("Name is required"); return; }
     if (invForm.sharePercent <= 0 || invForm.sharePercent > 100) { toast.error("Share % must be between 0 and 100"); return; }
+    // Validate total share % doesn't exceed 100
+    const othersTotal = investors.filter(i => i.id !== editInvestor?.id).reduce((s, i) => s + i.sharePercent, 0);
+    if (othersTotal + invForm.sharePercent > 100) {
+      toast.error(`Total share exceeds 100%. Available: ${(100 - othersTotal).toFixed(2)}%`);
+      return;
+    }
     // Recalculate capital from share % and total capital
     const capitalAmount = Math.round((invForm.sharePercent / 100) * totalCapital * 100) / 100;
     const formData = { ...invForm, capitalAmount };
