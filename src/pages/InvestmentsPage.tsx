@@ -616,7 +616,7 @@ const InvestmentsPage = () => {
               <Label className="text-sm font-semibold mb-1.5 block">Category</Label>
               <Select value={contribForm.category} onValueChange={(v) => setContribForm(p => ({ ...p, category: v as ContributionCategory }))}>
                 <SelectTrigger className="h-11 text-sm border-border"><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>{allCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                <SelectContent>{allCategoriesCombined.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>
 
