@@ -36,9 +36,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const LazyRoles = lazy(() =>
   import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage }))
 );
-const LazyBank = lazy(() =>
-  import("@/pages/PlaceholderPages").then((m) => ({ default: m.BankPage }))
-);
+const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
 const LazyInvestments = lazy(() =>
   import("@/pages/PlaceholderPages").then((m) => ({ default: m.InvestmentsPage }))
 );
