@@ -74,7 +74,7 @@ const DashboardDateFilter = ({ preset, customRange, onPresetChange, onCustomRang
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 relative">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs font-medium">
@@ -96,28 +96,28 @@ const DashboardDateFilter = ({ preset, customRange, onPresetChange, onCustomRang
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Popover open={calOpen} onOpenChange={setCalOpen}>
-        <PopoverTrigger asChild>
-          <span />
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-4" align="end">
-          <p className="text-xs font-semibold text-muted-foreground mb-2">Select date range</p>
-          <div className="flex gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">From</p>
-              <Calendar mode="single" selected={tempFrom} onSelect={setTempFrom} className="p-2 pointer-events-auto" />
+      {calOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setCalOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 z-50 bg-card border border-border rounded-xl shadow-modal p-4 w-auto">
+            <p className="text-xs font-semibold text-muted-foreground mb-2">Select date range</p>
+            <div className="flex gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">From</p>
+                <Calendar mode="single" selected={tempFrom} onSelect={setTempFrom} className="p-2 pointer-events-auto" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">To</p>
+                <Calendar mode="single" selected={tempTo} onSelect={setTempTo} className="p-2 pointer-events-auto" />
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">To</p>
-              <Calendar mode="single" selected={tempTo} onSelect={setTempTo} className="p-2 pointer-events-auto" />
+            <div className="flex justify-end mt-3 gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setCalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={applyCustom} disabled={!tempFrom || !tempTo}>Apply</Button>
             </div>
           </div>
-          <div className="flex justify-end mt-3 gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setCalOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={applyCustom} disabled={!tempFrom || !tempTo}>Apply</Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+        </>
+      )}
     </div>
   );
 };
