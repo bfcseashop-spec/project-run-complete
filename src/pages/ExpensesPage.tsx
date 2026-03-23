@@ -27,9 +27,11 @@ import {
   Search, Home, Zap, Package, Users, Wrench, Megaphone, HelpCircle, Monitor, Eye, Printer,
 } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
+import { type ExpenseRecord, expenseCategories, paymentMethods } from "@/data/expenseRecords";
 import {
-  expenseRecords, type ExpenseRecord, expenseCategories, paymentMethods,
-} from "@/data/expenseRecords";
+  getExpenseRecords, setExpenseRecords, addExpenseRecord, removeExpenseRecord,
+  updateExpenseRecord, subscribeExpenses,
+} from "@/data/expenseStore";
 
 const categoryIcons: Record<string, React.ElementType> = {
   rent: Home, utilities: Zap, supplies: Package, salaries: Users,
