@@ -64,9 +64,16 @@ const DraftsPage = () => {
 
   const handleCompletePayment = (draft: DraftInvoice) => {
     const s = getSettings();
-    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const prefix = s.invoicePrefix || "INV";
+    // Ensure unique invoice number
+    let nextNum = parseInt(s.nextInvoiceNumber) || 1001;
+    const existingIds = new Set(getBillingRecords().map(r => r.id));
+    while (existingIds.has(`${prefix}-${String(nextNum).padStart(3, "0")}`)) {
+      nextNum++;
+    }
+    const invoiceId = `${prefix}-${String(nextNum).padStart(3, "0")}`;
     const fd = draft.formData;
-    const subtotal = (fd.lineItems || []).reduce((s, li) => s + li.price * li.qty, 0);
+    const subtotal = (fd.lineItems || []).reduce((sum, li) => sum + li.price * li.qty, 0);
     const discAmt = fd.discountType === "percent" ? (subtotal * fd.discount) / 100 : fd.discount;
     const afterDisc = Math.max(0, subtotal - discAmt);
     const taxRate = s.taxEnabled ? parseFloat(s.taxRate) || 0 : 0;
@@ -85,13 +92,11 @@ const DraftsPage = () => {
       due: 0,
       date: fd.date,
       status: "completed" as const,
-      method: fd.paymentMethod || "Cash",
+      method: fd.paymentMethod === "—" ? "Cash" : (fd.paymentMethod || "Cash"),
       formData: { ...fd, paidAmount: total },
     };
     addBillingRecord(record);
     removeDraft(draft.id);
-    // Increment invoice number
-    const nextNum = parseInt(s.nextInvoiceNumber) || 1001;
     updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
     setViewDraft(null);
     toast.success(`Payment completed — Invoice ${invoiceId} created`);

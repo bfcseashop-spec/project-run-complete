@@ -80,22 +80,28 @@ const BillingPage = () => {
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
 
-  // Pick up submitted invoice from the full-page form
+  // Pick up submitted invoice from the full-page form (only completed payments)
   useEffect(() => {
     const raw = sessionStorage.getItem("invoiceSubmit");
     if (!raw) return;
     sessionStorage.removeItem("invoiceSubmit");
     try {
       const { data, action, isEdit } = JSON.parse(raw) as { data: InvoiceFormData; action: string; isEdit: boolean };
+      // Only add to billing list when payment is completed
+      if (action !== "payment") return;
       if (isEdit) {
         // For edits we'd need the ID — simplified: just add as new
       }
-      const prefix = appSettings.invoicePrefix || "BIL";
-      const nextNum = parseInt(appSettings.nextInvoiceNumber) || billingData.length + 1;
+      const prefix = appSettings.invoicePrefix || "INV";
+      // Ensure unique invoice number by checking existing records
+      let nextNum = parseInt(appSettings.nextInvoiceNumber) || 1001;
+      const existingIds = new Set(billingData.map(r => r.id));
+      while (existingIds.has(`${prefix}-${String(nextNum).padStart(3, "0")}`)) {
+        nextNum++;
+      }
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);
-      // Increment invoice number
       updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
     } catch { /* ignore */ }
   }, []);
