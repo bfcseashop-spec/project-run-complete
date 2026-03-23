@@ -373,34 +373,73 @@ const Dashboard = () => {
 
       {/* ── Clinical Overview ── */}
       <section>
-        <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-          <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(220,70%,50%))" }}>
-            <Stethoscope className="w-4 h-4 text-white" />
-          </span>
-          Clinical Overview
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={Users} title="Patients" value={String(stats.totalPatients)} change={`${stats.activePatients} active`} accentColor="hsl(160, 50%, 38%)" />
-          <StatCard icon={TestTube} title="Lab Reports" value={String(stats.totalLabs)} change={`${stats.pendingLabs} pending`} accentColor="hsl(200, 80%, 45%)" />
-          <StatCard icon={ScanLine} title="X-Ray" value={String(xrayRecords.length)} change={`${stats.pendingXrays} pending`} accentColor="hsl(38, 70%, 48%)" />
-          <StatCard icon={Heart} title="Ultrasound" value={String(ultrasoundRecords.length)} change={`${stats.pendingUltrasounds} pending`} accentColor="hsl(280, 65%, 55%)" />
+        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(220,70%,50%))" }}>
+              <Stethoscope className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-card-foreground font-heading">Clinical Overview</h3>
+              <p className="text-[10px] text-muted-foreground">Patient & diagnostic summary</p>
+            </div>
+          </div>
+          <div className="px-5 pb-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { icon: Users, title: "Patients", value: stats.totalPatients, sub: `${stats.activePatients} active`, color: "hsl(160, 50%, 38%)" },
+                { icon: TestTube, title: "Lab Reports", value: stats.totalLabs, sub: `${stats.pendingLabs} pending`, color: "hsl(200, 80%, 45%)" },
+                { icon: ScanLine, title: "X-Ray", value: xrayRecords.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
+                { icon: Heart, title: "Ultrasound", value: ultrasoundRecords.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
+              ].map((item) => (
+                <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: item.color }}>{item.title}</p>
+                    <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none mt-0.5">{item.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{item.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── Inventory Alerts ── */}
       {(stats.lowStockMeds + stats.outOfStockMeds + stats.lowStockInj + stats.outOfStockInj > 0) && (
         <section>
-          <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2 mb-4">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(38,92%,50%), hsl(25,90%,50%))" }}>
-              <AlertTriangle className="w-4 h-4 text-white" />
-            </span>
-            Inventory Alerts
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard icon={Pill} title="Low Stock Meds" value={String(stats.lowStockMeds)} accentColor="hsl(38, 92%, 50%)" />
-            <StatCard icon={Package} title="Out of Stock" value={String(stats.outOfStockMeds)} accentColor="hsl(0, 70%, 50%)" />
-            <StatCard icon={Syringe} title="Low Stock Inj." value={String(stats.lowStockInj)} accentColor="hsl(38, 70%, 48%)" />
-            <StatCard icon={Beaker} title="Out of Stock Inj." value={String(stats.outOfStockInj)} accentColor="hsl(0, 60%, 45%)" />
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(38,92%,50%), hsl(25,90%,50%))" }}>
+                <AlertTriangle className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-card-foreground font-heading">Inventory Alerts</h3>
+                <p className="text-[10px] text-muted-foreground">Stock level warnings</p>
+              </div>
+            </div>
+            <div className="px-5 pb-5">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { icon: Pill, title: "Low Stock Meds", value: stats.lowStockMeds, color: "hsl(38, 92%, 50%)" },
+                  { icon: Package, title: "Out of Stock", value: stats.outOfStockMeds, color: "hsl(0, 70%, 50%)" },
+                  { icon: Syringe, title: "Low Stock Inj.", value: stats.lowStockInj, color: "hsl(38, 70%, 48%)" },
+                  { icon: Beaker, title: "Out of Stock Inj.", value: stats.outOfStockInj, color: "hsl(0, 60%, 45%)" },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>
+                      <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: item.color }}>{item.title}</p>
+                      <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none mt-0.5">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       )}
