@@ -33,6 +33,8 @@ import {
 } from "@/data/ultrasoundRecords";
 import { toast } from "sonner";
 import ImageLightbox from "@/components/ImageLightbox";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const regionIcons: Record<string, React.ElementType> = {
   abdomen: Scan,
