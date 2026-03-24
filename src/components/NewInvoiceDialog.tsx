@@ -72,10 +72,7 @@ const paymentMethods = [
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
 
-const doctors = [
-  "Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams",
-  "Dr. Mark Brown", "Dr. Lisa Lee",
-];
+// doctors now come from the store
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 
