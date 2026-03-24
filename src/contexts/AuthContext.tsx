@@ -29,8 +29,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const fetchProfile = useCallback(async (userId: string) => {
+    setProfileLoading(true);
     const { data } = await supabase
       .from("profiles")
       .select("*, app_roles(name)")
@@ -48,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setProfile(null);
     }
+    setProfileLoading(false);
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -55,28 +58,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user, fetchProfile]);
 
   useEffect(() => {
-    // Set up auth listener FIRST
+    let initialLoad = true;
+
+    // Set up auth listener FIRST — NEVER await inside this callback
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Fetch profile before setting loading to false
-          await fetchProfile(session.user.id);
+          // Defer profile fetch to avoid Supabase deadlock
+          setTimeout(() => fetchProfile(session.user.id), 0);
         } else {
           setProfile(null);
         }
-        setLoading(false);
+        // Only set loading false for non-initial events (initial is handled by getSession)
+        if (!initialLoad) {
+          setLoading(false);
+        }
       }
     );
 
-    // Then check existing session
+    // Then restore session from storage — this is the primary loader
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
       }
+      initialLoad = false;
       setLoading(false);
     });
 
