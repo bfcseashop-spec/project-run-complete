@@ -65,6 +65,8 @@ function printReport(r: UltrasoundRecord) {
 const UltrasoundPage = () => {
   const { settings } = useSettings();
   const [records, setRecords] = useState<UltrasoundRecord[]>(ultrasoundRecords);
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+  const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<UltrasoundRecord | null>(null);
   const [viewRecord, setViewRecord] = useState<UltrasoundRecord | null>(null);

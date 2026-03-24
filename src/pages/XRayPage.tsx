@@ -46,6 +46,8 @@ const emptyForm: Omit<XRayRecord, "id"> = {
 
 const XRayPage = () => {
   const [records, setRecords] = useState<XRayRecord[]>(xrayRecords);
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+  const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<XRayRecord | null>(null);
   const [viewRecord, setViewRecord] = useState<XRayRecord | null>(null);
