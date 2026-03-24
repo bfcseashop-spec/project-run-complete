@@ -907,6 +907,13 @@ const MedicinePage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <StockHistoryDialog
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        medicineId={historyMedId}
+        medicineName={historyMedName}
+      />
     </div>
   );
 };
