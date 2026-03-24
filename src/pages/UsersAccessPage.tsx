@@ -107,7 +107,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   });
 
   const openEdit = (p: Profile) => {
-    setEditForm({ role_id: p.role_id || "", active: p.active });
+    setEditForm({ full_name: p.full_name, role_id: p.role_id || "", active: p.active, new_password: "" });
     setEditProfile(p);
     setShowEditDialog(true);
   };
