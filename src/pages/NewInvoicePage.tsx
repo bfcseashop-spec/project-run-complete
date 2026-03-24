@@ -598,12 +598,12 @@ const NewInvoicePage = () => {
                         placeholder="Add injection..."
                         searchPlaceholder="Search injection..."
                         icon={<Syringe className="w-3.5 h-3.5 text-amber-500 opacity-60" />}
-                        options={injectionsList.filter(inj => inj.status !== "out-of-stock").map(inj => ({
+                        options={injectionsList.map(inj => ({
                           value: inj.name,
-                          label: `${inj.name} ${inj.strength}`,
-                          detail: `${formatPrice(inj.price)} · ${inj.stock} ${inj.unit}`,
-                          badge: inj.status === "low-stock" ? "Low" : undefined,
-                          badgeColor: inj.status === "low-stock" ? "bg-amber-500/10 text-amber-600" : undefined,
+                          label: `${inj.name}${inj.strength ? ` ${inj.strength}` : ""}`,
+                          detail: formatPrice(inj.price),
+                          badge: inj.status === "out-of-stock" ? "Out" : inj.status === "low-stock" ? "Low" : undefined,
+                          badgeColor: inj.status === "out-of-stock" ? "bg-destructive/10 text-destructive" : inj.status === "low-stock" ? "bg-amber-500/10 text-amber-600" : undefined,
                         }))}
                         onSelect={addInjection}
                       />
