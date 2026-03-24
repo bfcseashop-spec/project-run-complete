@@ -949,8 +949,8 @@ const NewInvoicePage = () => {
 
               {/* Barcode */}
               <div className="text-center pt-4 border-t border-dashed border-border">
-                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(nextInvoiceId, 220, 50) }} />
+                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{nextInvoiceId}</p>
               </div>
 
               {/* Footer */}
