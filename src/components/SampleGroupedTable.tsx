@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Eye, Pencil, Printer, Barcode as BarcodeIcon, SendHorizonal, Trash2,
   User, TestTubes, Droplets, FlaskConical, TestTube, ClipboardList,
-  Thermometer, ThermometerSun, Snowflake,
+  Thermometer, ThermometerSun, Snowflake, ChevronDown, ChevronRight,
 } from "lucide-react";
 import { type SampleRecord } from "@/data/sampleRecords";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
@@ -57,6 +57,16 @@ function ActionButton({ icon: Icon, title, onClick, className = "" }: {
 }
 
 function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const toggleCollapse = (key: string) => {
+    setCollapsed(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
   const groups: PatientGroup[] = [];
   const groupMap = new Map<string, PatientGroup>();
 
@@ -102,6 +112,8 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
   return (
     <div className="space-y-3">
       {groups.map((group, groupIdx) => {
+        const groupKey = `${group.patient}__${group.patientId}`;
+        const isCollapsed = collapsed.has(groupKey);
         const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
         const uniqueTests = [...new Map(group.records.map(r => [r.testName, r])).values()];
         const uniqueSampleTypes = [...new Map(group.records.map(r => [r.sampleType, r])).values()];
@@ -123,10 +135,13 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
             className={`rounded-xl border border-border border-l-4 ${borderColor} bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden`}
           >
             {/* Patient Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border">
+            <div
+              className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border cursor-pointer select-none"
+              onClick={() => toggleCollapse(groupKey)}
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
+                  {isCollapsed ? <ChevronRight className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 text-primary" />}
                 </div>
                 <div>
                   <div className="font-semibold text-card-foreground text-sm">{group.patient}</div>
@@ -142,7 +157,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                   {group.records.length} {group.records.length === 1 ? "sample" : "samples"}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 {confirmable.length > 1 && onBulkConfirm && (
                   <Button
                     size="sm"
@@ -156,8 +171,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
               </div>
             </div>
 
-            {/* Samples Table */}
-            <div className="overflow-x-auto">
+            {!isCollapsed && <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60">
@@ -247,7 +261,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                   })}
                 </tbody>
               </table>
-            </div>
+            </div>}
           </div>
         );
       })}
