@@ -89,6 +89,9 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editForm, setEditForm] = useState({ role_id: "", active: true });
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [createForm, setCreateForm] = useState({ full_name: "", email: "", password: "", role_id: "" });
+  const [creating, setCreating] = useState(false);
 
   const filtered = profiles.filter((u) => {
     if (roleFilter !== "all" && u.role_id !== roleFilter) return false;
@@ -126,6 +129,41 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
       .eq("id", p.id);
     if (error) toast.error(error.message);
     else onRefresh();
+  };
+
+  const handleCreateUser = async () => {
+    if (!createForm.full_name.trim() || !createForm.email.trim() || !createForm.password.trim()) {
+      toast.error("Name, email, and password are required");
+      return;
+    }
+    if (createForm.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("create-user", {
+        body: {
+          email: createForm.email.trim(),
+          password: createForm.password,
+          full_name: createForm.full_name.trim(),
+          role_id: createForm.role_id || null,
+        },
+      });
+      if (res.error || res.data?.error) {
+        toast.error(res.data?.error || res.error?.message || "Failed to create user");
+      } else {
+        toast.success(`User "${createForm.full_name}" created successfully`);
+        setShowCreateDialog(false);
+        setCreateForm({ full_name: "", email: "", password: "", role_id: "" });
+        onRefresh();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -166,6 +204,9 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
         <div className="px-5 py-3 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h3 className="text-sm font-bold text-foreground">User Accounts</h3>
           <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => setShowCreateDialog(true)}>
+              <Plus className="w-3.5 h-3.5" /> Create User
+            </Button>
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 w-[140px] text-xs" />
@@ -272,6 +313,38 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Deactivate</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Plus className="w-4 h-4 text-primary" /> Create New User</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Full Name *</Label>
+              <Input value={createForm.full_name} onChange={(e) => setCreateForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="e.g. Dr. Rahman" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Email *</Label>
+              <Input type="email" value={createForm.email} onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))} placeholder="e.g. user@clinicpos.com" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Password *</Label>
+              <Input type="password" value={createForm.password} onChange={(e) => setCreateForm((p) => ({ ...p, password: e.target.value }))} placeholder="Min 6 characters" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Role</Label>
+              <Select value={createForm.role_id} onValueChange={(v) => setCreateForm((p) => ({ ...p, role_id: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+            <Button onClick={handleCreateUser} disabled={creating}>{creating ? "Creating..." : "Create User"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
