@@ -40,13 +40,19 @@ const OPDPage = () => {
   useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
 
   const filteredPatients = useMemo(() => {
-    return patients.filter((p) => {
-      const q = search.toLowerCase();
-      const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.complaint.toLowerCase().includes(q) || p.doctor.toLowerCase().includes(q) || (p.phone || "").includes(q);
-      const matchesBlood = filterBlood === "all" || p.bloodType === filterBlood;
-      const matchesType = filterType === "all" || p.patientType === filterType;
-      return matchesSearch && matchesBlood && matchesType;
-    });
+    return patients
+      .filter((p) => {
+        const q = search.toLowerCase();
+        const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.complaint.toLowerCase().includes(q) || p.doctor.toLowerCase().includes(q) || (p.phone || "").includes(q);
+        const matchesBlood = filterBlood === "all" || p.bloodType === filterBlood;
+        const matchesType = filterType === "all" || p.patientType === filterType;
+        return matchesSearch && matchesBlood && matchesType;
+      })
+      .sort((a, b) => {
+        const aNumber = Number.parseInt(a.id.replace("OPD-", ""), 10) || 0;
+        const bNumber = Number.parseInt(b.id.replace("OPD-", ""), 10) || 0;
+        return aNumber - bNumber;
+      });
   }, [patients, search, filterBlood, filterType]);
 
   const handleRegister = (patient: OPDPatient) => {
@@ -76,8 +82,7 @@ const OPDPage = () => {
     : 401;
 
   const columns = [
-    { key: "serial", header: "#", render: (p: OPDPatient) => <span className="text-xs text-muted-foreground font-medium">{filteredPatients.indexOf(p) + 1}</span> },
-    { key: "id", header: "Token" },
+    { key: "id", header: "Serial No.", render: (p: OPDPatient) => <span className="text-xs font-medium text-foreground">{filteredPatients.indexOf(p) + 1}</span> },
     { key: "name", header: "Patient Name", render: (p: OPDPatient) => (
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 text-xs font-medium text-muted-foreground">
