@@ -398,7 +398,12 @@ const SampleCollectionPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Doctor *</Label>
-                <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} />
+                <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                  <SelectContent>
+                    {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Test Name *</Label>

@@ -467,7 +467,12 @@ const LabReportsPage = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ref. By Doctor <span className="text-destructive">*</span></Label>
-                    <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} placeholder="Dr." />
+                    <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                      <SelectContent>
+                        {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Sample Type</Label>

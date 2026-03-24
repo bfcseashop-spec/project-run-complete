@@ -375,11 +375,21 @@ const XRayPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Patient Name *</Label>
-                <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} />
+                <Select value={form.patient} onValueChange={(v) => setForm({ ...form, patient: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                  <SelectContent>
+                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Doctor *</Label>
-                <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} />
+                <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                  <SelectContent>
+                    {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
