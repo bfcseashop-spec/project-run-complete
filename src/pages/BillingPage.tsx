@@ -381,15 +381,15 @@ const BillingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title={t("billing", lang)} description="Create invoices, track payments and manage billing records">
-        <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+        <div className="flex items-center gap-2">
+          {selectedKeys.size > 0 && (
+            <Button variant="destructive" size="sm" onClick={() => setBulkDeleteStep(1)} className="gap-1.5">
+              <Trash2 className="w-4 h-4" /> Delete {selectedKeys.size} Selected
+            </Button>
+          )}
+          <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+        </div>
       </PageHeader>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} icon={DollarSign} accentColor="hsl(160, 50%, 38%)" />
-        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} icon={TrendingUp} accentColor="hsl(200, 60%, 45%)" />
-        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} icon={AlertTriangle} accentColor="hsl(350, 50%, 50%)" />
-        <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} icon={CheckCircle} accentColor="hsl(142, 50%, 42%)" />
-      </div>
 
       <DataToolbar
         dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter}
@@ -401,7 +401,7 @@ const BillingPage = () => {
       />
 
       {toolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={displayData} keyExtractor={(d) => d.id} />
+        <DataTable columns={columns} data={displayData} keyExtractor={(d) => d.id} selectable selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys} />
       ) : (
         <DataGridView columns={columns} data={displayData} keyExtractor={(d) => d.id} />
       )}
