@@ -66,6 +66,7 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
 };
 
 import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, updateBillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 import { getRefunds, subscribeRefunds } from "@/data/refundStore";
 
 const BillingPage = () => {
@@ -118,12 +119,7 @@ const BillingPage = () => {
       }
 
       const prefix = appSettings.invoicePrefix || "INV";
-      // Ensure unique invoice number by checking existing records
-      let nextNum = parseInt(appSettings.nextInvoiceNumber) || 1001;
-      const existingIds = new Set(billingData.map(r => r.id));
-      while (existingIds.has(`${prefix}-${String(nextNum).padStart(3, "0")}`)) {
-        nextNum++;
-      }
+      const nextNum = getNextInvoiceNumber(billingData.map(r => r.id), prefix);
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);

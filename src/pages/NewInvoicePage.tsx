@@ -28,6 +28,8 @@ import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { addDraft, removeDraft, nextDraftId } from "@/data/draftStore";
+import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 
 initPatients(opdPatients);
 
@@ -91,6 +93,16 @@ const NewInvoicePage = () => {
   const [injectionsList, setInjectionsList] = useState(getInjections());
   const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
   const [medicinesList, setMedicinesList] = useState(getMedicines());
+  const [billingIds, setBillingIds] = useState(getBillingRecords().map(r => r.id));
+
+  useEffect(() => { const u = subscribeBilling(() => setBillingIds(getBillingRecords().map(r => r.id))); return u; }, []);
+
+  const prefix = appSettings.invoicePrefix || "INV";
+  const nextInvNum = useMemo(() => {
+    const n = getNextInvoiceNumber(billingIds, prefix);
+    return String(n).padStart(3, "0");
+  }, [billingIds, prefix]);
+  const nextInvoiceId = `${prefix}-${nextInvNum}`;
 
   const medicineOptions = useMemo(() => medicinesList.filter(m => m.stock > 0).map(m => ({ name: m.name, price: m.price })), [medicinesList]);
 
@@ -253,7 +265,7 @@ const NewInvoicePage = () => {
   const handlePrintInvoice = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     const s = appSettings;
-    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const invoiceId = nextInvoiceId;
     const now = new Date();
     const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
@@ -377,7 +389,7 @@ const NewInvoicePage = () => {
   const handlePrintFromInvoice = () => {
     const s = appSettings;
     const invoiceItems = previewItems;
-    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const invoiceId = nextInvoiceId;
     const now = new Date();
     const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
@@ -866,7 +878,7 @@ const NewInvoicePage = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] uppercase tracking-widest opacity-60">Invoice</p>
-                  <p className="text-base font-bold font-mono tracking-wider">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                  <p className="text-base font-bold font-mono tracking-wider">{nextInvoiceId}</p>
                 </div>
               </div>
 
@@ -937,8 +949,8 @@ const NewInvoicePage = () => {
 
               {/* Barcode */}
               <div className="text-center pt-4 border-t border-dashed border-border">
-                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(`${appSettings.invoicePrefix}-${appSettings.nextInvoiceNumber}`, 220, 50) }} />
-                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                <div className="inline-block" dangerouslySetInnerHTML={{ __html: barcodeSVG(nextInvoiceId, 220, 50) }} />
+                <p className="font-mono text-xs tracking-[0.2em] font-semibold text-muted-foreground mt-1">{nextInvoiceId}</p>
               </div>
 
               {/* Footer */}

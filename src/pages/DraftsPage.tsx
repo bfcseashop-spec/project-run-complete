@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getDrafts, subscribeDrafts, removeDraft, type DraftInvoice } from "@/data/draftStore";
 import { addBillingRecord, getBillingRecords } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { getSettings, updateSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
@@ -65,12 +66,7 @@ const DraftsPage = () => {
   const handleCompletePayment = (draft: DraftInvoice) => {
     const s = getSettings();
     const prefix = s.invoicePrefix || "INV";
-    // Ensure unique invoice number
-    let nextNum = parseInt(s.nextInvoiceNumber) || 1001;
-    const existingIds = new Set(getBillingRecords().map(r => r.id));
-    while (existingIds.has(`${prefix}-${String(nextNum).padStart(3, "0")}`)) {
-      nextNum++;
-    }
+    const nextNum = getNextInvoiceNumber(getBillingRecords().map(r => r.id), prefix);
     const invoiceId = `${prefix}-${String(nextNum).padStart(3, "0")}`;
     const fd = draft.formData;
     const subtotal = (fd.lineItems || []).reduce((sum, li) => sum + li.price * li.qty, 0);
