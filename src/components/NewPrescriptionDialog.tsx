@@ -18,18 +18,11 @@ import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
+import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/currency";
 
 initPatients(opdPatients);
-
-const doctors = [
-  { name: "Dr. Sarah Smith", specialization: "General Physician" },
-  { name: "Dr. Raj Patel", specialization: "Diabetologist" },
-  { name: "Dr. Emily Williams", specialization: "Orthopedic Surgeon" },
-  { name: "Dr. Mark Brown", specialization: "Dermatologist" },
-  { name: "Dr. Lisa Lee", specialization: "Cardiologist" },
-];
 
 const medicineOptions = [
   "Amoxicillin 500mg", "Paracetamol 650mg", "Metformin 500mg",

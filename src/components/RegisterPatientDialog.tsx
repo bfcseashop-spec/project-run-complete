@@ -13,12 +13,21 @@ import { Camera, X } from "lucide-react";
 import type { OPDPatient, BloodType, PatientType } from "@/data/opdPatients";
 import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 
+interface RegisterPatientDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (patient: OPDPatient) => void;
+  nextTokenNumber: number;
+  editPatient?: OPDPatient | null;
+}
+
 const bloodTypes: BloodType[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const patientTypes: PatientType[] = ["Walk In", "Indoor", "Outdoor", "Emergency"];
 
 const genderToLabel = (g: string) => (g === "F" ? "Female" : g === "M" ? "Male" : "Other");
 
 const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, editPatient }: RegisterPatientDialogProps) => {
+  const doctors = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [form, setForm] = useState({
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
     bloodType: "", patientType: "", phone: "", medicalHistory: "",
