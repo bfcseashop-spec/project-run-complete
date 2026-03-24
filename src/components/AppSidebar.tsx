@@ -305,8 +305,8 @@ const AppSidebar = () => {
 
         {/* ─── User Profile Card ─── */}
         {!isCollapsed && profile && (
-          <div className="px-3 pb-3">
-            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-gradient-to-r from-sidebar-accent/80 to-sidebar-accent/40 border border-sidebar-border/50">
+          <div className="px-2 pb-2">
+            <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-gradient-to-r from-sidebar-accent/80 to-sidebar-accent/40 border border-sidebar-border/50">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-md"
                 style={{ background: "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 42%))" }}
