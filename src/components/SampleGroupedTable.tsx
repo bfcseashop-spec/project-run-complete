@@ -143,7 +143,6 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
                   {isCollapsed ? <ChevronRight className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 text-primary" />}
                 </div>
-                </div>
                 <div>
                   <div className="font-semibold text-card-foreground text-sm">{group.patient}</div>
                   <div className="text-xs text-muted-foreground flex items-center gap-1.5">
