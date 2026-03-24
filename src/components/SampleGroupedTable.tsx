@@ -94,6 +94,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
             const uniqueStorage = [...new Set(group.records.map(r => r.storageTemp))];
             const uniqueCollectors = [...new Set(group.records.map(r => r.collectedBy).filter(Boolean))];
             const uniqueStatuses = [...new Set(group.records.map(r => r.status))];
+            const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
 
             return (
               <tr
