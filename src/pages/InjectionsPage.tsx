@@ -90,7 +90,7 @@ const InjectionsPage = () => {
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
     { key: "price", header: "Price", render: (i: InjectionItem) => formatPrice(i.price) },
-    { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
+    
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
