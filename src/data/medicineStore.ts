@@ -49,6 +49,8 @@ const toMedicine = (r: any): Medicine => ({
 });
 
 /* ── fetch from DB ── */
+let loadPromise: Promise<void> | null = null;
+
 const loadMedicines = async () => {
   const { data, error } = await supabase
     .from("medicines")
@@ -61,8 +63,14 @@ const loadMedicines = async () => {
   }
 };
 
+const ensureLoaded = async () => {
+  if (loaded) return;
+  if (!loadPromise) loadPromise = loadMedicines();
+  await loadPromise;
+};
+
 // initial load
-loadMedicines();
+loadPromise = loadMedicines();
 
 export const getMedicines = () => medicines;
 export const isMedicinesLoaded = () => loaded;
