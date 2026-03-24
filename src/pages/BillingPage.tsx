@@ -345,7 +345,7 @@ const BillingPage = () => {
     if (rows.length > 0) {
       const newRecords: BillingRecord[] = rows.map((row, i) => {
         // Build synthetic lineItems from Qty (Med), Services, Injection, Packages columns
-        const lineItems: { type: string; name: string; price: number; qty: number }[] = [];
+        const lineItems: { id: string; type: string; name: string; price: number; qty: number }[] = [];
 
         // Medicine qty
         const medQtyRaw = String(row.medQty || row["Qty (Med)"] || "");
