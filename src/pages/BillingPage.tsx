@@ -430,18 +430,33 @@ const BillingPage = () => {
     }
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayStats = useMemo(() => {
-    const todayRecords = billingData.filter((r) => r.date === today);
-    return {
-      revenue: todayRecords.reduce((s, r) => s + r.paid, 0),
-      total: todayRecords.reduce((s, r) => s + r.total, 0),
-      due: todayRecords.reduce((s, r) => s + r.due, 0),
-      count: todayRecords.length,
-      completed: todayRecords.filter((r) => r.status === "completed").length,
-      pending: todayRecords.filter((r) => r.status === "pending" || r.status === "critical").length,
-    };
-  }, [billingData, today]);
+  const billingStats = useMemo(() => {
+    const records = displayData;
+    const totalCash = records.filter(r => r.method === "Cash").reduce((s, r) => s + r.paid, 0);
+    const totalAcleda = records.filter(r => r.method === "ACleda").reduce((s, r) => s + r.paid, 0);
+    const totalABA = records.filter(r => r.method === "ABA").reduce((s, r) => s + r.paid, 0);
+    const totalBank = records.filter(r => ["ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer"].includes(r.method)).reduce((s, r) => s + r.paid, 0);
+
+    let totalMedSales = 0, totalServiceSales = 0, totalInjectionSales = 0, totalPackageSales = 0;
+    records.forEach(r => {
+      const items = r.formData?.lineItems || [];
+      items.forEach(li => {
+        const amt = li.price * li.qty;
+        if (li.type === "MED") totalMedSales += amt;
+        else if (li.type === "SVC" || li.type === "CUSTOM") totalServiceSales += amt;
+        else if (li.type === "INJ") totalInjectionSales += amt;
+        else if (li.type === "PKG") totalPackageSales += amt;
+      });
+    });
+
+    const uniquePatients = new Set(records.map(r => r.patient)).size;
+    const totalInvoices = records.length;
+    const totalRevenue = records.reduce((s, r) => s + r.total, 0);
+    const totalDue = records.reduce((s, r) => s + r.due, 0);
+    const totalDiscount = records.reduce((s, r) => s + r.discount, 0);
+
+    return { totalCash, totalAcleda, totalABA, totalBank, totalMedSales, totalServiceSales, totalInjectionSales, totalPackageSales, uniquePatients, totalInvoices, totalRevenue, totalDue, totalDiscount };
+  }, [displayData]);
 
   return (
     <div className="space-y-6">
