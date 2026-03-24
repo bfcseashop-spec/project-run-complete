@@ -43,6 +43,7 @@ const InjectionsPage = () => {
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
