@@ -94,7 +94,7 @@ const LayoutInner = () => {
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar />
-      <div className={`transition-all duration-300 ${isMobile ? "ml-0" : collapsed ? "ml-[68px]" : "ml-[260px]"}`}>
+      <div className={`transition-all duration-300 ${isMobile ? "ml-0" : collapsed ? "ml-[60px]" : "ml-[220px]"}`}>
         <header
           className="sticky top-0 z-20 h-14 flex items-center justify-between px-3 sm:px-5 shadow-md"
           style={{ background: "linear-gradient(135deg, hsl(160, 50%, 28%) 0%, hsl(168, 60%, 22%) 50%, hsl(175, 55%, 20%) 100%)" }}
