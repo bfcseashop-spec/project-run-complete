@@ -19,6 +19,8 @@ import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
+import { deductMedicine } from "@/data/medicineStore";
+import { getInjections, updateInjection, computeInjectionStatus } from "@/data/injectionStore";
 import {
   Dialog, DialogContent,
 } from "@/components/ui/dialog";
@@ -33,13 +35,6 @@ import {
 
 initPatients(opdPatients);
 
-const doctors = [
-  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
-  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
-  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
-  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
-  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
-];
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 
@@ -66,6 +61,7 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
 };
 
 import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, updateBillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { getNextInvoiceNumber } from "@/lib/invoiceId";
 import { getRefunds, subscribeRefunds } from "@/data/refundStore";
 
@@ -81,10 +77,12 @@ const BillingPage = () => {
   const [patients, setPatients] = useState(getPatients());
   const [refunds, setRefunds] = useState(getRefunds());
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  const [bulkDeleteStep, setBulkDeleteStep] = useState<0 | 1 | 2>(0); // 0=closed, 1=first confirm, 2=second confirm
+  const [bulkDeleteStep, setBulkDeleteStep] = useState<0 | 1 | 2>(0);
+  const [doctors, setDoctors] = useState(getActiveDoctorsWithDetails());
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
   useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeDoctors(() => setDoctors([...getActiveDoctorsWithDetails()])); return u; }, []);
 
   const refundedInvoiceIds = useMemo(() => new Set(refunds.map(r => r.invoiceId)), [refunds]);
   const refundAmountByInvoice = useMemo(() => {
@@ -124,6 +122,23 @@ const BillingPage = () => {
       const record = buildRecord(data, id);
       addBillingRecord(record);
       updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
+
+      // Deduct stock for medicines and injections
+      const items = data.lineItems || [];
+      (async () => {
+        for (const li of items) {
+          if (li.type === "MED") {
+            await deductMedicine(li.name, li.qty);
+          } else if (li.type === "INJ") {
+            const allInj = getInjections();
+            const inj = allInj.find(i => i.name === li.name);
+            if (inj && inj.stock >= li.qty) {
+              const newStock = inj.stock - li.qty;
+              await updateInjection(inj.id, { stock: newStock, status: computeInjectionStatus(newStock) });
+            }
+          }
+        }
+      })();
     } catch { /* ignore */ }
   }, []);
 
@@ -308,7 +323,7 @@ const BillingPage = () => {
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
         ${record.formData?.doctor ? `<p><strong>${record.formData.doctor}</strong></p>` : ''}
-        ${d?.degree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.degree}</p>` : ''}
+        ${d?.qualification ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.qualification}</p>` : ''}
         <p style="margin-top:4px">Date: <strong>${record.date}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${record.method}</strong></p>
       </div>
@@ -491,7 +506,7 @@ const BillingPage = () => {
                     <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                       <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
                       {viewRecord.formData?.doctor && <p className="font-semibold text-sm">{viewRecord.formData.doctor}</p>}
-                      {dr?.degree && <p className="text-[11px] text-muted-foreground">{dr.degree}</p>}
+                      {dr?.qualification && <p className="text-[11px] text-muted-foreground">{dr.qualification}</p>}
                       <p className="text-sm mt-1">Date: <span className="font-semibold">{viewRecord.date}</span></p>
                       <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{viewRecord.method}</span></p>
                     </div>
