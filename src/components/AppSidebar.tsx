@@ -186,7 +186,7 @@ const AppSidebar = () => {
                 )}
                 {isCollapsed && <div className="w-6 h-px mx-auto mb-1 rounded-full bg-sidebar-border" />}
 
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {visibleItems.map((item) => {
                     const hasChildren = item.subItems && item.subItems.length > 0;
                     const isExpanded = expandedItems.includes(item.path);
