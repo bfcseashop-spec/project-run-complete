@@ -8,6 +8,7 @@ import AppLayout from "@/components/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PermissionGate from "@/components/PermissionGate";
 
 // Lazy load all pages
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
@@ -102,34 +103,34 @@ const App = () => (
                   </ProtectedRoute>
                 }
               >
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/billing" element={<BillingPage />} />
-                <Route path="/billing/new" element={<NewInvoicePage />} />
-                <Route path="/billing/edit" element={<NewInvoicePage />} />
-                <Route path="/billing/drafts" element={<DraftsPage />} />
-                <Route path="/medicine" element={<MedicinePage />} />
-                <Route path="/opd" element={<OPDPage />} />
-                <Route path="/prescriptions" element={<PrescriptionPage />} />
-                <Route path="/doctors" element={<DoctorPage />} />
-                <Route path="/dues" element={<DuesPage />} />
-                <Route path="/lab-tests" element={<LabTestsPage />} />
-                <Route path="/lab-tests/add" element={<AddTestPage />} />
-                <Route path="/lab-tests/names" element={<TestNamePage />} />
-                <Route path="/lab-reports" element={<LabReportsPage />} />
-                <Route path="/xray" element={<XRayPage />} />
-                <Route path="/ultrasound" element={<UltrasoundPage />} />
-                <Route path="/sample-collection" element={<SampleCollectionPage />} />
-                <Route path="/health-services" element={<HealthServicesPage />} />
-                <Route path="/health-services/packages" element={<HealthPackagesPage />} />
-                <Route path="/injections" element={<InjectionsPage />} />
-                <Route path="/roles" element={<LazyRoles />} />
-                <Route path="/expenses" element={<ExpensesPage />} />
-                <Route path="/bank" element={<LazyBank />} />
-                <Route path="/investments" element={<LazyInvestments />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/system-manage" element={<SystemManagePage />} />
-                <Route path="/refund" element={<RefundPage />} />
-                <Route path="/users-access" element={<UsersAccessPage />} />
+                <Route path="/" element={<PermissionGate module="Dashboard"><Dashboard /></PermissionGate>} />
+                <Route path="/billing" element={<PermissionGate module="Billing"><BillingPage /></PermissionGate>} />
+                <Route path="/billing/new" element={<PermissionGate module="Billing"><NewInvoicePage /></PermissionGate>} />
+                <Route path="/billing/edit" element={<PermissionGate module="Billing"><NewInvoicePage /></PermissionGate>} />
+                <Route path="/billing/drafts" element={<PermissionGate module="Billing"><DraftsPage /></PermissionGate>} />
+                <Route path="/medicine" element={<PermissionGate module="Medicine"><MedicinePage /></PermissionGate>} />
+                <Route path="/opd" element={<PermissionGate module="OPD Section"><OPDPage /></PermissionGate>} />
+                <Route path="/prescriptions" element={<PermissionGate module="Prescriptions"><PrescriptionPage /></PermissionGate>} />
+                <Route path="/doctors" element={<PermissionGate module="Doctors"><DoctorPage /></PermissionGate>} />
+                <Route path="/dues" element={<PermissionGate module="Due Management"><DuesPage /></PermissionGate>} />
+                <Route path="/lab-tests" element={<PermissionGate module="Lab Tests"><LabTestsPage /></PermissionGate>} />
+                <Route path="/lab-tests/add" element={<PermissionGate module="Lab Tests"><AddTestPage /></PermissionGate>} />
+                <Route path="/lab-tests/names" element={<PermissionGate module="Test Names"><TestNamePage /></PermissionGate>} />
+                <Route path="/lab-reports" element={<PermissionGate module="Lab Reports"><LabReportsPage /></PermissionGate>} />
+                <Route path="/xray" element={<PermissionGate module="X-Ray"><XRayPage /></PermissionGate>} />
+                <Route path="/ultrasound" element={<PermissionGate module="Ultrasound"><UltrasoundPage /></PermissionGate>} />
+                <Route path="/sample-collection" element={<PermissionGate module="Sample Collection"><SampleCollectionPage /></PermissionGate>} />
+                <Route path="/health-services" element={<PermissionGate module="Health Services"><HealthServicesPage /></PermissionGate>} />
+                <Route path="/health-services/packages" element={<PermissionGate module="Health Packages"><HealthPackagesPage /></PermissionGate>} />
+                <Route path="/injections" element={<PermissionGate module="Injections"><InjectionsPage /></PermissionGate>} />
+                <Route path="/roles" element={<PermissionGate module="Roles"><LazyRoles /></PermissionGate>} />
+                <Route path="/expenses" element={<PermissionGate module="Expenses"><ExpensesPage /></PermissionGate>} />
+                <Route path="/bank" element={<PermissionGate module="Bank Transactions"><LazyBank /></PermissionGate>} />
+                <Route path="/investments" element={<PermissionGate module="Investments"><LazyInvestments /></PermissionGate>} />
+                <Route path="/settings" element={<PermissionGate module="Settings"><SettingsPage /></PermissionGate>} />
+                <Route path="/system-manage" element={<PermissionGate module="System Manage"><SystemManagePage /></PermissionGate>} />
+                <Route path="/refund" element={<PermissionGate module="Refund"><RefundPage /></PermissionGate>} />
+                <Route path="/users-access" element={<PermissionGate module="Users & Access"><UsersAccessPage /></PermissionGate>} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
