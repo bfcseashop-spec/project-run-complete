@@ -30,7 +30,13 @@ type Listener = () => void;
 let _doctors: Doctor[] = [];
 let loaded = false;
 const _listeners: Set<Listener> = new Set();
-const notify = () => _listeners.forEach((fn) => fn());
+let _cachedNames: string[] = [];
+let _cachedDetails: { name: string; specialty: string; qualification: string }[] = [];
+const rebuildCaches = () => {
+  _cachedNames = _doctors.filter((d) => d.status === "active").map((d) => d.name);
+  _cachedDetails = _doctors.filter((d) => d.status === "active").map((d) => ({ name: d.name, specialty: d.specialty, qualification: d.qualification }));
+};
+const notify = () => { rebuildCaches(); _listeners.forEach((fn) => fn()); };
 
 const defaultSchedule: DoctorSchedule = {
   workingDays: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
@@ -104,14 +110,12 @@ export function subscribeDoctors(fn: Listener) {
   _listeners.add(fn); return () => { _listeners.delete(fn); };
 }
 
-/** Get active doctor names for dropdown use */
+/** Get active doctor names for dropdown use — stable reference for useSyncExternalStore */
 export function getActiveDoctorNames(): string[] {
-  return _doctors.filter((d) => d.status === "active").map((d) => d.name);
+  return _cachedNames;
 }
 
-/** Get active doctors with details for dropdowns needing specialty/qualification */
+/** Get active doctors with details — stable reference for useSyncExternalStore */
 export function getActiveDoctorsWithDetails(): { name: string; specialty: string; qualification: string }[] {
-  return _doctors
-    .filter((d) => d.status === "active")
-    .map((d) => ({ name: d.name, specialty: d.specialty, qualification: d.qualification }));
+  return _cachedDetails;
 }
