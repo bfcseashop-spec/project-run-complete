@@ -135,6 +135,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
+  const [doctors, setDoctors] = useState(getActiveDoctorNames());
+
+  useEffect(() => { const unsub = subscribeDoctors(() => setDoctors([...getActiveDoctorNames()])); return () => unsub(); }, []);
   const [showPreview, setShowPreview] = useState(false);
 
   const today = new Date().toISOString().slice(0, 10);
