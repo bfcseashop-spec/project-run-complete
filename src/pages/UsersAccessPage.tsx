@@ -88,7 +88,8 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editForm, setEditForm] = useState({ role_id: "", active: true });
+  const [editForm, setEditForm] = useState({ full_name: "", role_id: "", active: true, new_password: "" });
+  const [resettingPassword, setResettingPassword] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [createForm, setCreateForm] = useState({ full_name: "", email: "", password: "", role_id: "" });
   const [creating, setCreating] = useState(false);
@@ -106,19 +107,47 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   });
 
   const openEdit = (p: Profile) => {
-    setEditForm({ role_id: p.role_id || "", active: p.active });
+    setEditForm({ full_name: p.full_name, role_id: p.role_id || "", active: p.active, new_password: "" });
     setEditProfile(p);
     setShowEditDialog(true);
   };
 
   const handleSave = async () => {
     if (!editProfile) return;
+    // Update profile (name, role, active)
     const { error } = await supabase
       .from("profiles")
-      .update({ role_id: editForm.role_id || null, active: editForm.active })
+      .update({ full_name: editForm.full_name.trim() || editProfile.full_name, role_id: editForm.role_id || null, active: editForm.active })
       .eq("id", editProfile.id);
-    if (error) toast.error(error.message);
-    else { toast.success("User updated"); onRefresh(); }
+    if (error) { toast.error(error.message); return; }
+
+    // Reset password if provided
+    if (editForm.new_password.trim()) {
+      if (editForm.new_password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      setResettingPassword(true);
+      try {
+        const res = await supabase.functions.invoke("reset-user-password", {
+          body: { user_id: editProfile.id, new_password: editForm.new_password },
+        });
+        if (res.error || res.data?.error) {
+          toast.error(res.data?.error || res.error?.message || "Failed to reset password");
+          setResettingPassword(false);
+          return;
+        }
+        toast.success("Password reset successfully");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to reset password");
+        setResettingPassword(false);
+        return;
+      }
+      setResettingPassword(false);
+    }
+
+    toast.success("User updated");
+    onRefresh();
     setShowEditDialog(false);
   };
 
@@ -289,11 +318,19 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           <DialogHeader><DialogTitle>Edit User: {editProfile?.full_name}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Full Name</Label>
+              <Input value={editForm.full_name} onChange={(e) => setEditForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="User name" />
+            </div>
+            <div>
               <Label className="text-xs font-semibold mb-1.5 block">Role</Label>
               <Select value={editForm.role_id} onValueChange={(v) => setEditForm((p) => ({ ...p, role_id: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
                 <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Reset Password</Label>
+              <Input type="password" value={editForm.new_password} onChange={(e) => setEditForm((p) => ({ ...p, new_password: e.target.value }))} placeholder="Leave empty to keep current" />
             </div>
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
               <span className="text-sm font-medium text-foreground">Active</span>
@@ -302,7 +339,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Update</Button>
+            <Button onClick={handleSave} disabled={resettingPassword}>{resettingPassword ? "Saving..." : "Update"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
