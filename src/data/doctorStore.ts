@@ -30,7 +30,13 @@ type Listener = () => void;
 let _doctors: Doctor[] = [];
 let loaded = false;
 const _listeners: Set<Listener> = new Set();
-const notify = () => _listeners.forEach((fn) => fn());
+let _cachedNames: string[] = [];
+let _cachedDetails: { name: string; specialty: string; qualification: string }[] = [];
+const rebuildCaches = () => {
+  _cachedNames = _doctors.filter((d) => d.status === "active").map((d) => d.name);
+  _cachedDetails = _doctors.filter((d) => d.status === "active").map((d) => ({ name: d.name, specialty: d.specialty, qualification: d.qualification }));
+};
+const notify = () => { rebuildCaches(); _listeners.forEach((fn) => fn()); };
 
 const defaultSchedule: DoctorSchedule = {
   workingDays: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
