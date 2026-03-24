@@ -905,12 +905,12 @@ const NewInvoicePage = () => {
                     {splitPayments.filter(sp => sp.amount > 0).map((sp, i) => (
                       <div key={i} className="flex justify-between text-xs"><span className="text-muted-foreground">{sp.method}</span><span className="tabular-nums">{formatPrice(sp.amount)}</span></div>
                     ))}
-                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Total Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(splitPaidTotal)}</span></div>
                   </>
                 ) : (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(grandTotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Paid</span><span className="tabular-nums text-emerald-600 font-semibold">{formatPrice(paymentMethod === "Due" ? paidAmount : grandTotal)}</span></div>
                 )}
-                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className="tabular-nums text-emerald-600">{formatPrice(0)}</span></div>
+                <div className="flex justify-between font-semibold"><span className="text-muted-foreground">Due</span><span className={`tabular-nums ${dueAmount > 0 ? "text-destructive" : "text-emerald-600"}`}>{formatPrice(dueAmount)}</span></div>
               </div>
 
               {/* Barcode */}
