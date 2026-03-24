@@ -345,39 +345,36 @@ const BillingPage = () => {
     if (rows.length > 0) {
       const newRecords: BillingRecord[] = rows.map((row, i) => {
         // Build synthetic lineItems from Qty (Med), Services, Injection, Packages columns
-        const lineItems: { id: string; type: string; name: string; price: number; qty: number }[] = [];
+        const lineItems: any[] = [];
+        let liIdx = 0;
 
-        // Medicine qty
         const medQtyRaw = String(row.medQty || row["Qty (Med)"] || "");
         const medQtyNum = parseInt(medQtyRaw) || 0;
         if (medQtyNum > 0) {
-          lineItems.push({ type: "MED", name: "Medicine", price: 0, qty: medQtyNum });
+          lineItems.push({ id: `imp-${i}-${liIdx++}`, type: "MED", name: "Medicine", price: 0, qty: medQtyNum });
         }
 
-        // Services
         const svcRaw = String(row.services || row["Services"] || "");
         if (svcRaw && svcRaw !== "-" && svcRaw !== "—") {
           const svcPrice = parseFloat(svcRaw) || 0;
-          lineItems.push({ type: "SVC", name: svcPrice > 0 ? `Service (${svcRaw})` : svcRaw, price: svcPrice, qty: 1 });
+          lineItems.push({ id: `imp-${i}-${liIdx++}`, type: "SVC", name: svcPrice > 0 ? `Service (${svcRaw})` : svcRaw, price: svcPrice, qty: 1 });
         }
 
-        // Injection
         const injRaw = String(row.injection || row["Injection"] || "");
         if (injRaw && injRaw !== "-" && injRaw !== "—") {
-          lineItems.push({ type: "INJ", name: injRaw, price: 0, qty: 1 });
+          lineItems.push({ id: `imp-${i}-${liIdx++}`, type: "INJ", name: injRaw, price: 0, qty: 1 });
         }
 
-        // Packages
         const pkgRaw = String(row.packages || row["Packages"] || "");
         if (pkgRaw && pkgRaw !== "-" && pkgRaw !== "—") {
-          lineItems.push({ type: "PKG", name: pkgRaw, price: 0, qty: 1 });
+          lineItems.push({ id: `imp-${i}-${liIdx++}`, type: "PKG", name: pkgRaw, price: 0, qty: 1 });
         }
 
         const serviceParts: string[] = [];
-        if (lineItems.some(li => li.type === "MED")) serviceParts.push("Medication");
-        if (lineItems.some(li => li.type === "SVC")) serviceParts.push("Service");
-        if (lineItems.some(li => li.type === "INJ")) serviceParts.push("Injection");
-        if (lineItems.some(li => li.type === "PKG")) serviceParts.push("Package");
+        if (lineItems.some((li: any) => li.type === "MED")) serviceParts.push("Medication");
+        if (lineItems.some((li: any) => li.type === "SVC")) serviceParts.push("Service");
+        if (lineItems.some((li: any) => li.type === "INJ")) serviceParts.push("Injection");
+        if (lineItems.some((li: any) => li.type === "PKG")) serviceParts.push("Package");
         const serviceStr = String(row.service || "") || serviceParts.join(" + ") || "—";
 
         const total = Number(row.total) || 0;
@@ -392,7 +389,7 @@ const BillingPage = () => {
         else if (statusRaw === "partial" || statusRaw === "pending") status = "pending";
         else if (statusRaw === "paid" || statusRaw === "completed") status = "completed";
 
-        const formData: InvoiceFormData | undefined = lineItems.length > 0 ? { lineItems, patient: "", doctor: "", service: "", injection: "", packageItem: "", medicines: [], customItems: [], discount: 0, discountType: "flat" as const, paidAmount: paid, splitPayments: [], date: String(row.date || row["Date"] || ""), paymentMethod: String(row.method || row["Payment Method"] || "Cash"), medicationTotal: 0 } : undefined;
+        const formData: any = lineItems.length > 0 ? { lineItems, patient: "", doctor: "", service: "", injection: "", packageItem: "", medicines: [], customItems: [], discount: 0, discountType: "flat", paidAmount: paid, splitPayments: [], date: String(row.date || row["Date"] || ""), paymentMethod: String(row.method || row["Payment Method"] || "Cash"), medicationTotal: 0 } : undefined;
 
         return {
           id: String(row.id || row["Bill No"] || `BIL-I${String(billingData.length + i + 1).padStart(3, "0")}`),
