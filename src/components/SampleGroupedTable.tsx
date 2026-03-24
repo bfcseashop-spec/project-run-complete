@@ -135,10 +135,14 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
             className={`rounded-xl border border-border border-l-4 ${borderColor} bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden`}
           >
             {/* Patient Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border">
+            <div
+              className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border cursor-pointer select-none"
+              onClick={() => toggleCollapse(groupKey)}
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
+                  {isCollapsed ? <ChevronRight className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4 text-primary" />}
+                </div>
                 </div>
                 <div>
                   <div className="font-semibold text-card-foreground text-sm">{group.patient}</div>
