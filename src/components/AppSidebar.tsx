@@ -320,7 +320,7 @@ const AppSidebar = () => {
               </div>
               <button
                 onClick={signOut}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-all"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-all"
                 title="Sign out"
               >
                 <LogOut className="w-3.5 h-3.5" />
