@@ -25,7 +25,7 @@ interface Props {
   onBulkConfirm?: (records: SampleRecord[]) => void;
 }
 
-function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete }: Props) {
+function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
   const groups: PatientGroup[] = [];
   const groupMap = new Map<string, PatientGroup>();
 
