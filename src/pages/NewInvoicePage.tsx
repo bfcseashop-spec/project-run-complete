@@ -165,7 +165,10 @@ const NewInvoicePage = () => {
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
   const splitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
-  const effectivePaid = splitMode ? splitTotal : paidAmount;
+  // In split mode, "Due" method amounts are NOT actually paid — they remain outstanding
+  const splitPaidTotal = splitPayments.filter(sp => sp.method !== "Due").reduce((s, sp) => s + sp.amount, 0);
+  const splitDueTotal = splitPayments.filter(sp => sp.method === "Due").reduce((s, sp) => s + sp.amount, 0);
+  const effectivePaid = splitMode ? splitPaidTotal : paidAmount;
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
   const patientOptions = useMemo(() => {
@@ -345,28 +348,23 @@ const NewInvoicePage = () => {
   const handlePayment = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
-    // If payment method is "Due", don't auto-fill paid amount — bill goes to Due Management
-    if (paymentMethod === "Due" && !splitMode) {
-      // paid stays as-is (user entered partial or 0)
-    } else if (splitMode) {
-      const remaining = Math.max(0, grandTotal - splitTotal);
-      if (remaining > 0) {
-        const updated = [...splitPayments];
-        updated[0] = { ...updated[0], amount: updated[0].amount + remaining };
-        setSplitPayments(updated);
-      }
+    if (splitMode) {
+      // Don't auto-fill remaining — user controls split amounts
+      // "Due" method amounts stay as due, not paid
+    } else if (paymentMethod === "Due") {
+      // Full due — paid stays as user entered (default 0)
     } else {
       setPaidAmount(grandTotal);
     }
-    // Show the invoice preview instead of navigating away
     setShowInvoice(true);
-    toast.success(paymentMethod === "Due" && !splitMode ? "Invoice created — Due recorded" : "Payment received — Invoice ready");
+    const hasDue = (splitMode && splitDueTotal > 0) || (!splitMode && paymentMethod === "Due");
+    toast.success(hasDue ? "Invoice created — Due recorded" : "Payment received — Invoice ready");
   };
 
   const handleConfirmAndSave = () => {
-    if (draftId) removeDraft(draftId); // Remove from drafts on payment completion
-    // For "Due" method, keep the user-entered paid amount (could be 0 or partial)
-    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
+    if (draftId) removeDraft(draftId);
+    // "Due" method amounts are NOT paid — only non-Due methods count as paid
+    const finalPaid = splitMode ? splitPaidTotal : (paymentMethod === "Due" ? paidAmount : grandTotal);
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
       data: { ...buildFormData(), paidAmount: finalPaid },
       action: "payment",
@@ -405,7 +403,7 @@ const NewInvoicePage = () => {
     if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discountAmount)}</span></div>`;
     if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
-    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
+    const finalPaid = splitMode ? splitPaidTotal : (paymentMethod === "Due" ? paidAmount : grandTotal);
     const finalDue = Math.max(0, grandTotal - finalPaid);
     const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(finalPaid)}</span></div>`;
     const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${finalDue > 0 ? '#ef4444' : '#16a34a'}">${formatPrice(finalDue)}</span></div>`;
@@ -761,9 +759,23 @@ const NewInvoicePage = () => {
                       <Plus className="w-3 h-3" /> Add Method
                     </Button>
                     {splitTotal > 0 && (
-                      <div className="flex justify-between text-xs font-semibold pt-1 border-t border-border">
-                        <span className="text-muted-foreground">Split Total</span>
-                        <span className={`tabular-nums ${splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}`}>{formatPrice(splitTotal)}</span>
+                      <div className="space-y-1 pt-1 border-t border-border">
+                        <div className="flex justify-between text-xs font-semibold">
+                          <span className="text-muted-foreground">Total Entered</span>
+                          <span className={`tabular-nums ${splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}`}>{formatPrice(splitTotal)}</span>
+                        </div>
+                        {splitPaidTotal > 0 && splitDueTotal > 0 && (
+                          <>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Paid (excl. Due)</span>
+                              <span className="tabular-nums text-emerald-600">{formatPrice(splitPaidTotal)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Due Amount</span>
+                              <span className="tabular-nums text-destructive">{formatPrice(splitDueTotal)}</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
