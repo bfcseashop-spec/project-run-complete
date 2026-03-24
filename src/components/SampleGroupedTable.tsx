@@ -57,6 +57,16 @@ function ActionButton({ icon: Icon, title, onClick, className = "" }: {
 }
 
 function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const toggleCollapse = (key: string) => {
+    setCollapsed(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
   const groups: PatientGroup[] = [];
   const groupMap = new Map<string, PatientGroup>();
 
