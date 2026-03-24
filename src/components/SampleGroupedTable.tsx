@@ -112,6 +112,8 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
   return (
     <div className="space-y-3">
       {groups.map((group, groupIdx) => {
+        const groupKey = `${group.patient}__${group.patientId}`;
+        const isCollapsed = collapsed.has(groupKey);
         const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
         const uniqueTests = [...new Map(group.records.map(r => [r.testName, r])).values()];
         const uniqueSampleTypes = [...new Map(group.records.map(r => [r.sampleType, r])).values()];
