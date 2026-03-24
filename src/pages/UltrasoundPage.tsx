@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import { useSettings } from "@/hooks/use-settings";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
