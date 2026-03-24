@@ -6,8 +6,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode } from "lucide-react";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -31,13 +30,8 @@ import {
 } from "@/data/injectionStore";
 
 const emptyForm: Omit<InjectionItem, "id"> = {
-  name: "", category: "", strength: "", route: "", stock: 0, unit: "Amps", price: 0, status: "in-stock",
-
+  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, status: "in-stock",
 };
-
-const defaultCategories = ["Antibiotic", "Antidiabetic", "Analgesic", "Antiemetic", "Antacid", "Corticosteroid", "Diuretic", "Supplement"];
-const routes: string[] = [];
-const defaultUnits = ["Vials", "Amps", "Pre-filled Syringes"];
 
 const InjectionsPage = () => {
   useSettings();
@@ -49,15 +43,6 @@ const InjectionsPage = () => {
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-  const [customUnits, setCustomUnits] = useState<string[]>([]);
-  const [unitDialogOpen, setUnitDialogOpen] = useState(false);
-  const [newUnitName, setNewUnitName] = useState("");
-  const [customCategories, setCustomCategories] = useState<string[]>([]);
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-
-  const allUnits = [...defaultUnits, ...customUnits];
-  const allCategories = [...defaultCategories, ...customCategories];
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
@@ -69,7 +54,7 @@ const InjectionsPage = () => {
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.category) { toast.error("Name and category are required"); return; }
+    if (!form.name) { toast.error("Name is required"); return; }
     if (editInj) {
       updateInjection(editInj.id, { ...form });
       toast.success("Injection updated");
@@ -104,8 +89,6 @@ const InjectionsPage = () => {
   const columns = [
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
-    { key: "category", header: "Category" },
-    { key: "unit", header: "Unit" },
     { key: "price", header: "Price", render: (i: InjectionItem) => formatPrice(i.price) },
     { key: "status", header: "Status", render: (i: InjectionItem) => <StatusBadge status={i.status} /> },
     {
@@ -143,8 +126,8 @@ const InjectionsPage = () => {
         const nextId = `INJ-${String(getInjections().length + i + 1).padStart(3, "0")}`;
         addInjection({
           id: nextId, name: String(row.name || ""), category: String(row.category || ""),
-          strength: String(row.strength || ""), route: String(row.route || "IV"),
-          stock: Number(row.stock) || 0, unit: String(row.unit || "Vials"),
+          strength: String(row.strength || ""), route: String(row.route || ""),
+          stock: Number(row.stock) || 0, unit: String(row.unit || ""),
           price: Number(row.price) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
         });
       });
@@ -153,9 +136,7 @@ const InjectionsPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Injections" description="Manage injection inventory, stock levels, and units">
-        <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Category</Button>
-        <Button variant="outline" onClick={() => setUnitDialogOpen(true)}><Plus className="w-4 h-4 mr-2" /> Add Unit</Button>
+      <PageHeader title="Injections" description="Manage injection inventory and stock levels">
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-2" /> Add Injection</Button>
         {selectedIds.size > 0 && (
           <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
@@ -205,24 +186,6 @@ const InjectionsPage = () => {
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Ceftriaxone" />
               </div>
               <div>
-                <Label>Category *</Label>
-                <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {allCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Unit</Label>
-                <Select value={form.unit} onValueChange={(v) => setForm((f) => ({ ...f, unit: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {allUnits.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <Label>Price</Label>
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
               </div>
@@ -260,8 +223,6 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium text-foreground">{viewInj.category}</p></div>
-                <div><p className="text-xs text-muted-foreground">Unit</p><p className="font-medium text-foreground">{viewInj.unit}</p></div>
                 <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
               </div>
             </div>
@@ -310,138 +271,6 @@ const InjectionsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Add Unit Dialog */}
-      <Dialog open={unitDialogOpen} onOpenChange={setUnitDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Manage Units</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="flex gap-2">
-              <Input
-                value={newUnitName}
-                onChange={(e) => setNewUnitName(e.target.value)}
-                placeholder="Enter new unit name"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newUnitName.trim()) {
-                    if (allUnits.includes(newUnitName.trim())) {
-                      toast.error("Unit already exists");
-                    } else {
-                      setCustomUnits((prev) => [...prev, newUnitName.trim()]);
-                      setNewUnitName("");
-                      toast.success("Unit added");
-                    }
-                  }
-                }}
-              />
-              <Button onClick={() => {
-                if (!newUnitName.trim()) return;
-                if (allUnits.includes(newUnitName.trim())) {
-                  toast.error("Unit already exists");
-                  return;
-                }
-                setCustomUnits((prev) => [...prev, newUnitName.trim()]);
-                setNewUnitName("");
-                toast.success("Unit added");
-              }}>
-                <Plus className="w-4 h-4 mr-1" /> Add
-              </Button>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium mb-2">Available Units</p>
-              <div className="flex flex-wrap gap-2">
-                {defaultUnits.map((u) => (
-                  <Badge key={u} variant="secondary" className="text-sm py-1 px-3">{u}</Badge>
-                ))}
-                {customUnits.map((u) => (
-                  <Badge key={u} variant="outline" className="text-sm py-1 px-3 gap-1">
-                    {u}
-                    <button
-                      onClick={() => {
-                        setCustomUnits((prev) => prev.filter((cu) => cu !== u));
-                        toast.success("Unit removed");
-                      }}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setUnitDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Category Dialog */}
-      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Manage Categories</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="flex gap-2">
-              <Input
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Enter new category name"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newCategoryName.trim()) {
-                    if (allCategories.includes(newCategoryName.trim())) {
-                      toast.error("Category already exists");
-                    } else {
-                      setCustomCategories((prev) => [...prev, newCategoryName.trim()]);
-                      setNewCategoryName("");
-                      toast.success("Category added");
-                    }
-                  }
-                }}
-              />
-              <Button onClick={() => {
-                if (!newCategoryName.trim()) return;
-                if (allCategories.includes(newCategoryName.trim())) {
-                  toast.error("Category already exists");
-                  return;
-                }
-                setCustomCategories((prev) => [...prev, newCategoryName.trim()]);
-                setNewCategoryName("");
-                toast.success("Category added");
-              }}>
-                <Plus className="w-4 h-4 mr-1" /> Add
-              </Button>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium mb-2">Available Categories</p>
-              <div className="flex flex-wrap gap-2">
-                {defaultCategories.map((c) => (
-                  <Badge key={c} variant="secondary" className="text-sm py-1 px-3">{c}</Badge>
-                ))}
-                {customCategories.map((c) => (
-                  <Badge key={c} variant="outline" className="text-sm py-1 px-3 gap-1">
-                    {c}
-                    <button
-                      onClick={() => {
-                        setCustomCategories((prev) => prev.filter((cc) => cc !== c));
-                        toast.success("Category removed");
-                      }}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
