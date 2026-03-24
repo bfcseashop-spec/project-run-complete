@@ -97,9 +97,13 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
   const [injectionInventory, setInjectionInventory] = useState(getInjections());
   const [testSearch, setTestSearch] = useState("");
   const [testCategoryFilter, setTestCategoryFilter] = useState("all");
+  const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
 
   useEffect(() => subscribe(() => setPatients([...getPatients()])), []);
   useEffect(() => { const unsub = subscribeInjections(() => setInjectionInventory([...getInjections()])); return () => { unsub(); }; }, []);
+  useEffect(() => { const unsub = subscribeDoctors(() => setDoctorsList([...getActiveDoctorsWithDetails()])); return () => { unsub(); }; }, []);
+
+  const doctors = doctorsList.map((d) => ({ name: d.name, specialization: d.specialty }));
 
   useEffect(() => {
     if (open && editData) {
