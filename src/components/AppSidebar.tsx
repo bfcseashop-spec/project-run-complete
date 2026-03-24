@@ -166,7 +166,7 @@ const AppSidebar = () => {
         <div className="mx-3 h-px bg-sidebar-border" />
 
         {/* ─── Navigation ─── */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
+        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-3 scrollbar-thin">
           {menuSections.map((section) => {
             const visibleItems = section.items.filter((item) => canViewModule(item.module));
             if (visibleItems.length === 0) return null;
