@@ -251,11 +251,11 @@ const LayoutInner = () => {
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shadow-md"
                 style={{ background: "linear-gradient(135deg, hsl(45, 100%, 65%), hsl(38, 92%, 50%))", color: "hsl(25, 50%, 15%)" }}
               >
-                A
+                {profile?.full_name?.split(" ").map((w) => w[0]).join("").slice(0, 1).toUpperCase() || "?"}
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-white leading-tight">Admin</p>
-                <p className="text-[10px] text-white/50 font-medium">Super Admin</p>
+                <p className="text-sm font-semibold text-white leading-tight">{profile?.full_name || "User"}</p>
+                <p className="text-[10px] text-white/50 font-medium">{profile?.role_name || "No role"}</p>
               </div>
             </div>
           </div>
