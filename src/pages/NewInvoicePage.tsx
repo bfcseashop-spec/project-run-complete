@@ -93,6 +93,9 @@ const NewInvoicePage = () => {
 
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
+  const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
+
+  const doctors = doctorsList.map((d) => ({ name: d.name, degree: d.qualification }));
 
   const today = new Date().toISOString().slice(0, 10);
   const [patient, setPatient] = useState("");
@@ -115,6 +118,7 @@ const NewInvoicePage = () => {
 
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeDoctors(() => setDoctorsList([...getActiveDoctorsWithDetails()])); return () => { u(); }; }, []);
 
   useEffect(() => {
     if (editData) {
