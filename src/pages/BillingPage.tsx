@@ -489,7 +489,7 @@ const BillingPage = () => {
                     <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                       <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-1">Doctor & Invoice</p>
                       {viewRecord.formData?.doctor && <p className="font-semibold text-sm">{viewRecord.formData.doctor}</p>}
-                      {dr?.degree && <p className="text-[11px] text-muted-foreground">{dr.degree}</p>}
+                      {dr?.qualification && <p className="text-[11px] text-muted-foreground">{dr.qualification}</p>}
                       <p className="text-sm mt-1">Date: <span className="font-semibold">{viewRecord.date}</span></p>
                       <p className="text-xs text-muted-foreground mt-0.5">Payment: <span className="font-medium">{viewRecord.method}</span></p>
                     </div>
