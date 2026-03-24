@@ -172,8 +172,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
               </div>
             </div>
 
-            {!isCollapsed && (
-            <div className="overflow-x-auto">
+            {!isCollapsed && <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60">
@@ -263,8 +262,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                   })}
                 </tbody>
               </table>
-            </div>
-            )}
+            </div>}
           </div>
         );
       })}
