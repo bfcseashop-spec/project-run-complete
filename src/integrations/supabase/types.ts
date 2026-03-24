@@ -584,6 +584,36 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_history: {
+        Row: {
+          amount: number
+          id: string
+          invoice_id: string
+          method: string
+          note: string
+          paid_at: string
+          patient: string
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          invoice_id: string
+          method?: string
+          note?: string
+          paid_at?: string
+          patient?: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          invoice_id?: string
+          method?: string
+          note?: string
+          paid_at?: string
+          patient?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           active: boolean | null
