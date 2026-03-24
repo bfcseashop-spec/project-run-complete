@@ -222,9 +222,6 @@ const AppSidebar = () => {
                               }}
                             >
                               <item.icon
-                                className="w-[17px] h-[17px]"
-                                style={{ color: parentActive ? "white" : iconColor }}
-                              />
                             </div>
                             <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
                             <ChevronDown
