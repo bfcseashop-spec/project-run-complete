@@ -759,9 +759,23 @@ const NewInvoicePage = () => {
                       <Plus className="w-3 h-3" /> Add Method
                     </Button>
                     {splitTotal > 0 && (
-                      <div className="flex justify-between text-xs font-semibold pt-1 border-t border-border">
-                        <span className="text-muted-foreground">Split Total</span>
-                        <span className={`tabular-nums ${splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}`}>{formatPrice(splitTotal)}</span>
+                      <div className="space-y-1 pt-1 border-t border-border">
+                        <div className="flex justify-between text-xs font-semibold">
+                          <span className="text-muted-foreground">Total Entered</span>
+                          <span className={`tabular-nums ${splitTotal >= grandTotal ? "text-emerald-600" : "text-destructive"}`}>{formatPrice(splitTotal)}</span>
+                        </div>
+                        {splitPaidTotal > 0 && splitDueTotal > 0 && (
+                          <>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Paid (excl. Due)</span>
+                              <span className="tabular-nums text-emerald-600">{formatPrice(splitPaidTotal)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Due Amount</span>
+                              <span className="tabular-nums text-destructive">{formatPrice(splitDueTotal)}</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
