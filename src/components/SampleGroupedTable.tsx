@@ -22,9 +22,10 @@ interface Props {
   onEdit: (r: SampleRecord) => void;
   onConfirm: (r: SampleRecord) => void;
   onDelete: (r: SampleRecord) => void;
+  onBulkConfirm?: (records: SampleRecord[]) => void;
 }
 
-function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete }: Props) {
+function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
   const groups: PatientGroup[] = [];
   const groupMap = new Map<string, PatientGroup>();
 
@@ -93,6 +94,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete }: Props
             const uniqueStorage = [...new Set(group.records.map(r => r.storageTemp))];
             const uniqueCollectors = [...new Set(group.records.map(r => r.collectedBy).filter(Boolean))];
             const uniqueStatuses = [...new Set(group.records.map(r => r.status))];
+            const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
 
             return (
               <tr
@@ -212,31 +214,44 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete }: Props
 
                 {/* Actions - for each record */}
                 <td className="px-4 py-3">
-                  <div className="flex flex-wrap items-center gap-0.5">
-                    {group.records.map(r => (
-                      <div key={r.id} className="flex items-center gap-0.5">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" title={`View ${r.testName}`} onClick={() => onView(r)}>
-                          <Eye className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" title={`Edit ${r.testName}`} onClick={() => onEdit(r)}>
-                          <Pencil className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" title="Print Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-                          <BarcodeIcon className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" title="Print" onClick={() => handlePrint(r)}>
-                          <Printer className="w-3 h-3 text-primary" />
-                        </Button>
-                        {(r.status === "pending" || r.status === "collected") && (
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Send to Lab" onClick={() => onConfirm(r)}>
-                            <SendHorizonal className="w-3 h-3 text-primary" />
+                  <div className="space-y-1">
+                    {confirmable.length > 1 && onBulkConfirm && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs h-7 border-primary text-primary hover:bg-primary hover:text-primary-foreground mb-1"
+                        onClick={() => onBulkConfirm(confirmable)}
+                      >
+                        <SendHorizonal className="w-3 h-3 mr-1" />
+                        Send All ({confirmable.length})
+                      </Button>
+                    )}
+                    <div className="flex flex-wrap items-center gap-0.5">
+                      {group.records.map(r => (
+                        <div key={r.id} className="flex items-center gap-0.5">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title={`View ${r.testName}`} onClick={() => onView(r)}>
+                            <Eye className="w-3 h-3" />
                           </Button>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-6 w-6" title="Delete" onClick={() => onDelete(r)}>
-                          <Trash2 className="w-3 h-3 text-destructive" />
-                        </Button>
-                      </div>
-                    ))}
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title={`Edit ${r.testName}`} onClick={() => onEdit(r)}>
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Print Barcode" onClick={() => printBarcode(r.id, r.patient)}>
+                            <BarcodeIcon className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Print" onClick={() => handlePrint(r)}>
+                            <Printer className="w-3 h-3 text-primary" />
+                          </Button>
+                          {(r.status === "pending" || r.status === "collected") && (
+                            <Button variant="ghost" size="icon" className="h-6 w-6" title="Send to Lab" onClick={() => onConfirm(r)}>
+                              <SendHorizonal className="w-3 h-3 text-primary" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Delete" onClick={() => onDelete(r)}>
+                            <Trash2 className="w-3 h-3 text-destructive" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </td>
               </tr>
