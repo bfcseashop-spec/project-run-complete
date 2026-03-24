@@ -187,19 +187,15 @@ const Dashboard = () => {
       .sort((a, b) => b.amount - a.amount);
   }, [filteredBilling]);
 
-  // Today's Sales by Payment
-  const todaySalesByPayment = useMemo(() => {
-    const today = new Date();
-    const todayStart = startOfDay(today);
-    const todayEnd = endOfDay(today);
-    const todayBills = billingRecords.filter(r => {
-      try { return isWithinInterval(parseISO(r.date), { start: todayStart, end: todayEnd }); }
-      catch { return false; }
-    });
+  // Sales by Payment — uses the same date filter as Financial Overview
+  const salesByPayment = useMemo(() => {
     const methodMap: Record<string, number> = {};
-    todayBills.forEach(r => {
+    filteredBilling.forEach(r => {
       if (r.method && r.method !== "—") {
-        methodMap[r.method] = (methodMap[r.method] || 0) + r.paid;
+        // Normalize method name to title case for display
+        const normalized = r.method.charAt(0).toUpperCase() + r.method.slice(1).toLowerCase();
+        const displayName = Object.keys(paymentMeta).find(k => k.toLowerCase() === r.method.toLowerCase()) || normalized;
+        methodMap[displayName] = (methodMap[displayName] || 0) + r.paid;
       }
       if (r.due > 0) {
         methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
@@ -208,7 +204,7 @@ const Dashboard = () => {
     return Object.entries(methodMap)
       .map(([name, amount]) => ({ name, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [billingRecords]);
+  }, [filteredBilling]);
 
   // Popular Medicine
   const popularMedicine = useMemo(() => {
