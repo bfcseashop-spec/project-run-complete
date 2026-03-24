@@ -30,6 +30,8 @@ import { printXRayReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
 import { toast } from "sonner";
 import ImageLightbox from "@/components/ImageLightbox";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
   chest: Heart, spine: Bone, abdomen: Activity, extremity: Hand,
