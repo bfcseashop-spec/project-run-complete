@@ -35,13 +35,6 @@ import {
 
 initPatients(opdPatients);
 
-const doctors = [
-  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
-  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
-  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
-  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
-  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
-];
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 
