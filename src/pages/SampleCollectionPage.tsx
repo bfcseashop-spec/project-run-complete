@@ -365,11 +365,19 @@ const SampleCollectionPage = () => {
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2">
                 <Label>Patient Name *</Label>
-                <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} />
+                <Select value={form.patient} onValueChange={(v) => {
+                  const p = patients.find((pt) => pt.name === v);
+                  setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
+                }}>
+                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                  <SelectContent>
+                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Patient ID</Label>
-                <Input value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} placeholder="P-XXX" />
+                <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
               </div>
               <div className="space-y-2">
                 <Label>Age</Label>
