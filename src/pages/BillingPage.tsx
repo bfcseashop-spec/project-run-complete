@@ -528,7 +528,7 @@ const BillingPage = () => {
       </AlertDialog>
 
       {/* Bulk Delete — Step 1: First Confirmation */}
-      <AlertDialog open={bulkDeleteStep === 1} onOpenChange={(open) => !open && setBulkDeleteStep(0)}>
+      <AlertDialog open={bulkDeleteStep === 1} onOpenChange={(open) => { if (!open && bulkDeleteStep === 1) setBulkDeleteStep(0); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
@@ -542,7 +542,7 @@ const BillingPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setBulkDeleteStep(0)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setBulkDeleteStep(2)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); setBulkDeleteStep(2); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Yes, Continue
             </AlertDialogAction>
           </AlertDialogFooter>
