@@ -112,13 +112,14 @@ const DoctorPage = () => {
         await updateDoctorStore(editDoctor.id, { ...editDoctor, ...form });
         toast.success("Doctor updated successfully");
       } else {
-        const nextId = `D${String(doctors.length + 1).padStart(3, "0")}`;
+        const nextId = `D-${crypto.randomUUID().slice(0, 8)}`;
         await addDoctorStore({ id: nextId, ...form });
         toast.success("Doctor added successfully");
       }
       setDialogOpen(false);
-    } catch (err) {
-      toast.error("Failed to save doctor");
+    } catch (err: any) {
+      console.error("Doctor save error:", err);
+      toast.error("Failed to save doctor: " + (err?.message || "Unknown error"));
     }
   };
 
