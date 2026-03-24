@@ -279,7 +279,7 @@ const AppSidebar = () => {
                           />
                         )}
                         <div
-                          className={`${isCollapsed ? "w-10 h-10" : "w-[34px] h-[34px]"} rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                          className={`${isCollapsed ? "w-9 h-9" : "w-[30px] h-[30px]"} rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                             parentActive ? "shadow-md" : "group-hover:shadow-sm"
                           }`}
                           style={{
