@@ -19,8 +19,8 @@ import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
-import { deductMedicine } from "@/data/medicineStore";
-import { getInjections, updateInjection, computeInjectionStatus } from "@/data/injectionStore";
+import { deductMedicine, refreshMedicines } from "@/data/medicineStore";
+import { getInjections, updateInjection, computeInjectionStatus, ensureInjectionsLoaded } from "@/data/injectionStore";
 import {
   Dialog, DialogContent,
 } from "@/components/ui/dialog";
