@@ -627,12 +627,19 @@ const NewInvoicePage = () => {
                   <div className="flex items-center gap-2 border border-dashed border-border rounded-lg px-4 py-3 text-sm text-muted-foreground bg-muted/20">
                     <Barcode className="w-4 h-4" /> Scan barcode to add medicine
                   </div>
-                  <Select value="" onValueChange={addMedicineByName}>
-                    <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select medicine to add..." /></SelectTrigger>
-                    <SelectContent>
-                      {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatPrice(m.price)}/pc</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <SearchableItemSelect
+                    placeholder="Select Medicine"
+                    searchPlaceholder="Search medicine..."
+                    icon={<Pill className="w-3.5 h-3.5 text-emerald-500 opacity-60" />}
+                    options={medicinesList.filter(m => m.stock > 0).map(m => ({
+                      value: m.name,
+                      label: m.name,
+                      detail: `${formatPrice(m.price)}/${m.unit} · ${m.stock} ${m.status === "in-stock" ? "In stock" : ""}`,
+                      badge: m.status === "low-stock" ? "Low" : undefined,
+                      badgeColor: m.status === "low-stock" ? "bg-amber-500/10 text-amber-600" : undefined,
+                    }))}
+                    onSelect={addMedicineByName}
+                  />
                   {medicationItems.length > 0 && (
                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4 text-sm flex items-center justify-between">
                       <span className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-400">
