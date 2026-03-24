@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getDrafts, subscribeDrafts, removeDraft, type DraftInvoice } from "@/data/draftStore";
 import { addBillingRecord, getBillingRecords } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 import { formatPrice, formatDualPrice } from "@/lib/currency";
 import { getSettings, updateSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";

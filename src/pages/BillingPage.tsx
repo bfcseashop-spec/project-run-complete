@@ -66,6 +66,7 @@ const groupLineItems = (lineItems: { type: string; name: string; price: number; 
 };
 
 import { BillingRecord, getBillingRecords, setBillingRecords, addBillingRecord, removeBillingRecord, updateBillingRecord, subscribeBilling } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 import { getRefunds, subscribeRefunds } from "@/data/refundStore";
 
 const BillingPage = () => {
