@@ -97,7 +97,7 @@ const NewInvoicePage = () => {
 
   useEffect(() => { const u = subscribeBilling(() => setBillingIds(getBillingRecords().map(r => r.id))); return u; }, []);
 
-  const prefix = appSettings.invoicePrefix || "INV";
+  const prefix = appSettings.invoicePrefix || "BL";
   const nextInvNum = useMemo(() => {
     const n = getNextInvoiceNumber(billingIds, prefix);
     return String(n).padStart(3, "0");

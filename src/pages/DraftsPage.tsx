@@ -65,9 +65,9 @@ const DraftsPage = () => {
 
   const handleCompletePayment = (draft: DraftInvoice) => {
     const s = getSettings();
-    const prefix = s.invoicePrefix || "INV";
+    const prefix = s.invoicePrefix || "BL";
     const nextNum = getNextInvoiceNumber(getBillingRecords().map(r => r.id), prefix);
-    const invoiceId = `${prefix}-${String(nextNum).padStart(3, "0")}`;
+    const invoiceId = `${prefix}-${String(nextNum).padStart(2, "0")}`;
     const fd = draft.formData;
     const subtotal = (fd.lineItems || []).reduce((sum, li) => sum + li.price * li.qty, 0);
     const discAmt = fd.discountType === "percent" ? (subtotal * fd.discount) / 100 : fd.discount;
