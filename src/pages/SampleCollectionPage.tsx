@@ -313,7 +313,13 @@ const SampleCollectionPage = () => {
 
         <TabsContent value={activeTab} className="mt-4">
           {toolbar.viewMode === "list" ? (
-            <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+            <SampleGroupedTable
+              data={filtered}
+              onView={setViewRecord}
+              onEdit={openEdit}
+              onConfirm={setConfirmRecord}
+              onDelete={setDeleteRecord}
+            />
           ) : (
             <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
           )}
