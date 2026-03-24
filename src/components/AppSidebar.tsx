@@ -184,7 +184,7 @@ const AppSidebar = () => {
                     <div className="flex-1 h-px bg-sidebar-border/50" />
                   </div>
                 )}
-                {isCollapsed && <div className="w-6 h-px mx-auto mb-2 rounded-full bg-sidebar-border" />}
+                {isCollapsed && <div className="w-6 h-px mx-auto mb-1 rounded-full bg-sidebar-border" />}
 
                 <div className="space-y-1">
                   {visibleItems.map((item) => {
