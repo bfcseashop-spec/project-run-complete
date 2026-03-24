@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
+import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { opdPatients } from "@/data/opdPatients";
 import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
