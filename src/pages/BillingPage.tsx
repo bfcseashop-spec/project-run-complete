@@ -473,16 +473,16 @@ const BillingPage = () => {
 
       {/* Billing Dashboard Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <StatCard title="Total Revenue" value={formatDualPrice(billingStats.totalRevenue)} icon={<DollarSign className="w-5 h-5" />} accentColor="hsl(var(--primary))" />
-        <StatCard title="Total Cash" value={formatDualPrice(billingStats.totalCash)} icon={<Banknote className="w-5 h-5" />} accentColor="hsl(142, 71%, 45%)" />
-        <StatCard title="Total ACleda" value={formatDualPrice(billingStats.totalAcleda)} icon={<Building2 className="w-5 h-5" />} accentColor="hsl(217, 91%, 60%)" />
-        <StatCard title="Total ABA" value={formatDualPrice(billingStats.totalABA)} icon={<CreditCard className="w-5 h-5" />} accentColor="hsl(262, 83%, 58%)" />
-        <StatCard title="Total Due" value={formatDualPrice(billingStats.totalDue)} icon={<AlertTriangle className="w-5 h-5" />} accentColor="hsl(0, 84%, 60%)" />
-        <StatCard title="Med Sales" value={formatDualPrice(billingStats.totalMedSales)} icon={<Pill className="w-5 h-5" />} accentColor="hsl(199, 89%, 48%)" />
-        <StatCard title="Service Sales" value={formatDualPrice(billingStats.totalServiceSales)} icon={<Stethoscope className="w-5 h-5" />} accentColor="hsl(25, 95%, 53%)" />
-        <StatCard title="Injection Sales" value={formatDualPrice(billingStats.totalInjectionSales)} icon={<Syringe className="w-5 h-5" />} accentColor="hsl(330, 81%, 60%)" />
-        <StatCard title="Package Sales" value={formatDualPrice(billingStats.totalPackageSales)} icon={<PackageCheck className="w-5 h-5" />} accentColor="hsl(173, 80%, 40%)" />
-        <StatCard title="Total Patients" value={String(billingStats.uniquePatients)} icon={<Users className="w-5 h-5" />} accentColor="hsl(47, 96%, 53%)" />
+        <StatCard title="Total Revenue" value={formatDualPrice(billingStats.totalRevenue)} icon={DollarSign} accentColor="hsl(var(--primary))" />
+        <StatCard title="Total Cash" value={formatDualPrice(billingStats.totalCash)} icon={Banknote} accentColor="hsl(142, 71%, 45%)" />
+        <StatCard title="Total ACleda" value={formatDualPrice(billingStats.totalAcleda)} icon={Building2} accentColor="hsl(217, 91%, 60%)" />
+        <StatCard title="Total ABA" value={formatDualPrice(billingStats.totalABA)} icon={CreditCard} accentColor="hsl(262, 83%, 58%)" />
+        <StatCard title="Total Due" value={formatDualPrice(billingStats.totalDue)} icon={AlertTriangle} accentColor="hsl(0, 84%, 60%)" />
+        <StatCard title="Med Sales" value={formatDualPrice(billingStats.totalMedSales)} icon={Pill} accentColor="hsl(199, 89%, 48%)" />
+        <StatCard title="Service Sales" value={formatDualPrice(billingStats.totalServiceSales)} icon={Stethoscope} accentColor="hsl(25, 95%, 53%)" />
+        <StatCard title="Injection Sales" value={formatDualPrice(billingStats.totalInjectionSales)} icon={Syringe} accentColor="hsl(330, 81%, 60%)" />
+        <StatCard title="Package Sales" value={formatDualPrice(billingStats.totalPackageSales)} icon={PackageCheck} accentColor="hsl(173, 80%, 40%)" />
+        <StatCard title="Total Patients" value={String(billingStats.uniquePatients)} icon={Users} accentColor="hsl(47, 96%, 53%)" />
       </div>
 
       <DataToolbar
