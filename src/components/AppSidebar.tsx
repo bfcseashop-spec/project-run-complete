@@ -163,7 +163,7 @@ const AppSidebar = () => {
         </div>
 
         {/* ─── Divider ─── */}
-        <div className="mx-4 h-px bg-sidebar-border" />
+        <div className="mx-3 h-px bg-sidebar-border" />
 
         {/* ─── Navigation ─── */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
