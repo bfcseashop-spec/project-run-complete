@@ -154,19 +154,40 @@ const BillingPage = () => {
   };
 
   const columns = [
-    { key: "id", header: "Invoice No.", render: (d: BillingRecord) => (
-      <span className="font-mono font-semibold text-sm">{d.id}</span>
-    )},
-    { key: "patient", header: t("patient", lang), render: (d: BillingRecord) => (
-      <span className="font-medium">{d.patient}</span>
+    { key: "id", header: "Bill No", render: (d: BillingRecord) => (
+      <span className="font-mono font-semibold text-sm">
+        {d.id}
+        {refundedInvoiceIds.has(d.id) && (
+          <span className="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+            <RotateCcw className="w-2.5 h-2.5" />↻
+          </span>
+        )}
+      </span>
     )},
     { key: "date", header: t("date", lang), render: (d: BillingRecord) => (
       <span className="text-muted-foreground text-sm">{d.date}</span>
     )},
-    { key: "service", header: "Items", render: (d: BillingRecord) => (
-      <span className="text-sm text-muted-foreground truncate max-w-[180px] block">{d.service}</span>
+    { key: "patient", header: t("patient", lang), render: (d: BillingRecord) => (
+      <span className="font-medium">{d.patient}</span>
     )},
-    { key: "total", header: "Amount", render: (d: BillingRecord) => (
+    { key: "medQty", header: "Qty (Med)", render: (d: BillingRecord) => {
+      const qty = getMedQty(d);
+      return <span className="tabular-nums text-sm">{qty > 0 ? qty : "—"}</span>;
+    }},
+    { key: "services", header: "Services", render: (d: BillingRecord) => {
+      if (d.formData?.lineItems) {
+        const svcs = d.formData.lineItems.filter(li => li.type === "SVC" || li.type === "CUSTOM");
+        return <span className="text-sm truncate max-w-[140px] block">{svcs.length > 0 ? svcs.map(li => li.name).join(", ") : "—"}</span>;
+      }
+      return <span className="text-sm text-muted-foreground">{d.service || "—"}</span>;
+    }},
+    { key: "injection", header: "Injection", render: (d: BillingRecord) => (
+      <span className="text-sm">{getInjection(d)}</span>
+    )},
+    { key: "packages", header: "Packages", render: (d: BillingRecord) => (
+      <span className="text-sm">{getPackages(d)}</span>
+    )},
+    { key: "total", header: "Total", render: (d: BillingRecord) => (
       <div>
         <span className="font-semibold tabular-nums">{formatDualPrice(d.total)}</span>
         {refundAmountByInvoice.has(d.id) && (
@@ -177,13 +198,11 @@ const BillingPage = () => {
       </div>
     )},
     { key: "paid", header: "Paid", render: (d: BillingRecord) => <span className="tabular-nums text-emerald-600 dark:text-emerald-400 font-medium">{formatDualPrice(d.paid)}</span> },
-    { key: "due", header: "Due", render: (d: BillingRecord) => <span className={`tabular-nums font-medium ${d.due > 0 ? "text-destructive" : "text-muted-foreground"}`}>{formatDualPrice(d.due)}</span> },
-    { key: "method", header: "PayBy", render: (d: BillingRecord) => <span className="text-sm">{d.method}</span> },
+    { key: "method", header: "Payment Method", render: (d: BillingRecord) => <span className="text-sm">{d.method || "—"}</span> },
     { key: "billStatus", header: "Status", render: (d: BillingRecord) => {
       const st = getBillStatus(d);
       return (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${st.color}`}>
-          {st.label === "Refunded" && <RotateCcw className="w-3 h-3" />}
           {st.label}
         </span>
       );
