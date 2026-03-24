@@ -343,21 +343,77 @@ const BillingPage = () => {
   const handleImport = async (file: File) => {
     const rows = await toolbar.handleImport(file);
     if (rows.length > 0) {
-      const newRecords: BillingRecord[] = rows.map((row, i) => ({
-        id: `BIL-I${String(billingData.length + i + 1).padStart(3, "0")}`,
-        patient: String(row.patient || ""),
-        service: String(row.service || ""),
-        amount: Number(row.amount) || 0,
-        discount: Number(row.discount) || 0,
-        tax: Number(row.tax) || 0,
-        total: Number(row.total) || 0,
-        paid: Number(row.paid) || 0,
-        due: Number(row.due) || 0,
-        date: String(row.date || new Date().toISOString().split("T")[0]),
-        status: (row.status as BillingRecord["status"]) || "pending",
-        method: String(row.method || "—"),
-      }));
-      setBillingData((prev) => [...newRecords, ...prev]);
+      const newRecords: BillingRecord[] = rows.map((row, i) => {
+        // Build synthetic lineItems from Qty (Med), Services, Injection, Packages columns
+        const lineItems: { type: string; name: string; price: number; qty: number }[] = [];
+
+        // Medicine qty
+        const medQtyRaw = String(row.medQty || row["Qty (Med)"] || "");
+        const medQtyNum = parseInt(medQtyRaw) || 0;
+        if (medQtyNum > 0) {
+          lineItems.push({ type: "MED", name: "Medicine", price: 0, qty: medQtyNum });
+        }
+
+        // Services
+        const svcRaw = String(row.services || row["Services"] || "");
+        if (svcRaw && svcRaw !== "-" && svcRaw !== "—") {
+          const svcPrice = parseFloat(svcRaw) || 0;
+          lineItems.push({ type: "SVC", name: svcPrice > 0 ? `Service (${svcRaw})` : svcRaw, price: svcPrice, qty: 1 });
+        }
+
+        // Injection
+        const injRaw = String(row.injection || row["Injection"] || "");
+        if (injRaw && injRaw !== "-" && injRaw !== "—") {
+          lineItems.push({ type: "INJ", name: injRaw, price: 0, qty: 1 });
+        }
+
+        // Packages
+        const pkgRaw = String(row.packages || row["Packages"] || "");
+        if (pkgRaw && pkgRaw !== "-" && pkgRaw !== "—") {
+          lineItems.push({ type: "PKG", name: pkgRaw, price: 0, qty: 1 });
+        }
+
+        const serviceParts: string[] = [];
+        if (lineItems.some(li => li.type === "MED")) serviceParts.push("Medication");
+        if (lineItems.some(li => li.type === "SVC")) serviceParts.push("Service");
+        if (lineItems.some(li => li.type === "INJ")) serviceParts.push("Injection");
+        if (lineItems.some(li => li.type === "PKG")) serviceParts.push("Package");
+        const serviceStr = String(row.service || "") || serviceParts.join(" + ") || "—";
+
+        const total = Number(row.total) || 0;
+        const paid = Number(row.paid) || 0;
+        const due = Number(row.due) || Math.max(0, total - paid);
+        let status: BillingRecord["status"] = "completed";
+        if (due > 0 && paid > 0) status = "pending";
+        else if (due > 0 && paid <= 0) status = "critical";
+
+        const statusRaw = String(row.status || "").toLowerCase();
+        if (statusRaw === "unpaid" || statusRaw === "critical") status = "critical";
+        else if (statusRaw === "partial" || statusRaw === "pending") status = "pending";
+        else if (statusRaw === "paid" || statusRaw === "completed") status = "completed";
+
+        const formData: Partial<InvoiceFormData> = lineItems.length > 0 ? { lineItems } : undefined as any;
+
+        return {
+          id: String(row.id || row["Bill No"] || `BIL-I${String(billingData.length + i + 1).padStart(3, "0")}`),
+          patient: String(row.patient || row["Patient"] || ""),
+          service: serviceStr,
+          amount: Number(row.amount) || total,
+          discount: Number(row.discount) || 0,
+          tax: Number(row.tax) || 0,
+          total,
+          paid,
+          due,
+          date: String(row.date || row["Date"] || new Date().toISOString().split("T")[0]),
+          status,
+          method: String(row.method || row["Payment Method"] || "—"),
+          formData: formData || undefined,
+        };
+      });
+      for (const rec of newRecords) {
+        try { await addBillingRecord(rec); } catch { /* skip duplicates */ }
+      }
+      toast.success(`Imported ${newRecords.length} billing records`);
     }
   };
 
