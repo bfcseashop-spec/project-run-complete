@@ -126,7 +126,7 @@ const AppSidebar = () => {
         className={`fixed left-0 top-0 h-screen flex flex-col z-50 transition-all duration-300 ${
           isMobile
             ? `w-[270px] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`
-            : isCollapsed ? "w-[68px]" : "w-[250px]"
+            : isCollapsed ? "w-[60px]" : "w-[220px]"
         }`}
         style={{
           background: "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background)) 100%)",
