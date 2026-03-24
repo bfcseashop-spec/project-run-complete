@@ -221,7 +221,7 @@ const AppSidebar = () => {
                                   : `${iconColor}12`,
                               }}
                             >
-                              <item.icon
+                              <item.icon className="w-[15px] h-[15px]" style={{ color: parentActive ? "white" : iconColor }} />
                             </div>
                             <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
                             <ChevronDown
