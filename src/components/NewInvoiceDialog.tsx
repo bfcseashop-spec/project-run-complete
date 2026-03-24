@@ -17,6 +17,7 @@ import {
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { opdPatients } from "@/data/opdPatients";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
