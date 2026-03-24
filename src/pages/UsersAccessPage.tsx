@@ -114,12 +114,40 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
 
   const handleSave = async () => {
     if (!editProfile) return;
+    // Update profile (name, role, active)
     const { error } = await supabase
       .from("profiles")
-      .update({ role_id: editForm.role_id || null, active: editForm.active })
+      .update({ full_name: editForm.full_name.trim() || editProfile.full_name, role_id: editForm.role_id || null, active: editForm.active })
       .eq("id", editProfile.id);
-    if (error) toast.error(error.message);
-    else { toast.success("User updated"); onRefresh(); }
+    if (error) { toast.error(error.message); return; }
+
+    // Reset password if provided
+    if (editForm.new_password.trim()) {
+      if (editForm.new_password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      setResettingPassword(true);
+      try {
+        const res = await supabase.functions.invoke("reset-user-password", {
+          body: { user_id: editProfile.id, new_password: editForm.new_password },
+        });
+        if (res.error || res.data?.error) {
+          toast.error(res.data?.error || res.error?.message || "Failed to reset password");
+          setResettingPassword(false);
+          return;
+        }
+        toast.success("Password reset successfully");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to reset password");
+        setResettingPassword(false);
+        return;
+      }
+      setResettingPassword(false);
+    }
+
+    toast.success("User updated");
+    onRefresh();
     setShowEditDialog(false);
   };
 
