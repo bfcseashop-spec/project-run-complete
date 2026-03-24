@@ -348,22 +348,17 @@ const NewInvoicePage = () => {
   const handlePayment = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
-    // If payment method is "Due", don't auto-fill paid amount — bill goes to Due Management
-    if (paymentMethod === "Due" && !splitMode) {
-      // paid stays as-is (user entered partial or 0)
-    } else if (splitMode) {
-      const remaining = Math.max(0, grandTotal - splitTotal);
-      if (remaining > 0) {
-        const updated = [...splitPayments];
-        updated[0] = { ...updated[0], amount: updated[0].amount + remaining };
-        setSplitPayments(updated);
-      }
+    if (splitMode) {
+      // Don't auto-fill remaining — user controls split amounts
+      // "Due" method amounts stay as due, not paid
+    } else if (paymentMethod === "Due") {
+      // Full due — paid stays as user entered (default 0)
     } else {
       setPaidAmount(grandTotal);
     }
-    // Show the invoice preview instead of navigating away
     setShowInvoice(true);
-    toast.success(paymentMethod === "Due" && !splitMode ? "Invoice created — Due recorded" : "Payment received — Invoice ready");
+    const hasDue = (splitMode && splitDueTotal > 0) || (!splitMode && paymentMethod === "Due");
+    toast.success(hasDue ? "Invoice created — Due recorded" : "Payment received — Invoice ready");
   };
 
   const handleConfirmAndSave = () => {
