@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
+import { getMedicines, subscribeMedicines } from "@/data/medicineStore";
 import { opdPatients } from "@/data/opdPatients";
 import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
@@ -44,13 +45,7 @@ const packageOptions = [
   { name: "Diabetes Panel", price: 35 }, { name: "Cardiac Panel", price: 80 },
   { name: "Prenatal Package", price: 60 },
 ];
-const medicineOptions = [
-  { name: "Amoxicillin 500mg", price: 2.50 }, { name: "Paracetamol 650mg", price: 0.50 },
-  { name: "Metformin 500mg", price: 1.00 }, { name: "Omeprazole 20mg", price: 1.50 },
-  { name: "Cetirizine 10mg", price: 0.75 }, { name: "Azithromycin 250mg", price: 3.00 },
-  { name: "10% GS 500ml", price: 10.00 }, { name: "Ace", price: 0.25 },
-  { name: "Ibuprofen 400mg", price: 1.00 },
-];
+// medicineOptions now loaded dynamically from store inside component
 const paymentMethods = [
   { value: "Cash", label: "Cash", icon: DollarSign },
   { value: "ABA", label: "ABA", icon: CreditCard },
@@ -94,6 +89,9 @@ const NewInvoicePage = () => {
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
   const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
+  const [medicinesList, setMedicinesList] = useState(getMedicines());
+
+  const medicineOptions = useMemo(() => medicinesList.filter(m => m.stock > 0).map(m => ({ name: m.name, price: m.price })), [medicinesList]);
 
   const doctors = doctorsList.map((d) => ({ name: d.name, degree: d.qualification }));
 
@@ -119,6 +117,7 @@ const NewInvoicePage = () => {
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeDoctors(() => setDoctorsList([...getActiveDoctorsWithDetails()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeMedicines(() => setMedicinesList([...getMedicines()])); return () => { u(); }; }, []);
 
   useEffect(() => {
     if (editData) {
