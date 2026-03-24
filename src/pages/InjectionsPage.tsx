@@ -70,13 +70,12 @@ const InjectionsPage = () => {
 
   const handleSubmit = () => {
     if (!form.name || !form.category) { toast.error("Name and category are required"); return; }
-    const status = computeInjectionStatus(form.stock);
     if (editInj) {
-      updateInjection(editInj.id, { ...form, status });
+      updateInjection(editInj.id, { ...form });
       toast.success("Injection updated");
     } else {
       const nextId = `INJ-${String(getInjections().length + 1).padStart(3, "0")}`;
-      addInjection({ id: nextId, ...form, status });
+      addInjection({ id: nextId, ...form });
       toast.success("Injection added");
     }
     setDialogOpen(false);
