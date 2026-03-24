@@ -45,10 +45,10 @@ const menuSections: MenuSection[] = [
       {
         icon: TestTube, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(200, 80%, 45%)",
         subItems: [
-48:           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
-49:           { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
-50:           { icon: TestTube, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
-51:         ],
+          { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
+          { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
+          { icon: TestTube, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
+        ],
       },
       { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(217, 80%, 50%)" },
       { icon: Scan, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(38, 92%, 48%)" },
