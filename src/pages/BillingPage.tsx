@@ -392,7 +392,7 @@ const BillingPage = () => {
         else if (statusRaw === "partial" || statusRaw === "pending") status = "pending";
         else if (statusRaw === "paid" || statusRaw === "completed") status = "completed";
 
-        const formData: Partial<InvoiceFormData> = lineItems.length > 0 ? { lineItems } : undefined as any;
+        const formData: InvoiceFormData | undefined = lineItems.length > 0 ? { lineItems, patient: "", doctor: "", service: "", injection: "", packageItem: "", medicines: [], customItems: [], discount: 0, discountType: "amount" as const, paidAmount: paid, splitPayments: [] } : undefined;
 
         return {
           id: String(row.id || row["Bill No"] || `BIL-I${String(billingData.length + i + 1).padStart(3, "0")}`),
