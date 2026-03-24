@@ -164,8 +164,10 @@ const NewInvoicePage = () => {
   const taxRate = appSettings.taxEnabled ? parseFloat(appSettings.taxRate) || 0 : 0;
   const taxAmount = (afterDiscount * taxRate) / 100;
   const grandTotal = afterDiscount + taxAmount;
-  const splitTotal = splitPayments.reduce((s, sp) => s + sp.amount, 0);
-  const effectivePaid = splitMode ? splitTotal : paidAmount;
+  // In split mode, "Due" method amounts are NOT actually paid — they remain outstanding
+  const splitPaidTotal = splitPayments.filter(sp => sp.method !== "Due").reduce((s, sp) => s + sp.amount, 0);
+  const splitDueTotal = splitPayments.filter(sp => sp.method === "Due").reduce((s, sp) => s + sp.amount, 0);
+  const effectivePaid = splitMode ? splitPaidTotal : (paymentMethod === "Due" ? paidAmount : paidAmount);
   const dueAmount = Math.max(0, grandTotal - effectivePaid);
 
   const patientOptions = useMemo(() => {
