@@ -157,6 +157,15 @@ const OPDPage = () => {
         </Button>
       </PageHeader>
 
+      {/* OPD Dashboard Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <StatCard title="Total Patients" value={String(patients.length)} icon={Users} accentColor="hsl(var(--primary))" />
+        <StatCard title="Walk In" value={String(patients.filter(p => p.patientType === "Walk In").length)} icon={UserCheck} accentColor="hsl(142, 71%, 45%)" />
+        <StatCard title="Indoor" value={String(patients.filter(p => p.patientType === "Indoor").length)} icon={Building} accentColor="hsl(217, 91%, 60%)" />
+        <StatCard title="Outdoor" value={String(patients.filter(p => p.patientType === "Outdoor").length)} icon={TreePine} accentColor="hsl(25, 95%, 53%)" />
+        <StatCard title="Emergency" value={String(patients.filter(p => p.patientType === "Emergency").length)} icon={AlertCircle} accentColor="hsl(0, 84%, 60%)" />
+      </div>
+
       {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
