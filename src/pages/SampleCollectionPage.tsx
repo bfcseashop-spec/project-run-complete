@@ -146,6 +146,28 @@ const SampleCollectionPage = () => {
     setConfirmRecord(null);
   };
 
+  const handleBulkConfirm = () => {
+    if (!bulkConfirmRecords) return;
+    const now = new Date();
+    for (const rec of bulkConfirmRecords) {
+      updateSampleRecord(rec.id, {
+        status: "collected",
+        collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
+        collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
+      });
+      createReportFromSample({
+        patient: rec.patient, patientId: rec.patientId, age: rec.age,
+        gender: rec.gender, testName: rec.testName, doctor: rec.doctor,
+        sampleType: rec.sampleType,
+        collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
+        collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
+        collectedBy: rec.collectedBy,
+      });
+    }
+    toast.success(`${bulkConfirmRecords.length} samples confirmed & sent to Lab Reports`);
+    setBulkConfirmRecords(null);
+  };
+
   const tabFilter = (r: SampleRecord) => {
     if (activeTab === "all") return true;
     return r.status === activeTab;
