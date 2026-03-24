@@ -59,7 +59,12 @@ const emptyForm: Omit<Doctor, "id"> = {
 };
 
 const DoctorPage = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
+  const [doctors, setDoctors] = useState<Doctor[]>(getDoctors());
+
+  useEffect(() => {
+    const unsub = subscribeDoctors(() => setDoctors([...getDoctors()]));
+    return () => unsub();
+  }, []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDoctor, setEditDoctor] = useState<Doctor | null>(null);
   const [viewDoctor, setViewDoctor] = useState<Doctor | null>(null);
