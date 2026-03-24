@@ -365,8 +365,10 @@ const NewInvoicePage = () => {
 
   const handleConfirmAndSave = () => {
     if (draftId) removeDraft(draftId); // Remove from drafts on payment completion
+    // For "Due" method, keep the user-entered paid amount (could be 0 or partial)
+    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
-      data: { ...buildFormData(), paidAmount: grandTotal },
+      data: { ...buildFormData(), paidAmount: finalPaid },
       action: "payment",
       isEdit: !!editData,
       editRecordId,
