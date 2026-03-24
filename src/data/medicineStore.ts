@@ -20,6 +20,19 @@ export interface Medicine {
   stockAlert: number;
 }
 
+export interface StockMovement {
+  id: string;
+  medicineId: string;
+  medicineName: string;
+  type: "deduct" | "restock" | "adjustment" | "initial";
+  qty: number;
+  stockBefore: number;
+  stockAfter: number;
+  reason: string;
+  referenceId: string;
+  createdAt: string;
+}
+
 const computeStatus = (stock: number): Medicine["status"] =>
   stock <= 0 ? "out-of-stock" : stock <= 20 ? "low-stock" : "in-stock";
 
@@ -47,6 +60,65 @@ const toMedicine = (r: any): Medicine => ({
   batchNo: r.batch_no || "-",
   stockAlert: r.stock_alert ?? 10,
 });
+
+const toMovement = (r: any): StockMovement => ({
+  id: r.id,
+  medicineId: r.medicine_id,
+  medicineName: r.medicine_name,
+  type: r.type,
+  qty: r.qty,
+  stockBefore: r.stock_before,
+  stockAfter: r.stock_after,
+  reason: r.reason,
+  referenceId: r.reference_id,
+  createdAt: r.created_at,
+});
+
+/* ── stock movement logging ── */
+const logMovement = async (
+  medicineId: string,
+  medicineName: string,
+  type: StockMovement["type"],
+  qty: number,
+  stockBefore: number,
+  stockAfter: number,
+  reason: string,
+  referenceId = ""
+) => {
+  await supabase.from("stock_movements").insert({
+    medicine_id: medicineId,
+    medicine_name: medicineName,
+    type,
+    qty,
+    stock_before: stockBefore,
+    stock_after: stockAfter,
+    reason,
+    reference_id: referenceId,
+  });
+};
+
+/* ── fetch movements ── */
+export const getStockMovements = async (medicineId?: string): Promise<StockMovement[]> => {
+  let query = supabase
+    .from("stock_movements")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (medicineId) query = query.eq("medicine_id", medicineId);
+  const { data, error } = await query;
+  if (error || !data) return [];
+  return data.map(toMovement);
+};
+
+export const getAllStockMovements = async (): Promise<StockMovement[]> => {
+  const { data, error } = await supabase
+    .from("stock_movements")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error || !data) return [];
+  return data.map(toMovement);
+};
 
 /* ── fetch from DB ── */
 let loadPromise: Promise<void> | null = null;
@@ -104,6 +176,11 @@ export const addMedicine = async (med: Omit<Medicine, "id" | "status">) => {
   if (error) throw error;
   const newMed = toMedicine(data);
   medicines = [newMed, ...medicines];
+
+  if (med.stock > 0) {
+    await logMovement(newMed.id, newMed.name, "initial", med.stock, 0, med.stock, "Initial stock on creation");
+  }
+
   notify();
   return newMed;
 };
@@ -145,7 +222,9 @@ export const restockMedicine = async (name: string, qty: number) => {
   await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med) {
+    const stockBefore = med.stock;
     await updateMedicine(med.id, { stock: med.stock + qty });
+    await logMovement(med.id, med.name, "restock", qty, stockBefore, stockBefore + qty, "Refund restock");
   }
 };
 
@@ -153,10 +232,24 @@ export const deductMedicine = async (name: string, qty: number): Promise<boolean
   await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med && med.stock >= qty) {
+    const stockBefore = med.stock;
     await updateMedicine(med.id, { stock: med.stock - qty });
+    await logMovement(med.id, med.name, "deduct", qty, stockBefore, stockBefore - qty, "Invoice sale");
     return true;
   }
   return false;
+};
+
+export const adjustMedicineStock = async (id: string, newStock: number, reason: string) => {
+  await ensureLoaded();
+  const med = medicines.find((m) => m.id === id);
+  if (med) {
+    const stockBefore = med.stock;
+    await updateMedicine(id, { stock: newStock });
+    const type: StockMovement["type"] = newStock > stockBefore ? "restock" : "deduct";
+    const qty = Math.abs(newStock - stockBefore);
+    await logMovement(med.id, med.name, type, qty, stockBefore, newStock, reason || "Manual adjustment");
+  }
 };
 
 export const deleteMedicine = async (id: string) => {
