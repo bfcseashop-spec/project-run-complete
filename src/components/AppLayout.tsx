@@ -1,6 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
 import { Bell, Search, Receipt, Palette, Clock, Sun, Moon, Monitor, Check, Languages, FileText, Menu } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { SidebarStateProvider, useSidebarState } from "@/hooks/use-sidebar-state";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
