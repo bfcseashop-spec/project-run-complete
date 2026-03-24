@@ -110,14 +110,12 @@ export function subscribeDoctors(fn: Listener) {
   _listeners.add(fn); return () => { _listeners.delete(fn); };
 }
 
-/** Get active doctor names for dropdown use */
+/** Get active doctor names for dropdown use — stable reference for useSyncExternalStore */
 export function getActiveDoctorNames(): string[] {
-  return _doctors.filter((d) => d.status === "active").map((d) => d.name);
+  return _cachedNames;
 }
 
-/** Get active doctors with details for dropdowns needing specialty/qualification */
+/** Get active doctors with details — stable reference for useSyncExternalStore */
 export function getActiveDoctorsWithDetails(): { name: string; specialty: string; qualification: string }[] {
-  return _doctors
-    .filter((d) => d.status === "active")
-    .map((d) => ({ name: d.name, specialty: d.specialty, qualification: d.qualification }));
+  return _cachedDetails;
 }
