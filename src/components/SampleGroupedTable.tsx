@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Eye, Pencil, Printer, Barcode as BarcodeIcon, SendHorizonal, Trash2,
   User, TestTubes, Droplets, FlaskConical, TestTube, ClipboardList,
-  Thermometer, ThermometerSun, Snowflake,
+  Thermometer, ThermometerSun, Snowflake, ChevronDown, ChevronRight,
 } from "lucide-react";
 import { type SampleRecord } from "@/data/sampleRecords";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
