@@ -19,6 +19,7 @@ import { opdPatients } from "@/data/opdPatients";
 import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
+import { SearchableItemSelect, type SearchableOption } from "@/components/SearchableItemSelect";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
@@ -564,35 +565,50 @@ const NewInvoicePage = () => {
             <div className="p-5">
               {activeTab === "services" ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Briefcase className="w-3 h-3" /> Service</Label>
-                      <Select value="" onValueChange={addService}>
-                        <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Add service..." /></SelectTrigger>
-                        <SelectContent>
-                          {serviceOptions.map((s) => <SelectItem key={s.name} value={s.name}>{s.name} — {formatPrice(s.price)}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableItemSelect
+                        placeholder="Add service..."
+                        searchPlaceholder="Search service..."
+                        icon={<Briefcase className="w-3.5 h-3.5 text-primary opacity-60" />}
+                        options={serviceOptions.map(s => ({
+                          value: s.name,
+                          label: s.name,
+                          detail: `${formatPrice(s.price)}`,
+                        }))}
+                        onSelect={addService}
+                      />
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Syringe className="w-3 h-3" /> Injection</Label>
-                      <Select value="" onValueChange={addInjection}>
-                        <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Add injection..." /></SelectTrigger>
-                        <SelectContent>
-                          {injectionsList.filter((inj) => inj.status !== "out-of-stock").map((inj) => (
-                            <SelectItem key={inj.id} value={inj.name}>{inj.name} {inj.strength} — {formatDualPrice(inj.price)}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <SearchableItemSelect
+                        placeholder="Add injection..."
+                        searchPlaceholder="Search injection..."
+                        icon={<Syringe className="w-3.5 h-3.5 text-amber-500 opacity-60" />}
+                        options={injectionsList.filter(inj => inj.status !== "out-of-stock").map(inj => ({
+                          value: inj.name,
+                          label: `${inj.name} ${inj.strength}`,
+                          detail: `${formatPrice(inj.price)} · ${inj.stock} ${inj.unit}`,
+                          badge: inj.status === "low-stock" ? "Low" : undefined,
+                          badgeColor: inj.status === "low-stock" ? "bg-amber-500/10 text-amber-600" : undefined,
+                        }))}
+                        onSelect={addInjection}
+                      />
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Package className="w-3 h-3" /> Package</Label>
-                      <Select value="" onValueChange={addPackage}>
-                        <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Add package..." /></SelectTrigger>
-                        <SelectContent>
-                          {packageOptions.map((p) => <SelectItem key={p.name} value={p.name}>{p.name} — {formatPrice(p.price)}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableItemSelect
+                        placeholder="Add package..."
+                        searchPlaceholder="Search package..."
+                        icon={<Package className="w-3.5 h-3.5 text-violet-500 opacity-60" />}
+                        options={packageOptions.map(p => ({
+                          value: p.name,
+                          label: p.name,
+                          detail: `${formatPrice(p.price)}`,
+                        }))}
+                        onSelect={addPackage}
+                      />
                     </div>
                   </div>
                   {/* Custom Item */}
@@ -611,12 +627,19 @@ const NewInvoicePage = () => {
                   <div className="flex items-center gap-2 border border-dashed border-border rounded-lg px-4 py-3 text-sm text-muted-foreground bg-muted/20">
                     <Barcode className="w-4 h-4" /> Scan barcode to add medicine
                   </div>
-                  <Select value="" onValueChange={addMedicineByName}>
-                    <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Select medicine to add..." /></SelectTrigger>
-                    <SelectContent>
-                      {medicineOptions.map((m) => <SelectItem key={m.name} value={m.name}>{m.name} — {formatPrice(m.price)}/pc</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <SearchableItemSelect
+                    placeholder="Select Medicine"
+                    searchPlaceholder="Search medicine..."
+                    icon={<Pill className="w-3.5 h-3.5 text-emerald-500 opacity-60" />}
+                    options={medicinesList.filter(m => m.stock > 0).map(m => ({
+                      value: m.name,
+                      label: m.name,
+                      detail: `${formatPrice(m.price)}/${m.unit} · ${m.stock} ${m.status === "in-stock" ? "In stock" : ""}`,
+                      badge: m.status === "low-stock" ? "Low" : undefined,
+                      badgeColor: m.status === "low-stock" ? "bg-amber-500/10 text-amber-600" : undefined,
+                    }))}
+                    onSelect={addMedicineByName}
+                  />
                   {medicationItems.length > 0 && (
                     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4 text-sm flex items-center justify-between">
                       <span className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-400">
