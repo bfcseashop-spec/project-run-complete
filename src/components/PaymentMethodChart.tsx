@@ -122,6 +122,8 @@ const PaymentMethodChart = React.forwardRef<HTMLDivElement, PaymentMethodChartPr
       </div>
     </div>
   );
-};
+});
+
+PaymentMethodChart.displayName = "PaymentMethodChart";
 
 export default PaymentMethodChart;
