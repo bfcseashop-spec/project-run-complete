@@ -348,6 +348,9 @@ const MedicinePage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(m.id, m.name)}>
             <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
           </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted" title="Stock History" onClick={() => { setHistoryMedId(m.id); setHistoryMedName(m.name); setHistoryOpen(true); }}>
+            <History className="w-3.5 h-3.5 text-muted-foreground" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteMed(m)}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
