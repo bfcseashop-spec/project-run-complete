@@ -172,7 +172,6 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
               </div>
             </div>
 
-            {/* Samples Table - collapsible */}
             {!isCollapsed && (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
