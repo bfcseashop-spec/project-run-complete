@@ -563,6 +563,30 @@ const SampleCollectionPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Bulk Confirm & Send to Lab */}
+      <AlertDialog open={!!bulkConfirmRecords} onOpenChange={(open) => !open && setBulkConfirmRecords(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bulk Confirm & Send to Lab Reports</AlertDialogTitle>
+            <AlertDialogDescription>
+              Send {bulkConfirmRecords?.length} samples for <strong>{bulkConfirmRecords?.[0]?.patient}</strong> to Lab Reports?
+              <div className="mt-2 space-y-1">
+                {bulkConfirmRecords?.map(r => (
+                  <div key={r.id} className="text-xs flex items-center gap-2">
+                    <span className="font-mono">{r.id}</span>
+                    <span>—</span>
+                    <span>{r.testName}</span>
+                  </div>
+                ))}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkConfirm}>Confirm All & Send</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
