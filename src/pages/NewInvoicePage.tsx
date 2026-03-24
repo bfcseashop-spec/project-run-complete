@@ -28,6 +28,8 @@ import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
 import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialog";
 import { addDraft, removeDraft, nextDraftId } from "@/data/draftStore";
+import { getBillingRecords, subscribeBilling } from "@/data/billingStore";
+import { getNextInvoiceNumber } from "@/lib/invoiceId";
 
 initPatients(opdPatients);
 
