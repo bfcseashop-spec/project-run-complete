@@ -89,6 +89,9 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editForm, setEditForm] = useState({ role_id: "", active: true });
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [createForm, setCreateForm] = useState({ full_name: "", email: "", password: "", role_id: "" });
+  const [creating, setCreating] = useState(false);
 
   const filtered = profiles.filter((u) => {
     if (roleFilter !== "all" && u.role_id !== roleFilter) return false;
