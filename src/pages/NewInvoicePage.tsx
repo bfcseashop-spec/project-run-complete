@@ -100,7 +100,7 @@ const NewInvoicePage = () => {
   const prefix = appSettings.invoicePrefix || "BL";
   const nextInvNum = useMemo(() => {
     const n = getNextInvoiceNumber(billingIds, prefix);
-    return String(n).padStart(3, "0");
+    return String(n).padStart(2, "0");
   }, [billingIds, prefix]);
   const nextInvoiceId = `${prefix}-${nextInvNum}`;
 
