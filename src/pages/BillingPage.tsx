@@ -306,7 +306,7 @@ const BillingPage = () => {
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
         ${record.formData?.doctor ? `<p><strong>${record.formData.doctor}</strong></p>` : ''}
-        ${d?.degree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.degree}</p>` : ''}
+        ${d?.qualification ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.qualification}</p>` : ''}
         <p style="margin-top:4px">Date: <strong>${record.date}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${record.method}</strong></p>
       </div>
