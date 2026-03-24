@@ -32,6 +32,8 @@ import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
 import { toast } from "sonner";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const sampleTypeIcons: Record<string, React.ElementType> = {
   blood: Droplets, urine: FlaskConical, stool: FlaskConical, sputum: FlaskConical,
@@ -65,6 +67,8 @@ const sampleColumns = [
 
 const SampleCollectionPage = () => {
   const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+  const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
@@ -365,11 +369,19 @@ const SampleCollectionPage = () => {
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2">
                 <Label>Patient Name *</Label>
-                <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} />
+                <Select value={form.patient} onValueChange={(v) => {
+                  const p = patients.find((pt) => pt.name === v);
+                  setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
+                }}>
+                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                  <SelectContent>
+                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Patient ID</Label>
-                <Input value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} placeholder="P-XXX" />
+                <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
               </div>
               <div className="space-y-2">
                 <Label>Age</Label>
@@ -390,7 +402,12 @@ const SampleCollectionPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Doctor *</Label>
-                <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} />
+                <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                  <SelectContent>
+                    {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Test Name *</Label>

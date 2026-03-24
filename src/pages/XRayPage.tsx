@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -30,6 +30,8 @@ import { printXRayReport, printBarcode } from "@/lib/printUtils";
 import { xrayRecords, type XRayRecord, type XRayImage, bodyParts, examinationNames } from "@/data/xrayRecords";
 import { toast } from "sonner";
 import ImageLightbox from "@/components/ImageLightbox";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const bodyPartIcons: Record<string, React.ElementType> = {
   chest: Heart, spine: Bone, abdomen: Activity, extremity: Hand,
@@ -44,6 +46,8 @@ const emptyForm: Omit<XRayRecord, "id"> = {
 
 const XRayPage = () => {
   const [records, setRecords] = useState<XRayRecord[]>(xrayRecords);
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+  const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<XRayRecord | null>(null);
   const [viewRecord, setViewRecord] = useState<XRayRecord | null>(null);
@@ -375,11 +379,21 @@ const XRayPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Patient Name *</Label>
-                <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} />
+                <Select value={form.patient} onValueChange={(v) => setForm({ ...form, patient: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                  <SelectContent>
+                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Doctor *</Label>
-                <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} />
+                <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                  <SelectContent>
+                    {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">

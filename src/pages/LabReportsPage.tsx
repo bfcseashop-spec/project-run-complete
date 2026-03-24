@@ -33,6 +33,8 @@ import {
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView, { printLabReport } from "@/components/LabReportView";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const categoryIcons: Record<string, React.ElementType> = {
   hematology: Droplets, biochemistry: FlaskConical, microbiology: Bug,
@@ -59,6 +61,8 @@ const emptyForm: Omit<LabReport, "id"> = {
 const LabReportsPage = () => {
   const { activeTestNames } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
+  const patients = useSyncExternalStore(subscribePatients, getPatients);
+  const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
@@ -434,11 +438,19 @@ const LabReportsPage = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-1.5 col-span-2">
                     <Label className="text-xs">Patient Name <span className="text-destructive">*</span></Label>
-                    <Input value={form.patient} onChange={(e) => setForm({ ...form, patient: e.target.value })} placeholder="Full name" />
+                    <Select value={form.patient} onValueChange={(v) => {
+                      const p = patients.find((pt) => pt.name === v);
+                      setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                      <SelectContent>
+                        {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Patient ID</Label>
-                    <Input value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} placeholder="P-XXX" />
+                    <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Age</Label>
@@ -459,7 +471,12 @@ const LabReportsPage = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ref. By Doctor <span className="text-destructive">*</span></Label>
-                    <Input value={form.doctor} onChange={(e) => setForm({ ...form, doctor: e.target.value })} placeholder="Dr." />
+                    <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                      <SelectContent>
+                        {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Sample Type</Label>
