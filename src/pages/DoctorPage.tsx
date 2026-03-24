@@ -102,35 +102,49 @@ const DoctorPage = () => {
     e.target.value = "";
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.specialty || !form.phone) {
       toast.error("Please fill in Name, Specialty, and Phone");
       return;
     }
-    if (editDoctor) {
-      setDoctors((prev) => prev.map((d) => d.id === editDoctor.id ? { ...editDoctor, ...form } : d));
-      toast.success("Doctor updated successfully");
-    } else {
-      const nextId = `D${String(doctors.length + 1).padStart(3, "0")}`;
-      setDoctors((prev) => [...prev, { id: nextId, ...form }]);
-      toast.success("Doctor added successfully");
+    try {
+      if (editDoctor) {
+        await updateDoctorStore(editDoctor.id, { ...editDoctor, ...form });
+        toast.success("Doctor updated successfully");
+      } else {
+        const nextId = `D${String(doctors.length + 1).padStart(3, "0")}`;
+        await addDoctorStore({ id: nextId, ...form });
+        toast.success("Doctor added successfully");
+      }
+      setDialogOpen(false);
+    } catch (err) {
+      toast.error("Failed to save doctor");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteDoctor) {
-      setDoctors((prev) => prev.filter((d) => d.id !== deleteDoctor.id));
-      setDeleteDoctor(null);
-      toast.success("Doctor removed");
+      try {
+        await removeDoctorStore(deleteDoctor.id);
+        setDeleteDoctor(null);
+        toast.success("Doctor removed");
+      } catch (err) {
+        toast.error("Failed to delete doctor");
+      }
     }
   };
 
-  const handleBulkDelete = () => {
-    setDoctors((prev) => prev.filter((d) => !selectedIds.has(d.id)));
-    setSelectedIds(new Set());
-    setBulkDeleteOpen(false);
-    toast.success("Selected doctors removed");
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedIds) {
+        await removeDoctorStore(id);
+      }
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      toast.success("Selected doctors removed");
+    } catch (err) {
+      toast.error("Failed to delete doctors");
+    }
   };
 
   const handlePrint = (d: Doctor) => {
