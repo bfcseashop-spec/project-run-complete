@@ -158,7 +158,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                   {group.records.length} {group.records.length === 1 ? "sample" : "samples"}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 {confirmable.length > 1 && onBulkConfirm && (
                   <Button
                     size="sm"
@@ -172,7 +172,8 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
               </div>
             </div>
 
-            {/* Samples Table */}
+            {/* Samples Table - collapsible */}
+            {!isCollapsed && (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
