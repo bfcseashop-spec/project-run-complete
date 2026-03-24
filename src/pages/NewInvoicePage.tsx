@@ -403,7 +403,7 @@ const NewInvoicePage = () => {
     if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discountAmount)}</span></div>`;
     if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
-    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
+    const finalPaid = splitMode ? splitPaidTotal : (paymentMethod === "Due" ? paidAmount : grandTotal);
     const finalDue = Math.max(0, grandTotal - finalPaid);
     const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(finalPaid)}</span></div>`;
     const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${finalDue > 0 ? '#ef4444' : '#16a34a'}">${formatPrice(finalDue)}</span></div>`;
