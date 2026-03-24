@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
@@ -8,12 +8,13 @@ import StatusBadge from "@/components/StatusBadge";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { getBillingRecords, subscribeBilling, updateBillingRecord, removeBillingRecord } from "@/data/billingStore";
 import { formatPrice } from "@/lib/currency";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, CreditCard, CheckCircle, Eye, Pencil, Trash2, Banknote } from "lucide-react";
+import { DollarSign, CreditCard, CheckCircle, Eye, Pencil, Trash2, Banknote, Clock, History } from "lucide-react";
 import { toast } from "sonner";
 import StatCard from "@/components/StatCard";
 
@@ -30,6 +31,16 @@ interface DueRow {
   rawTotal: number;
   method: string;
   service: string;
+}
+
+interface PaymentHistoryEntry {
+  id: string;
+  invoice_id: string;
+  patient: string;
+  amount: number;
+  method: string;
+  paid_at: string;
+  note: string;
 }
 
 const columns = [
@@ -53,10 +64,27 @@ const DuesPage = () => {
   const [selectedDue, setSelectedDue] = useState<DueRow | null>(null);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("Cash");
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryEntry[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeBilling(() => setBilling([...getBillingRecords()]));
     return () => unsub();
+  }, []);
+
+  const fetchPaymentHistory = useCallback(async (invoiceId: string) => {
+    setLoadingHistory(true);
+    const { data, error } = await supabase
+      .from("payment_history")
+      .select("*")
+      .eq("invoice_id", invoiceId)
+      .order("paid_at", { ascending: false });
+    if (!error && data) {
+      setPaymentHistory(data as PaymentHistoryEntry[]);
+    } else {
+      setPaymentHistory([]);
+    }
+    setLoadingHistory(false);
   }, []);
 
   const dueRows: DueRow[] = useMemo(() =>
@@ -101,6 +129,7 @@ const DuesPage = () => {
   const openViewDialog = (row: DueRow) => {
     setSelectedDue(row);
     setViewDialogOpen(true);
+    fetchPaymentHistory(row.id);
   };
 
   const openDeleteDialog = (row: DueRow) => {
@@ -112,7 +141,7 @@ const DuesPage = () => {
     navigate(`/billing/edit?edit=${row.id}`);
   };
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (!selectedDue) return;
     const amt = parseFloat(payAmount) || 0;
     if (amt <= 0 || amt > selectedDue.rawDue) {
@@ -121,6 +150,15 @@ const DuesPage = () => {
     }
     const newPaid = selectedDue.rawPaid + amt;
     const newDue = selectedDue.rawTotal - newPaid;
+
+    // Record payment in history
+    await supabase.from("payment_history").insert({
+      invoice_id: selectedDue.id,
+      patient: selectedDue.patient,
+      amount: amt,
+      method: payMethod,
+    });
+
     updateBillingRecord(selectedDue.id, {
       paid: newPaid,
       due: Math.max(0, newDue),
@@ -169,6 +207,12 @@ const DuesPage = () => {
       : col
   );
 
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) +
+      " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Due Management" description="Track outstanding payments and collections from billing" />
@@ -197,16 +241,16 @@ const DuesPage = () => {
         <DataGridView columns={actionColumns} data={display} keyExtractor={(d) => d.id} />
       )}
 
-      {/* View Dialog */}
+      {/* View Dialog with Payment History */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="w-5 h-5 text-blue-500" /> Invoice Details — {selectedDue?.id}
             </DialogTitle>
           </DialogHeader>
           {selectedDue && (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
               <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 space-y-2.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Patient</span>
@@ -239,6 +283,45 @@ const DuesPage = () => {
                   <span className="font-bold text-destructive">Outstanding Due</span>
                   <span className="font-bold text-destructive text-lg">{selectedDue.due}</span>
                 </div>
+              </div>
+
+              {/* Payment History Section */}
+              <div className="rounded-xl border p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <History className="w-4 h-4 text-blue-500" />
+                  Payment History
+                </div>
+                {loadingHistory ? (
+                  <p className="text-xs text-muted-foreground text-center py-3">Loading...</p>
+                ) : paymentHistory.length === 0 ? (
+                  <div className="text-center py-4 space-y-1">
+                    <Clock className="w-8 h-8 mx-auto text-muted-foreground/40" />
+                    <p className="text-xs text-muted-foreground">No payment history yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {paymentHistory.map((entry, idx) => (
+                      <div key={entry.id} className="flex items-center justify-between rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 px-3 py-2.5">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
+                              {paymentHistory.length - idx}
+                            </span>
+                            <span className="text-sm font-semibold text-emerald-700">{formatPrice(entry.amount)}</span>
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-medium">{entry.method}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground ml-7">{formatDateTime(entry.paid_at)}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between text-xs pt-1 border-t border-dashed text-muted-foreground">
+                      <span>Total from {paymentHistory.length} payment(s)</span>
+                      <span className="font-semibold text-emerald-600">
+                        {formatPrice(paymentHistory.reduce((s, e) => s + Number(e.amount), 0))}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
