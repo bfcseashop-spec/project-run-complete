@@ -79,6 +79,8 @@ const BillingPage = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
   const [refunds, setRefunds] = useState(getRefunds());
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [bulkDeleteStep, setBulkDeleteStep] = useState<0 | 1 | 2>(0); // 0=closed, 1=first confirm, 2=second confirm
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
   useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
@@ -379,15 +381,15 @@ const BillingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title={t("billing", lang)} description="Create invoices, track payments and manage billing records">
-        <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+        <div className="flex items-center gap-2">
+          {selectedKeys.size > 0 && (
+            <Button variant="destructive" size="sm" onClick={() => setBulkDeleteStep(1)} className="gap-1.5">
+              <Trash2 className="w-4 h-4" /> Delete {selectedKeys.size} Selected
+            </Button>
+          )}
+          <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+        </div>
       </PageHeader>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Today's Revenue" value={formatDualPrice(todayStats.revenue)} change={`${todayStats.count} invoices`} icon={DollarSign} accentColor="hsl(160, 50%, 38%)" />
-        <StatCard title="Today's Total" value={formatDualPrice(todayStats.total)} change={`${todayStats.completed} completed`} icon={TrendingUp} accentColor="hsl(200, 60%, 45%)" />
-        <StatCard title="Outstanding Due" value={formatDualPrice(todayStats.due)} change={todayStats.due > 0 ? "Needs attention" : "All clear"} icon={AlertTriangle} accentColor="hsl(350, 50%, 50%)" />
-        <StatCard title="Completed" value={`${todayStats.completed}/${todayStats.count}`} change={`${todayStats.pending} pending`} icon={CheckCircle} accentColor="hsl(142, 50%, 42%)" />
-      </div>
 
       <DataToolbar
         dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter}
@@ -399,7 +401,7 @@ const BillingPage = () => {
       />
 
       {toolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={displayData} keyExtractor={(d) => d.id} />
+        <DataTable columns={columns} data={displayData} keyExtractor={(d) => d.id} selectable selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys} />
       ) : (
         <DataGridView columns={columns} data={displayData} keyExtractor={(d) => d.id} />
       )}
@@ -521,6 +523,65 @@ const BillingPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete — Step 1: First Confirmation */}
+      <AlertDialog open={bulkDeleteStep === 1} onOpenChange={(open) => !open && setBulkDeleteStep(0)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" /> Bulk Delete — Step 1 of 2
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to delete <span className="font-bold text-foreground">{selectedKeys.size} invoice(s)</span>. This will permanently remove them from the billing records.
+              <br /><br />
+              Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkDeleteStep(0)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setBulkDeleteStep(2)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete — Step 2: Final Confirmation */}
+      <AlertDialog open={bulkDeleteStep === 2} onOpenChange={(open) => !open && setBulkDeleteStep(0)}>
+        <AlertDialogContent className="border-destructive/50">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" /> ⚠️ Final Confirmation — Step 2 of 2
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-bold text-destructive">This action CANNOT be undone.</span>
+              <br /><br />
+              The following <span className="font-bold text-foreground">{selectedKeys.size}</span> invoices will be permanently deleted:
+              <span className="block mt-2 max-h-32 overflow-y-auto text-xs font-mono bg-muted rounded-md p-2">
+                {Array.from(selectedKeys).join(", ")}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkDeleteStep(0)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const ids = Array.from(selectedKeys);
+                let deleted = 0;
+                for (const id of ids) {
+                  try { await removeBillingRecord(id); deleted++; } catch { /* skip */ }
+                }
+                toast.success(`${deleted} invoice(s) deleted successfully`);
+                setSelectedKeys(new Set());
+                setBulkDeleteStep(0);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete {selectedKeys.size} Invoice(s) Permanently
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
