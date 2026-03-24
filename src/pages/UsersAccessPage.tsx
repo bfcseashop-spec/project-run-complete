@@ -204,6 +204,9 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
         <div className="px-5 py-3 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h3 className="text-sm font-bold text-foreground">User Accounts</h3>
           <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => setShowCreateDialog(true)}>
+              <Plus className="w-3.5 h-3.5" /> Create User
+            </Button>
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8 h-8 w-[140px] text-xs" />
