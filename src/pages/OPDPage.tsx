@@ -82,7 +82,7 @@ const OPDPage = () => {
     : 401;
 
   const columns = [
-    { key: "id", header: "Serial No.", render: (p: OPDPatient) => <span className="text-xs font-medium text-foreground">{filteredPatients.indexOf(p) + 1}</span> },
+    { key: "id", header: "Serial No.", render: (p: OPDPatient) => <span className="text-xs font-medium text-foreground">OPD-{String(filteredPatients.indexOf(p) + 1).padStart(3, '0')}</span> },
     { key: "name", header: "Patient Name", render: (p: OPDPatient) => (
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 text-xs font-medium text-muted-foreground">
