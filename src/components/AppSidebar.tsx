@@ -142,7 +142,7 @@ const AppSidebar = () => {
             {settings.clinicLogo ? (
               <img src={settings.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
             ) : (
-              <Activity className="w-5 h-5 text-white" />
+              <Activity className="w-4 h-4 text-white" />
             )}
           </div>
           {!isCollapsed && (
