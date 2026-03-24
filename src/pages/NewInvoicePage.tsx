@@ -19,6 +19,7 @@ import { opdPatients } from "@/data/opdPatients";
 import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
+import { SearchableItemSelect, type SearchableOption } from "@/components/SearchableItemSelect";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { getSettings } from "@/data/settingsStore";
