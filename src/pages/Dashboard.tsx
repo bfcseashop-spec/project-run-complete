@@ -127,8 +127,23 @@ const Dashboard = () => {
     const profit = revenue > totalExpense ? revenue - totalExpense : 0;
     const loss = totalExpense > revenue ? totalExpense - revenue : 0;
 
+    // Calculate cash and bank totals
+    const bankMethods = ["aba", "acleda", "card", "wing", "binance(usdt)", "true money", "bank transfer", "insurance"];
+    let totalCash = 0;
+    let totalBank = 0;
+    filteredBilling.forEach(r => {
+      if (r.method && r.method !== "—") {
+        if (r.method.toLowerCase() === "cash") {
+          totalCash += r.paid;
+        } else if (bankMethods.includes(r.method.toLowerCase())) {
+          totalBank += r.paid;
+        }
+      }
+    });
+
     return {
       revenue, totalBills, totalDiscount, totalDue, totalExpense, profit, loss,
+      totalCash, totalBank,
       invoiceCount, completedInvoices, pendingInvoices,
       totalPatients: patients.length,
       activePatients: patients.filter(p => p.status === "active").length,
@@ -199,51 +214,23 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* ── Row 1: Financial Metrics ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── Row 1: 5 cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
-          label="Total Revenue"
-          value={formatPrice(stats.revenue)}
-          sub={`${stats.completedInvoices} completed invoices`}
-          icon={DollarSign}
+          label="Total Bills"
+          value={formatPrice(stats.totalBills)}
+          sub="All invoiced amount"
+          icon={Receipt}
           borderColor="hsl(260, 60%, 55%)"
           iconColor="hsl(260, 60%, 55%)"
         />
         <MetricCard
-          label="Total Invoices"
-          value={stats.invoiceCount}
-          sub={`${stats.completedInvoices} completed`}
-          icon={ClipboardList}
+          label="Total Bank"
+          value={formatPrice(stats.totalBank)}
+          sub="ABA, ACleda, Card, etc."
+          icon={Building2}
           borderColor="hsl(200, 80%, 50%)"
           iconColor="hsl(200, 80%, 50%)"
-        />
-        <MetricCard
-          label="Total Bills"
-          value={formatPrice(stats.totalBills)}
-          sub="All time revenue"
-          icon={Receipt}
-          borderColor="hsl(160, 70%, 42%)"
-          iconColor="hsl(160, 70%, 42%)"
-        />
-        <MetricCard
-          label="Total Patients"
-          value={stats.totalPatients}
-          sub={`${stats.activePatients} active patients`}
-          icon={Users}
-          borderColor="hsl(280, 55%, 55%)"
-          iconColor="hsl(280, 55%, 55%)"
-        />
-      </div>
-
-      {/* ── Row 2: Expense / Due / Profit / Discount ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Total Expenses"
-          value={formatPrice(stats.totalExpense)}
-          sub="For selected period"
-          icon={Wallet}
-          borderColor="hsl(15, 85%, 52%)"
-          iconColor="hsl(15, 85%, 52%)"
         />
         <MetricCard
           label="Total Due"
@@ -254,12 +241,12 @@ const Dashboard = () => {
           iconColor="hsl(350, 65%, 55%)"
         />
         <MetricCard
-          label="Profit / Loss"
-          value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
-          sub={stats.profit > 0 ? "Revenue − Expenses" : "Expenses exceed revenue"}
-          icon={stats.profit > 0 ? TrendingUp : TrendingDown}
-          borderColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
-          iconColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
+          label="Total Cash"
+          value={formatPrice(stats.totalCash)}
+          sub="Cash payments"
+          icon={Banknote}
+          borderColor="hsl(142, 71%, 45%)"
+          iconColor="hsl(142, 71%, 45%)"
         />
         <MetricCard
           label="Total Discount"
@@ -268,6 +255,42 @@ const Dashboard = () => {
           icon={Percent}
           borderColor="hsl(38, 92%, 50%)"
           iconColor="hsl(38, 92%, 50%)"
+        />
+      </div>
+
+      {/* ── Row 2: 4 cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          label="Total Expenses"
+          value={formatPrice(stats.totalExpense)}
+          sub="For selected period"
+          icon={Wallet}
+          borderColor="hsl(15, 85%, 52%)"
+          iconColor="hsl(15, 85%, 52%)"
+        />
+        <MetricCard
+          label="Total Invoices"
+          value={stats.invoiceCount}
+          sub={`${stats.completedInvoices} completed`}
+          icon={ClipboardList}
+          borderColor="hsl(200, 80%, 50%)"
+          iconColor="hsl(200, 80%, 50%)"
+        />
+        <MetricCard
+          label="Profit / Loss"
+          value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
+          sub={stats.profit > 0 ? "Revenue − Expenses" : "Expenses exceed revenue"}
+          icon={stats.profit > 0 ? TrendingUp : TrendingDown}
+          borderColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
+          iconColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
+        />
+        <MetricCard
+          label="Total Patients"
+          value={stats.totalPatients}
+          sub={`${stats.activePatients} active patients`}
+          icon={Users}
+          borderColor="hsl(280, 55%, 55%)"
+          iconColor="hsl(280, 55%, 55%)"
         />
       </div>
 
