@@ -313,6 +313,38 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Deactivate</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Plus className="w-4 h-4 text-primary" /> Create New User</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Full Name *</Label>
+              <Input value={createForm.full_name} onChange={(e) => setCreateForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="e.g. Dr. Rahman" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Email *</Label>
+              <Input type="email" value={createForm.email} onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))} placeholder="e.g. user@clinicpos.com" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Password *</Label>
+              <Input type="password" value={createForm.password} onChange={(e) => setCreateForm((p) => ({ ...p, password: e.target.value }))} placeholder="Min 6 characters" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Role</Label>
+              <Select value={createForm.role_id} onValueChange={(v) => setCreateForm((p) => ({ ...p, role_id: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+            <Button onClick={handleCreateUser} disabled={creating}>{creating ? "Creating..." : "Create User"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
