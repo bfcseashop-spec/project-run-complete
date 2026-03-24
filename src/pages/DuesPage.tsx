@@ -109,7 +109,7 @@ const DuesPage = () => {
   };
 
   const handleEdit = (row: DueRow) => {
-    navigate(`/new-invoice?edit=${row.id}`);
+    navigate(`/billing/edit?edit=${row.id}`);
   };
 
   const handlePay = () => {
