@@ -147,10 +147,10 @@ const AppSidebar = () => {
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden flex-1">
-              <h1 className="text-[15px] font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
+              <h1 className="text-[13px] font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
                 {settings.clinicName || "ClinicPOS"}
               </h1>
-              <p className="text-[10px] text-sidebar-muted leading-none truncate mt-0.5">
+              <p className="text-[9px] text-sidebar-muted leading-none truncate mt-0.5">
                 {settings.clinicTagline || "Healthcare & Wellness"}
               </p>
             </div>
