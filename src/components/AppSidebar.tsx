@@ -289,7 +289,7 @@ const AppSidebar = () => {
                           }}
                         >
                           <item.icon
-                            className={`${isCollapsed ? "w-[18px] h-[18px]" : "w-[17px] h-[17px]"}`}
+                            className={`${isCollapsed ? "w-4 h-4" : "w-[15px] h-[15px]"}`}
                             style={{ color: parentActive ? "white" : iconColor }}
                           />
                         </div>
