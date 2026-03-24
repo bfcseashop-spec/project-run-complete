@@ -176,6 +176,63 @@ export type Database = {
         }
         Relationships: []
       }
+      doctors: {
+        Row: {
+          address: string
+          bio: string
+          consultation_fee: number
+          created_at: string
+          email: string
+          experience: number
+          id: string
+          join_date: string
+          name: string
+          patients: number
+          phone: string
+          photo: string
+          qualification: string
+          schedule: Json
+          specialty: string
+          status: string
+        }
+        Insert: {
+          address?: string
+          bio?: string
+          consultation_fee?: number
+          created_at?: string
+          email?: string
+          experience?: number
+          id: string
+          join_date?: string
+          name?: string
+          patients?: number
+          phone?: string
+          photo?: string
+          qualification?: string
+          schedule?: Json
+          specialty?: string
+          status?: string
+        }
+        Update: {
+          address?: string
+          bio?: string
+          consultation_fee?: number
+          created_at?: string
+          email?: string
+          experience?: number
+          id?: string
+          join_date?: string
+          name?: string
+          patients?: number
+          phone?: string
+          photo?: string
+          qualification?: string
+          schedule?: Json
+          specialty?: string
+          status?: string
+        }
+        Relationships: []
+      }
       drafts: {
         Row: {
           created_at: string

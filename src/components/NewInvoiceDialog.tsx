@@ -17,6 +17,7 @@ import {
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { opdPatients } from "@/data/opdPatients";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -71,10 +72,7 @@ const paymentMethods = [
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
 
-const doctors = [
-  "Dr. Sarah Smith", "Dr. Raj Patel", "Dr. Emily Williams",
-  "Dr. Mark Brown", "Dr. Lisa Lee",
-];
+// doctors now come from the store
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 
@@ -137,6 +135,9 @@ const NewInvoiceDialog = ({ open, onOpenChange, onSubmit, editData }: NewInvoice
 
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
+  const [doctors, setDoctors] = useState(getActiveDoctorNames());
+
+  useEffect(() => { const unsub = subscribeDoctors(() => setDoctors([...getActiveDoctorNames()])); return () => unsub(); }, []);
   const [showPreview, setShowPreview] = useState(false);
 
   const today = new Date().toISOString().slice(0, 10);

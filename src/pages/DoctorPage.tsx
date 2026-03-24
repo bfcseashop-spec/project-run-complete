@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
 import { Checkbox } from "@/components/ui/checkbox";
 import DataTable from "@/components/DataTable";
@@ -29,36 +29,16 @@ import {
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import {
+  getDoctors, subscribeDoctors, addDoctor as addDoctorStore,
+  updateDoctor as updateDoctorStore, removeDoctor as removeDoctorStore,
+  type Doctor, type DoctorSchedule,
+} from "@/data/doctorStore";
 import { toast } from "sonner";
 
 const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const leaveTypes = ["Day Off", "Leave", "BL (Bereavement Leave)", "UL (Unpaid Leave)", "SL (Sick Leave)", "CL (Casual Leave)"];
 
-export interface DoctorSchedule {
-  workingDays: string[];
-  shiftStart: string;
-  shiftEnd: string;
-  leaveType: string;
-  leaveNote: string;
-}
-
-export interface Doctor {
-  id: string;
-  name: string;
-  specialty: string;
-  qualification: string;
-  phone: string;
-  email: string;
-  address: string;
-  experience: number;
-  consultationFee: number;
-  bio: string;
-  status: "active" | "inactive";
-  patients: number;
-  photo: string;
-  joinDate: string;
-  schedule: DoctorSchedule;
-}
 
 const defaultSpecialties = [
   "General Medicine", "Pathology", "Orthopedics", "Dermatology", "Cardiology",
@@ -71,14 +51,6 @@ const defaultSchedule: DoctorSchedule = {
   shiftStart: "09:00", shiftEnd: "17:00", leaveType: "", leaveNote: "",
 };
 
-const initialDoctors: Doctor[] = [
-  { id: "D001", name: "Dr. Sarah Smith", specialty: "General Medicine", qualification: "MBBS, MD", phone: "+1-555-0101", email: "sarah@clinic.com", address: "123 Medical Lane", experience: 12, consultationFee: 50, bio: "Experienced general practitioner with a focus on preventive care.", status: "active", patients: 128, photo: "", joinDate: "2020-01-15", schedule: { ...defaultSchedule } },
-  { id: "D002", name: "Dr. Raj Patel", specialty: "Pathology", qualification: "MBBS, MD Pathology", phone: "+1-555-0102", email: "raj@clinic.com", address: "456 Lab Street", experience: 8, consultationFee: 40, bio: "Specialist in clinical and anatomical pathology.", status: "active", patients: 95, photo: "", joinDate: "2021-03-20", schedule: { ...defaultSchedule, workingDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"] } },
-  { id: "D003", name: "Dr. Emily Williams", specialty: "Orthopedics", qualification: "MBBS, MS Ortho", phone: "+1-555-0103", email: "emily@clinic.com", address: "789 Bone Ave", experience: 15, consultationFee: 75, bio: "Expert in joint replacement and sports medicine.", status: "active", patients: 76, photo: "", joinDate: "2019-06-10", schedule: { ...defaultSchedule } },
-  { id: "D004", name: "Dr. Mark Brown", specialty: "Dermatology", qualification: "MBBS, MD Derma", phone: "+1-555-0104", email: "mark@clinic.com", address: "321 Skin Road", experience: 6, consultationFee: 45, bio: "Focused on cosmetic dermatology and skin disorders.", status: "inactive", patients: 42, photo: "", joinDate: "2022-09-01", schedule: { ...defaultSchedule, leaveType: "Leave", leaveNote: "On personal leave" } },
-  { id: "D005", name: "Dr. Lisa Lee", specialty: "Cardiology", qualification: "MBBS, DM Cardiology", phone: "+1-555-0105", email: "lisa@clinic.com", address: "654 Heart Blvd", experience: 20, consultationFee: 100, bio: "Senior cardiologist specializing in interventional procedures.", status: "active", patients: 110, photo: "", joinDate: "2018-02-28", schedule: { ...defaultSchedule, shiftStart: "08:00", shiftEnd: "16:00" } },
-];
-
 const emptyForm: Omit<Doctor, "id"> = {
   name: "", specialty: "", qualification: "", phone: "", email: "", address: "",
   experience: 0, consultationFee: 0, bio: "", status: "active", patients: 0,
@@ -87,7 +59,12 @@ const emptyForm: Omit<Doctor, "id"> = {
 };
 
 const DoctorPage = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
+  const [doctors, setDoctors] = useState<Doctor[]>(getDoctors());
+
+  useEffect(() => {
+    const unsub = subscribeDoctors(() => setDoctors([...getDoctors()]));
+    return () => unsub();
+  }, []);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDoctor, setEditDoctor] = useState<Doctor | null>(null);
   const [viewDoctor, setViewDoctor] = useState<Doctor | null>(null);
@@ -125,35 +102,49 @@ const DoctorPage = () => {
     e.target.value = "";
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.specialty || !form.phone) {
       toast.error("Please fill in Name, Specialty, and Phone");
       return;
     }
-    if (editDoctor) {
-      setDoctors((prev) => prev.map((d) => d.id === editDoctor.id ? { ...editDoctor, ...form } : d));
-      toast.success("Doctor updated successfully");
-    } else {
-      const nextId = `D${String(doctors.length + 1).padStart(3, "0")}`;
-      setDoctors((prev) => [...prev, { id: nextId, ...form }]);
-      toast.success("Doctor added successfully");
+    try {
+      if (editDoctor) {
+        await updateDoctorStore(editDoctor.id, { ...editDoctor, ...form });
+        toast.success("Doctor updated successfully");
+      } else {
+        const nextId = `D${String(doctors.length + 1).padStart(3, "0")}`;
+        await addDoctorStore({ id: nextId, ...form });
+        toast.success("Doctor added successfully");
+      }
+      setDialogOpen(false);
+    } catch (err) {
+      toast.error("Failed to save doctor");
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteDoctor) {
-      setDoctors((prev) => prev.filter((d) => d.id !== deleteDoctor.id));
-      setDeleteDoctor(null);
-      toast.success("Doctor removed");
+      try {
+        await removeDoctorStore(deleteDoctor.id);
+        setDeleteDoctor(null);
+        toast.success("Doctor removed");
+      } catch (err) {
+        toast.error("Failed to delete doctor");
+      }
     }
   };
 
-  const handleBulkDelete = () => {
-    setDoctors((prev) => prev.filter((d) => !selectedIds.has(d.id)));
-    setSelectedIds(new Set());
-    setBulkDeleteOpen(false);
-    toast.success("Selected doctors removed");
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedIds) {
+        await removeDoctorStore(id);
+      }
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      toast.success("Selected doctors removed");
+    } catch (err) {
+      toast.error("Failed to delete doctors");
+    }
   };
 
   const handlePrint = (d: Doctor) => {
@@ -274,7 +265,9 @@ const DoctorPage = () => {
         joinDate: String(row.joinDate || new Date().toISOString().split("T")[0]),
         schedule: { ...defaultSchedule },
       }));
-      setDoctors((prev) => [...newDoctors, ...prev]);
+      for (const doc of newDoctors) {
+        await addDoctorStore(doc);
+      }
     }
   };
 

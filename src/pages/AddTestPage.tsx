@@ -2,6 +2,7 @@ import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { useState, useMemo, useSyncExternalStore } from "react";
 import { addSampleRecords } from "@/data/sampleStore";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,7 @@ const AddTestPage = () => {
   const { activeTests, findByName } = useTestNameStore();
   const patients = useSyncExternalStore(subscribePatients, getPatients);
 
-  const doctors = useMemo(() => {
-    const set = new Set(patients.map((p) => p.doctor).filter(Boolean));
-    return Array.from(set).sort();
-  }, [patients]);
+  const doctors = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],

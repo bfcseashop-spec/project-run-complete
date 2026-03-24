@@ -15,6 +15,7 @@ import {
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { opdPatients } from "@/data/opdPatients";
+import { getActiveDoctorsWithDetails, subscribeDoctors } from "@/data/doctorStore";
 import { toast } from "sonner";
 import { formatDualPrice, formatPrice, getCurrencySymbol } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -61,13 +62,7 @@ const paymentMethods = [
   { value: "Bank Transfer", label: "Bank Transfer", icon: CreditCard },
   { value: "Insurance", label: "Insurance", icon: CreditCard },
 ];
-const doctors = [
-  { name: "Dr. Sarah Smith", degree: "MBBS, MD" },
-  { name: "Dr. Raj Patel", degree: "MBBS, FCPS" },
-  { name: "Dr. Emily Williams", degree: "MBBS, MS (Ortho)" },
-  { name: "Dr. Mark Brown", degree: "MBBS, DCH (Paediatrics)" },
-  { name: "Dr. Lisa Lee", degree: "MBBS, DGO (Gynaecology)" },
-];
+// doctors loaded from store inside component
 
 type LineItemType = "SVC" | "MED" | "INJ" | "PKG" | "CUSTOM";
 interface LineItem { id: string; type: LineItemType; name: string; price: number; qty: number; }
@@ -98,6 +93,9 @@ const NewInvoicePage = () => {
 
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
+  const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
+
+  const doctors = doctorsList.map((d) => ({ name: d.name, degree: d.qualification }));
 
   const today = new Date().toISOString().slice(0, 10);
   const [patient, setPatient] = useState("");
@@ -120,6 +118,7 @@ const NewInvoicePage = () => {
 
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeDoctors(() => setDoctorsList([...getActiveDoctorsWithDetails()])); return () => { u(); }; }, []);
 
   useEffect(() => {
     if (editData) {
