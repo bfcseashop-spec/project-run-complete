@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
@@ -11,18 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Camera, X } from "lucide-react";
 import type { OPDPatient, BloodType, PatientType } from "@/data/opdPatients";
-
-interface RegisterPatientDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (patient: OPDPatient) => void;
-  nextTokenNumber: number;
-  editPatient?: OPDPatient | null;
-}
-
-const doctors = [
-  "Dr. Smith", "Dr. Patel", "Dr. Williams", "Dr. Brown", "Dr. Lee",
-];
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 
 const bloodTypes: BloodType[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const patientTypes: PatientType[] = ["Walk In", "Indoor", "Outdoor", "Emergency"];

@@ -265,7 +265,9 @@ const DoctorPage = () => {
         joinDate: String(row.joinDate || new Date().toISOString().split("T")[0]),
         schedule: { ...defaultSchedule },
       }));
-      setDoctors((prev) => [...newDoctors, ...prev]);
+      for (const doc of newDoctors) {
+        await addDoctorStore(doc);
+      }
     }
   };
 
