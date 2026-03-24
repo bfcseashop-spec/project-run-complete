@@ -318,11 +318,19 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           <DialogHeader><DialogTitle>Edit User: {editProfile?.full_name}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Full Name</Label>
+              <Input value={editForm.full_name} onChange={(e) => setEditForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="User name" />
+            </div>
+            <div>
               <Label className="text-xs font-semibold mb-1.5 block">Role</Label>
               <Select value={editForm.role_id} onValueChange={(v) => setEditForm((p) => ({ ...p, role_id: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
                 <SelectContent>{roles.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">Reset Password</Label>
+              <Input type="password" value={editForm.new_password} onChange={(e) => setEditForm((p) => ({ ...p, new_password: e.target.value }))} placeholder="Leave empty to keep current" />
             </div>
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
               <span className="text-sm font-medium text-foreground">Active</span>
@@ -331,7 +339,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
-            <Button onClick={handleSave}>Update</Button>
+            <Button onClick={handleSave} disabled={resettingPassword}>{resettingPassword ? "Saving..." : "Update"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
