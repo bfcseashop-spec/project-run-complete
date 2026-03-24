@@ -21,7 +21,7 @@ import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
 import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
-import { parseISO, isWithinInterval, format, startOfDay, endOfDay } from "date-fns";
+import { parseISO, isWithinInterval, format } from "date-fns";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));

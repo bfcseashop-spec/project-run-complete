@@ -26,7 +26,7 @@ const defaultData: PaymentData[] = [
   { name: "Insurance", amount: 0, count: 0, color: "hsl(340, 60%, 50%)", icon: Banknote },
 ];
 
-const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => {
+const PaymentMethodChart = React.forwardRef<HTMLDivElement, PaymentMethodChartProps>(({ data = defaultData }, ref) => {
   const total = data.reduce((s, d) => s + d.amount, 0);
   const hasData = total > 0;
 
