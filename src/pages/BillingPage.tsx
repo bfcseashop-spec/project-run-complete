@@ -7,7 +7,7 @@ import DataToolbar from "@/components/DataToolbar";
 
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw } from "lucide-react";
+import { Plus, Eye, Pencil, Printer, Trash2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, RotateCcw, Banknote, CreditCard, Pill, Stethoscope, Syringe, PackageCheck, Users, Building2 } from "lucide-react";
 import { useSettings } from "@/hooks/use-settings";
 import { t } from "@/lib/i18n";
 import { formatDualPrice, formatPrice } from "@/lib/currency";
@@ -430,18 +430,33 @@ const BillingPage = () => {
     }
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayStats = useMemo(() => {
-    const todayRecords = billingData.filter((r) => r.date === today);
-    return {
-      revenue: todayRecords.reduce((s, r) => s + r.paid, 0),
-      total: todayRecords.reduce((s, r) => s + r.total, 0),
-      due: todayRecords.reduce((s, r) => s + r.due, 0),
-      count: todayRecords.length,
-      completed: todayRecords.filter((r) => r.status === "completed").length,
-      pending: todayRecords.filter((r) => r.status === "pending" || r.status === "critical").length,
-    };
-  }, [billingData, today]);
+  const billingStats = useMemo(() => {
+    const records = displayData;
+    const totalCash = records.filter(r => r.method === "Cash").reduce((s, r) => s + r.paid, 0);
+    const totalAcleda = records.filter(r => r.method === "ACleda").reduce((s, r) => s + r.paid, 0);
+    const totalABA = records.filter(r => r.method === "ABA").reduce((s, r) => s + r.paid, 0);
+    const totalBank = records.filter(r => ["ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer"].includes(r.method)).reduce((s, r) => s + r.paid, 0);
+
+    let totalMedSales = 0, totalServiceSales = 0, totalInjectionSales = 0, totalPackageSales = 0;
+    records.forEach(r => {
+      const items = r.formData?.lineItems || [];
+      items.forEach(li => {
+        const amt = li.price * li.qty;
+        if (li.type === "MED") totalMedSales += amt;
+        else if (li.type === "SVC" || li.type === "CUSTOM") totalServiceSales += amt;
+        else if (li.type === "INJ") totalInjectionSales += amt;
+        else if (li.type === "PKG") totalPackageSales += amt;
+      });
+    });
+
+    const uniquePatients = new Set(records.map(r => r.patient)).size;
+    const totalInvoices = records.length;
+    const totalRevenue = records.reduce((s, r) => s + r.total, 0);
+    const totalDue = records.reduce((s, r) => s + r.due, 0);
+    const totalDiscount = records.reduce((s, r) => s + r.discount, 0);
+
+    return { totalCash, totalAcleda, totalABA, totalBank, totalMedSales, totalServiceSales, totalInjectionSales, totalPackageSales, uniquePatients, totalInvoices, totalRevenue, totalDue, totalDiscount };
+  }, [displayData]);
 
   return (
     <div className="space-y-6">
@@ -455,6 +470,20 @@ const BillingPage = () => {
           <Button onClick={() => navigate("/billing/new")}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
         </div>
       </PageHeader>
+
+      {/* Billing Dashboard Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <StatCard title="Total Revenue" value={formatDualPrice(billingStats.totalRevenue)} icon={DollarSign} accentColor="hsl(var(--primary))" />
+        <StatCard title="Total Cash" value={formatDualPrice(billingStats.totalCash)} icon={Banknote} accentColor="hsl(142, 71%, 45%)" />
+        <StatCard title="Total ACleda" value={formatDualPrice(billingStats.totalAcleda)} icon={Building2} accentColor="hsl(217, 91%, 60%)" />
+        <StatCard title="Total ABA" value={formatDualPrice(billingStats.totalABA)} icon={CreditCard} accentColor="hsl(262, 83%, 58%)" />
+        <StatCard title="Total Due" value={formatDualPrice(billingStats.totalDue)} icon={AlertTriangle} accentColor="hsl(0, 84%, 60%)" />
+        <StatCard title="Med Sales" value={formatDualPrice(billingStats.totalMedSales)} icon={Pill} accentColor="hsl(199, 89%, 48%)" />
+        <StatCard title="Service Sales" value={formatDualPrice(billingStats.totalServiceSales)} icon={Stethoscope} accentColor="hsl(25, 95%, 53%)" />
+        <StatCard title="Injection Sales" value={formatDualPrice(billingStats.totalInjectionSales)} icon={Syringe} accentColor="hsl(330, 81%, 60%)" />
+        <StatCard title="Package Sales" value={formatDualPrice(billingStats.totalPackageSales)} icon={PackageCheck} accentColor="hsl(173, 80%, 40%)" />
+        <StatCard title="Total Patients" value={String(billingStats.uniquePatients)} icon={Users} accentColor="hsl(47, 96%, 53%)" />
+      </div>
 
       <DataToolbar
         dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter}
