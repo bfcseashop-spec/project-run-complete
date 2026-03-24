@@ -22,6 +22,7 @@ interface Props {
   onEdit: (r: SampleRecord) => void;
   onConfirm: (r: SampleRecord) => void;
   onDelete: (r: SampleRecord) => void;
+  onBulkConfirm?: (records: SampleRecord[]) => void;
 }
 
 function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete }: Props) {
