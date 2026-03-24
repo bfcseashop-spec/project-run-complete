@@ -6,7 +6,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search } from "lucide-react";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -43,6 +43,7 @@ const InjectionsPage = () => {
   const [form, setForm] = useState<Omit<InjectionItem, "id">>(emptyForm);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
@@ -147,6 +148,16 @@ const InjectionsPage = () => {
 
       <DataToolbar dateFilter={injToolbar.dateFilter} onDateFilterChange={injToolbar.setDateFilter} viewMode={injToolbar.viewMode} onViewModeChange={injToolbar.setViewMode} onExportExcel={injToolbar.handleExportExcel} onExportPDF={injToolbar.handleExportPDF} onImport={handleImportInj} onDownloadSample={injToolbar.handleDownloadSample} />
 
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by name or code..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-3">
@@ -168,11 +179,15 @@ const InjectionsPage = () => {
         </div>
       </div>
 
-      {injToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
-      ) : (
-        <DataGridView columns={columns} data={injections} keyExtractor={(i) => i.id} />
-      )}
+      {(() => {
+        const q = searchQuery.toLowerCase().trim();
+        const filtered = q ? injections.filter(i => i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)) : injections;
+        return injToolbar.viewMode === "list" ? (
+          <DataTable columns={columns} data={filtered} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
+        ) : (
+          <DataGridView columns={columns} data={filtered} keyExtractor={(i) => i.id} />
+        );
+      })()}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
