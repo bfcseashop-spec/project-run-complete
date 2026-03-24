@@ -142,6 +142,7 @@ export const updateMedicine = async (id: string, updates: Partial<Medicine>) => 
 };
 
 export const restockMedicine = async (name: string, qty: number) => {
+  await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med) {
     await updateMedicine(med.id, { stock: med.stock + qty });
@@ -149,6 +150,7 @@ export const restockMedicine = async (name: string, qty: number) => {
 };
 
 export const deductMedicine = async (name: string, qty: number): Promise<boolean> => {
+  await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med && med.stock >= qty) {
     await updateMedicine(med.id, { stock: med.stock - qty });
