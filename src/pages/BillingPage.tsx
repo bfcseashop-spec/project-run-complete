@@ -118,12 +118,7 @@ const BillingPage = () => {
       }
 
       const prefix = appSettings.invoicePrefix || "INV";
-      // Ensure unique invoice number by checking existing records
-      let nextNum = parseInt(appSettings.nextInvoiceNumber) || 1001;
-      const existingIds = new Set(billingData.map(r => r.id));
-      while (existingIds.has(`${prefix}-${String(nextNum).padStart(3, "0")}`)) {
-        nextNum++;
-      }
+      const nextNum = getNextInvoiceNumber(billingData.map(r => r.id), prefix);
       const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);
