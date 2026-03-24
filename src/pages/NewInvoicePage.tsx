@@ -389,7 +389,7 @@ const NewInvoicePage = () => {
   const handlePrintFromInvoice = () => {
     const s = appSettings;
     const invoiceItems = previewItems;
-    const invoiceId = `${s.invoicePrefix}-${s.nextInvoiceNumber}`;
+    const invoiceId = nextInvoiceId;
     const now = new Date();
     const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     const barcodeStr = barcodeSVG(invoiceId, 220, 50);
