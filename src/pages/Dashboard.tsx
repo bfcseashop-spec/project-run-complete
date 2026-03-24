@@ -124,8 +124,9 @@ const Dashboard = () => {
     });
     const totalExpense = filteredExpenses.reduce((s, e) => s + e.amount, 0);
 
-    const profit = revenue > totalExpense ? revenue - totalExpense : 0;
-    const loss = totalExpense > revenue ? totalExpense - revenue : 0;
+    const netResult = totalBills - (totalExpense + totalDiscount);
+    const profit = netResult > 0 ? netResult : 0;
+    const loss = netResult < 0 ? Math.abs(netResult) : 0;
 
     // Calculate cash and bank totals
     const bankMethods = ["aba", "acleda", "card", "wing", "binance(usdt)", "true money", "bank transfer", "insurance"];
