@@ -37,10 +37,7 @@ const AddTestPage = () => {
   const { activeTests, findByName } = useTestNameStore();
   const patients = useSyncExternalStore(subscribePatients, getPatients);
 
-  const doctors = useMemo(() => {
-    const set = new Set(patients.map((p) => p.doctor).filter(Boolean));
-    return Array.from(set).sort();
-  }, [patients]);
+  const doctors = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
