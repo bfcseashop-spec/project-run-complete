@@ -122,6 +122,21 @@ const BillingPage = () => {
       const record = buildRecord(data, id);
       addBillingRecord(record);
       updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
+
+      // Deduct stock for medicines and injections
+      const items = data.lineItems || [];
+      for (const li of items) {
+        if (li.type === "MED") {
+          await deductMedicine(li.name, li.qty);
+        } else if (li.type === "INJ") {
+          const allInj = getInjections();
+          const inj = allInj.find(i => i.name === li.name);
+          if (inj && inj.stock >= li.qty) {
+            const newStock = inj.stock - li.qty;
+            await updateInjection(inj.id, { stock: newStock, status: computeInjectionStatus(newStock) });
+          }
+        }
+      }
     } catch { /* ignore */ }
   }, []);
 
