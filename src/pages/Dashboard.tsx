@@ -455,25 +455,25 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Today's Sales by Payment */}
+        {/* Sales by Payment */}
         <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
           <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
             <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
               <Banknote className="w-4 h-4 text-white" />
             </span>
-            Today's Sales by Payment
+            Sales by Payment
           </h3>
-          {todaySalesByPayment.length > 0 ? (
+          {salesByPayment.length > 0 ? (
             <div className="space-y-0">
-              {todaySalesByPayment.map((item, i) => (
-                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < todaySalesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
+              {salesByPayment.map((item, i) => (
+                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < salesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
                   <span className="text-sm font-semibold text-card-foreground">{item.name}</span>
                   <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales today</div>
+            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales in this period</div>
           )}
         </div>
 
