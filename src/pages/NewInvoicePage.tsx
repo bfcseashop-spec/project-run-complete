@@ -878,7 +878,7 @@ const NewInvoicePage = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] uppercase tracking-widest opacity-60">Invoice</p>
-                  <p className="text-base font-bold font-mono tracking-wider">{appSettings.invoicePrefix}-{appSettings.nextInvoiceNumber}</p>
+                  <p className="text-base font-bold font-mono tracking-wider">{nextInvoiceId}</p>
                 </div>
               </div>
 
