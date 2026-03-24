@@ -285,7 +285,7 @@ const AppSidebar = () => {
                           style={{
                             background: parentActive
                               ? `linear-gradient(135deg, ${iconColor}, ${iconColor}dd)`
-                              : `${iconColor}12`,
+                              : `${iconColor}22`,
                           }}
                         >
                           <item.icon
