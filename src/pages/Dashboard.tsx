@@ -21,7 +21,7 @@ import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
 import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
-import { parseISO, isWithinInterval, format, startOfDay, endOfDay } from "date-fns";
+import { parseISO, isWithinInterval, format } from "date-fns";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
@@ -141,11 +141,11 @@ const Dashboard = () => {
     };
   }, [filteredBilling, patients, labReports, medicines, injections, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
 
-  // Payment chart data
+  // Payment chart data — case-insensitive matching
   const paymentData = useMemo(() => {
     const methods = ["Cash", "ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer", "Insurance"];
     return methods.map((name) => {
-      const matching = filteredBilling.filter((r) => r.method === name);
+      const matching = filteredBilling.filter((r) => r.method.toLowerCase() === name.toLowerCase());
       const meta = paymentMeta[name];
       return { name, amount: matching.reduce((s, r) => s + r.paid, 0), count: matching.length, color: meta.color, icon: meta.icon };
     });
@@ -187,19 +187,15 @@ const Dashboard = () => {
       .sort((a, b) => b.amount - a.amount);
   }, [filteredBilling]);
 
-  // Today's Sales by Payment
-  const todaySalesByPayment = useMemo(() => {
-    const today = new Date();
-    const todayStart = startOfDay(today);
-    const todayEnd = endOfDay(today);
-    const todayBills = billingRecords.filter(r => {
-      try { return isWithinInterval(parseISO(r.date), { start: todayStart, end: todayEnd }); }
-      catch { return false; }
-    });
+  // Sales by Payment — uses the same date filter as Financial Overview
+  const salesByPayment = useMemo(() => {
     const methodMap: Record<string, number> = {};
-    todayBills.forEach(r => {
+    filteredBilling.forEach(r => {
       if (r.method && r.method !== "—") {
-        methodMap[r.method] = (methodMap[r.method] || 0) + r.paid;
+        // Normalize method name to title case for display
+        const normalized = r.method.charAt(0).toUpperCase() + r.method.slice(1).toLowerCase();
+        const displayName = Object.keys(paymentMeta).find(k => k.toLowerCase() === r.method.toLowerCase()) || normalized;
+        methodMap[displayName] = (methodMap[displayName] || 0) + r.paid;
       }
       if (r.due > 0) {
         methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
@@ -208,7 +204,7 @@ const Dashboard = () => {
     return Object.entries(methodMap)
       .map(([name, amount]) => ({ name, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [billingRecords]);
+  }, [filteredBilling]);
 
   // Popular Medicine
   const popularMedicine = useMemo(() => {
@@ -459,25 +455,25 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Today's Sales by Payment */}
+        {/* Sales by Payment */}
         <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
           <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
             <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
               <Banknote className="w-4 h-4 text-white" />
             </span>
-            Today's Sales by Payment
+            Sales by Payment
           </h3>
-          {todaySalesByPayment.length > 0 ? (
+          {salesByPayment.length > 0 ? (
             <div className="space-y-0">
-              {todaySalesByPayment.map((item, i) => (
-                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < todaySalesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
+              {salesByPayment.map((item, i) => (
+                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < salesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
                   <span className="text-sm font-semibold text-card-foreground">{item.name}</span>
                   <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales today</div>
+            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales in this period</div>
           )}
         </div>
 

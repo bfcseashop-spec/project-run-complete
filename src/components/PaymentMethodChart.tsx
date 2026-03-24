@@ -1,3 +1,4 @@
+import React from "react";
 import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { formatPrice } from "@/lib/currency";
@@ -26,12 +27,12 @@ const defaultData: PaymentData[] = [
   { name: "Insurance", amount: 0, count: 0, color: "hsl(340, 60%, 50%)", icon: Banknote },
 ];
 
-const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => {
+const PaymentMethodChart = React.forwardRef<HTMLDivElement, PaymentMethodChartProps>(({ data = defaultData }, ref) => {
   const total = data.reduce((s, d) => s + d.amount, 0);
   const hasData = total > 0;
 
   return (
-    <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+    <div ref={ref} className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
@@ -122,6 +123,8 @@ const PaymentMethodChart = ({ data = defaultData }: PaymentMethodChartProps) => 
       </div>
     </div>
   );
-};
+});
+
+PaymentMethodChart.displayName = "PaymentMethodChart";
 
 export default PaymentMethodChart;
