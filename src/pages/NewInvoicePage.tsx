@@ -45,13 +45,7 @@ const packageOptions = [
   { name: "Diabetes Panel", price: 35 }, { name: "Cardiac Panel", price: 80 },
   { name: "Prenatal Package", price: 60 },
 ];
-const medicineOptions = [
-  { name: "Amoxicillin 500mg", price: 2.50 }, { name: "Paracetamol 650mg", price: 0.50 },
-  { name: "Metformin 500mg", price: 1.00 }, { name: "Omeprazole 20mg", price: 1.50 },
-  { name: "Cetirizine 10mg", price: 0.75 }, { name: "Azithromycin 250mg", price: 3.00 },
-  { name: "10% GS 500ml", price: 10.00 }, { name: "Ace", price: 0.25 },
-  { name: "Ibuprofen 400mg", price: 1.00 },
-];
+// medicineOptions now loaded dynamically from store inside component
 const paymentMethods = [
   { value: "Cash", label: "Cash", icon: DollarSign },
   { value: "ABA", label: "ABA", icon: CreditCard },
