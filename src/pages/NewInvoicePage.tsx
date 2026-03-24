@@ -345,7 +345,10 @@ const NewInvoicePage = () => {
   const handlePayment = () => {
     if (!patient) { toast.error("Please select a patient"); return; }
     if (lineItems.length === 0) { toast.error("Please add at least one item"); return; }
-    if (splitMode) {
+    // If payment method is "Due", don't auto-fill paid amount — bill goes to Due Management
+    if (paymentMethod === "Due" && !splitMode) {
+      // paid stays as-is (user entered partial or 0)
+    } else if (splitMode) {
       const remaining = Math.max(0, grandTotal - splitTotal);
       if (remaining > 0) {
         const updated = [...splitPayments];
@@ -357,13 +360,15 @@ const NewInvoicePage = () => {
     }
     // Show the invoice preview instead of navigating away
     setShowInvoice(true);
-    toast.success("Payment received — Invoice ready");
+    toast.success(paymentMethod === "Due" && !splitMode ? "Invoice created — Due recorded" : "Payment received — Invoice ready");
   };
 
   const handleConfirmAndSave = () => {
     if (draftId) removeDraft(draftId); // Remove from drafts on payment completion
+    // For "Due" method, keep the user-entered paid amount (could be 0 or partial)
+    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
     sessionStorage.setItem("invoiceSubmit", JSON.stringify({
-      data: { ...buildFormData(), paidAmount: grandTotal },
+      data: { ...buildFormData(), paidAmount: finalPaid },
       action: "payment",
       isEdit: !!editData,
       editRecordId,
@@ -400,8 +405,10 @@ const NewInvoicePage = () => {
     if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discountAmount)}</span></div>`;
     if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(taxAmount)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(grandTotal)}</span></div>`;
-    const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(grandTotal)}</span></div>`;
-    const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600">${formatPrice(0)}</span></div>`;
+    const finalPaid = (paymentMethod === "Due" && !splitMode) ? paidAmount : (splitMode ? splitTotal : grandTotal);
+    const finalDue = Math.max(0, grandTotal - finalPaid);
+    const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(finalPaid)}</span></div>`;
+    const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${finalDue > 0 ? '#ef4444' : '#16a34a'}">${formatPrice(finalDue)}</span></div>`;
     totalsHtml += paidLine + dueLine + `</div>`;
     const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatDualPrice(sp.amount)}`).join(", ") : paymentMethod;
     const win = window.open("", "_blank", "width=800,height=900");

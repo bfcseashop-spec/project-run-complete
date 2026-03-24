@@ -221,8 +221,11 @@ const BillingPage = () => {
     },
   ];
 
+  // Only show paid bills (due <= 0) in billing list; unpaid go to Due Management
+  const paidBillingData = useMemo(() => billingData.filter(r => r.due <= 0), [billingData]);
+
   const toolbar = useDataToolbar({
-    data: billingData as unknown as Record<string, unknown>[],
+    data: paidBillingData as unknown as Record<string, unknown>[],
     dateKey: "date",
     columns,
     title: "Billing",
