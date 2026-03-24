@@ -141,11 +141,11 @@ const Dashboard = () => {
     };
   }, [filteredBilling, patients, labReports, medicines, injections, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
 
-  // Payment chart data
+  // Payment chart data — case-insensitive matching
   const paymentData = useMemo(() => {
     const methods = ["Cash", "ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer", "Insurance"];
     return methods.map((name) => {
-      const matching = filteredBilling.filter((r) => r.method === name);
+      const matching = filteredBilling.filter((r) => r.method.toLowerCase() === name.toLowerCase());
       const meta = paymentMeta[name];
       return { name, amount: matching.reduce((s, r) => s + r.paid, 0), count: matching.length, color: meta.color, icon: meta.icon };
     });
