@@ -70,13 +70,12 @@ const InjectionsPage = () => {
 
   const handleSubmit = () => {
     if (!form.name || !form.category) { toast.error("Name and category are required"); return; }
-    const status = computeInjectionStatus(form.stock);
     if (editInj) {
-      updateInjection(editInj.id, { ...form, status });
+      updateInjection(editInj.id, { ...form });
       toast.success("Injection updated");
     } else {
       const nextId = `INJ-${String(getInjections().length + 1).padStart(3, "0")}`;
-      addInjection({ id: nextId, ...form, status });
+      addInjection({ id: nextId, ...form });
       toast.success("Injection added");
     }
     setDialogOpen(false);
@@ -226,6 +225,17 @@ const InjectionsPage = () => {
               <div>
                 <Label>Price</Label>
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as InjectionItem["status"] }))}>
+                  <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="in-stock">In Stock</SelectItem>
+                    <SelectItem value="low-stock">Low Stock</SelectItem>
+                    <SelectItem value="out-of-stock">Out of Stock</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
