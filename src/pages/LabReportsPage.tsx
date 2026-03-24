@@ -33,6 +33,8 @@ import {
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView, { printLabReport } from "@/components/LabReportView";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const categoryIcons: Record<string, React.ElementType> = {
   hematology: Droplets, biochemistry: FlaskConical, microbiology: Bug,
