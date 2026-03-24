@@ -79,6 +79,8 @@ const BillingPage = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const [patients, setPatients] = useState(getPatients());
   const [refunds, setRefunds] = useState(getRefunds());
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [bulkDeleteStep, setBulkDeleteStep] = useState<0 | 1 | 2>(0); // 0=closed, 1=first confirm, 2=second confirm
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return u; }, []);
   useEffect(() => { const u = subscribeBilling(() => setBillingData([...getBillingRecords()])); return u; }, []);
   useEffect(() => { const u = subscribeRefunds(() => setRefunds([...getRefunds()])); return () => { u(); }; }, []);
