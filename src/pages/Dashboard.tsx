@@ -127,8 +127,23 @@ const Dashboard = () => {
     const profit = revenue > totalExpense ? revenue - totalExpense : 0;
     const loss = totalExpense > revenue ? totalExpense - revenue : 0;
 
+    // Calculate cash and bank totals
+    const bankMethods = ["aba", "acleda", "card", "wing", "binance(usdt)", "true money", "bank transfer", "insurance"];
+    let totalCash = 0;
+    let totalBank = 0;
+    filteredBilling.forEach(r => {
+      if (r.method && r.method !== "—") {
+        if (r.method.toLowerCase() === "cash") {
+          totalCash += r.paid;
+        } else if (bankMethods.includes(r.method.toLowerCase())) {
+          totalBank += r.paid;
+        }
+      }
+    });
+
     return {
       revenue, totalBills, totalDiscount, totalDue, totalExpense, profit, loss,
+      totalCash, totalBank,
       invoiceCount, completedInvoices, pendingInvoices,
       totalPatients: patients.length,
       activePatients: patients.filter(p => p.status === "active").length,
