@@ -7,7 +7,8 @@ import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Eye, Printer, Search, ClipboardList } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, Printer, Search, ClipboardList, Users, UserCheck, Building, TreePine, AlertCircle } from "lucide-react";
+import StatCard from "@/components/StatCard";
 import { printRecordReport } from "@/lib/printUtils";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { opdPatients, type OPDPatient, type BloodType, type PatientType } from "@/data/opdPatients";
@@ -155,6 +156,15 @@ const OPDPage = () => {
           <Plus className="w-4 h-4 mr-2" /> Register Patient
         </Button>
       </PageHeader>
+
+      {/* OPD Dashboard Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <StatCard title="Total Patients" value={String(patients.length)} icon={Users} accentColor="hsl(var(--primary))" />
+        <StatCard title="Walk In" value={String(patients.filter(p => p.patientType === "Walk In").length)} icon={UserCheck} accentColor="hsl(142, 71%, 45%)" />
+        <StatCard title="Indoor" value={String(patients.filter(p => p.patientType === "Indoor").length)} icon={Building} accentColor="hsl(217, 91%, 60%)" />
+        <StatCard title="Outdoor" value={String(patients.filter(p => p.patientType === "Outdoor").length)} icon={TreePine} accentColor="hsl(25, 95%, 53%)" />
+        <StatCard title="Emergency" value={String(patients.filter(p => p.patientType === "Emergency").length)} icon={AlertCircle} accentColor="hsl(0, 84%, 60%)" />
+      </div>
 
       {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-3">
