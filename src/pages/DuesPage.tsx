@@ -1,18 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
 import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { getBillingRecords, subscribeBilling, updateBillingRecord } from "@/data/billingStore";
+import { getBillingRecords, subscribeBilling, updateBillingRecord, removeBillingRecord } from "@/data/billingStore";
 import { formatPrice } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, CreditCard, CheckCircle } from "lucide-react";
+import { DollarSign, CreditCard, CheckCircle, Eye, Pencil, Trash2, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import StatCard from "@/components/StatCard";
 
@@ -28,6 +29,7 @@ interface DueRow {
   rawPaid: number;
   rawTotal: number;
   method: string;
+  service: string;
 }
 
 const columns = [
@@ -35,16 +37,19 @@ const columns = [
   { key: "patient" as const, header: "Patient" },
   { key: "amount" as const, header: "Total" },
   { key: "paid" as const, header: "Paid" },
-  { key: "due" as const, header: "Due" },
+  { key: "due" as const, header: "Due", render: (d: DueRow) => <span className="font-semibold text-destructive">{d.due}</span> },
   { key: "method" as const, header: "Pay Method" },
   { key: "date" as const, header: "Date" },
   { key: "status" as const, header: "Status", render: (d: DueRow) => <StatusBadge status={d.status} /> },
-  { key: "actions" as const, header: "Actions", render: (d: DueRow) => null }, // placeholder, overridden below
+  { key: "actions" as const, header: "Actions", render: (d: DueRow) => null },
 ];
 
 const DuesPage = () => {
+  const navigate = useNavigate();
   const [billing, setBilling] = useState(getBillingRecords());
   const [payDialogOpen, setPayDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDue, setSelectedDue] = useState<DueRow | null>(null);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("Cash");
@@ -54,7 +59,6 @@ const DuesPage = () => {
     return () => unsub();
   }, []);
 
-  // Only show records with outstanding dues
   const dueRows: DueRow[] = useMemo(() =>
     billing
       .filter(r => r.due > 0)
@@ -70,6 +74,7 @@ const DuesPage = () => {
         rawPaid: r.paid,
         rawTotal: r.total,
         method: r.method,
+        service: r.service,
       })),
     [billing]
   );
@@ -93,6 +98,20 @@ const DuesPage = () => {
     setPayDialogOpen(true);
   };
 
+  const openViewDialog = (row: DueRow) => {
+    setSelectedDue(row);
+    setViewDialogOpen(true);
+  };
+
+  const openDeleteDialog = (row: DueRow) => {
+    setSelectedDue(row);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleEdit = (row: DueRow) => {
+    navigate(`/new-invoice?edit=${row.id}`);
+  };
+
   const handlePay = () => {
     if (!selectedDue) return;
     const amt = parseFloat(payAmount) || 0;
@@ -111,6 +130,17 @@ const DuesPage = () => {
     setPayDialogOpen(false);
   };
 
+  const handleDelete = async () => {
+    if (!selectedDue) return;
+    try {
+      await removeBillingRecord(selectedDue.id);
+      toast.success(`${selectedDue.id} deleted successfully`);
+      setDeleteDialogOpen(false);
+    } catch {
+      toast.error("Failed to delete record");
+    }
+  };
+
   const handleImport = async (file: File) => {
     await toolbar.handleImport(file);
   };
@@ -120,9 +150,20 @@ const DuesPage = () => {
       ? {
           ...col,
           render: (d: DueRow) => (
-            <Button size="sm" variant="outline" onClick={() => openPayDialog(d)} className="gap-1.5">
-              <CreditCard className="w-3.5 h-3.5" /> Pay
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => openViewDialog(d)} className="gap-1 h-8 px-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
+                <Eye className="w-3.5 h-3.5" /> View
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleEdit(d)} className="gap-1 h-8 px-2 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700">
+                <Pencil className="w-3.5 h-3.5" /> Edit
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => openPayDialog(d)} className="gap-1 h-8 px-2 text-xs border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700">
+                <Banknote className="w-3.5 h-3.5" /> Pay
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => openDeleteDialog(d)} className="gap-1 h-8 px-2 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                <Trash2 className="w-3.5 h-3.5" /> Delete
+              </Button>
+            </div>
           ),
         }
       : col
@@ -156,19 +197,75 @@ const DuesPage = () => {
         <DataGridView columns={actionColumns} data={display} keyExtractor={(d) => d.id} />
       )}
 
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-blue-500" /> Invoice Details — {selectedDue?.id}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedDue && (
+            <div className="space-y-3">
+              <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 space-y-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Patient</span>
+                  <span className="font-medium">{selectedDue.patient}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Service</span>
+                  <span className="font-medium">{selectedDue.service}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Date</span>
+                  <span className="font-medium">{selectedDue.date}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Payment Method</span>
+                  <span className="font-medium">{selectedDue.method}</span>
+                </div>
+              </div>
+              <div className="rounded-xl border p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Amount</span>
+                  <span className="font-semibold">{selectedDue.amount}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Paid</span>
+                  <span className="font-semibold text-emerald-600">{selectedDue.paid}</span>
+                </div>
+                <hr />
+                <div className="flex justify-between text-sm">
+                  <span className="font-bold text-destructive">Outstanding Due</span>
+                  <span className="font-bold text-destructive text-lg">{selectedDue.due}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+            <Button onClick={() => { setViewDialogOpen(false); if (selectedDue) openPayDialog(selectedDue); }} className="bg-emerald-600 hover:bg-emerald-700">
+              <Banknote className="w-4 h-4 mr-1" /> Pay Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Payment Dialog */}
       <Dialog open={payDialogOpen} onOpenChange={setPayDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Record Payment — {selectedDue?.id}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-emerald-500" /> Record Payment — {selectedDue?.id}
+            </DialogTitle>
           </DialogHeader>
           {selectedDue && (
             <div className="space-y-4">
-              <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                <p><span className="text-muted-foreground">Patient:</span> {selectedDue.patient}</p>
-                <p><span className="text-muted-foreground">Total:</span> {selectedDue.amount}</p>
-                <p><span className="text-muted-foreground">Already Paid:</span> {selectedDue.paid}</p>
-                <p className="font-bold text-destructive">Outstanding: {selectedDue.due}</p>
+              <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100 p-4 text-sm space-y-1.5">
+                <p><span className="text-muted-foreground">Patient:</span> <span className="font-medium">{selectedDue.patient}</span></p>
+                <p><span className="text-muted-foreground">Total:</span> <span className="font-medium">{selectedDue.amount}</span></p>
+                <p><span className="text-muted-foreground">Already Paid:</span> <span className="font-medium text-emerald-600">{selectedDue.paid}</span></p>
+                <p className="font-bold text-destructive text-base pt-1">Outstanding: {selectedDue.due}</p>
               </div>
               <div>
                 <Label>Payment Amount</Label>
@@ -189,7 +286,25 @@ const DuesPage = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPayDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handlePay}>Confirm Payment</Button>
+            <Button onClick={handlePay} className="bg-emerald-600 hover:bg-emerald-700">Confirm Payment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" /> Delete Due Record
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete <span className="font-semibold text-foreground">{selectedDue?.id}</span> for <span className="font-semibold text-foreground">{selectedDue?.patient}</span>? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
