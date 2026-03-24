@@ -16,7 +16,7 @@ import {
   Plus, Trash2, Pencil, Eye, Printer, Search, Package, PackageCheck,
   AlertTriangle, PackageX, DollarSign, TrendingUp, Upload, X, Calendar,
   Barcode as BarcodeIcon, Image as ImageIcon, Pill, ShoppingCart, Tag, Info, Link,
-  Clock,
+  Clock, History,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
