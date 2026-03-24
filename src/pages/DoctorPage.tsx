@@ -29,6 +29,11 @@ import {
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import {
+  getDoctors, subscribeDoctors, addDoctor as addDoctorStore,
+  updateDoctor as updateDoctorStore, removeDoctor as removeDoctorStore,
+  type Doctor, type DoctorSchedule,
+} from "@/data/doctorStore";
 import { toast } from "sonner";
 
 const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
