@@ -46,8 +46,8 @@ const defaultSettings: AppSettings = {
   clinicWebsite: "www.clinic.com",
   clinicRegNumber: "CLN-2024-0987",
   clinicLogo: "",
-  invoicePrefix: "INV",
-  nextInvoiceNumber: "1001",
+  invoicePrefix: "BL",
+  nextInvoiceNumber: "1",
   taxEnabled: true,
   taxRate: "5",
 };

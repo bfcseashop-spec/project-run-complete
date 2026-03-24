@@ -118,9 +118,9 @@ const BillingPage = () => {
         return;
       }
 
-      const prefix = appSettings.invoicePrefix || "INV";
+      const prefix = appSettings.invoicePrefix || "BL";
       const nextNum = getNextInvoiceNumber(billingData.map(r => r.id), prefix);
-      const id = `${prefix}-${String(nextNum).padStart(3, "0")}`;
+      const id = `${prefix}-${String(nextNum).padStart(2, "0")}`;
       const record = buildRecord(data, id);
       addBillingRecord(record);
       updateSettings({ nextInvoiceNumber: String(nextNum + 1) });
