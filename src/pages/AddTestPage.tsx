@@ -2,6 +2,7 @@ import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { useState, useMemo, useSyncExternalStore } from "react";
 import { addSampleRecords } from "@/data/sampleStore";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
