@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -67,10 +67,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { error } = await adminClient.auth.admin.updateUser(user_id, { password: new_password });
+    // Use REST API directly to update user password
+    const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${user_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceRoleKey}`,
+        "apikey": serviceRoleKey,
+      },
+      body: JSON.stringify({ password: new_password }),
+    });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+    if (!response.ok) {
+      const errBody = await response.json();
+      return new Response(JSON.stringify({ error: errBody.message || errBody.msg || "Failed to update password" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

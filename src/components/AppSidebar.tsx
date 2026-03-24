@@ -13,7 +13,7 @@ import { t, TranslationKey } from "@/lib/i18n";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface SubItem { icon: React.ElementType; labelKey: TranslationKey; path: string; }
+interface SubItem { icon: React.ElementType; labelKey: TranslationKey; path: string; module?: string; }
 interface MenuItem { icon: React.ElementType; labelKey: TranslationKey; path: string; module?: string; subItems?: SubItem[]; color?: string; }
 interface MenuSection { labelKey: TranslationKey; items: MenuItem[]; color?: string; }
 
@@ -46,8 +46,8 @@ const menuSections: MenuSection[] = [
         icon: TestTube, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(200, 80%, 45%)",
         subItems: [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
-          { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection" },
-          { icon: TestTube, labelKey: "name", path: "/lab-tests/names" },
+          { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
+          { icon: TestTube, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
         ],
       },
       { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(217, 80%, 50%)" },
@@ -231,7 +231,7 @@ const AppSidebar = () => {
 
                           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
                             <div className="ml-[22px] pl-3 border-l-[2px] border-sidebar-border/70 space-y-0 mt-0.5 mb-0.5">
-                              {item.subItems!.map((sub) => (
+                              {item.subItems!.filter((sub) => canViewModule(sub.module)).map((sub) => (
                                 <NavLink
                                   key={sub.path}
                                   to={sub.path}
