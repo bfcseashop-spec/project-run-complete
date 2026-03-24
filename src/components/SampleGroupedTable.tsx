@@ -4,9 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Eye, Pencil, Printer, Barcode as BarcodeIcon, SendHorizonal, Trash2,
+  User, TestTubes, Droplets, FlaskConical, TestTube, ClipboardList,
+  Thermometer, ThermometerSun, Snowflake,
 } from "lucide-react";
 import { type SampleRecord } from "@/data/sampleRecords";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
+import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PatientGroup {
   patient: string;
@@ -23,6 +28,32 @@ interface Props {
   onConfirm: (r: SampleRecord) => void;
   onDelete: (r: SampleRecord) => void;
   onBulkConfirm?: (records: SampleRecord[]) => void;
+}
+
+const sampleTypeIcons: Record<string, React.ElementType> = {
+  blood: Droplets, urine: FlaskConical, stool: FlaskConical, sputum: FlaskConical,
+  swab: TestTube, tissue: TestTube, csf: Droplets, other: ClipboardList,
+};
+
+const storageIcons: Record<string, React.ElementType> = {
+  room: ThermometerSun, refrigerated: Thermometer, frozen: Snowflake,
+};
+
+function ActionButton({ icon: Icon, title, onClick, className = "" }: {
+  icon: React.ElementType; title: string; onClick: () => void; className?: string;
+}) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className={`h-7 w-7 rounded-full ${className}`} onClick={onClick}>
+            <Icon className="w-3.5 h-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="text-xs">{title}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
@@ -60,205 +91,155 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground text-sm border rounded-lg bg-card">
-        No records found
+      <div className="text-center py-16 text-muted-foreground text-sm border border-dashed border-border rounded-xl bg-card/50">
+        <TestTube className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
+        <p className="font-medium">No samples found</p>
+        <p className="text-xs mt-1">Try adjusting your filters or add a new sample</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-card">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-muted/50 border-b border-border">
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Sample ID</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Patient</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Tests</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Sample Type</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Priority</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Barcode</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Collected</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Storage</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Collect By</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Status</th>
-            <th className="text-left px-4 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {groups.map((group) => {
-            const first = group.records[0];
-            const uniqueTests = [...new Map(group.records.map(r => [r.testName, r])).values()];
-            const uniqueSampleTypes = [...new Map(group.records.map(r => [r.sampleType, r])).values()];
-            const uniquePriorities = [...new Set(group.records.map(r => r.priority))];
-            const uniqueBarcodes = group.records.map(r => r.barcode);
-            const uniqueStorage = [...new Set(group.records.map(r => r.storageTemp))];
-            const uniqueCollectors = [...new Set(group.records.map(r => r.collectedBy).filter(Boolean))];
-            const uniqueStatuses = [...new Set(group.records.map(r => r.status))];
-            const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
+    <div className="space-y-3">
+      {groups.map((group, groupIdx) => {
+        const confirmable = group.records.filter(r => r.status === "pending" || r.status === "collected");
+        const uniqueTests = [...new Map(group.records.map(r => [r.testName, r])).values()];
+        const uniqueSampleTypes = [...new Map(group.records.map(r => [r.sampleType, r])).values()];
 
-            return (
-              <tr
-                key={`${group.patient}__${group.patientId}`}
-                className="border-b border-border hover:bg-muted/30 transition-colors align-top"
-              >
-                {/* Sample ID */}
-                <td className="px-4 py-3">
-                  <div className="space-y-1">
-                    {group.records.map(r => (
-                      <div key={r.id} className="text-card-foreground font-mono text-xs">{r.id}</div>
-                    ))}
+        return (
+          <div
+            key={`${group.patient}__${group.patientId}`}
+            className="rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+          >
+            {/* Patient Header */}
+            <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <div className="font-semibold text-card-foreground text-sm">{group.patient}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="font-mono">{group.patientId}</span>
+                    <span>·</span>
+                    <span>{group.age}y</span>
+                    <span>·</span>
+                    <span>{group.gender}</span>
                   </div>
-                </td>
+                </div>
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {group.records.length} {group.records.length === 1 ? "sample" : "samples"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                {confirmable.length > 1 && onBulkConfirm && (
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs gap-1.5 rounded-lg"
+                    onClick={() => onBulkConfirm(confirmable)}
+                  >
+                    <SendHorizonal className="w-3.5 h-3.5" />
+                    Send All ({confirmable.length})
+                  </Button>
+                )}
+              </div>
+            </div>
 
-                {/* Patient */}
-                <td className="px-4 py-3">
-                  <div className="font-medium text-card-foreground">{group.patient}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {group.patientId} · {group.age}y · {group.gender}
-                  </div>
-                  {group.records.length > 1 && (
-                    <div className="mt-1 text-xs font-medium text-primary">
-                      {group.records.length} samples
-                    </div>
-                  )}
-                </td>
+            {/* Samples Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/60">
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">ID</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Test</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Sample</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Priority</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Barcode</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Collected</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Storage</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Collector</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-muted-foreground text-xs">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group.records.map((r, idx) => {
+                    const SampleIcon = sampleTypeIcons[r.sampleType] || TestTube;
+                    const StorageIcon = storageIcons[r.storageTemp] || Thermometer;
+                    const isLast = idx === group.records.length - 1;
 
-                {/* Tests - clickable badges */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {uniqueTests.map(r => (
-                      <Badge
+                    return (
+                      <tr
                         key={r.id}
-                        variant="secondary"
-                        className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
-                        onClick={() => onView(r)}
+                        className={`hover:bg-muted/20 transition-colors ${!isLast ? "border-b border-border/40" : ""}`}
                       >
-                        {r.testName}
-                      </Badge>
-                    ))}
-                  </div>
-                </td>
-
-                {/* Sample Types - clickable badges */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {uniqueSampleTypes.map(r => (
-                      <Badge
-                        key={r.id}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-accent transition-colors text-xs capitalize"
-                        onClick={() => onView(r)}
-                      >
-                        {r.sampleType}
-                      </Badge>
-                    ))}
-                  </div>
-                </td>
-
-                {/* Priority */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {uniquePriorities.map(p => (
-                      <StatusBadge key={p} status={p} />
-                    ))}
-                  </div>
-                </td>
-
-                {/* Barcode */}
-                <td className="px-4 py-3">
-                  <div className="space-y-1">
-                    {uniqueBarcodes.map((b, i) => (
-                      <div key={i} className="font-mono text-xs bg-muted px-2 py-0.5 rounded inline-block">{b}</div>
-                    ))}
-                  </div>
-                </td>
-
-                {/* Collected */}
-                <td className="px-4 py-3">
-                  {first.collectionTime ? (
-                    <div>
-                      <div className="text-card-foreground text-xs">{first.collectionDate}</div>
-                      <div className="text-xs text-muted-foreground">{first.collectionTime}</div>
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground italic text-xs">Not yet</span>
-                  )}
-                </td>
-
-                {/* Storage */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {uniqueStorage.map(s => (
-                      <span key={s} className="capitalize text-xs">{s}</span>
-                    ))}
-                  </div>
-                </td>
-
-                {/* Collected By */}
-                <td className="px-4 py-3">
-                  {uniqueCollectors.length > 0 ? (
-                    <div className="text-xs">{uniqueCollectors.join(", ")}</div>
-                  ) : (
-                    <span className="text-muted-foreground italic text-xs">Unassigned</span>
-                  )}
-                </td>
-
-                {/* Status */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {uniqueStatuses.map(s => (
-                      <StatusBadge key={s} status={(s === "failed" ? "rejected" : s) as any} />
-                    ))}
-                  </div>
-                </td>
-
-                {/* Actions - for each record */}
-                <td className="px-4 py-3">
-                  <div className="space-y-1">
-                    {confirmable.length > 1 && onBulkConfirm && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs h-7 border-primary text-primary hover:bg-primary hover:text-primary-foreground mb-1"
-                        onClick={() => onBulkConfirm(confirmable)}
-                      >
-                        <SendHorizonal className="w-3 h-3 mr-1" />
-                        Send All ({confirmable.length})
-                      </Button>
-                    )}
-                    <div className="flex flex-wrap items-center gap-0.5">
-                      {group.records.map(r => (
-                        <div key={r.id} className="flex items-center gap-0.5">
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title={`View ${r.testName}`} onClick={() => onView(r)}>
-                            <Eye className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title={`Edit ${r.testName}`} onClick={() => onEdit(r)}>
-                            <Pencil className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Print Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-                            <BarcodeIcon className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Print" onClick={() => handlePrint(r)}>
-                            <Printer className="w-3 h-3 text-primary" />
-                          </Button>
-                          {(r.status === "pending" || r.status === "collected") && (
-                            <Button variant="ghost" size="icon" className="h-6 w-6" title="Send to Lab" onClick={() => onConfirm(r)}>
-                              <SendHorizonal className="w-3 h-3 text-primary" />
-                            </Button>
+                        <td className="px-4 py-2.5">
+                          <span className="font-mono text-xs text-muted-foreground">{r.id}</span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs font-medium"
+                            onClick={() => onView(r)}
+                          >
+                            {r.testName}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1.5">
+                            <SampleIcon className="w-3.5 h-3.5 text-primary/70" />
+                            <span className="capitalize text-xs">{r.sampleType}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <StatusBadge status={r.priority} />
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="font-mono text-xs bg-muted/80 px-2 py-0.5 rounded-md">{r.barcode}</span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {r.collectionTime ? (
+                            <div>
+                              <div className="text-xs text-card-foreground">{r.collectionDate}</div>
+                              <div className="text-[10px] text-muted-foreground">{r.collectionTime}</div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground italic text-xs">Not yet</span>
                           )}
-                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Delete" onClick={() => onDelete(r)}>
-                            <Trash2 className="w-3 h-3 text-destructive" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1">
+                            <StorageIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="capitalize text-xs">{r.storageTemp}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="text-xs">{r.collectedBy || <span className="text-muted-foreground italic">Unassigned</span>}</span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <StatusBadge status={(r.status === "failed" ? "rejected" : r.status) as any} />
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center justify-end gap-0.5">
+                            <ActionButton icon={Eye} title={`View ${r.testName}`} onClick={() => onView(r)} />
+                            <ActionButton icon={Pencil} title={`Edit ${r.testName}`} onClick={() => onEdit(r)} />
+                            <ActionButton icon={BarcodeIcon} title="Print Barcode" onClick={() => printBarcode(r.id, r.patient)} />
+                            <ActionButton icon={Printer} title="Print Report" onClick={() => handlePrint(r)} className="text-primary" />
+                            {(r.status === "pending" || r.status === "collected") && (
+                              <ActionButton icon={SendHorizonal} title="Send to Lab" onClick={() => onConfirm(r)} className="text-primary" />
+                            )}
+                            <ActionButton icon={Trash2} title="Delete" onClick={() => onDelete(r)} className="text-destructive hover:text-destructive" />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
