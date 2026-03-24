@@ -77,6 +77,7 @@ function applyModeQuick(mode: string) {
 }
 
 const LayoutInner = () => {
+  const { profile } = useAuth();
   const { collapsed, isMobile, setMobileOpen } = useSidebarState();
   const navigate = useNavigate();
   const now = useDateTime();
