@@ -8,6 +8,7 @@ import AppLayout from "@/components/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PermissionGate from "@/components/PermissionGate";
 
 // Lazy load all pages
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
