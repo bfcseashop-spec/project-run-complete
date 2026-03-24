@@ -230,7 +230,7 @@ const AppSidebar = () => {
                           </button>
 
                           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                            <div className="ml-[26px] pl-3.5 border-l-[2px] border-sidebar-border/70 space-y-0.5 mt-1 mb-1">
+                            <div className="ml-[22px] pl-3 border-l-[2px] border-sidebar-border/70 space-y-0 mt-0.5 mb-0.5">
                               {item.subItems!.map((sub) => (
                                 <NavLink
                                   key={sub.path}
