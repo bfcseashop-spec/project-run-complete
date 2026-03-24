@@ -179,11 +179,15 @@ const InjectionsPage = () => {
         </div>
       </div>
 
-      {injToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={injections} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
-      ) : (
-        <DataGridView columns={columns} data={injections} keyExtractor={(i) => i.id} />
-      )}
+      {(() => {
+        const q = searchQuery.toLowerCase().trim();
+        const filtered = q ? injections.filter(i => i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)) : injections;
+        return injToolbar.viewMode === "list" ? (
+          <DataTable columns={columns} data={filtered} keyExtractor={(i) => i.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
+        ) : (
+          <DataGridView columns={columns} data={filtered} keyExtractor={(i) => i.id} />
+        );
+      })()}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
