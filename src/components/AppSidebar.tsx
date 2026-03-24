@@ -5,7 +5,7 @@ import {
   MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
   Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
-  RotateCcw, Package, LogOut, X,
+  RotateCcw, Package, LogOut, X, Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -91,7 +91,6 @@ const AppSidebar = () => {
   const { can, isAdmin } = usePermissions();
   const { signOut, profile } = useAuth();
 
-  // Close mobile sidebar on navigation
   useEffect(() => {
     if (isMobile) setMobileOpen(false);
   }, [location.pathname]);
@@ -111,32 +110,34 @@ const AppSidebar = () => {
     return isAdmin || can(module, "view");
   };
 
-  // On mobile: show/hide via mobileOpen. On desktop: use collapsed.
   const showSidebar = isMobile ? mobileOpen : true;
   const isCollapsed = isMobile ? false : collapsed;
 
   return (
     <>
-      {/* Mobile overlay backdrop */}
       {isMobile && mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen bg-sidebar flex flex-col z-50 transition-all duration-300 border-r border-sidebar-border shadow-sm ${
+        className={`fixed left-0 top-0 h-screen flex flex-col z-50 transition-all duration-300 ${
           isMobile
-            ? `w-[280px] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`
-            : isCollapsed ? "w-[68px]" : "w-[260px]"
+            ? `w-[270px] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`
+            : isCollapsed ? "w-[68px]" : "w-[250px]"
         }`}
+        style={{
+          background: "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background)) 100%)",
+          borderRight: "1px solid hsl(var(--sidebar-border))",
+        }}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-4 h-14 border-b border-sidebar-border">
+        {/* ─── Logo Header ─── */}
+        <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden"
-            style={{ background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(168, 80%, 35%), hsl(200, 80%, 40%))" }}
+            className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden"
+            style={{ background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 40%))" }}
           >
             {settings.clinicLogo ? (
               <img src={settings.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
@@ -146,21 +147,26 @@ const AppSidebar = () => {
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden flex-1">
-              <h1 className="text-base font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
+              <h1 className="text-[15px] font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
                 {settings.clinicName || "ClinicPOS"}
               </h1>
-              <p className="text-[10px] text-sidebar-muted leading-none truncate">{settings.clinicTagline || "Management System"}</p>
+              <p className="text-[10px] text-sidebar-muted leading-none truncate mt-0.5">
+                {settings.clinicTagline || "Healthcare & Wellness"}
+              </p>
             </div>
           )}
           {isMobile && (
-            <button onClick={() => setMobileOpen(false)} className="ml-auto w-8 h-8 rounded-lg flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
+            <button onClick={() => setMobileOpen(false)} className="ml-auto w-8 h-8 rounded-xl flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-5 scrollbar-thin">
+        {/* ─── Divider ─── */}
+        <div className="mx-4 h-px bg-sidebar-border" />
+
+        {/* ─── Navigation ─── */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
           {menuSections.map((section) => {
             const visibleItems = section.items.filter((item) => canViewModule(item.module));
             if (visibleItems.length === 0) return null;
@@ -168,15 +174,19 @@ const AppSidebar = () => {
             return (
               <div key={section.labelKey}>
                 {!isCollapsed && (
-                  <div className="flex items-center gap-2 px-3 mb-2">
-                    <div className="w-1 h-3 rounded-full" style={{ background: section.color }} />
-                    <p className="text-[10px] uppercase tracking-[0.15em] font-semibold" style={{ color: section.color }}>
+                  <div className="flex items-center gap-2 px-2 mb-2.5">
+                    <p
+                      className="text-[10px] uppercase tracking-[0.16em] font-bold opacity-70"
+                      style={{ color: section.color }}
+                    >
                       {t(section.labelKey, lang)}
                     </p>
+                    <div className="flex-1 h-px bg-sidebar-border/50" />
                   </div>
                 )}
                 {isCollapsed && <div className="w-6 h-px mx-auto mb-2 rounded-full bg-sidebar-border" />}
-                <div className="space-y-0.5">
+
+                <div className="space-y-1">
                   {visibleItems.map((item) => {
                     const hasChildren = item.subItems && item.subItems.length > 0;
                     const isExpanded = expandedItems.includes(item.path);
@@ -188,44 +198,60 @@ const AppSidebar = () => {
                         <div key={item.path}>
                           <button
                             onClick={() => toggleExpand(item.path)}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 w-full group ${
+                            className={`flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-xl text-[13px] font-semibold transition-all duration-200 group relative ${
                               parentActive
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-[3px]"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
+                                ? "text-sidebar-accent-foreground"
+                                : "text-sidebar-foreground hover:bg-sidebar-accent/60"
                             }`}
-                            style={parentActive ? { borderLeftColor: iconColor } : undefined}
                           >
+                            {/* Active indicator bar */}
+                            {parentActive && (
+                              <div
+                                className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
+                                style={{ background: iconColor }}
+                              />
+                            )}
                             <div
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                                parentActive ? "shadow-md" : "group-hover:scale-105"
+                              className={`w-[34px] h-[34px] rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                                parentActive ? "shadow-md" : "group-hover:shadow-sm"
                               }`}
-                              style={{ background: parentActive ? iconColor : `${iconColor}15` }}
+                              style={{
+                                background: parentActive
+                                  ? `linear-gradient(135deg, ${iconColor}, ${iconColor}dd)`
+                                  : `${iconColor}12`,
+                              }}
                             >
-                              <item.icon className="w-4 h-4" style={{ color: parentActive ? "white" : iconColor }} />
+                              <item.icon
+                                className="w-[17px] h-[17px]"
+                                style={{ color: parentActive ? "white" : iconColor }}
+                              />
                             </div>
                             <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
                             <ChevronDown
-                              className={`w-4 h-4 text-sidebar-muted transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                              className={`w-3.5 h-3.5 text-sidebar-muted transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
                             />
                           </button>
 
                           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                            <div className="ml-[22px] pl-4 border-l border-sidebar-border space-y-0.5 mt-1">
+                            <div className="ml-[26px] pl-3.5 border-l-[2px] border-sidebar-border/70 space-y-0.5 mt-1 mb-1">
                               {item.subItems!.map((sub) => (
                                 <NavLink
                                   key={sub.path}
                                   to={sub.path}
                                   end
-                                  className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${
+                                  className={`flex items-center gap-2 px-2.5 py-[6px] rounded-lg text-[12px] font-medium transition-all duration-200 ${
                                     isActive(sub.path)
-                                      ? "text-sidebar-accent-foreground"
-                                      : "text-sidebar-muted hover:text-sidebar-foreground"
+                                      ? "text-sidebar-accent-foreground bg-sidebar-accent/80"
+                                      : "text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
                                   }`}
                                 >
                                   {isActive(sub.path) ? (
-                                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: iconColor, boxShadow: `0 0 6px ${iconColor}` }} />
+                                    <div
+                                      className="w-[6px] h-[6px] rounded-full flex-shrink-0"
+                                      style={{ background: iconColor, boxShadow: `0 0 8px ${iconColor}60` }}
+                                    />
                                   ) : (
-                                    <div className="w-1.5 h-1.5 rounded-full bg-sidebar-border flex-shrink-0" />
+                                    <div className="w-[6px] h-[6px] rounded-full bg-sidebar-border flex-shrink-0" />
                                   )}
                                   <span>{t(sub.labelKey, lang)}</span>
                                 </NavLink>
@@ -241,21 +267,34 @@ const AppSidebar = () => {
                         key={item.path}
                         to={item.path}
                         end={item.path === "/"}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 group ${
+                        className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-xl text-[13px] font-semibold transition-all duration-200 group relative ${
                           parentActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-[3px]"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent/60 border-l-[3px] border-transparent"
-                        } ${isCollapsed ? "justify-center px-0 border-l-0" : ""}`}
-                        style={parentActive && !isCollapsed ? { borderLeftColor: iconColor } : undefined}
+                            ? "text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent/60"
+                        } ${isCollapsed ? "justify-center px-0" : ""}`}
                         title={isCollapsed ? t(item.labelKey, lang) : undefined}
                       >
+                        {/* Active indicator bar */}
+                        {parentActive && !isCollapsed && (
+                          <div
+                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
+                            style={{ background: iconColor }}
+                          />
+                        )}
                         <div
-                          className={`${isCollapsed ? "w-10 h-10" : "w-8 h-8"} rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                            parentActive ? "shadow-md" : "group-hover:scale-105"
+                          className={`${isCollapsed ? "w-10 h-10" : "w-[34px] h-[34px]"} rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                            parentActive ? "shadow-md" : "group-hover:shadow-sm"
                           }`}
-                          style={{ background: parentActive ? iconColor : `${iconColor}15` }}
+                          style={{
+                            background: parentActive
+                              ? `linear-gradient(135deg, ${iconColor}, ${iconColor}dd)`
+                              : `${iconColor}12`,
+                          }}
                         >
-                          <item.icon className={`${isCollapsed ? "w-[18px] h-[18px]" : "w-4 h-4"}`} style={{ color: parentActive ? "white" : iconColor }} />
+                          <item.icon
+                            className={`${isCollapsed ? "w-[18px] h-[18px]" : "w-[17px] h-[17px]"}`}
+                            style={{ color: parentActive ? "white" : iconColor }}
+                          />
                         </div>
                         {!isCollapsed && <span>{t(item.labelKey, lang)}</span>}
                       </NavLink>
@@ -267,34 +306,53 @@ const AppSidebar = () => {
           })}
         </nav>
 
-        {/* User info */}
+        {/* ─── User Profile Card ─── */}
         {!isCollapsed && profile && (
-          <div className="px-3 py-3 border-t border-sidebar-border">
-            <div className="flex items-center gap-2.5 px-2 py-2 rounded-xl bg-sidebar-accent/50">
+          <div className="px-3 pb-3">
+            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-gradient-to-r from-sidebar-accent/80 to-sidebar-accent/40 border border-sidebar-border/50">
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-sm"
-                style={{ background: "linear-gradient(135deg, hsl(168, 80%, 35%), hsl(200, 80%, 45%))" }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-md"
+                style={{ background: "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 42%))" }}
               >
                 <span className="text-white">
                   {profile.full_name?.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?"}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-sidebar-accent-foreground truncate">{profile.full_name || "User"}</p>
+                <p className="text-[12px] font-semibold text-sidebar-accent-foreground truncate">{profile.full_name || "User"}</p>
                 <p className="text-[10px] text-sidebar-muted truncate">{profile.role_name || "No role"}</p>
               </div>
-              <button onClick={signOut} className="w-7 h-7 rounded-lg flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all" title="Sign out">
+              <button
+                onClick={signOut}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-all"
+                title="Sign out"
+              >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         )}
 
-        {/* Collapse toggle - desktop only */}
+        {/* Collapsed user avatar */}
+        {isCollapsed && profile && (
+          <div className="px-2 pb-2 flex justify-center">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold shadow-md cursor-pointer"
+              style={{ background: "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 42%))" }}
+              title={`${profile.full_name} — Click sidebar expand to sign out`}
+            >
+              <span className="text-white">
+                {profile.full_name?.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Collapse Toggle ─── */}
         {!isMobile && (
           <button
             onClick={toggle}
-            className="flex items-center justify-center h-11 border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all"
+            className="flex items-center justify-center h-10 border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all"
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
