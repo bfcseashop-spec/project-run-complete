@@ -131,6 +131,41 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
     else onRefresh();
   };
 
+  const handleCreateUser = async () => {
+    if (!createForm.full_name.trim() || !createForm.email.trim() || !createForm.password.trim()) {
+      toast.error("Name, email, and password are required");
+      return;
+    }
+    if (createForm.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("create-user", {
+        body: {
+          email: createForm.email.trim(),
+          password: createForm.password,
+          full_name: createForm.full_name.trim(),
+          role_id: createForm.role_id || null,
+        },
+      });
+      if (res.error || res.data?.error) {
+        toast.error(res.data?.error || res.error?.message || "Failed to create user");
+      } else {
+        toast.success(`User "${createForm.full_name}" created successfully`);
+        setShowCreateDialog(false);
+        setCreateForm({ full_name: "", email: "", password: "", role_id: "" });
+        onRefresh();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteProfile) return;
     // We can't delete auth users from client, just deactivate
