@@ -342,6 +342,7 @@ const SampleCollectionPage = () => {
               onEdit={openEdit}
               onConfirm={setConfirmRecord}
               onDelete={setDeleteRecord}
+              onBulkConfirm={setBulkConfirmRecords}
             />
           ) : (
             <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
