@@ -1,3 +1,4 @@
+import React from "react";
 import { Banknote, CreditCard, Building2, Landmark } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { formatPrice } from "@/lib/currency";
