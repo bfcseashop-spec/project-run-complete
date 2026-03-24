@@ -32,7 +32,7 @@ const PaymentMethodChart = React.forwardRef<HTMLDivElement, PaymentMethodChartPr
   const hasData = total > 0;
 
   return (
-    <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+    <div ref={ref} className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5">
