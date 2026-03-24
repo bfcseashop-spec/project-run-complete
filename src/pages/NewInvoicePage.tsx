@@ -93,6 +93,16 @@ const NewInvoicePage = () => {
   const [injectionsList, setInjectionsList] = useState(getInjections());
   const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
   const [medicinesList, setMedicinesList] = useState(getMedicines());
+  const [billingIds, setBillingIds] = useState(getBillingRecords().map(r => r.id));
+
+  useEffect(() => { const u = subscribeBilling(() => setBillingIds(getBillingRecords().map(r => r.id))); return u; }, []);
+
+  const prefix = appSettings.invoicePrefix || "INV";
+  const nextInvNum = useMemo(() => {
+    const n = getNextInvoiceNumber(billingIds, prefix);
+    return String(n).padStart(3, "0");
+  }, [billingIds, prefix]);
+  const nextInvoiceId = `${prefix}-${nextInvNum}`;
 
   const medicineOptions = useMemo(() => medicinesList.filter(m => m.stock > 0).map(m => ({ name: m.name, price: m.price })), [medicinesList]);
 
