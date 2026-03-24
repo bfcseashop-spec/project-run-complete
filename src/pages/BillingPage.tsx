@@ -126,6 +126,7 @@ const BillingPage = () => {
       // Deduct stock for medicines and injections
       const items = data.lineItems || [];
       (async () => {
+        await ensureInjectionsLoaded();
         for (const li of items) {
           if (li.type === "MED") {
             await deductMedicine(li.name, li.qty);
