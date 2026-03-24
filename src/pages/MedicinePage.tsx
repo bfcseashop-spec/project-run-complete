@@ -16,7 +16,7 @@ import {
   Plus, Trash2, Pencil, Eye, Printer, Search, Package, PackageCheck,
   AlertTriangle, PackageX, DollarSign, TrendingUp, Upload, X, Calendar,
   Barcode as BarcodeIcon, Image as ImageIcon, Pill, ShoppingCart, Tag, Info, Link,
-  Clock,
+  Clock, History,
 } from "lucide-react";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
 import {
@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import {
   getMedicines, addMedicine, updateMedicine, deleteMedicine, subscribeMedicines, Medicine,
 } from "@/data/medicineStore";
+import StockHistoryDialog from "@/components/StockHistoryDialog";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { exportToExcel, generateSampleExcel } from "@/lib/exportUtils";
 import { formatPrice } from "@/lib/currency";
@@ -75,6 +76,9 @@ const MedicinePage = () => {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [deleteCatConfirm, setDeleteCatConfirm] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyMedId, setHistoryMedId] = useState<string | undefined>();
+  const [historyMedName, setHistoryMedName] = useState<string | undefined>();
 
   const categories = [...defaultCategories, ...customCategories];
 
@@ -344,6 +348,9 @@ const MedicinePage = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(m.id, m.name)}>
             <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
           </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted" title="Stock History" onClick={() => { setHistoryMedId(m.id); setHistoryMedName(m.name); setHistoryOpen(true); }}>
+            <History className="w-3.5 h-3.5 text-muted-foreground" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteMed(m)}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
@@ -442,6 +449,7 @@ const MedicinePage = () => {
             <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
           </Button>
         )}
+        <Button variant="outline" onClick={() => { setHistoryMedId(undefined); setHistoryMedName(undefined); setHistoryOpen(true); }}><History className="w-4 h-4 mr-2" /> Stock History</Button>
         <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}><Tag className="w-4 h-4 mr-2" /> Categories</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Medicine</Button>
       </PageHeader>
@@ -902,6 +910,13 @@ const MedicinePage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <StockHistoryDialog
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        medicineId={historyMedId}
+        medicineName={historyMedName}
+      />
     </div>
   );
 };

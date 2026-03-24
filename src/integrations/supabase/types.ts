@@ -795,6 +795,45 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          id: string
+          medicine_id: string
+          medicine_name: string
+          qty: number
+          reason: string
+          reference_id: string
+          stock_after: number
+          stock_before: number
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          medicine_id: string
+          medicine_name?: string
+          qty?: number
+          reason?: string
+          reference_id?: string
+          stock_after?: number
+          stock_before?: number
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          medicine_id?: string
+          medicine_name?: string
+          qty?: number
+          reason?: string
+          reference_id?: string
+          stock_after?: number
+          stock_before?: number
+          type?: string
+        }
+        Relationships: []
+      }
       test_categories: {
         Row: {
           created_at: string
