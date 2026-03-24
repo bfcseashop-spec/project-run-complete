@@ -89,6 +89,9 @@ const NewInvoicePage = () => {
   const [patients, setPatients] = useState(getPatients());
   const [injectionsList, setInjectionsList] = useState(getInjections());
   const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
+  const [medicinesList, setMedicinesList] = useState(getMedicines());
+
+  const medicineOptions = useMemo(() => medicinesList.filter(m => m.stock > 0).map(m => ({ name: m.name, price: m.price })), [medicinesList]);
 
   const doctors = doctorsList.map((d) => ({ name: d.name, degree: d.qualification }));
 
