@@ -526,6 +526,65 @@ const BillingPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Delete — Step 1: First Confirmation */}
+      <AlertDialog open={bulkDeleteStep === 1} onOpenChange={(open) => !open && setBulkDeleteStep(0)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" /> Bulk Delete — Step 1 of 2
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to delete <span className="font-bold text-foreground">{selectedKeys.size} invoice(s)</span>. This will permanently remove them from the billing records.
+              <br /><br />
+              Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkDeleteStep(0)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setBulkDeleteStep(2)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete — Step 2: Final Confirmation */}
+      <AlertDialog open={bulkDeleteStep === 2} onOpenChange={(open) => !open && setBulkDeleteStep(0)}>
+        <AlertDialogContent className="border-destructive/50">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" /> ⚠️ Final Confirmation — Step 2 of 2
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-bold text-destructive">This action CANNOT be undone.</span>
+              <br /><br />
+              The following <span className="font-bold text-foreground">{selectedKeys.size}</span> invoices will be permanently deleted:
+              <span className="block mt-2 max-h-32 overflow-y-auto text-xs font-mono bg-muted rounded-md p-2">
+                {Array.from(selectedKeys).join(", ")}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkDeleteStep(0)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const ids = Array.from(selectedKeys);
+                let deleted = 0;
+                for (const id of ids) {
+                  try { await removeBillingRecord(id); deleted++; } catch { /* skip */ }
+                }
+                toast.success(`${deleted} invoice(s) deleted successfully`);
+                setSelectedKeys(new Set());
+                setBulkDeleteStep(0);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete {selectedKeys.size} Invoice(s) Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
