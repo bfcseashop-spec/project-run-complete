@@ -117,6 +117,7 @@ const NewInvoicePage = () => {
   useEffect(() => { const u = subscribe(() => setPatients([...getPatients()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeInjections(() => setInjectionsList([...getInjections()])); return () => { u(); }; }, []);
   useEffect(() => { const u = subscribeDoctors(() => setDoctorsList([...getActiveDoctorsWithDetails()])); return () => { u(); }; }, []);
+  useEffect(() => { const u = subscribeMedicines(() => setMedicinesList([...getMedicines()])); return () => { u(); }; }, []);
 
   useEffect(() => {
     if (editData) {
