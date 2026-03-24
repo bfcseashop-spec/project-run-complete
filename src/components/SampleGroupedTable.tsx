@@ -106,10 +106,21 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
         const uniqueTests = [...new Map(group.records.map(r => [r.testName, r])).values()];
         const uniqueSampleTypes = [...new Map(group.records.map(r => [r.sampleType, r])).values()];
 
+        const highestPriority = group.records.some(r => r.priority === "stat")
+          ? "stat"
+          : group.records.some(r => r.priority === "urgent")
+            ? "urgent"
+            : "routine";
+        const borderColor = highestPriority === "stat"
+          ? "border-l-destructive"
+          : highestPriority === "urgent"
+            ? "border-l-warning"
+            : "border-l-success";
+
         return (
           <div
             key={`${group.patient}__${group.patientId}`}
-            className="rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+            className={`rounded-xl border border-border border-l-4 ${borderColor} bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden`}
           >
             {/* Patient Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-muted/40 border-b border-border">
