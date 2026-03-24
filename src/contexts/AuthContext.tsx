@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Use setTimeout to avoid Supabase deadlock during auth state change
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          // Fetch profile before setting loading to false
+          await fetchProfile(session.user.id);
         } else {
           setProfile(null);
         }

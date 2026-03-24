@@ -1,5 +1,5 @@
 import { usePermissions } from "@/contexts/PermissionsContext";
-import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PermissionGateProps {
   module: string;
@@ -7,9 +7,11 @@ interface PermissionGateProps {
 }
 
 const PermissionGate = ({ module, children }: PermissionGateProps) => {
-  const { can, isAdmin, loading } = usePermissions();
+  const { can, isAdmin, loading: permLoading } = usePermissions();
+  const { loading: authLoading, profile } = useAuth();
 
-  if (loading) {
+  // Wait for both auth AND permissions to fully load before checking access
+  if (authLoading || permLoading || (!profile && !authLoading)) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
