@@ -265,6 +265,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         );
       })}
