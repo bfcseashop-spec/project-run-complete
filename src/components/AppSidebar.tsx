@@ -13,7 +13,7 @@ import { t, TranslationKey } from "@/lib/i18n";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface SubItem { icon: React.ElementType; labelKey: TranslationKey; path: string; }
+interface SubItem { icon: React.ElementType; labelKey: TranslationKey; path: string; module?: string; }
 interface MenuItem { icon: React.ElementType; labelKey: TranslationKey; path: string; module?: string; subItems?: SubItem[]; color?: string; }
 interface MenuSection { labelKey: TranslationKey; items: MenuItem[]; color?: string; }
 
