@@ -76,6 +76,9 @@ const MedicinePage = () => {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [deleteCatConfirm, setDeleteCatConfirm] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyMedId, setHistoryMedId] = useState<string | undefined>();
+  const [historyMedName, setHistoryMedName] = useState<string | undefined>();
 
   const categories = [...defaultCategories, ...customCategories];
 
