@@ -1,14 +1,13 @@
-import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Users, Stethoscope, TestTube, Pill, DollarSign,
-  Calendar, Syringe, ScanLine, Heart, FileText,
-  Activity, Clock, ArrowRight, Percent, Receipt, Wallet,
+  Syringe, ScanLine, Heart, FileText,
+  Activity, ArrowRight, Receipt, Wallet,
   Banknote, CreditCard, Building2, Landmark,
-  ClipboardList, TrendingUp, TrendingDown, AlertTriangle,
-  Beaker, Package, Smartphone, Coins, Send, Shield,
-  MinusCircle, BarChart3, Star,
+  ClipboardList, TrendingUp, TrendingDown,
+  Smartphone, Coins, Send, Shield,
+  BarChart3, Star, Percent,
 } from "lucide-react";
-import StatCard from "@/components/StatCard";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import DashboardDateFilter, { DashboardFilterPreset, getPresetRange } from "@/components/DashboardDateFilter";
@@ -21,12 +20,8 @@ import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
 import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
-import { parseISO, isWithinInterval, format } from "date-fns";
+import { parseISO, isWithinInterval } from "date-fns";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-
-const LazyPaymentMethodChart = lazy(() => import("@/components/PaymentMethodChart"));
-const LazyWeeklyChart = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: m.WeeklyChart })));
-const LazyDepartmentChart = lazy(() => import("@/components/DashboardCharts").then(m => ({ default: m.DepartmentChart })));
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
   Cash: { color: "hsl(142, 71%, 45%)", icon: Banknote },
@@ -40,16 +35,41 @@ const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = 
   Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
 };
 
-const operationsData = [
-  { icon: Users, label: "Register Patient", desc: "New OPD registration", path: "/opd", color: "hsl(160, 84%, 39%)", bg: "linear-gradient(135deg, hsl(160,84%,39%), hsl(160,84%,30%))" },
-  { icon: TestTube, label: "Lab Tests", desc: "Order & manage tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)", bg: "linear-gradient(135deg, hsl(200,80%,45%), hsl(200,80%,35%))" },
-  { icon: FileText, label: "Prescription", desc: "Write prescriptions", path: "/prescription", color: "hsl(270, 60%, 55%)", bg: "linear-gradient(135deg, hsl(270,60%,55%), hsl(270,60%,42%))" },
-  { icon: DollarSign, label: "New Invoice", desc: "Create billing invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)", bg: "linear-gradient(135deg, hsl(142,71%,45%), hsl(142,71%,35%))" },
-  { icon: ScanLine, label: "X-Ray", desc: "Request imaging", path: "/x-ray", color: "hsl(38, 92%, 50%)", bg: "linear-gradient(135deg, hsl(38,92%,50%), hsl(38,92%,40%))" },
-  { icon: Syringe, label: "Injections", desc: "Administer injections", path: "/injections", color: "hsl(350, 65%, 55%)", bg: "linear-gradient(135deg, hsl(350,65%,55%), hsl(350,65%,42%))" },
-  { icon: Pill, label: "Medicine", desc: "Medicine inventory", path: "/medicine", color: "hsl(215, 60%, 55%)", bg: "linear-gradient(135deg, hsl(215,60%,55%), hsl(215,60%,42%))" },
-  { icon: Heart, label: "Health Services", desc: "Manage services", path: "/health-services", color: "hsl(340, 70%, 55%)", bg: "linear-gradient(135deg, hsl(340,70%,55%), hsl(340,70%,42%))" },
+const quickActions = [
+  { icon: Users, label: "Register Patient", desc: "New OPD registration", path: "/opd", color: "hsl(160, 84%, 39%)" },
+  { icon: TestTube, label: "Lab Tests", desc: "Order & manage tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
+  { icon: FileText, label: "Prescription", desc: "Write prescriptions", path: "/prescription", color: "hsl(270, 60%, 55%)" },
+  { icon: DollarSign, label: "New Invoice", desc: "Create billing invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)" },
+  { icon: ScanLine, label: "X-Ray", desc: "Request imaging", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
+  { icon: Syringe, label: "Injections", desc: "Administer injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
+  { icon: Pill, label: "Medicine", desc: "Medicine inventory", path: "/medicine", color: "hsl(215, 60%, 55%)" },
+  { icon: Heart, label: "Health Services", desc: "Manage services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
 ];
+
+/* ─── Stat Card (clean, left-bordered) ─── */
+interface MetricCardProps {
+  label: string;
+  value: string | number;
+  sub: string;
+  icon: React.ElementType;
+  borderColor: string;
+  iconColor: string;
+}
+const MetricCard = ({ label, value, sub, icon: Icon, borderColor, iconColor }: MetricCardProps) => (
+  <div
+    className="bg-card rounded-xl border border-border/40 p-4 sm:p-5 hover:shadow-md transition-shadow"
+    style={{ borderLeft: `4px solid ${borderColor}` }}
+  >
+    <div className="flex items-start justify-between mb-3">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${iconColor}14` }}>
+        <Icon className="w-4 h-4" style={{ color: iconColor }} />
+      </div>
+    </div>
+    <p className="text-2xl font-black text-card-foreground font-number tracking-tight leading-none">{value}</p>
+    <p className="text-[11px] text-muted-foreground mt-1.5">{sub}</p>
+  </div>
+);
 
 const Dashboard = () => {
   useSettings();
@@ -64,13 +84,8 @@ const Dashboard = () => {
   const [xrayRecs, setXrayRecs] = useState(getXrayRecords());
   const [ultrasoundRecs, setUltrasoundRecs] = useState(getUltrasoundRecords());
 
-  const now = new Date();
-  const greeting = now.getHours() < 12 ? "Good Morning" : now.getHours() < 17 ? "Good Afternoon" : "Good Evening";
-
-  // Init patients if empty
   useEffect(() => { initPatients(opdPatients); setPatients([...getPatients()]); }, []);
 
-  // Subscribe to all stores
   useEffect(() => {
     const unsubs = [
       subscribeBilling(() => setBillingRecords([...getBillingRecords()])),
@@ -85,7 +100,6 @@ const Dashboard = () => {
     return () => unsubs.forEach(u => u());
   }, []);
 
-  // Filtered billing by date range
   const filteredBilling = useMemo(() => {
     const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
     return billingRecords.filter((r) => {
@@ -94,7 +108,6 @@ const Dashboard = () => {
     });
   }, [billingRecords, filterPreset, customRange]);
 
-  // Real computed stats
   const stats = useMemo(() => {
     const revenue = filteredBilling.reduce((s, r) => s + r.paid, 0);
     const totalBills = filteredBilling.reduce((s, r) => s + r.total, 0);
@@ -104,7 +117,6 @@ const Dashboard = () => {
     const completedInvoices = filteredBilling.filter(r => r.status === "completed").length;
     const pendingInvoices = filteredBilling.filter(r => r.status === "pending" || r.status === "critical").length;
 
-    // Expenses filtered by date range
     const range = filterPreset === "custom" && customRange ? customRange : getPresetRange(filterPreset);
     const filteredExpenses = expenses.filter(e => {
       try { return isWithinInterval(parseISO(e.date), { start: range.from, end: range.to }); }
@@ -115,65 +127,24 @@ const Dashboard = () => {
     const profit = revenue > totalExpense ? revenue - totalExpense : 0;
     const loss = totalExpense > revenue ? totalExpense - revenue : 0;
 
-    const activePatients = patients.filter(p => p.status === "active").length;
-    const pendingPatients = patients.filter(p => p.status === "pending").length;
-    const totalPatients = patients.length;
-
-    const pendingLabs = labReports.filter(r => r.status === "pending" || r.status === "in-progress").length;
-    const completedLabs = labReports.filter(r => r.status === "completed").length;
-    const totalLabs = labReports.length;
-
-    const pendingXrays = xrayRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
-    const pendingUltrasounds = ultrasoundRecs.filter(r => r.status === "pending" || r.status === "in-progress").length;
-
-    const lowStockMeds = medicines.filter(m => m.status === "low-stock").length;
-    const outOfStockMeds = medicines.filter(m => m.status === "out-of-stock").length;
-    const lowStockInj = injections.filter(i => i.status === "low-stock").length;
-    const outOfStockInj = injections.filter(i => i.status === "out-of-stock").length;
-
     return {
       revenue, totalBills, totalDiscount, totalDue, totalExpense, profit, loss,
       invoiceCount, completedInvoices, pendingInvoices,
-      activePatients, pendingPatients, totalPatients,
-      pendingLabs, completedLabs, totalLabs,
-      pendingXrays, pendingUltrasounds,
-      lowStockMeds, outOfStockMeds, lowStockInj, outOfStockInj,
+      totalPatients: patients.length,
+      activePatients: patients.filter(p => p.status === "active").length,
+      pendingPatients: patients.filter(p => p.status === "pending").length,
+      totalLabs: labReports.length,
+      pendingLabs: labReports.filter(r => r.status === "pending" || r.status === "in-progress").length,
+      pendingXrays: xrayRecs.filter(r => r.status === "pending" || r.status === "in-progress").length,
+      pendingUltrasounds: ultrasoundRecs.filter(r => r.status === "pending" || r.status === "in-progress").length,
     };
-  }, [filteredBilling, patients, labReports, medicines, injections, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
+  }, [filteredBilling, patients, labReports, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
 
-  // Payment chart data — case-insensitive matching
-  const paymentData = useMemo(() => {
-    const methods = ["Cash", "ABA", "ACleda", "Card", "Wing", "Binance(USDT)", "True Money", "Bank Transfer", "Insurance"];
-    return methods.map((name) => {
-      const matching = filteredBilling.filter((r) => r.method.toLowerCase() === name.toLowerCase());
-      const meta = paymentMeta[name];
-      return { name, amount: matching.reduce((s, r) => s + r.paid, 0), count: matching.length, color: meta.color, icon: meta.icon };
-    });
-  }, [filteredBilling]);
-
-  // Department distribution from real data
-  const departmentData = useMemo(() => {
-    const opdCount = patients.length;
-    const labCount = labReports.length;
-    const xrayCount = xrayRecs.length;
-    const usCount = ultrasoundRecs.length;
-    const otherCount = injections.length;
-    const total = opdCount + labCount + xrayCount + usCount + otherCount || 1;
-    return [
-      { name: "OPD", value: Math.round((opdCount / total) * 100), fill: "hsl(160, 84%, 39%)" },
-      { name: "Lab Tests", value: Math.round((labCount / total) * 100), fill: "hsl(200, 80%, 45%)" },
-      { name: "X-Ray", value: Math.round((xrayCount / total) * 100), fill: "hsl(38, 92%, 50%)" },
-      { name: "Ultrasound", value: Math.round((usCount / total) * 100), fill: "hsl(270, 60%, 55%)" },
-      { name: "Injections", value: Math.round((otherCount / total) * 100), fill: "hsl(350, 65%, 55%)" },
-    ];
-  }, [patients, labReports, injections, xrayRecs, ultrasoundRecs]);
-
-  // Sales by Category from line items
   const salesByCategory = useMemo(() => {
     const catMap: Record<string, number> = {};
     filteredBilling.forEach(r => {
       if (r.formData?.lineItems) {
-        r.formData.lineItems.forEach(li => {
+        r.formData.lineItems.forEach((li: any) => {
           const typeMap: Record<string, string> = { SVC: "Service", MED: "Medicine", INJ: "Injection", PKG: "Package", CUSTOM: "Custom" };
           const cat = typeMap[li.type] || "Other";
           catMap[cat] = (catMap[cat] || 0) + li.price * li.qty;
@@ -182,264 +153,136 @@ const Dashboard = () => {
         catMap["Other"] = (catMap["Other"] || 0) + r.amount;
       }
     });
-    return Object.entries(catMap)
-      .map(([name, amount]) => ({ name, amount }))
-      .sort((a, b) => b.amount - a.amount);
+    return Object.entries(catMap).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
   }, [filteredBilling]);
 
-  // Sales by Payment — uses the same date filter as Financial Overview
   const salesByPayment = useMemo(() => {
     const methodMap: Record<string, number> = {};
     filteredBilling.forEach(r => {
       if (r.method && r.method !== "—") {
-        // Normalize method name to title case for display
-        const normalized = r.method.charAt(0).toUpperCase() + r.method.slice(1).toLowerCase();
-        const displayName = Object.keys(paymentMeta).find(k => k.toLowerCase() === r.method.toLowerCase()) || normalized;
+        const displayName = Object.keys(paymentMeta).find(k => k.toLowerCase() === r.method.toLowerCase()) ||
+          r.method.charAt(0).toUpperCase() + r.method.slice(1).toLowerCase();
         methodMap[displayName] = (methodMap[displayName] || 0) + r.paid;
       }
       if (r.due > 0) {
         methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
       }
     });
-    return Object.entries(methodMap)
-      .map(([name, amount]) => ({ name, amount }))
-      .sort((a, b) => b.amount - a.amount);
+    return Object.entries(methodMap).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
   }, [filteredBilling]);
 
-  // Popular Medicine
   const popularMedicine = useMemo(() => {
-    return [...medicines]
-      .filter(m => m.soldOut > 0)
-      .sort((a, b) => b.soldOut - a.soldOut)
-      .slice(0, 5)
+    return [...medicines].filter(m => m.soldOut > 0).sort((a, b) => b.soldOut - a.soldOut).slice(0, 5)
       .map(m => ({ id: m.id, name: m.name, sold: m.soldOut, price: m.price }));
   }, [medicines]);
 
-  // Recent activity from real billing records
-  const recentActivity = useMemo(() => {
-    const iconMap: Record<string, { icon: React.ElementType; color: string; type: string }> = {
-      "Lab Test": { icon: TestTube, color: "hsl(200, 80%, 45%)", type: "Lab" },
-      "X-Ray": { icon: ScanLine, color: "hsl(38, 92%, 50%)", type: "X-Ray" },
-      "Ultrasound": { icon: Heart, color: "hsl(270, 60%, 55%)", type: "USG" },
-      "Consultation": { icon: Stethoscope, color: "hsl(160, 84%, 39%)", type: "OPD" },
-    };
-    const fallback = { icon: DollarSign, color: "hsl(142, 71%, 45%)", type: "Billing" };
-
-    return billingRecords.slice(0, 6).map(r => {
-      const match = Object.entries(iconMap).find(([k]) => r.service.toLowerCase().includes(k.toLowerCase()));
-      const meta = match ? match[1] : fallback;
-      return {
-        id: r.id,
-        description: `${r.service} — ${r.patient}`,
-        time: r.date,
-        ...meta,
-      };
-    });
-  }, [billingRecords]);
-
-  // Weekly chart from billing
-  const weeklyData = useMemo(() => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const counts = new Array(7).fill(0);
-    billingRecords.forEach(r => {
-      try {
-        const d = parseISO(r.date);
-        counts[d.getDay()]++;
-      } catch {}
-    });
-    return days.map((day, i) => ({ day, visits: counts[i] }));
+  const recentInvoices = useMemo(() => {
+    return billingRecords.slice(0, 6).map(r => ({
+      id: r.id, patient: r.patient, service: r.service,
+      total: r.total, status: r.status, date: r.date, method: r.method,
+    }));
   }, [billingRecords]);
 
   return (
     <div className="space-y-6 w-full">
-      {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl p-4 sm:p-6 lg:p-7 text-white"
-        style={{ background: "linear-gradient(135deg, hsl(168,80%,30%) 0%, hsl(200,80%,40%) 50%, hsl(240,60%,50%) 100%)" }}>
-        <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10" />
-        <div className="absolute -left-8 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
-        <div className="absolute right-20 bottom-2 w-24 h-24 rounded-full bg-yellow-300/10" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold font-heading tracking-tight">{greeting}, Doctor!</h1>
-            <p className="text-white/60 text-xs sm:text-sm mt-1">
-              {now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Activity className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              <span className="text-sm sm:text-lg font-bold font-number">{stats.totalPatients}</span>
-              <span className="text-[10px] sm:text-xs opacity-70">patients</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <Clock className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              <span className="text-sm sm:text-lg font-bold font-number">{stats.pendingPatients}</span>
-              <span className="text-[10px] sm:text-xs opacity-70">in queue</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/15 backdrop-blur-sm">
-              <ClipboardList className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              <span className="text-sm sm:text-lg font-bold font-number">{stats.invoiceCount}</span>
-              <span className="text-[10px] sm:text-xs opacity-70">invoices</span>
-            </div>
-          </div>
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold font-heading text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Overview of your clinic's performance</p>
         </div>
+        <DashboardDateFilter
+          preset={filterPreset}
+          customRange={customRange}
+          onPresetChange={setFilterPreset}
+          onCustomRangeChange={setCustomRange}
+        />
       </div>
 
-      {/* ── Financial Overview ── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(142,71%,45%), hsl(160,84%,39%))" }}>
-              <DollarSign className="w-4 h-4 text-white" />
-            </span>
-            Financial Overview
-          </h2>
-          <DashboardDateFilter
-            preset={filterPreset}
-            customRange={customRange}
-            onPresetChange={setFilterPreset}
-            onCustomRangeChange={setCustomRange}
-          />
-        </div>
-        {/* Row 1: Hero cards - Total Bills, Profit, Loss */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
-            style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
-            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
-            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Total Bills</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.totalBills)}</p>
-                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">{stats.invoiceCount} invoices</span></p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
-                <Receipt className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
-            style={{ background: "linear-gradient(135deg, hsl(152,60%,38%), hsl(168,80%,30%))" }}>
-            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
-            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Profit</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.profit)}</p>
-                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
-                  <TrendingUp className="w-3 h-3 inline mr-1" />earned
-                </span></p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl p-5 text-white shadow-lg"
-            style={{ background: "linear-gradient(135deg, hsl(0,65%,50%), hsl(350,70%,42%))" }}>
-            <div className="absolute -right-6 -top-6 w-20 h-20 rounded-full bg-white/10" />
-            <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-white/5" />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Loss</p>
-                <p className="text-2xl font-black font-number tracking-tight leading-none">{formatPrice(stats.loss)}</p>
-                <p className="text-xs text-white/60"><span className="font-bold font-number text-white/80">
-                  <TrendingDown className="w-3 h-3 inline mr-1" />deficit
-                </span></p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/15 backdrop-blur-sm">
-                <TrendingDown className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* ── Row 1: Financial Metrics ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          label="Total Revenue"
+          value={formatPrice(stats.revenue)}
+          sub={`${stats.completedInvoices} completed invoices`}
+          icon={DollarSign}
+          borderColor="hsl(260, 60%, 55%)"
+          iconColor="hsl(260, 60%, 55%)"
+        />
+        <MetricCard
+          label="Total Invoices"
+          value={stats.invoiceCount}
+          sub={`${stats.completedInvoices} completed`}
+          icon={ClipboardList}
+          borderColor="hsl(200, 80%, 50%)"
+          iconColor="hsl(200, 80%, 50%)"
+        />
+        <MetricCard
+          label="Total Bills"
+          value={formatPrice(stats.totalBills)}
+          sub="All time revenue"
+          icon={Receipt}
+          borderColor="hsl(160, 70%, 42%)"
+          iconColor="hsl(160, 70%, 42%)"
+        />
+        <MetricCard
+          label="Total Patients"
+          value={stats.totalPatients}
+          sub={`${stats.activePatients} active patients`}
+          icon={Users}
+          borderColor="hsl(280, 55%, 55%)"
+          iconColor="hsl(280, 55%, 55%)"
+        />
+      </div>
 
-        {/* Row 2: Secondary cards - Discount, Total Due, Expense, Total Invoice */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
-            style={{ borderLeft: "3px solid hsl(38, 92%, 50%)" }}>
-            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(38, 92%, 50%)" }} />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(38, 92%, 50%)" }}>Discount</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalDiscount)}</p>
-                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.invoiceCount} invoices</span></p>
-              </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(38, 92%, 50%, 0.12)" }}>
-                <Percent className="w-5 h-5" style={{ color: "hsl(38, 92%, 50%)" }} />
-              </div>
-            </div>
-          </div>
+      {/* ── Row 2: Expense / Due / Profit / Discount ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          label="Total Expenses"
+          value={formatPrice(stats.totalExpense)}
+          sub="For selected period"
+          icon={Wallet}
+          borderColor="hsl(15, 85%, 52%)"
+          iconColor="hsl(15, 85%, 52%)"
+        />
+        <MetricCard
+          label="Total Due"
+          value={formatPrice(stats.totalDue)}
+          sub={`${stats.pendingInvoices} pending invoices`}
+          icon={TrendingDown}
+          borderColor="hsl(350, 65%, 55%)"
+          iconColor="hsl(350, 65%, 55%)"
+        />
+        <MetricCard
+          label="Profit / Loss"
+          value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
+          sub={stats.profit > 0 ? "Revenue − Expenses" : "Expenses exceed revenue"}
+          icon={stats.profit > 0 ? TrendingUp : TrendingDown}
+          borderColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
+          iconColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
+        />
+        <MetricCard
+          label="Total Discount"
+          value={formatPrice(stats.totalDiscount)}
+          sub={`${stats.invoiceCount} invoices`}
+          icon={Percent}
+          borderColor="hsl(38, 92%, 50%)"
+          iconColor="hsl(38, 92%, 50%)"
+        />
+      </div>
 
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
-            style={{ borderLeft: "3px solid hsl(350, 65%, 55%)" }}>
-            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(350, 65%, 55%)" }} />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(350, 65%, 55%)" }}>Total Due</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalDue)}</p>
-                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.pendingInvoices} pending</span></p>
-              </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(350, 65%, 55%, 0.12)" }}>
-                <TrendingDown className="w-5 h-5" style={{ color: "hsl(350, 65%, 55%)" }} />
-              </div>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
-            style={{ borderLeft: "3px solid hsl(15, 85%, 52%)" }}>
-            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(15, 85%, 52%)" }} />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(15, 85%, 52%)" }}>Expense</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{formatPrice(stats.totalExpense)}</p>
-              </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(15, 85%, 52%, 0.12)" }}>
-                <Wallet className="w-5 h-5" style={{ color: "hsl(15, 85%, 52%)" }} />
-              </div>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-card border border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all group"
-            style={{ borderLeft: "3px solid hsl(270, 60%, 55%)" }}>
-            <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] group-hover:opacity-[0.1] transition-opacity" style={{ background: "hsl(270, 60%, 55%)" }} />
-            <div className="relative flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "hsl(270, 60%, 55%)" }}>Total Invoice</p>
-                <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none">{String(stats.invoiceCount)}</p>
-                <p className="text-[10px] text-muted-foreground"><span className="font-bold font-number">{stats.completedInvoices} completed</span></p>
-              </div>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(270, 60%, 55%, 0.12)" }}>
-                <ClipboardList className="w-5 h-5" style={{ color: "hsl(270, 60%, 55%)" }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <Suspense fallback={<div className="h-40 bg-muted/30 rounded-xl animate-pulse" />}>
-            <LazyPaymentMethodChart data={paymentData} />
-          </Suspense>
-        </div>
-      </section>
-
-      {/* ── Sales by Category / Today's Sales by Payment / Popular Medicine ── */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* ── Row 3: Charts ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Sales by Category */}
-        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(168,80%,30%), hsl(160,84%,39%))" }}>
-              <BarChart3 className="w-4 h-4 text-white" />
-            </span>
-            Sales by Category
-          </h3>
+        <div className="bg-card rounded-xl border border-border/40 p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Sales by Category</h3>
           {salesByCategory.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={salesByCategory} barSize={28}>
                 <defs>
                   <linearGradient id="catBarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(168, 80%, 36%)" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(168, 80%, 36%)" stopOpacity={0.5} />
+                    <stop offset="0%" stopColor="hsl(260, 60%, 55%)" stopOpacity={1} />
+                    <stop offset="100%" stopColor="hsl(260, 60%, 55%)" stopOpacity={0.4} />
                   </linearGradient>
                 </defs>
                 <Bar dataKey="amount" fill="url(#catBarGrad)" radius={[6, 6, 0, 0]} />
@@ -451,40 +294,30 @@ const Dashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales data</div>
+            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No sales data</div>
           )}
         </div>
 
         {/* Sales by Payment */}
-        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(217,91%,55%), hsl(240,60%,50%))" }}>
-              <Banknote className="w-4 h-4 text-white" />
-            </span>
-            Sales by Payment
-          </h3>
+        <div className="bg-card rounded-xl border border-border/40 p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Sales by Payment</h3>
           {salesByPayment.length > 0 ? (
             <div className="space-y-0">
               {salesByPayment.map((item, i) => (
-                <div key={item.name} className={`flex items-center justify-between py-3 px-1 ${i < salesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
+                <div key={item.name} className={`flex items-center justify-between py-3.5 px-1 ${i < salesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
                   <span className="text-sm font-semibold text-card-foreground">{item.name}</span>
                   <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No sales in this period</div>
+            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No sales in this period</div>
           )}
         </div>
 
         {/* Popular Medicine */}
-        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(300,60%,50%))" }}>
-              <Star className="w-4 h-4 text-white" />
-            </span>
-            Popular Medicine
-          </h3>
+        <div className="bg-card rounded-xl border border-border/40 p-5">
+          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Popular Medicine</h3>
           {popularMedicine.length > 0 ? (
             <div className="space-y-0">
               {popularMedicine.map((item, i) => (
@@ -498,71 +331,63 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">No medicine data</div>
+            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No medicine data</div>
           )}
         </div>
-      </section>
+      </div>
 
+      {/* ── Row 4: Clinical Overview ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard label="Lab Reports" value={stats.totalLabs} sub={`${stats.pendingLabs} pending`} icon={TestTube} borderColor="hsl(200, 80%, 45%)" iconColor="hsl(200, 80%, 45%)" />
+        <MetricCard label="X-Ray" value={xrayRecs.length} sub={`${stats.pendingXrays} pending`} icon={ScanLine} borderColor="hsl(38, 70%, 48%)" iconColor="hsl(38, 70%, 48%)" />
+        <MetricCard label="Ultrasound" value={ultrasoundRecs.length} sub={`${stats.pendingUltrasounds} pending`} icon={Heart} borderColor="hsl(280, 65%, 55%)" iconColor="hsl(280, 65%, 55%)" />
+        <MetricCard label="In Queue" value={stats.pendingPatients} sub={`${stats.activePatients} active today`} icon={Activity} borderColor="hsl(160, 84%, 39%)" iconColor="hsl(160, 84%, 39%)" />
+      </div>
 
-      <section>
-        <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2.5 px-5 pt-5 pb-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(200,80%,45%), hsl(220,70%,50%))" }}>
-              <Stethoscope className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-card-foreground font-heading">Clinical Overview</h3>
-              <p className="text-[10px] text-muted-foreground">Patient & diagnostic summary</p>
-            </div>
-          </div>
-          <div className="px-5 pb-5">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { icon: Users, title: "Patients", value: stats.totalPatients, sub: `${stats.activePatients} active`, color: "hsl(160, 50%, 38%)" },
-                { icon: TestTube, title: "Lab Reports", value: stats.totalLabs, sub: `${stats.pendingLabs} pending`, color: "hsl(200, 80%, 45%)" },
-                { icon: ScanLine, title: "X-Ray", value: xrayRecs.length, sub: `${stats.pendingXrays} pending`, color: "hsl(38, 70%, 48%)" },
-                { icon: Heart, title: "Ultrasound", value: ultrasoundRecs.length, sub: `${stats.pendingUltrasounds} pending`, color: "hsl(280, 65%, 55%)" },
-              ].map((item) => (
-                <div key={item.title} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:shadow-sm transition-all group" style={{ background: `${item.color}06` }}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ background: `${item.color}14` }}>
-                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: item.color }}>{item.title}</p>
-                    <p className="text-xl font-black text-card-foreground font-number tracking-tight leading-none mt-0.5">{item.value}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{item.sub}</p>
-                  </div>
+      {/* ── Row 5: Recent Invoices ── */}
+      <div className="bg-card rounded-xl border border-border/40 p-5">
+        <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Recent Invoices</h3>
+        <div className="space-y-0">
+          {recentInvoices.map((inv, i) => {
+            const statusColor = inv.status === "completed" ? "hsl(160, 84%, 39%)" : inv.status === "pending" ? "hsl(38, 92%, 50%)" : "hsl(0, 65%, 50%)";
+            const statusLabel = inv.status === "completed" ? "Completed" : inv.status === "pending" ? "Pending" : "Critical";
+            return (
+              <div key={inv.id} className={`flex items-center justify-between py-3.5 px-2 ${i < recentInvoices.length - 1 ? "border-b border-border/40" : ""}`}>
+                <div>
+                  <p className="text-sm font-bold text-card-foreground">{inv.id}</p>
+                  <p className="text-xs text-muted-foreground">{inv.date} · {inv.patient}</p>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-card-foreground font-number">{formatPrice(inv.total)}</p>
+                  <p className="text-[11px] font-semibold" style={{ color: statusColor }}>{statusLabel}</p>
+                </div>
+              </div>
+            );
+          })}
+          {recentInvoices.length === 0 && (
+            <div className="py-8 text-center text-sm text-muted-foreground">No recent invoices</div>
+          )}
         </div>
-      </section>
+      </div>
 
-
-
-      {/* ── Quick Actions ── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold font-heading text-foreground flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(300,60%,50%))" }}>
-              <ArrowRight className="w-4 h-4 text-white" />
-            </span>
-            Quick Actions
-          </h2>
-        </div>
+      {/* ── Row 6: Quick Actions ── */}
+      <div>
+        <h3 className="text-base font-bold text-foreground font-heading mb-3 flex items-center gap-2">
+          <ArrowRight className="w-4 h-4 text-primary" />
+          Quick Actions
+        </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {operationsData.map((op, i) => (
+          {quickActions.map((op, i) => (
             <a
               key={i}
               href={op.path}
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
-                style={{ background: op.bg }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: `${op.color}14` }}
               >
-                <op.icon className="w-5 h-5 text-white" />
+                <op.icon className="w-5 h-5" style={{ color: op.color }} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-card-foreground group-hover:text-primary transition-colors">{op.label}</p>
@@ -571,51 +396,7 @@ const Dashboard = () => {
             </a>
           ))}
         </div>
-      </section>
-
-      {/* ── Analytics Grid ── */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent Activity - from real billing */}
-        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(160,84%,39%), hsl(200,80%,45%), hsl(270,60%,55%))" }} />
-          <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(160,84%,39%), hsl(200,80%,45%))" }}>
-              <Activity className="w-3.5 h-3.5 text-white" />
-            </span>
-            Recent Activity
-          </h3>
-          <div className="space-y-1.5">
-            {recentActivity.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${a.color}15` }}>
-                  <a.icon className="w-4 h-4" style={{ color: a.color }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-card-foreground truncate">{a.description}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ background: `${a.color}12`, color: a.color }}>{a.type}</span>
-                    <span className="text-[10px] text-muted-foreground">{a.time}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Department Distribution */}
-        <div className="bg-card rounded-xl border border-border/40 p-5 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ background: "linear-gradient(90deg, hsl(270,60%,55%), hsl(340,70%,55%), hsl(142,71%,45%))" }} />
-          <h3 className="text-sm font-bold text-card-foreground font-heading flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(270,60%,55%), hsl(340,70%,55%))" }}>
-              <Stethoscope className="w-3.5 h-3.5 text-white" />
-            </span>
-            Department Distribution
-          </h3>
-          <Suspense fallback={<div className="h-[130px] bg-muted/30 rounded-lg animate-pulse" />}>
-            <LazyDepartmentChart data={departmentData} />
-          </Suspense>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };
