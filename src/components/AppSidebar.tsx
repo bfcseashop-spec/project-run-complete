@@ -264,7 +264,7 @@ const AppSidebar = () => {
                         key={item.path}
                         to={item.path}
                         end={item.path === "/"}
-                        className={`flex items-center gap-2.5 px-2.5 py-[9px] rounded-xl text-[13px] font-semibold transition-all duration-200 group relative ${
+                        className={`flex items-center gap-2 px-2 py-[7px] rounded-lg text-[12.5px] font-semibold transition-all duration-200 group relative ${
                           parentActive
                             ? "text-sidebar-accent-foreground"
                             : "text-sidebar-foreground hover:bg-sidebar-accent/60"
