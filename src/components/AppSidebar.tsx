@@ -315,8 +315,8 @@ const AppSidebar = () => {
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-sidebar-accent-foreground truncate">{profile.full_name || "User"}</p>
-                <p className="text-[10px] text-sidebar-muted truncate">{profile.role_name || "No role"}</p>
+                <p className="text-[11px] font-semibold text-sidebar-accent-foreground truncate">{profile.full_name || "User"}</p>
+                <p className="text-[9px] text-sidebar-muted truncate">{profile.role_name || "No role"}</p>
               </div>
               <button
                 onClick={signOut}
