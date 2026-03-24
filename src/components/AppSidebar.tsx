@@ -176,7 +176,7 @@ const AppSidebar = () => {
                 {!isCollapsed && (
                   <div className="flex items-center gap-2 px-2 mb-1.5">
                     <p
-                      className="text-[10px] uppercase tracking-[0.16em] font-bold opacity-70"
+                      className="text-[10px] uppercase tracking-[0.16em] font-extrabold"
                       style={{ color: section.color }}
                     >
                       {t(section.labelKey, lang)}
