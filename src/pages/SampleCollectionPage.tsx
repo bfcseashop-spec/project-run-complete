@@ -32,6 +32,8 @@ import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
 import { toast } from "sonner";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const sampleTypeIcons: Record<string, React.ElementType> = {
   blood: Droplets, urine: FlaskConical, stool: FlaskConical, sputum: FlaskConical,
