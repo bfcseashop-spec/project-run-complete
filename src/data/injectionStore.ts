@@ -24,14 +24,24 @@ const toItem = (r: any): InjectionItem => ({
   status: r.status as InjectionItem["status"],
 });
 
+let loadPromise: Promise<void> | null = null;
+
 const load = async () => {
   const { data, error } = await supabase.from("injections").select("*").order("created_at", { ascending: false });
   if (!error && data) { injections = data.map(toItem); loaded = true; notify(); }
 };
-load();
+
+const ensureLoaded = async () => {
+  if (loaded) return;
+  if (!loadPromise) loadPromise = load();
+  await loadPromise;
+};
+
+loadPromise = load();
 
 export const getInjections = () => injections;
 export const isInjectionsLoaded = () => loaded;
+export const ensureInjectionsLoaded = ensureLoaded;
 
 export const addInjection = async (inj: InjectionItem) => {
   const { error } = await supabase.from("injections").insert({

@@ -49,6 +49,8 @@ const toMedicine = (r: any): Medicine => ({
 });
 
 /* ── fetch from DB ── */
+let loadPromise: Promise<void> | null = null;
+
 const loadMedicines = async () => {
   const { data, error } = await supabase
     .from("medicines")
@@ -61,8 +63,14 @@ const loadMedicines = async () => {
   }
 };
 
+const ensureLoaded = async () => {
+  if (loaded) return;
+  if (!loadPromise) loadPromise = loadMedicines();
+  await loadPromise;
+};
+
 // initial load
-loadMedicines();
+loadPromise = loadMedicines();
 
 export const getMedicines = () => medicines;
 export const isMedicinesLoaded = () => loaded;
@@ -134,6 +142,7 @@ export const updateMedicine = async (id: string, updates: Partial<Medicine>) => 
 };
 
 export const restockMedicine = async (name: string, qty: number) => {
+  await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med) {
     await updateMedicine(med.id, { stock: med.stock + qty });
@@ -141,6 +150,7 @@ export const restockMedicine = async (name: string, qty: number) => {
 };
 
 export const deductMedicine = async (name: string, qty: number): Promise<boolean> => {
+  await ensureLoaded();
   const med = medicines.find((m) => m.name.toLowerCase().includes(name.toLowerCase()));
   if (med && med.stock >= qty) {
     await updateMedicine(med.id, { stock: med.stock - qty });
