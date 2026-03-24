@@ -30,6 +30,8 @@ import {
   labTests as initialLabTests, type LabTest, labTestNames, sampleTypes,
   priorityLevels, technicians,
 } from "@/data/labTests";
+import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
+import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
 const sampleTypeIcons: Record<string, React.ElementType> = {
   blood: Droplets,
