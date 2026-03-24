@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import {
   getMedicines, addMedicine, updateMedicine, deleteMedicine, subscribeMedicines, Medicine,
 } from "@/data/medicineStore";
+import StockHistoryDialog from "@/components/StockHistoryDialog";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { exportToExcel, generateSampleExcel } from "@/lib/exportUtils";
 import { formatPrice } from "@/lib/currency";
