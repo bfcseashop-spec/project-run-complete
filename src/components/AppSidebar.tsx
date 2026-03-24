@@ -136,7 +136,7 @@ const AppSidebar = () => {
         {/* ─── Logo Header ─── */}
         <div className="flex items-center gap-2.5 px-3 h-14 flex-shrink-0">
           <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden"
+            className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden"
             style={{ background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 40%))" }}
           >
             {settings.clinicLogo ? (
