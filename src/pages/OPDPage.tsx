@@ -76,6 +76,7 @@ const OPDPage = () => {
     : 401;
 
   const columns = [
+    { key: "serial", header: "#", render: (p: OPDPatient) => <span className="text-xs text-muted-foreground font-medium">{filteredPatients.indexOf(p) + 1}</span> },
     { key: "id", header: "Token" },
     { key: "name", header: "Patient Name", render: (p: OPDPatient) => (
       <div className="flex items-center gap-2">
