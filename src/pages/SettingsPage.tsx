@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-settings";
 import { saveSettingsNow } from "@/data/settingsStore";
 import { currencies, getCurrencySymbol } from "@/lib/currency";
+import { invoiceThemes } from "@/lib/invoiceThemes";
 
 /* ─── Clinic Profile ─── */
 const ClinicProfileTab = () => {
@@ -518,65 +519,7 @@ const SecurityTab = () => {
   );
 };
 
-/* ─── Invoice Theme Templates ─── */
-const invoiceThemes = [
-  {
-    id: "classic",
-    name: "Classic",
-    description: "Clean professional layout with traditional styling",
-    headerBg: "hsl(215, 28%, 17%)",
-    headerText: "white",
-    accent: "hsl(215, 28%, 17%)",
-    tableBorder: "hsl(210, 18%, 85%)",
-    tableHeader: "hsl(210, 20%, 96%)",
-    style: "border-l-4 border-l-[hsl(215,28%,17%)]",
-  },
-  {
-    id: "modern-teal",
-    name: "Modern Teal",
-    description: "Fresh teal gradient with modern card-based design",
-    headerBg: "hsl(168, 80%, 30%)",
-    headerText: "white",
-    accent: "hsl(168, 80%, 30%)",
-    tableBorder: "hsl(168, 40%, 85%)",
-    tableHeader: "hsl(168, 30%, 96%)",
-    style: "border-l-4 border-l-[hsl(168,80%,30%)]",
-  },
-  {
-    id: "royal-blue",
-    name: "Royal Blue",
-    description: "Elegant blue theme with sophisticated typography",
-    headerBg: "hsl(220, 70%, 45%)",
-    headerText: "white",
-    accent: "hsl(220, 70%, 45%)",
-    tableBorder: "hsl(220, 40%, 85%)",
-    tableHeader: "hsl(220, 30%, 96%)",
-    style: "border-l-4 border-l-[hsl(220,70%,45%)]",
-  },
-  {
-    id: "minimal-gray",
-    name: "Minimal Gray",
-    description: "Ultra-clean minimalist with subtle gray accents",
-    headerBg: "hsl(210, 10%, 30%)",
-    headerText: "white",
-    accent: "hsl(210, 10%, 40%)",
-    tableBorder: "hsl(210, 10%, 88%)",
-    tableHeader: "hsl(210, 10%, 97%)",
-    style: "border-l-4 border-l-[hsl(210,10%,30%)]",
-  },
-  {
-    id: "warm-coral",
-    name: "Warm Coral",
-    description: "Warm and inviting with coral and gold highlights",
-    headerBg: "hsl(12, 70%, 50%)",
-    headerText: "white",
-    accent: "hsl(12, 70%, 50%)",
-    tableBorder: "hsl(12, 30%, 88%)",
-    tableHeader: "hsl(12, 20%, 97%)",
-    style: "border-l-4 border-l-[hsl(12,70%,50%)]",
-  },
-];
-
+/* Invoice themes imported from @/lib/invoiceThemes */
 const InvoiceThemeTab = () => {
   const { settings, update } = useSettings();
 
@@ -660,7 +603,7 @@ const InvoiceThemeTab = () => {
               </div>
 
               {/* Theme info */}
-              <div className={cn("px-3 pb-3 pt-1", theme.style)}>
+              <div className="px-3 pb-3 pt-1 border-l-4" style={{ borderLeftColor: theme.headerBg }}>
                 <p className="text-sm font-bold text-card-foreground">{theme.name}</p>
                 <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{theme.description}</p>
               </div>
