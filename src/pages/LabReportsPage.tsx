@@ -903,7 +903,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             {/* Add Row */}
             <div className="px-6 py-1.5 border-b border-border/20">
               <Button variant="ghost" size="sm" className="text-xs h-6 text-primary hover:text-primary" onClick={() => addInv(sIdx)}>
-                <Plus className="w-3 h-3 mr-1" /> Add Parameter
+                <Plus className="w-3 h-3 mr-1" /> Add Test
               </Button>
             </div>
           </div>
