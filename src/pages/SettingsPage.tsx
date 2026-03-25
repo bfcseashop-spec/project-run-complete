@@ -551,55 +551,175 @@ const InvoiceThemeTab = () => {
 
               {/* Mini invoice preview */}
               <div className="p-3">
-                {/* Header preview */}
-                <div className="rounded-t-lg p-2.5" style={{ background: theme.headerBg }}>
-                  <div className="flex items-center justify-between">
+                {theme.id === "classic" ? (
+                  /* Classic: Centered header with double border lines */
+                  <>
+                    <div className="border-t-[3px] border-b-2 py-2 text-center mb-1.5" style={{ borderColor: theme.headerBg }}>
+                      <div className="w-20 h-1.5 rounded-full mx-auto mb-1" style={{ background: theme.headerBg }} />
+                      <div className="w-12 h-1 rounded-full mx-auto" style={{ background: theme.headerBg, opacity: 0.4 }} />
+                    </div>
+                    <div className="flex gap-2 mb-1.5">
+                      <div className="flex-1 pl-2" style={{ borderLeft: `3px solid ${theme.headerBg}` }}>
+                        <div className="w-8 h-1 rounded-full bg-muted-foreground/25 mb-0.5" />
+                        <div className="w-12 h-1 rounded-full bg-muted-foreground/15" />
+                      </div>
+                      <div className="flex-1 pl-2" style={{ borderLeft: `3px solid ${theme.headerBg}`, opacity: 0.6 }}>
+                        <div className="w-8 h-1 rounded-full bg-muted-foreground/25 mb-0.5" />
+                        <div className="w-10 h-1 rounded-full bg-muted-foreground/15" />
+                      </div>
+                    </div>
+                    <div style={{ border: `1px solid ${theme.tableBorder}` }}>
+                      <div className="flex gap-1 p-1.5" style={{ background: theme.headerBg }}>
+                        <div className="w-3 h-1 rounded-full bg-white/50" />
+                        <div className="flex-1 h-1 rounded-full bg-white/50" />
+                        <div className="w-5 h-1 rounded-full bg-white/50" />
+                      </div>
+                      {[1,2,3].map(i => <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}` }}><div className="w-3 h-1 rounded-full bg-muted-foreground/15" /><div className="flex-1 h-1 rounded-full bg-muted-foreground/15" /><div className="w-5 h-1 rounded-full bg-muted-foreground/15" /></div>)}
+                    </div>
+                  </>
+                ) : theme.id === "royal-blue" ? (
+                  /* Royal Blue: Centered crest-style, serif feel */
+                  <>
+                    <div className="text-center mb-1.5 pb-1.5" style={{ borderBottom: `2px double ${theme.headerBg}` }}>
+                      <div className="inline-block rounded px-4 py-1.5 mb-1" style={{ background: theme.headerBg }}>
+                        <div className="w-16 h-1.5 rounded-full bg-white/70 mx-auto" />
+                      </div>
+                      <div className="w-14 h-1 rounded-full mx-auto mt-1" style={{ background: theme.headerBg, opacity: 0.3 }} />
+                    </div>
+                    <div className="text-center mb-2">
+                      <div className="w-10 h-1 rounded-full mx-auto" style={{ background: theme.headerBg, opacity: 0.5 }} />
+                      <div className="w-16 h-1.5 rounded-full mx-auto mt-0.5" style={{ background: theme.headerBg, opacity: 0.7 }} />
+                    </div>
+                    <div className="flex gap-1.5 mb-1.5">
+                      <div className="flex-1 rounded-none p-1.5" style={{ background: theme.tableHeader, borderTop: `3px solid ${theme.headerBg}`, border: `1px solid ${theme.tableBorder}` }}>
+                        <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.headerBg, opacity: 0.3 }} />
+                        <div className="w-12 h-1 rounded-full bg-muted-foreground/15" />
+                      </div>
+                      <div className="flex-1 rounded-none p-1.5" style={{ background: theme.tableHeader, borderTop: `3px solid ${theme.headerBg}`, border: `1px solid ${theme.tableBorder}`, opacity: 0.85 }}>
+                        <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.headerBg, opacity: 0.3 }} />
+                        <div className="w-10 h-1 rounded-full bg-muted-foreground/15" />
+                      </div>
+                    </div>
+                    <div style={{ border: `2px solid ${theme.headerBg}` }}>
+                      <div className="flex gap-1 p-1.5" style={{ background: theme.headerBg }}>
+                        <div className="w-3 h-1 rounded-full bg-white/50" />
+                        <div className="flex-1 h-1 rounded-full bg-white/50" />
+                        <div className="w-5 h-1 rounded-full bg-white/50" />
+                      </div>
+                      {[1,2,3].map(i => <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}`, background: i % 2 === 1 ? theme.tableHeader : '#fff' }}><div className="w-3 h-1 rounded-full bg-muted-foreground/15" /><div className="flex-1 h-1 rounded-full bg-muted-foreground/15" /><div className="w-5 h-1 rounded-full bg-muted-foreground/15" /></div>)}
+                    </div>
+                  </>
+                ) : theme.id === "minimal-gray" ? (
+                  /* Minimal Gray: Ultra-clean, no borders, whitespace */
+                  <>
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="w-20 h-1.5 rounded-full mb-1" style={{ background: theme.headerBg, opacity: 0.4 }} />
+                        <div className="w-14 h-1 rounded-full bg-muted-foreground/15" />
+                      </div>
+                      <div className="text-right">
+                        <div className="w-14 h-2 rounded-full mb-1 ml-auto" style={{ background: '#e2e8f0' }} />
+                        <div className="w-10 h-1 rounded-full ml-auto" style={{ background: theme.headerBg, opacity: 0.5 }} />
+                      </div>
+                    </div>
+                    <div className="flex gap-4 mb-2 pb-2" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <div className="flex-1">
+                        <div className="w-6 h-0.5 rounded-full bg-muted-foreground/20 mb-1" />
+                        <div className="w-12 h-1 rounded-full bg-muted-foreground/20" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="w-6 h-0.5 rounded-full bg-muted-foreground/20 mb-1" />
+                        <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+                      </div>
+                    </div>
                     <div>
-                      <div className="w-16 h-1.5 rounded-full bg-white/70 mb-1" />
-                      <div className="w-10 h-1 rounded-full bg-white/40" />
+                      <div className="flex gap-1 pb-1.5 mb-1" style={{ borderBottom: '2px solid #f1f5f9' }}>
+                        <div className="w-3 h-0.5 rounded-full bg-muted-foreground/20" />
+                        <div className="flex-1 h-0.5 rounded-full bg-muted-foreground/20" />
+                        <div className="w-5 h-0.5 rounded-full bg-muted-foreground/20" />
+                      </div>
+                      {[1,2,3].map(i => <div key={i} className="flex gap-1 py-1.5" style={{ borderBottom: '1px solid #f8fafc' }}><div className="w-3 h-1 rounded-full bg-muted-foreground/10" /><div className="flex-1 h-1 rounded-full bg-muted-foreground/10" /><div className="w-5 h-1 rounded-full bg-muted-foreground/10" /></div>)}
                     </div>
-                    <div className="text-right">
-                      <div className="w-12 h-1.5 rounded-full bg-white/60 mb-1 ml-auto" />
-                      <div className="w-8 h-1 rounded-full bg-white/30 ml-auto" />
+                  </>
+                ) : theme.id === "warm-coral" ? (
+                  /* Warm Coral: Bold header, left sidebar accent, colored table */
+                  <>
+                    <div className="flex">
+                      <div className="w-1.5 rounded-l" style={{ background: theme.headerBg }} />
+                      <div className="flex-1">
+                        <div className="rounded-tr-lg p-2.5" style={{ background: theme.headerBg }}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="w-16 h-1.5 rounded-full bg-white/70 mb-1" />
+                              <div className="w-10 h-1 rounded-full bg-white/40" />
+                            </div>
+                            <div className="rounded px-2 py-1" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                              <div className="w-10 h-1.5 rounded-full bg-white/60" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-1.5 my-1.5">
+                          <div className="flex-1 rounded-r p-1.5" style={{ background: theme.tableHeader, borderLeft: `3px solid ${theme.headerBg}` }}>
+                            <div className="w-8 h-1 rounded-full mb-0.5" style={{ background: theme.headerBg, opacity: 0.3 }} />
+                            <div className="w-12 h-1 rounded-full bg-muted-foreground/15" />
+                          </div>
+                          <div className="flex-1 rounded-r p-1.5" style={{ background: theme.tableHeader, borderLeft: `3px solid ${theme.headerBg}`, opacity: 0.7 }}>
+                            <div className="w-8 h-1 rounded-full mb-0.5" style={{ background: theme.headerBg, opacity: 0.3 }} />
+                            <div className="w-10 h-1 rounded-full bg-muted-foreground/15" />
+                          </div>
+                        </div>
+                        <div className="rounded" style={{ border: `1px solid ${theme.tableBorder}` }}>
+                          <div className="flex gap-1 p-1.5" style={{ background: theme.headerBg }}>
+                            <div className="w-3 h-1 rounded-full bg-white/50" />
+                            <div className="flex-1 h-1 rounded-full bg-white/50" />
+                            <div className="w-5 h-1 rounded-full bg-white/50" />
+                          </div>
+                          {[1,2,3].map(i => <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}`, background: i % 2 === 1 ? theme.tableHeader : '#fff' }}><div className="w-3 h-1 rounded-full bg-muted-foreground/15" /><div className="flex-1 h-1 rounded-full bg-muted-foreground/15" /><div className="w-5 h-1 rounded-full bg-muted-foreground/15" /></div>)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Info cards preview */}
-                <div className="flex gap-1.5 my-1.5">
-                  <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
-                    <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
-                    <div className="w-12 h-1 rounded-full bg-muted-foreground/20" />
-                  </div>
-                  <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
-                    <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
-                    <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
-                  </div>
-                </div>
-
-                {/* Table preview */}
-                <div className="rounded" style={{ border: `1px solid ${theme.tableBorder}` }}>
-                  <div className="flex gap-1 p-1.5" style={{ background: theme.tableHeader }}>
-                    <div className="w-3 h-1 rounded-full bg-muted-foreground/30" />
-                    <div className="flex-1 h-1 rounded-full bg-muted-foreground/30" />
-                    <div className="w-5 h-1 rounded-full bg-muted-foreground/30" />
-                  </div>
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}` }}>
-                      <div className="w-3 h-1 rounded-full bg-muted-foreground/15" />
-                      <div className="flex-1 h-1 rounded-full bg-muted-foreground/15" />
-                      <div className="w-5 h-1 rounded-full bg-muted-foreground/15" />
+                  </>
+                ) : (
+                  /* Modern Teal (default): Card-based, rounded, gradient */
+                  <>
+                    <div className="rounded-t-lg p-2.5" style={{ background: theme.headerGradient }}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="w-16 h-1.5 rounded-full bg-white/70 mb-1" />
+                          <div className="w-10 h-1 rounded-full bg-white/40" />
+                        </div>
+                        <div className="text-right">
+                          <div className="w-12 h-1.5 rounded-full bg-white/60 mb-1 ml-auto" />
+                          <div className="w-8 h-1 rounded-full bg-white/30 ml-auto" />
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-
-                {/* Footer preview */}
-                <div className="flex justify-end mt-1.5">
-                  <div className="w-16 rounded p-1.5" style={{ background: theme.headerBg }}>
-                    <div className="w-10 h-1 rounded-full bg-white/60 mb-0.5 ml-auto" />
-                    <div className="w-8 h-1.5 rounded-full bg-white/80 ml-auto" />
-                  </div>
-                </div>
+                    <div className="flex gap-1.5 my-1.5">
+                      <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
+                        <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
+                        <div className="w-12 h-1 rounded-full bg-muted-foreground/20" />
+                      </div>
+                      <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
+                        <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
+                        <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+                      </div>
+                    </div>
+                    <div className="rounded" style={{ border: `1px solid ${theme.tableBorder}` }}>
+                      <div className="flex gap-1 p-1.5" style={{ background: theme.tableHeader }}>
+                        <div className="w-3 h-1 rounded-full bg-muted-foreground/30" />
+                        <div className="flex-1 h-1 rounded-full bg-muted-foreground/30" />
+                        <div className="w-5 h-1 rounded-full bg-muted-foreground/30" />
+                      </div>
+                      {[1,2,3].map(i => <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}` }}><div className="w-3 h-1 rounded-full bg-muted-foreground/15" /><div className="flex-1 h-1 rounded-full bg-muted-foreground/15" /><div className="w-5 h-1 rounded-full bg-muted-foreground/15" /></div>)}
+                    </div>
+                    <div className="flex justify-end mt-1.5">
+                      <div className="w-16 rounded p-1.5" style={{ background: theme.headerBg }}>
+                        <div className="w-10 h-1 rounded-full bg-white/60 mb-0.5 ml-auto" />
+                        <div className="w-8 h-1.5 rounded-full bg-white/80 ml-auto" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Theme info */}
