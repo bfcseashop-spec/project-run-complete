@@ -16,144 +16,194 @@ interface LabReportViewProps {
 
 function buildReportHTML(report: LabReport): string {
   const s = getSettings();
-  const barcodeImg = barcodeSVG(report.id, 200, 50);
-  const qrPlaceholder = barcodeSVG(report.patientId, 100, 100);
+  const barcodeImg = barcodeSVG(report.id, 220, 50);
+  const qrPlaceholder = barcodeSVG(report.patientId, 80, 80);
   const reportingDate = report.resultDate || report.date;
+  const now = new Date();
+  const registeredOn = report.date;
+  const collectedOn = report.collectedAt || report.date;
+  const reportedOn = reportingDate;
 
-  const sectionsHTML = report.sections.map((section) => {
-    const rowsHTML = section.investigations.map((inv) => {
-      const flagClass = inv.flag === "High" ? "result-high" : inv.flag === "Low" ? "result-low" : "";
+  // Build rows: section titles as inline bold rows, then investigations
+  const tableRowsHTML = report.sections.map((section) => {
+    let rows = "";
+    if (section.title) {
+      rows += `<tr class="section-row"><td colspan="5" class="section-cell"><strong>${section.title.toUpperCase()}</strong></td></tr>`;
+    }
+    rows += section.investigations.filter(inv => inv.name).map((inv) => {
+      const flagLabel = inv.flag === "High" ? '<span class="flag flag-high">High</span>' 
+                       : inv.flag === "Low" ? '<span class="flag flag-low">Low</span>' 
+                       : inv.result?.toLowerCase() === "positive" ? '<span class="flag flag-high">Positive</span>'
+                       : "";
+      const resultClass = inv.flag === "High" || inv.result?.toLowerCase() === "positive" ? "result-high" 
+                        : inv.flag === "Low" ? "result-low" : "";
       return `<tr>
-        <td class="inv-name">${inv.name}</td>
-        <td class="ref-val">${inv.referenceValue}</td>
-        <td class="unit-val">${inv.unit}</td>
-        <td class="result-val ${flagClass}">${inv.result}</td>
+        <td class="col-inv">${inv.name}</td>
+        <td class="col-result ${resultClass}">${inv.result || "—"}</td>
+        <td class="col-flag">${flagLabel}</td>
+        <td class="col-ref">${inv.referenceValue || "—"}</td>
+        <td class="col-unit">${inv.unit || "—"}</td>
       </tr>`;
     }).join("");
-
-    return `
-      <div class="section-title">${section.title}</div>
-      <table class="results-table">
-        <thead>
-          <tr>
-            <th class="col-test">Test</th>
-            <th class="col-ref">Ref. Value</th>
-            <th class="col-unit">Unit</th>
-            <th class="col-result">Result</th>
-          </tr>
-        </thead>
-        <tbody>${rowsHTML}</tbody>
-      </table>
-    `;
+    return rows;
   }).join("");
 
   return `<!DOCTYPE html><html><head><title>Lab Report - ${report.id}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
-.page{max-width:800px;margin:0 auto;padding:0}
-.report-header{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.lab-brand{display:flex;align-items:center;gap:14px}
-.lab-logo{width:52px;height:52px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0f766e;font-weight:700;text-align:center;line-height:1.1;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.page{max-width:820px;margin:0 auto;padding:0;border:1px solid #e5e7eb}
+
+/* === HEADER === */
+.report-header{background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 60%,#3b82f6 100%);padding:16px 24px;display:flex;align-items:flex-start;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:14px}
+.lab-logo{width:56px;height:56px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.2);flex-shrink:0}
 .lab-logo img{width:100%;height:100%;object-fit:contain}
-.lab-name{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.3px}
-.lab-tagline{font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px;font-weight:500}
-.header-right{display:flex;align-items:center;gap:12px}
-.header-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;color:#fff;backdrop-filter:blur(4px)}
-.header-badge .badge-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.8;font-weight:600}
-.header-badge .badge-value{font-size:16px;font-weight:800;margin-top:2px}
-.patient-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:14px 28px;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-bottom:3px solid #14b8a6}
-.patient-col{display:flex;flex-direction:column;gap:5px}
-.patient-row{display:flex;gap:6px;font-size:12px}
-.patient-row .plabel{font-weight:700;color:#0f766e;min-width:85px;font-size:11px;text-transform:uppercase;letter-spacing:0.3px}
-.patient-row .pvalue{color:#1a1a1a;font-weight:500}
-.barcode-col{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.barcode-col .case-label{font-size:11px;font-weight:700;color:#0f766e}
-.report-body{padding:20px 28px}
-.report-category{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0f766e;padding-bottom:8px;margin-bottom:16px}
-.report-category h2{font-size:18px;font-weight:800;text-transform:uppercase;color:#0f766e;letter-spacing:1px}
-.reporting-date{font-size:11px;color:#666;text-align:right;background:#f0fdfa;padding:4px 10px;border-radius:4px}
-.section-title{font-size:13px;font-weight:800;color:#0f766e;margin:18px 0 8px 0;padding:6px 12px;background:linear-gradient(90deg,#f0fdfa,transparent);border-left:3px solid #14b8a6;text-transform:uppercase;letter-spacing:0.8px}
-.results-table{width:100%;border-collapse:collapse;margin-bottom:10px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
-.results-table thead th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:#fff;background:#0f766e;padding:8px 10px;letter-spacing:0.8px}
-.results-table thead th.col-result{text-align:right}
-.results-table tbody td{padding:7px 10px;border-bottom:1px solid #f3f4f6;font-size:12px;vertical-align:middle}
-.results-table tbody tr:nth-child(even){background:#fafffe}
-.results-table tbody tr:hover{background:#f0fdfa}
-.col-test{width:40%}.col-ref{width:22%}.col-unit{width:18%}.col-result{width:20%;text-align:right}
-.inv-name{color:#1a1a1a;font-weight:600}
-.ref-val{color:#6b7280;font-size:11px}
-.unit-val{color:#6b7280;font-size:11px}
-.result-val{font-weight:700;text-align:right;color:#1a1a1a;font-size:13px}
-.result-high{color:#dc2626;font-weight:800;background:#fef2f2;padding:2px 6px;border-radius:3px}
-.result-low{color:#2563eb;font-weight:800;background:#eff6ff;padding:2px 6px;border-radius:3px}
-.remarks-box{margin:16px 0;padding:14px 18px;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:8px;font-size:12px;color:#374151;line-height:1.7}
-.remarks-box::before{content:'📋 Remarks';display:block;font-size:10px;font-weight:700;color:#0f766e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.instrument-line{font-size:11px;color:#6b7280;margin-top:10px;font-style:italic;padding:6px 10px;background:#f9fafb;border-radius:4px;border-left:2px solid #d1d5db}
-.signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:36px;padding-top:0}
+.lab-logo-fallback{font-size:24px}
+.header-brand h1{font-size:24px;font-weight:900;color:#fff;letter-spacing:0.5px;margin-bottom:2px}
+.header-brand h1 span{color:#fbbf24}
+.header-brand .tagline{font-size:11px;color:rgba(255,255,255,0.9);font-weight:600;letter-spacing:1px}
+.header-right{text-align:right;color:#fff;font-size:12px;line-height:1.8}
+.header-right .icon{margin-right:6px}
+.header-address{background:rgba(0,0,0,0.15);padding:6px 24px;font-size:11px;color:rgba(255,255,255,0.95);text-align:center;letter-spacing:0.3px}
+.header-web{background:#1e40af;padding:4px 24px;text-align:right;font-size:11px;color:rgba(255,255,255,0.8)}
+
+/* === PATIENT BAR === */
+.patient-bar{display:grid;grid-template-columns:1fr 1.2fr auto;gap:12px;padding:16px 24px;border-bottom:2px solid #e5e7eb;background:#fff}
+.patient-info{line-height:1.9}
+.patient-info .pname{font-size:16px;font-weight:800;color:#1a1a1a}
+.patient-info .pdetail{font-size:12px;color:#374151}
+.sample-info{font-size:12px;color:#374151;line-height:1.9}
+.sample-info strong{color:#1a1a1a}
+.barcode-info{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.barcode-info .timestamps{font-size:10px;color:#6b7280;line-height:1.7;text-align:right}
+.barcode-info .timestamps strong{color:#374151}
+
+/* === TEST TITLE === */
+.test-title{text-align:center;padding:16px 24px 12px;border-bottom:2px solid #1d4ed8}
+.test-title h2{font-size:18px;font-weight:800;color:#1a1a1a}
+.test-title .sample-type{font-size:12px;color:#6b7280;margin-top:2px}
+
+/* === RESULTS TABLE === */
+.results-table{width:100%;border-collapse:collapse}
+.results-table thead th{text-align:left;font-size:12px;font-weight:800;color:#1a1a1a;padding:10px 16px;border-bottom:2px solid #1a1a1a;background:#fff}
+.results-table tbody td{padding:6px 16px;border-bottom:1px solid #f3f4f6;font-size:12.5px;vertical-align:middle}
+.results-table tbody tr:hover{background:#f9fafb}
+.section-row td{padding:12px 16px 4px !important;border-bottom:none !important}
+.section-cell{font-size:12px;font-weight:800;color:#1a1a1a;letter-spacing:0.3px}
+.col-inv{width:35%;color:#1a1a1a;font-weight:500}
+.col-result{width:15%;font-weight:700;color:#1a1a1a}
+.col-flag{width:12%;font-size:11px}
+.col-ref{width:24%;color:#4b5563;font-size:12px}
+.col-unit{width:14%;color:#4b5563;font-size:12px}
+.result-high{color:#ea580c;font-weight:800}
+.result-low{color:#2563eb;font-weight:800}
+.flag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px}
+.flag-high{color:#ea580c}
+.flag-low{color:#2563eb}
+
+/* === BOTTOM SECTIONS === */
+.report-bottom{padding:16px 24px}
+.instrument-line{font-size:12px;color:#374151;margin-bottom:8px}
+.instrument-line strong{color:#1a1a1a}
+.remarks-line{font-size:12px;color:#374151;margin-bottom:8px}
+.remarks-line strong{color:#1a1a1a}
+
+/* === SIGNATURES === */
+.signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:30px;padding-top:0}
 .sig-block{text-align:center}
-.sig-line{border-top:2px solid #0f766e;margin-top:44px;padding-top:8px}
+.sig-line{border-top:2px solid #374151;margin-top:44px;padding-top:8px}
 .sig-name{font-size:12px;font-weight:700;color:#1a1a1a}
 .sig-role{font-size:10px;color:#6b7280}
-.end-text{font-size:10px;color:#9ca3af;margin-top:52px}
-.report-footer{background:linear-gradient(135deg,#0f766e 0%,#115e59 100%);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;margin-top:28px}
-.footer-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);font-size:11px}
-.footer-icon{width:26px;height:26px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.footer-icon svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2}
-.footer-qr{width:60px;height:60px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-@media print{@page{size:A4;margin:10mm}body{background:#fff}.page{max-width:100%;padding:0}.results-table tbody tr:hover{background:transparent}.results-table tbody tr:nth-child(even){background:#fafffe}}
+
+/* === FOOTER === */
+.report-footer{border-top:2px solid #e5e7eb;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.footer-left{font-size:11px;color:#6b7280;font-style:italic}
+.footer-center{font-size:11px;font-weight:700;color:#374151;letter-spacing:1px}
+.footer-right{font-size:10px;color:#9ca3af}
+.end-text{text-align:center;font-size:11px;font-weight:700;color:#6b7280;margin-top:44px;letter-spacing:1px}
+
+@media print{@page{size:A4;margin:8mm}body{background:#fff}.page{max-width:100%;border:none}.results-table tbody tr:hover{background:transparent}}
 </style></head><body>
 <div class="page">
+  <!-- HEADER -->
   <div class="report-header">
-    <div class="lab-brand">
-      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
-      <div>
-        <div class="lab-name">${s.clinicName}</div>
-        <div class="lab-tagline">${s.clinicTagline}</div>
+    <div class="header-left">
+      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '<span class="lab-logo-fallback">🏥</span>'}</div>
+      <div class="header-brand">
+        <h1>${s.clinicName}</h1>
+        <div class="tagline">${s.clinicTagline || "Accurate | Caring | Instant"}</div>
       </div>
     </div>
     <div class="header-right">
-      <div class="header-badge">
-        <div class="badge-label">Case</div>
-        <div class="badge-value">${report.id.replace("LR-", "")}</div>
+      <div>📞 ${s.clinicPhone || "—"}</div>
+      <div>✉️ ${s.clinicEmail || "—"}</div>
+    </div>
+  </div>
+  <div class="header-address">${s.clinicAddress || "—"}</div>
+
+  <!-- PATIENT BAR -->
+  <div class="patient-bar">
+    <div class="patient-info">
+      <div class="pname">${report.patient}</div>
+      <div class="pdetail">Age : ${report.age} Years</div>
+      <div class="pdetail">Sex : ${report.gender}</div>
+      <div class="pdetail">PID : ${report.patientId}</div>
+    </div>
+    <div class="sample-info">
+      <div><strong>Sample Collected At:</strong></div>
+      <div>${s.clinicAddress || "—"}</div>
+      <div style="margin-top:6px">Ref. By: <strong>Dr. ${report.doctor}</strong></div>
+    </div>
+    <div class="barcode-info">
+      <div>${barcodeImg}</div>
+      <div class="timestamps">
+        <div><strong>Registered on:</strong> ${registeredOn}</div>
+        <div><strong>Collected on:</strong> ${collectedOn}</div>
+        <div><strong>Reported on:</strong> ${reportedOn}</div>
       </div>
     </div>
   </div>
-  <div class="patient-bar">
-    <div class="patient-col">
-      <div class="patient-row"><span class="plabel">Name:</span><span class="pvalue">${report.patient}</span></div>
-      <div class="patient-row"><span class="plabel">Age / Sex:</span><span class="pvalue">${report.age} Years / ${report.gender}</span></div>
-      <div class="patient-row"><span class="plabel">PID:</span><span class="pvalue">${report.patientId}</span></div>
-    </div>
-    <div class="patient-col">
-      <div class="patient-row"><span class="plabel">Requested:</span><span class="pvalue">${report.date}</span></div>
-      <div class="patient-row"><span class="plabel">Reported:</span><span class="pvalue">${report.resultDate || "Pending"}</span></div>
-      <div class="patient-row"><span class="plabel">Consultant:</span><span class="pvalue">${report.doctor}</span></div>
-    </div>
-    <div class="barcode-col">
-      <div class="case-label">Pat No: ${report.patientId}</div>
-      <div>${barcodeImg}</div>
-    </div>
+
+  <!-- TEST TITLE -->
+  <div class="test-title">
+    <h2>${report.testName || report.category}</h2>
   </div>
-  <div class="report-body">
-    <div class="report-category">
-      <h2>${report.category.toUpperCase()}</h2>
-      <div class="reporting-date">Reporting Date: ${reportingDate}</div>
-    </div>
-    ${sectionsHTML}
-    ${report.remarks ? `<div class="remarks-box">${report.remarks}</div>` : ""}
-    ${report.instrument ? `<div class="instrument-line">Instruments: ${report.instrument}</div>` : ""}
+
+  <!-- RESULTS TABLE -->
+  <table class="results-table">
+    <thead>
+      <tr>
+        <th class="col-inv">Investigation</th>
+        <th class="col-result">Result</th>
+        <th class="col-flag"></th>
+        <th class="col-ref">Reference Value</th>
+        <th class="col-unit">Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${report.sampleType ? `<tr><td class="col-inv">Primary Sample Type :</td><td class="col-result">${report.sampleType}</td><td></td><td></td><td></td></tr>` : ""}
+      ${tableRowsHTML}
+    </tbody>
+  </table>
+
+  <!-- BOTTOM INFO -->
+  <div class="report-bottom">
+    ${report.instrument ? `<div class="instrument-line"><strong>Instruments:</strong> ${report.instrument}</div>` : ""}
+    ${report.remarks ? `<div class="remarks-line"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
+
     <div class="signatures">
       <div class="sig-block"><div class="sig-line"></div><div class="sig-name">${report.technician || "Lab Technician"}</div><div class="sig-role">(Medical Lab Technician)</div></div>
       <div class="sig-block"><div class="end-text">****End of Report****</div></div>
       <div class="sig-block"><div class="sig-line"></div><div class="sig-name">${report.pathologist || "Pathologist"}</div><div class="sig-role">(MD, Pathologist)</div></div>
     </div>
   </div>
+
+  <!-- FOOTER -->
   <div class="report-footer">
-    <div class="footer-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><strong>Phone</strong><br/>${s.clinicPhone}</div></div>
-    <div class="footer-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><strong>Email</strong><br/>${s.clinicEmail}</div></div>
-    <div class="footer-item"><div class="footer-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><strong>Address</strong><br/>${s.clinicAddress}</div></div>
-    <div class="footer-qr">${qrPlaceholder}</div>
+    <div class="footer-left">Thanks for Reference</div>
+    <div class="footer-center">****End of Report****</div>
+    <div class="footer-right">${report.id}</div>
   </div>
 </div>
 </body></html>`;
