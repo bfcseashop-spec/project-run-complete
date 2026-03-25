@@ -27,6 +27,8 @@ import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
+import { addSampleRecords } from "@/data/sampleStore";
+import { getPatients } from "@/data/patientStore";
 
 interface Prescription {
   id: string;
