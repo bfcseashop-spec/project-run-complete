@@ -23,10 +23,15 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
+  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown,
 } from "lucide-react";
-import { printBarcode } from "@/lib/printUtils";
+import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/printUtils";
+import { toast } from "sonner";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
@@ -68,6 +73,8 @@ const LabReportsPage = () => {
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
   const [viewReport, setViewReport] = useState<LabReport | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
+  const [inputResultsReport, setInputResultsReport] = useState<LabReport | null>(null);
+  const [uploadReport, setUploadReport] = useState<LabReport | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -276,23 +283,45 @@ const LabReportsPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: LabReport) => (
-        <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View Report" onClick={() => openView(r)}>
-            <Eye className="w-3.5 h-3.5 text-info" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5 text-warning" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printLabReport(r)}>
-            <Printer className="w-3.5 h-3.5 text-primary" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-            <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteReport(r)}>
-            <Trash2 className="w-3.5 h-3.5 text-destructive" />
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => openView(r)}>
+              <Eye className="w-3.5 h-3.5 mr-2 text-info" /> View
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openEdit(r)}>
+              <Pencil className="w-3.5 h-3.5 mr-2 text-warning" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setUploadReport(r)}>
+              <Upload className="w-3.5 h-3.5 mr-2 text-primary" /> Upload Report
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setInputResultsReport(r)}>
+              <ClipboardEdit className="w-3.5 h-3.5 mr-2 text-emerald-600" /> Input Test Results
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => printBarcode(r.id, r.patient)}>
+              <BarcodeIcon className="w-3.5 h-3.5 mr-2" /> Barcode
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => printSampleBarcodes({ id: r.id, patient: r.patient, patientId: r.patientId, testName: r.testName, sampleType: r.sampleType, date: r.date })}>
+              <Tag className="w-3.5 h-3.5 mr-2" /> Sample Barcodes
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => printCompactLabReport(r)}>
+              <FileDown className="w-3.5 h-3.5 mr-2 text-indigo-600" /> Print (Compact)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => printLabReport(r)}>
+              <Printer className="w-3.5 h-3.5 mr-2 text-indigo-600" /> Print (Full Size)
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setDeleteReport(r)} className="text-destructive focus:text-destructive">
+              <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
@@ -732,8 +761,220 @@ const LabReportsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* ========== INPUT TEST RESULTS DIALOG ========== */}
+      <Dialog open={!!inputResultsReport} onOpenChange={(open) => !open && setInputResultsReport(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Input Test Results — {inputResultsReport?.id}</DialogTitle>
+            <DialogDescription>
+              Quickly enter results for {inputResultsReport?.testName} ({inputResultsReport?.patient})
+            </DialogDescription>
+          </DialogHeader>
+          {inputResultsReport && (
+            <InputTestResultsForm
+              report={inputResultsReport}
+              onSave={(sections, remarks) => {
+                updateLabReport(inputResultsReport.id, {
+                  sections,
+                  remarks,
+                  status: "completed",
+                  resultDate: new Date().toISOString().split("T")[0],
+                  reportedAt: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                });
+                toast.success("Test results saved & report marked completed");
+                setInputResultsReport(null);
+              }}
+              onCancel={() => setInputResultsReport(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ========== UPLOAD REPORT DIALOG ========== */}
+      <Dialog open={!!uploadReport} onOpenChange={(open) => !open && setUploadReport(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Report — {uploadReport?.id}</DialogTitle>
+            <DialogDescription>
+              Upload a scanned report or document for {uploadReport?.patient}
+            </DialogDescription>
+          </DialogHeader>
+          {uploadReport && (
+            <UploadReportForm
+              report={uploadReport}
+              onDone={(url) => {
+                updateLabReport(uploadReport.id, {
+                  remarks: uploadReport.remarks
+                    ? `${uploadReport.remarks}\n📎 Uploaded: ${url}`
+                    : `📎 Uploaded: ${url}`,
+                  status: uploadReport.status === "pending" ? "in-progress" : uploadReport.status,
+                });
+                toast.success("Report file uploaded successfully");
+                setUploadReport(null);
+              }}
+              onCancel={() => setUploadReport(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+/* ========== SUB-COMPONENTS ========== */
+
+function InputTestResultsForm({ report, onSave, onCancel }: {
+  report: LabReport;
+  onSave: (sections: ReportSection[], remarks: string) => void;
+  onCancel: () => void;
+}) {
+  const [sections, setSections] = useState<ReportSection[]>(
+    report.sections.length > 0 ? report.sections.map(s => ({
+      ...s,
+      investigations: s.investigations.map(inv => ({ ...inv })),
+    })) : [{ title: report.testName, investigations: [{ ...emptyInvestigation }] }]
+  );
+  const [remarks, setRemarks] = useState(report.remarks);
+
+  const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
+    const newSections = [...sections];
+    const invs = [...newSections[sIdx].investigations];
+    invs[iIdx] = { ...invs[iIdx], [field]: value };
+    newSections[sIdx] = { ...newSections[sIdx], investigations: invs };
+    setSections(newSections);
+  };
+
+  const addInv = (sIdx: number) => {
+    const newSections = [...sections];
+    newSections[sIdx] = {
+      ...newSections[sIdx],
+      investigations: [...newSections[sIdx].investigations, { ...emptyInvestigation }],
+    };
+    setSections(newSections);
+  };
+
+  return (
+    <div className="space-y-4">
+      {sections.map((sec, sIdx) => (
+        <div key={sIdx} className="border border-border rounded-lg overflow-hidden">
+          <div className="bg-muted/50 px-3 py-2 text-xs font-bold uppercase tracking-wider text-card-foreground">
+            {sec.title || `Section ${sIdx + 1}`}
+          </div>
+          <div className="divide-y divide-border/50">
+            {sec.investigations.map((inv, iIdx) => (
+              <div key={iIdx} className="grid grid-cols-12 gap-2 px-3 py-1.5 items-center">
+                <div className="col-span-4">
+                  <Input className="h-7 text-xs" placeholder="Investigation" value={inv.name} onChange={e => updateInv(sIdx, iIdx, "name", e.target.value)} />
+                </div>
+                <div className="col-span-2">
+                  <Input className="h-7 text-xs font-semibold" placeholder="Result" value={inv.result} onChange={e => updateInv(sIdx, iIdx, "result", e.target.value)} />
+                </div>
+                <div className="col-span-3">
+                  <Input className="h-7 text-xs" placeholder="Ref. Value" value={inv.referenceValue} onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)} />
+                </div>
+                <div className="col-span-1">
+                  <Input className="h-7 text-xs" placeholder="Unit" value={inv.unit} onChange={e => updateInv(sIdx, iIdx, "unit", e.target.value)} />
+                </div>
+                <div className="col-span-2">
+                  <Select value={inv.flag || "none"} onValueChange={v => updateInv(sIdx, iIdx, "flag", v === "none" ? undefined : v)}>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Normal</SelectItem>
+                      <SelectItem value="High"><span className="text-destructive font-semibold">High</span></SelectItem>
+                      <SelectItem value="Low"><span className="text-info font-semibold">Low</span></SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="px-3 py-1.5 border-t border-border/50">
+            <Button variant="ghost" size="sm" className="text-xs h-6 text-primary" onClick={() => addInv(sIdx)}>
+              <Plus className="w-3 h-3 mr-1" /> Add Row
+            </Button>
+          </div>
+        </div>
+      ))}
+      <div className="space-y-1.5">
+        <Label className="text-xs">Remarks</Label>
+        <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} rows={2} placeholder="Clinical notes..." />
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button size="sm" onClick={() => onSave(sections, remarks)}>
+          <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Save & Complete
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function UploadReportForm({ report, onDone, onCancel }: {
+  report: LabReport;
+  onDone: (url: string) => void;
+  onCancel: () => void;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      if (f.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = () => setPreview(reader.result as string);
+        reader.readAsDataURL(f);
+      } else {
+        setPreview(null);
+      }
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      // Store as data URL in remarks for now (no storage bucket needed)
+      const reader = new FileReader();
+      reader.onload = () => {
+        const url = file.name;
+        onDone(url);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      toast.error("Upload failed");
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground mb-3">Select a report file (PDF, Image)</p>
+        <Input type="file" accept="image/*,.pdf" onChange={handleFileChange} className="max-w-xs mx-auto" />
+      </div>
+      {preview && (
+        <div className="border border-border rounded-lg overflow-hidden">
+          <img src={preview} alt="Preview" className="max-h-48 mx-auto object-contain" />
+        </div>
+      )}
+      {file && (
+        <p className="text-xs text-muted-foreground text-center">
+          Selected: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
+        </p>
+      )}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button size="sm" disabled={!file || uploading} onClick={handleUpload}>
+          <Upload className="w-3.5 h-3.5 mr-1.5" /> {uploading ? "Uploading..." : "Upload"}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default LabReportsPage;

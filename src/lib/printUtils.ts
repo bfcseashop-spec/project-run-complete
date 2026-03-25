@@ -907,3 +907,114 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
   win.document.close();
   setTimeout(() => win.print(), 500);
 }
+
+/** Print a compact lab report — single page summary without full sections */
+export function printCompactLabReport(report: {
+  id: string; patient: string; patientId: string; age: number; gender: string;
+  testName: string; doctor: string; date: string; resultDate: string;
+  status: string; category: string; result: string; normalRange: string;
+  remarks: string; sampleType: string; collectedAt: string; reportedAt: string;
+  technician: string; pathologist: string; instrument: string;
+  sections?: { title: string; investigations: { name: string; result: string; referenceValue: string; unit: string; flag?: string }[] }[];
+}) {
+  const s = getSettings();
+  const barcodeHtml = barcodeSVG(report.id, 180, 45);
+  const win = window.open("", "_blank", "width=600,height=700");
+  if (!win) return;
+
+  // Build compact results table from sections
+  let resultsHTML = "";
+  if (report.sections && report.sections.length > 0) {
+    const rows = report.sections.flatMap(sec =>
+      sec.investigations.filter(inv => inv.name).map(inv => {
+        const flagColor = inv.flag === "High" ? "color:#dc2626;font-weight:700" : inv.flag === "Low" ? "color:#2563eb;font-weight:700" : "";
+        return `<tr>
+          <td style="padding:3px 8px;border-bottom:1px solid #eee;font-size:11px">${inv.name}</td>
+          <td style="padding:3px 8px;border-bottom:1px solid #eee;font-size:11px;font-weight:600;${flagColor}">${inv.result}${inv.flag ? ` <span style="font-size:9px">${inv.flag === "High" ? "▲" : "▼"}</span>` : ""}</td>
+          <td style="padding:3px 8px;border-bottom:1px solid #eee;font-size:10px;color:#888">${inv.referenceValue} ${inv.unit}</td>
+        </tr>`;
+      })
+    );
+    if (rows.length > 0) {
+      resultsHTML = `<table style="width:100%;border-collapse:collapse;border:1px solid #ddd;margin-bottom:12px">
+        <thead><tr style="background:#f0fdfa"><th style="padding:4px 8px;text-align:left;font-size:10px;color:#0f766e;text-transform:uppercase">Test</th><th style="padding:4px 8px;text-align:left;font-size:10px;color:#0f766e;text-transform:uppercase">Result</th><th style="padding:4px 8px;text-align:left;font-size:10px;color:#0f766e;text-transform:uppercase">Reference</th></tr></thead>
+        <tbody>${rows.join("")}</tbody>
+      </table>`;
+    }
+  }
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Lab Report (Compact) - ${report.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;font-size:11px}
+.page{max-width:500px;margin:0 auto;padding:16px 20px}
+@media print{body{padding:0}.page{padding:10px 15px}@page{margin:8mm;size:A5}}
+</style></head><body>
+<div class="page">
+  <div style="text-align:center;border-bottom:2px solid #0f766e;padding-bottom:8px;margin-bottom:10px">
+    <div style="font-size:16px;font-weight:700;color:#0f766e">${s.clinicName}</div>
+    <div style="font-size:9px;color:#888">${s.clinicAddress} · ${s.clinicPhone}</div>
+  </div>
+  <div style="text-align:center;background:#f0fdfa;padding:5px;border-radius:4px;margin-bottom:10px">
+    <span style="font-size:12px;font-weight:700;color:#0f766e;text-transform:uppercase;letter-spacing:1px">Lab Report</span>
+    <span style="font-size:10px;color:#888;margin-left:8px">${report.id}</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #ddd;border-radius:4px;margin-bottom:10px;font-size:10px">
+    <div style="padding:5px 8px;border-right:1px solid #ddd;border-bottom:1px solid #ddd"><span style="color:#888">Patient:</span> <strong>${report.patient}</strong></div>
+    <div style="padding:5px 8px;border-bottom:1px solid #ddd"><span style="color:#888">ID:</span> ${report.patientId}</div>
+    <div style="padding:5px 8px;border-right:1px solid #ddd;border-bottom:1px solid #ddd"><span style="color:#888">Age/Gender:</span> ${report.age}y / ${report.gender}</div>
+    <div style="padding:5px 8px;border-bottom:1px solid #ddd"><span style="color:#888">Doctor:</span> ${report.doctor}</div>
+    <div style="padding:5px 8px;border-right:1px solid #ddd"><span style="color:#888">Test:</span> <strong>${report.testName}</strong></div>
+    <div style="padding:5px 8px"><span style="color:#888">Date:</span> ${report.date}${report.resultDate ? ` → ${report.resultDate}` : ""}</div>
+  </div>
+  ${resultsHTML}
+  ${report.remarks ? `<div style="font-size:10px;color:#666;margin-bottom:10px"><strong>Remarks:</strong> ${report.remarks}</div>` : ""}
+  <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #ccc;padding-top:8px;margin-top:8px">
+    <div style="font-size:9px;color:#888">
+      ${report.technician ? `Tech: ${report.technician}` : ""}${report.pathologist ? ` · Path: ${report.pathologist}` : ""}
+    </div>
+    <div>${barcodeHtml}</div>
+  </div>
+  <div style="text-align:center;font-size:8px;color:#aaa;margin-top:6px">Printed ${new Date().toLocaleDateString()} · ${s.clinicName}</div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 400);
+}
+
+/** Print sample barcodes for a lab report */
+export function printSampleBarcodes(report: { id: string; patient: string; patientId: string; testName: string; sampleType: string; date: string }) {
+  const s = getSettings();
+  const idBarcode = barcodeSVG(report.id, 200, 55);
+  const patientBarcode = barcodeSVG(report.patientId, 200, 55);
+  const win = window.open("", "_blank", "width=500,height=500");
+  if (!win) return;
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Sample Barcodes - ${report.id}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fff}
+.label{text-align:center;padding:16px 20px;border:1px dashed #ccc;margin:12px;border-radius:6px;page-break-inside:avoid}
+.clinic{font-size:10px;color:#888;margin-bottom:6px}
+.info{font-size:10px;color:#444;margin-top:4px}
+.id-text{font-size:12px;font-weight:700;letter-spacing:1.5px;margin-top:3px}
+@media print{@page{size:80mm auto;margin:2mm}.label{margin:4px;border:none;padding:8px}}
+</style></head><body>
+<div class="label">
+  <div class="clinic">${s.clinicName}</div>
+  <div class="info"><strong>Report:</strong> ${report.testName}</div>
+  <div style="margin:6px 0">${idBarcode}</div>
+  <div class="id-text">${report.id}</div>
+  <div class="info">${report.patient} · ${report.sampleType} · ${report.date}</div>
+</div>
+<div class="label">
+  <div class="clinic">${s.clinicName}</div>
+  <div class="info"><strong>Patient Sample:</strong> ${report.patient}</div>
+  <div style="margin:6px 0">${patientBarcode}</div>
+  <div class="id-text">${report.patientId}</div>
+  <div class="info">${report.testName} · ${report.sampleType} · ${report.date}</div>
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 400);
+}
