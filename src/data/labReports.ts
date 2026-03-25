@@ -35,7 +35,7 @@ export interface LabReport {
   instrument: string;
   expectedTAT?: string; // e.g. "4h", "2d", "1w"
   sections: ReportSection[];
-  attachments: { name: string; url: string; type: string; uploadedAt: string }[];
+  attachments?: { name: string; url: string; type: string; uploadedAt: string }[];
 }
 
 // ===== TEMPLATES =====
