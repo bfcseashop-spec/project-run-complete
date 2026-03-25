@@ -828,8 +828,9 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border bg-muted/40">
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
-        <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
+        <div className="col-span-1 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
         <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
+        <div className="col-span-1"></div>
       </div>
 
       {/* Sections & Investigations */}
