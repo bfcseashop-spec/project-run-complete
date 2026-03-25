@@ -51,6 +51,7 @@ const defaultSettings: AppSettings = {
   nextInvoiceNumber: "1",
   taxEnabled: true,
   taxRate: "5",
+  invoiceTheme: "classic",
 };
 
 let settings: AppSettings = { ...defaultSettings };
