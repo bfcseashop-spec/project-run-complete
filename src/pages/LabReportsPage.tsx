@@ -646,16 +646,16 @@ const LabReportsPage = () => {
               Upload a scanned report or document for {uploadReport?.patient}
             </DialogDescription>
           </DialogHeader>
-          {uploadReport && (
+            {uploadReport && (
             <UploadReportForm
               report={uploadReport}
-              onDone={(attachment) => {
+              onDone={(attachments) => {
                 const existing = uploadReport.attachments || [];
                 updateLabReport(uploadReport.id, {
-                  attachments: [...existing, attachment],
+                  attachments: [...existing, ...attachments],
                   status: uploadReport.status === "pending" ? "in-progress" : uploadReport.status,
                 });
-                toast.success("Report file uploaded successfully");
+                toast.success(`${attachments.length} file${attachments.length > 1 ? "s" : ""} uploaded successfully`);
                 setUploadReport(null);
               }}
               onCancel={() => setUploadReport(null)}
