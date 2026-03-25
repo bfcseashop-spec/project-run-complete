@@ -66,7 +66,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 };
 
 const LabReportsPage = () => {
-  const { activeTestNames } = useTestNameStore();
+  const { activeTestNames, findByName } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
@@ -217,34 +217,48 @@ const LabReportsPage = () => {
       render: (r: LabReport) => {
         if (!r.date) return <span className="text-muted-foreground">—</span>;
         const startDate = new Date(r.date);
-        const endDate = r.resultDate ? new Date(r.resultDate) : new Date();
+        const isCompleted = r.status === "completed" && r.resultDate;
+        const endDate = isCompleted ? new Date(r.resultDate!) : new Date();
         const diffMs = endDate.getTime() - startDate.getTime();
         if (diffMs < 0) return <span className="text-muted-foreground">—</span>;
+        const diffMins = diffMs / (1000 * 60);
         const diffHrs = diffMs / (1000 * 60 * 60);
         const diffDays = diffMs / (1000 * 60 * 60 * 24);
-        const diffWeeks = diffDays / 7;
+
         let label: string;
-        let colorClass: string;
-        if (diffHrs < 24) {
-          label = `${Math.max(1, Math.round(diffHrs))}h`;
-          colorClass = "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950";
-        } else if (diffDays < 7) {
-          label = `${Math.round(diffDays)}d`;
-          colorClass = "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950";
+        if (diffMins < 60) {
+          label = `${Math.max(1, Math.round(diffMins))}m`;
+        } else if (diffHrs < 24) {
+          label = `${Math.round(diffHrs)}h`;
         } else {
-          label = `${diffWeeks.toFixed(1)}w`;
-          colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
+          label = `${Math.round(diffDays)}d`;
         }
 
-        // Check if overdue based on expectedTAT
+        if (isCompleted) {
+          return (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950">
+              <Clock className="w-3 h-3" />
+              {label}
+              <span className="opacity-70 font-normal">✓</span>
+            </span>
+          );
+        }
+
+        // Ongoing — check overdue
+        let colorClass = diffHrs < 24
+          ? "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950"
+          : diffDays < 3
+          ? "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950"
+          : "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
+
         let isOverdue = false;
-        if (r.expectedTAT && !r.resultDate) {
-          const tatMatch = r.expectedTAT.match(/^(\d+)(h|d|w)$/);
+        if (r.expectedTAT) {
+          const tatMatch = r.expectedTAT.match(/(\d+)\s*(h|hour|d|day|w|week|m|min)/i);
           if (tatMatch) {
             const tatVal = parseInt(tatMatch[1]);
-            const tatUnit = tatMatch[2];
-            const tatHrs = tatUnit === "h" ? tatVal : tatUnit === "d" ? tatVal * 24 : tatVal * 168;
-            if (diffHrs > tatHrs) {
+            const u = tatMatch[2].toLowerCase();
+            const tatMins = u.startsWith("m") ? tatVal : u.startsWith("h") ? tatVal * 60 : u.startsWith("d") ? tatVal * 1440 : tatVal * 10080;
+            if (diffMins > tatMins) {
               isOverdue = true;
               colorClass = "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950";
             }
@@ -256,12 +270,10 @@ const LabReportsPage = () => {
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${colorClass}`}>
               <Clock className="w-3 h-3" />
               {label}
-              {!r.resultDate && <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>}
+              <span className="opacity-60 font-normal ml-0.5">(ongoing)</span>
             </span>
-            {r.expectedTAT && (
-              <span className={`text-[10px] ml-1 ${isOverdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
-                {isOverdue ? "⚠ Overdue" : `ETA: ${r.expectedTAT}`}
-              </span>
+            {isOverdue && (
+              <span className="text-[10px] ml-1 text-destructive font-semibold">⚠ Overdue</span>
             )}
           </div>
         );
@@ -476,7 +488,16 @@ const LabReportsPage = () => {
             {/* Test Name */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Test Name <span className="text-destructive">*</span></Label>
-              <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
+              <Select value={form.testName} onValueChange={(v) => {
+                const testInfo = findByName(v);
+                setForm({
+                  ...form,
+                  testName: v,
+                  normalRange: testInfo ? String(testInfo.price) : form.normalRange,
+                  sampleType: testInfo?.sampleType || form.sampleType,
+                  category: (testInfo?.category as any) || form.category,
+                });
+              }}>
                 <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
                 <SelectContent>
                   {activeTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
@@ -530,7 +551,7 @@ const LabReportsPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Price ($) <span className="text-destructive">*</span></Label>
-                <Input type="number" value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="0.00" />
+                <Input type="number" value={form.normalRange} readOnly className="bg-muted/50 cursor-not-allowed" placeholder="0.00" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Turnaround Time</Label>
