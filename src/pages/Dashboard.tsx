@@ -26,21 +26,21 @@ import { parseISO, isWithinInterval, format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis } from "recharts";
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
-  Cash: { color: "hsl(152, 60%, 40%)", icon: Banknote },
-  ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
-  ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
-  Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
-  Wing: { color: "hsl(195, 80%, 45%)", icon: Smartphone },
-  "Binance(USDT)": { color: "hsl(45, 90%, 48%)", icon: Coins },
-  "True Money": { color: "hsl(15, 85%, 52%)", icon: Smartphone },
-  "Bank Transfer": { color: "hsl(200, 50%, 40%)", icon: Send },
-  Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
+  Cash: { color: "hsl(168, 65%, 38%)", icon: Banknote },
+  ABA: { color: "hsl(210, 70%, 50%)", icon: Building2 },
+  ACleda: { color: "hsl(195, 65%, 45%)", icon: Landmark },
+  Card: { color: "hsl(220, 55%, 55%)", icon: CreditCard },
+  Wing: { color: "hsl(185, 60%, 42%)", icon: Smartphone },
+  "Binance(USDT)": { color: "hsl(175, 55%, 40%)", icon: Coins },
+  "True Money": { color: "hsl(200, 60%, 48%)", icon: Smartphone },
+  "Bank Transfer": { color: "hsl(215, 50%, 45%)", icon: Send },
+  Insurance: { color: "hsl(190, 55%, 40%)", icon: Shield },
 };
 
 const DONUT_COLORS = [
-  "hsl(168, 80%, 35%)", "hsl(200, 80%, 50%)", "hsl(38, 92%, 50%)",
-  "hsl(270, 60%, 55%)", "hsl(350, 65%, 55%)", "hsl(152, 60%, 40%)",
-  "hsl(15, 85%, 52%)", "hsl(195, 80%, 45%)", "hsl(45, 90%, 48%)",
+  "hsl(168, 65%, 38%)", "hsl(210, 70%, 50%)", "hsl(195, 65%, 45%)",
+  "hsl(220, 55%, 55%)", "hsl(185, 60%, 42%)", "hsl(175, 55%, 40%)",
+  "hsl(200, 60%, 48%)", "hsl(215, 50%, 45%)", "hsl(190, 55%, 40%)",
 ];
 
 const quickActions = [
