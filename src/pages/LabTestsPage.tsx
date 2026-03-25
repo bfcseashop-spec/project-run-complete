@@ -28,8 +28,9 @@ import {
 } from "lucide-react";
 import {
   labTests as initialLabTests, type LabTest, labTestNames, sampleTypes,
-  priorityLevels, technicians,
+  priorityLevels,
 } from "@/data/labTests";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
