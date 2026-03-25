@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -32,6 +32,7 @@ import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
+import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { toast } from "sonner";
 import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
@@ -70,6 +71,12 @@ const SampleCollectionPage = () => {
   const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const { activeTests } = useTestNameStore();
+  const allTestNames = useMemo(() => {
+    const storeNames = activeTests.map(t => t.name);
+    const merged = new Set([...labTestNames, ...storeNames]);
+    return Array.from(merged).sort();
+  }, [activeTests]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
@@ -445,7 +452,7 @@ const SampleCollectionPage = () => {
                 <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
                   <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
                   <SelectContent>
-                    {labTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {allTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
