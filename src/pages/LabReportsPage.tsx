@@ -779,20 +779,26 @@ const LabReportsPage = () => {
 
       {/* ========== INPUT TEST RESULTS DIALOG ========== */}
       <Dialog open={!!inputResultsReport} onOpenChange={(open) => !open && setInputResultsReport(null)}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Input Test Results — {inputResultsReport?.id}</DialogTitle>
-            <DialogDescription>
-              Quickly enter results for {inputResultsReport?.testName} ({inputResultsReport?.patient})
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <div className="px-6 pt-5 pb-3">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ClipboardEdit className="w-5 h-5 text-primary" />
+                Input Test Results
+              </DialogTitle>
+              <DialogDescription>
+                Enter results for {inputResultsReport?.id} — {inputResultsReport?.testName}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
           {inputResultsReport && (
             <InputTestResultsForm
               report={inputResultsReport}
-              onSave={(sections, remarks) => {
+              onSave={(sections, remarks, technician) => {
                 updateLabReport(inputResultsReport.id, {
                   sections,
                   remarks,
+                  technician,
                   status: "completed",
                   resultDate: new Date().toISOString().split("T")[0],
                   reportedAt: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
