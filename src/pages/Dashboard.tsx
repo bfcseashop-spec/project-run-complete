@@ -7,7 +7,8 @@ import {
   ClipboardList, TrendingUp, TrendingDown,
   Smartphone, Coins, Send, Shield,
   BarChart3, Star, Percent, CircleDollarSign,
-  Package, Layers,
+  Package, Layers, ChevronRight, Zap,
+  Eye, AlertCircle, CheckCircle2, Clock,
 } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -21,11 +22,11 @@ import { getInjections, subscribeInjections } from "@/data/injectionStore";
 import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
 import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
-import { parseISO, isWithinInterval } from "date-fns";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { parseISO, isWithinInterval, format } from "date-fns";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis } from "recharts";
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
-  Cash: { color: "hsl(142, 71%, 45%)", icon: Banknote },
+  Cash: { color: "hsl(152, 60%, 40%)", icon: Banknote },
   ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
   ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
   Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
@@ -38,18 +39,18 @@ const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = 
 
 const DONUT_COLORS = [
   "hsl(168, 80%, 35%)", "hsl(200, 80%, 50%)", "hsl(38, 92%, 50%)",
-  "hsl(270, 60%, 55%)", "hsl(350, 65%, 55%)", "hsl(142, 71%, 45%)",
+  "hsl(270, 60%, 55%)", "hsl(350, 65%, 55%)", "hsl(152, 60%, 40%)",
   "hsl(15, 85%, 52%)", "hsl(195, 80%, 45%)", "hsl(45, 90%, 48%)",
 ];
 
 const quickActions = [
-  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(160, 84%, 39%)" },
+  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(168, 80%, 30%)" },
   { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
   { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(270, 60%, 55%)" },
-  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)" },
+  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(152, 60%, 40%)" },
   { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
   { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
-  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(215, 60%, 55%)" },
+  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(200, 80%, 50%)" },
   { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
 ];
 
@@ -115,11 +116,8 @@ const Dashboard = () => {
     let totalBank = 0;
     filteredBilling.forEach(r => {
       if (r.method && r.method !== "—") {
-        if (r.method.toLowerCase() === "cash") {
-          totalCash += r.paid;
-        } else if (bankMethods.includes(r.method.toLowerCase())) {
-          totalBank += r.paid;
-        }
+        if (r.method.toLowerCase() === "cash") totalCash += r.paid;
+        else if (bankMethods.includes(r.method.toLowerCase())) totalBank += r.paid;
       }
     });
 
@@ -145,9 +143,7 @@ const Dashboard = () => {
           r.method.charAt(0).toUpperCase() + r.method.slice(1).toLowerCase();
         methodMap[displayName] = (methodMap[displayName] || 0) + r.paid;
       }
-      if (r.due > 0) {
-        methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
-      }
+      if (r.due > 0) methodMap["Due"] = (methodMap["Due"] || 0) + r.due;
     });
     return Object.entries(methodMap).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
   }, [filteredBilling]);
@@ -158,25 +154,38 @@ const Dashboard = () => {
   }, [medicines]);
 
   const recentInvoices = useMemo(() => {
-    return billingRecords.slice(0, 6).map(r => ({
+    return billingRecords.slice(0, 5).map(r => ({
       id: r.id, patient: r.patient, service: r.service,
       total: r.total, status: r.status, date: r.date, method: r.method,
     }));
   }, [billingRecords]);
 
-  const paymentDonutData = useMemo(() => {
-    return salesByPayment.filter(s => s.amount > 0);
-  }, [salesByPayment]);
-
+  const paymentDonutData = useMemo(() => salesByPayment.filter(s => s.amount > 0), [salesByPayment]);
   const paymentTotal = useMemo(() => paymentDonutData.reduce((s, d) => s + d.amount, 0), [paymentDonutData]);
 
+  // Revenue trend (last 7 days from billing)
+  const revenueTrend = useMemo(() => {
+    const days: Record<string, number> = {};
+    filteredBilling.forEach(r => {
+      try {
+        const day = format(parseISO(r.date), "EEE");
+        days[day] = (days[day] || 0) + r.paid;
+      } catch {}
+    });
+    const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return weekDays.map(d => ({ day: d, amount: days[d] || 0 }));
+  }, [filteredBilling]);
+
   return (
-    <div className="space-y-5 w-full">
+    <div className="space-y-6 w-full">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Overview of your clinic's performance</p>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-widest">Live Overview</span>
+          </div>
+          <h1 className="text-3xl font-bold font-heading text-foreground tracking-tight">Dashboard</h1>
         </div>
         <DashboardDateFilter
           preset={filterPreset}
@@ -186,180 +195,244 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* ── Hero Stats Row ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <HeroStat
-          label="Total Revenue"
-          value={formatPrice(stats.totalBills)}
-          change={`${stats.invoiceCount} invoices`}
-          icon={CircleDollarSign}
-          gradient="from-[hsl(168,80%,30%)] to-[hsl(168,70%,42%)]"
-        />
-        <HeroStat
-          label="Cash Received"
-          value={formatPrice(stats.totalCash)}
-          change="Cash payments"
-          icon={Banknote}
-          gradient="from-[hsl(142,71%,40%)] to-[hsl(142,60%,50%)]"
-        />
-        <HeroStat
-          label="Bank Received"
-          value={formatPrice(stats.totalBank)}
-          change="ABA, ACleda, Card, etc."
-          icon={Building2}
-          gradient="from-[hsl(200,80%,45%)] to-[hsl(200,70%,55%)]"
-        />
-        <HeroStat
-          label="Outstanding Due"
-          value={formatPrice(stats.totalDue)}
-          change={`${stats.pendingInvoices} pending`}
-          icon={TrendingDown}
-          gradient="from-[hsl(350,65%,50%)] to-[hsl(350,55%,60%)]"
-        />
+      {/* ── Bento Grid: Main Financial ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3">
+        {/* Total Revenue - Large */}
+        <div className="col-span-2 md:col-span-2 lg:col-span-3 bg-foreground text-primary-foreground rounded-2xl p-5 relative overflow-hidden group">
+          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-primary/20 group-hover:scale-110 transition-transform duration-500" />
+          <div className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+            <CircleDollarSign className="w-5 h-5 text-primary" />
+          </div>
+          <p className="text-xs font-medium opacity-60 uppercase tracking-widest mb-1">Total Revenue</p>
+          <p className="text-2xl sm:text-3xl font-black font-body tracking-tight relative z-10">{formatPrice(stats.totalBills)}</p>
+          <p className="text-xs opacity-50 mt-1">{stats.invoiceCount} invoices</p>
+        </div>
+
+        {/* Cash */}
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+              <Banknote className="w-4 h-4 text-success" />
+            </div>
+          </div>
+          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Cash</p>
+        </div>
+
+        {/* Bank */}
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
+              <Building2 className="w-4 h-4 text-info" />
+            </div>
+          </div>
+          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Bank</p>
+        </div>
+
+        {/* Expenses */}
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-warning" />
+            </div>
+          </div>
+          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Expenses</p>
+        </div>
+
+        {/* Due */}
+        <div className="col-span-1 lg:col-span-3 bg-destructive/5 rounded-2xl border border-destructive/20 p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <AlertCircle className="w-4 h-4 text-destructive" />
+            </div>
+            <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">{stats.pendingInvoices} pending</span>
+          </div>
+          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Outstanding</p>
+        </div>
       </div>
 
-      {/* ── Secondary Stats ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <MiniStat label="Expenses" value={formatPrice(stats.totalExpense)} icon={Wallet} color="hsl(15, 85%, 52%)" />
-        <MiniStat label="Discount" value={formatPrice(stats.totalDiscount)} icon={Percent} color="hsl(38, 92%, 50%)" />
-        <MiniStat label="Profit / Loss" value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)} icon={stats.profit > 0 ? TrendingUp : TrendingDown} color={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"} />
-        <MiniStat label="Patients" value={String(stats.totalPatients)} icon={Users} color="hsl(270, 55%, 55%)" />
-        <MiniStat label="Invoices" value={String(stats.invoiceCount)} icon={ClipboardList} color="hsl(200, 80%, 50%)" />
-        <MiniStat label="Completed" value={String(stats.completedInvoices)} icon={Receipt} color="hsl(168, 80%, 35%)" />
+      {/* ── Secondary Row: Discount, Profit, Patients, Invoices ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" />
+        <CompactStat
+          icon={stats.profit > 0 ? TrendingUp : TrendingDown}
+          label={stats.profit > 0 ? "Net Profit" : "Net Loss"}
+          value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
+          variant={stats.profit > 0 ? "success" : "danger"}
+        />
+        <CompactStat icon={Users} label="Patients" value={String(stats.totalPatients)} variant="accent" />
+        <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" />
       </div>
 
-      {/* ── Middle: Payment Donut + Popular Medicine + Clinical ── */}
+      {/* ── Middle Section: Chart + Invoices + Medicine ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Payment Breakdown Donut */}
-        <div className="lg:col-span-4 bg-card rounded-2xl border border-border/40 p-5">
-          <h3 className="text-sm font-bold text-card-foreground font-heading mb-4 uppercase tracking-wider">Payment Breakdown</h3>
-          {paymentDonutData.length > 0 ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <ResponsiveContainer width={180} height={180}>
-                  <PieChart>
-                    <Pie
-                      data={paymentDonutData}
-                      innerRadius={55}
-                      outerRadius={82}
-                      paddingAngle={3}
-                      dataKey="amount"
-                      stroke="none"
-                    >
-                      {paymentDonutData.map((_, i) => (
-                        <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }}
-                      formatter={(value: number) => [formatPrice(value), "Amount"]}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-lg font-black text-card-foreground font-number">{formatPrice(paymentTotal)}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium">Total</span>
+        {/* Revenue Trend + Payment Donut */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Revenue Trend */}
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold text-card-foreground uppercase tracking-widest">Revenue Trend</h3>
+              <Zap className="w-3.5 h-3.5 text-warning" />
+            </div>
+            <ResponsiveContainer width="100%" height={120}>
+              <AreaChart data={revenueTrend}>
+                <defs>
+                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area type="monotone" dataKey="amount" stroke="hsl(168, 80%, 30%)" strokeWidth={2.5} fill="url(#revGrad)" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(215, 12%, 50%)" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: "10px", border: "1px solid hsl(210, 18%, 90%)", background: "hsl(0, 0%, 100%)", fontSize: "11px", fontWeight: 700 }}
+                  formatter={(value: number) => [formatPrice(value), "Revenue"]}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Payment Donut */}
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <h3 className="text-xs font-bold text-card-foreground uppercase tracking-widest mb-4">Payment Split</h3>
+            {paymentDonutData.length > 0 ? (
+              <div className="flex items-center gap-5">
+                <div className="relative shrink-0">
+                  <ResponsiveContainer width={140} height={140}>
+                    <PieChart>
+                      <Pie data={paymentDonutData} innerRadius={45} outerRadius={65} paddingAngle={3} dataKey="amount" stroke="none">
+                        {paymentDonutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-sm font-black text-card-foreground font-body">{formatPrice(paymentTotal)}</span>
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  {paymentDonutData.map((item, i) => (
+                    <div key={item.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }} />
+                        <span className="text-xs text-card-foreground font-medium">{item.name}</span>
+                      </div>
+                      <span className="text-xs font-bold text-card-foreground font-body">{formatPrice(item.amount)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="w-full space-y-1.5">
-                {paymentDonutData.map((item, i) => (
-                  <div key={item.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }} />
-                      <span className="text-card-foreground font-medium">{item.name}</span>
-                    </div>
-                    <span className="font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No payment data</div>
-          )}
+            ) : (
+              <div className="h-[140px] flex items-center justify-center text-sm text-muted-foreground">No payment data</div>
+            )}
+          </div>
         </div>
 
         {/* Recent Invoices */}
-        <div className="lg:col-span-5 bg-card rounded-2xl border border-border/40 p-5">
-          <h3 className="text-sm font-bold text-card-foreground font-heading mb-3 uppercase tracking-wider">Recent Invoices</h3>
+        <div className="lg:col-span-4 bg-card rounded-2xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-card-foreground uppercase tracking-widest">Recent Invoices</h3>
+            <a href="/billing" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5">
+              View All <ChevronRight className="w-3 h-3" />
+            </a>
+          </div>
           <div className="space-y-0">
             {recentInvoices.map((inv, i) => {
-              const statusColor = inv.status === "completed" ? "hsl(160, 84%, 39%)" : inv.status === "pending" ? "hsl(38, 92%, 50%)" : "hsl(0, 65%, 50%)";
+              const statusIcon = inv.status === "completed"
+                ? <CheckCircle2 className="w-3.5 h-3.5 text-success" />
+                : inv.status === "pending"
+                  ? <Clock className="w-3.5 h-3.5 text-warning" />
+                  : <AlertCircle className="w-3.5 h-3.5 text-destructive" />;
               return (
-                <div key={inv.id} className={`flex items-center justify-between py-2.5 ${i < recentInvoices.length - 1 ? "border-b border-border/30" : ""}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: statusColor }} />
-                    <div>
-                      <p className="text-sm font-bold text-card-foreground">{inv.id}</p>
-                      <p className="text-[11px] text-muted-foreground">{inv.patient}</p>
+                <div key={inv.id} className={`flex items-center justify-between py-3 ${i < recentInvoices.length - 1 ? "border-b border-border/50" : ""}`}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    {statusIcon}
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-card-foreground truncate">{inv.patient}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{inv.id}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-card-foreground font-number">{formatPrice(inv.total)}</p>
-                    <p className="text-[10px] font-semibold capitalize" style={{ color: statusColor }}>{inv.status}</p>
+                  <div className="text-right shrink-0 ml-2">
+                    <p className="text-sm font-black text-card-foreground font-body">{formatPrice(inv.total)}</p>
+                    <p className="text-[10px] text-muted-foreground">{inv.method}</p>
                   </div>
                 </div>
               );
             })}
             {recentInvoices.length === 0 && (
-              <div className="py-8 text-center text-sm text-muted-foreground">No recent invoices</div>
+              <div className="py-10 text-center text-sm text-muted-foreground">No recent invoices</div>
             )}
           </div>
         </div>
 
-        {/* Popular Medicine */}
-        <div className="lg:col-span-3 bg-card rounded-2xl border border-border/40 p-5">
-          <h3 className="text-sm font-bold text-card-foreground font-heading mb-3 uppercase tracking-wider">Top Medicine</h3>
+        {/* Top Medicine */}
+        <div className="lg:col-span-3 bg-card rounded-2xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-card-foreground uppercase tracking-widest">Top Medicines</h3>
+            <Pill className="w-3.5 h-3.5 text-muted-foreground" />
+          </div>
           {popularMedicine.length > 0 ? (
             <div className="space-y-0">
-              {popularMedicine.map((item, i) => (
-                <div key={item.id} className={`flex items-center justify-between py-2.5 ${i < popularMedicine.length - 1 ? "border-b border-border/30" : ""}`}>
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
-                      {i + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-card-foreground leading-tight">{item.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{item.sold} sold</p>
+              {popularMedicine.map((item, i) => {
+                const barWidth = popularMedicine[0]?.sold ? Math.round((item.sold / popularMedicine[0].sold) * 100) : 0;
+                return (
+                  <div key={item.id} className={`py-3 ${i < popularMedicine.length - 1 ? "border-b border-border/50" : ""}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-semibold text-card-foreground leading-tight truncate mr-2">{item.name}</span>
+                      <span className="text-xs font-bold text-card-foreground font-body shrink-0">{formatPrice(item.price)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-500"
+                          style={{ width: `${barWidth}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-bold w-8 text-right">{item.sold}</span>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-card-foreground font-number">{formatPrice(item.price)}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No data</div>
+            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No data</div>
           )}
         </div>
       </div>
 
-      {/* ── Clinical Overview Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <ClinicalCard label="Lab Reports" count={stats.totalLabs} pending={stats.pendingLabs} icon={TestTube} color="hsl(200, 80%, 45%)" />
-        <ClinicalCard label="X-Ray" count={xrayRecs.length} pending={stats.pendingXrays} icon={ScanLine} color="hsl(38, 70%, 48%)" />
-        <ClinicalCard label="Ultrasound" count={ultrasoundRecs.length} pending={stats.pendingUltrasounds} icon={Heart} color="hsl(280, 65%, 55%)" />
-        <ClinicalCard label="In Queue" count={stats.pendingPatients} pending={stats.activePatients} icon={Activity} color="hsl(160, 84%, 39%)" pendingLabel="active" />
+      {/* ── Clinical Pipeline ── */}
+      <div>
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+          <Activity className="w-3.5 h-3.5 text-primary" />
+          Clinical Pipeline
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <PipelineCard icon={TestTube} label="Lab Reports" total={stats.totalLabs} pending={stats.pendingLabs} color="hsl(200, 80%, 45%)" />
+          <PipelineCard icon={ScanLine} label="X-Ray" total={xrayRecs.length} pending={stats.pendingXrays} color="hsl(38, 70%, 48%)" />
+          <PipelineCard icon={Heart} label="Ultrasound" total={ultrasoundRecs.length} pending={stats.pendingUltrasounds} color="hsl(270, 60%, 55%)" />
+          <PipelineCard icon={Users} label="Queue" total={stats.totalPatients} pending={stats.activePatients} color="hsl(168, 80%, 30%)" pendingLabel="active" />
+        </div>
       </div>
 
       {/* ── Quick Actions ── */}
       <div>
-        <h3 className="text-sm font-bold text-foreground font-heading mb-3 uppercase tracking-wider flex items-center gap-2">
-          <ArrowRight className="w-3.5 h-3.5 text-primary" />
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
+          <Zap className="w-3.5 h-3.5 text-warning" />
           Quick Actions
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           {quickActions.map((op, i) => (
             <a
               key={i}
               href={op.path}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group text-center"
+              className="group flex flex-col items-center gap-2.5 p-3.5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: `${op.color}14` }}
-              >
-                <op.icon className="w-5 h-5" style={{ color: op.color }} />
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-colors duration-300" style={{ background: `color-mix(in srgb, ${op.color} 12%, transparent)` }}>
+                <op.icon className="w-5 h-5 transition-transform group-hover:scale-110 duration-300" style={{ color: op.color }} />
               </div>
-              <span className="text-xs font-bold text-card-foreground group-hover:text-primary transition-colors leading-tight">{op.label}</span>
+              <span className="text-[11px] font-bold text-card-foreground text-center leading-tight">{op.label}</span>
             </a>
           ))}
         </div>
@@ -368,68 +441,64 @@ const Dashboard = () => {
   );
 };
 
-/* ─── Hero Stat Card ─── */
-interface HeroStatProps {
+/* ─── Compact Stat ─── */
+interface CompactStatProps {
+  icon: React.ElementType;
   label: string;
   value: string;
-  change: string;
-  icon: React.ElementType;
-  gradient: string;
+  variant: "muted" | "success" | "danger" | "accent" | "primary";
 }
-const HeroStat = ({ label, value, change, icon: Icon, gradient }: HeroStatProps) => (
-  <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-4 sm:p-5 text-white`}>
-    <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-white/10 -translate-y-6 translate-x-6" />
-    <div className="absolute bottom-0 left-0 w-14 h-14 rounded-full bg-white/5 translate-y-4 -translate-x-4" />
-    <div className="relative z-10">
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 opacity-80" />
-        <span className="text-xs font-semibold uppercase tracking-wider opacity-90">{label}</span>
+const variantStyles: Record<string, { bg: string; iconColor: string }> = {
+  muted: { bg: "bg-muted", iconColor: "text-muted-foreground" },
+  success: { bg: "bg-success/10", iconColor: "text-success" },
+  danger: { bg: "bg-destructive/10", iconColor: "text-destructive" },
+  accent: { bg: "bg-accent/10", iconColor: "text-accent" },
+  primary: { bg: "bg-primary/10", iconColor: "text-primary" },
+};
+
+const CompactStat = ({ icon: Icon, label, value, variant }: CompactStatProps) => {
+  const style = variantStyles[variant];
+  return (
+    <div className="bg-card rounded-xl border border-border p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow">
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${style.bg}`}>
+        <Icon className={`w-4 h-4 ${style.iconColor}`} />
       </div>
-      <p className="text-xl sm:text-2xl font-black font-number tracking-tight">{value}</p>
-      <p className="text-[11px] opacity-75 mt-0.5">{change}</p>
+      <div className="min-w-0">
+        <p className="text-lg font-black text-card-foreground font-body leading-none truncate">{value}</p>
+        <p className="text-[10px] text-muted-foreground font-semibold mt-0.5 uppercase tracking-widest">{label}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-/* ─── Mini Stat ─── */
-interface MiniStatProps {
-  label: string;
-  value: string;
+/* ─── Pipeline Card ─── */
+interface PipelineCardProps {
   icon: React.ElementType;
-  color: string;
-}
-const MiniStat = ({ label, value, icon: Icon, color }: MiniStatProps) => (
-  <div className="bg-card rounded-xl border border-border/40 p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow">
-    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}14` }}>
-      <Icon className="w-4 h-4" style={{ color }} />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg font-black text-card-foreground font-number leading-none">{value}</p>
-      <p className="text-[10px] text-muted-foreground font-medium mt-0.5 uppercase tracking-wider">{label}</p>
-    </div>
-  </div>
-);
-
-/* ─── Clinical Card ─── */
-interface ClinicalCardProps {
   label: string;
-  count: number;
+  total: number;
   pending: number;
-  icon: React.ElementType;
   color: string;
   pendingLabel?: string;
 }
-const ClinicalCard = ({ label, count, pending, icon: Icon, color, pendingLabel = "pending" }: ClinicalCardProps) => (
-  <div className="bg-card rounded-xl border border-border/40 p-4 flex items-center justify-between hover:shadow-sm transition-shadow">
-    <div>
-      <p className="text-2xl font-black text-card-foreground font-number">{count}</p>
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5">{pending} {pendingLabel}</p>
+const PipelineCard = ({ icon: Icon, label, total, pending, color, pendingLabel = "pending" }: PipelineCardProps) => {
+  const progress = total > 0 ? Math.round(((total - pending) / total) * 100) : 0;
+  return (
+    <div className="bg-card rounded-xl border border-border p-4 hover:shadow-sm transition-shadow">
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `color-mix(in srgb, ${color} 12%, transparent)` }}>
+          <Icon className="w-4.5 h-4.5" style={{ color }} />
+        </div>
+        <span className="text-2xl font-black text-card-foreground font-body">{total}</span>
+      </div>
+      <p className="text-xs font-semibold text-card-foreground">{label}</p>
+      <div className="flex items-center gap-2 mt-2">
+        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: color }} />
+        </div>
+        <span className="text-[10px] text-muted-foreground font-bold">{pending} {pendingLabel}</span>
+      </div>
     </div>
-    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: `${color}14` }}>
-      <Icon className="w-5 h-5" style={{ color }} />
-    </div>
-  </div>
-);
+  );
+};
 
 export default Dashboard;
