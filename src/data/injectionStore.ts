@@ -11,6 +11,8 @@ export interface InjectionItem {
   price: number;
   purchase_price: number;
   image: string;
+  quantity: number;
+  sold_out: number;
   status: "in-stock" | "low-stock" | "out-of-stock";
 }
 
