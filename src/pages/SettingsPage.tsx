@@ -23,6 +23,10 @@ import { useSettings } from "@/hooks/use-settings";
 import { saveSettingsNow } from "@/data/settingsStore";
 import { currencies, getCurrencySymbol } from "@/lib/currency";
 import { invoiceThemes } from "@/lib/invoiceThemes";
+import { generateInvoiceHtml } from "@/lib/invoiceHtmlGenerator";
+import { formatPrice, formatDualPrice } from "@/lib/currency";
+import { barcodeSVG } from "@/lib/barcode";
+import { getSettings } from "@/data/settingsStore";
 
 /* ─── Clinic Profile ─── */
 const ClinicProfileTab = () => {
