@@ -74,6 +74,7 @@ const LabReportsPage = () => {
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [addParamOpen, setAddParamOpen] = useState(false);
   const [paramName, setParamName] = useState("");
+  const [editParamId, setEditParamId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
