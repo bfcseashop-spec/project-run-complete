@@ -101,6 +101,6 @@ export async function createReportFromSample(sample: {
     category: "biochemistry", result: "", normalRange: "", remarks: "",
     sampleType: sample.sampleType, collectedAt: sample.collectionTime,
     reportedAt: "", technician: sample.collectedBy, pathologist: "",
-    instrument: "", sections,
+    instrument: "", sections, attachments: [],
   });
 }
