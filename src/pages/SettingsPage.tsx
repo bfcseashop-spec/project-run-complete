@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,10 @@ import { useSettings } from "@/hooks/use-settings";
 import { saveSettingsNow } from "@/data/settingsStore";
 import { currencies, getCurrencySymbol } from "@/lib/currency";
 import { invoiceThemes } from "@/lib/invoiceThemes";
+import { generateInvoiceHtml } from "@/lib/invoiceHtmlGenerator";
+import { formatPrice, formatDualPrice } from "@/lib/currency";
+import { barcodeSVG } from "@/lib/barcode";
+import { getSettings } from "@/data/settingsStore";
 
 /* ─── Clinic Profile ─── */
 const ClinicProfileTab = () => {
@@ -522,6 +526,45 @@ const SecurityTab = () => {
 /* Invoice themes imported from @/lib/invoiceThemes */
 const InvoiceThemeTab = () => {
   const { settings, update } = useSettings();
+  const previewRef = useRef<HTMLIFrameElement>(null);
+
+  const previewHtml = useMemo(() => {
+    const s = getSettings();
+    return generateInvoiceHtml(settings.invoiceTheme || "classic", {
+      clinicName: s.clinicName || "Prime Poly Clinic",
+      clinicTagline: s.clinicTagline || "Healthcare & Wellness",
+      clinicAddress: s.clinicAddress || "123 Medical Lane, Health City",
+      clinicPhone: s.clinicPhone || "000 12345 6149",
+      clinicWebsite: s.clinicWebsite || "www.clinic.com",
+      clinicEmail: s.clinicEmail || "info@primeclinic.com",
+      clinicLogo: "",
+      invoiceId: `${s.invoicePrefix || "BL"}-01`,
+      invoiceLabel: "Invoice",
+      dateTimeStr: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit" }),
+      patient: "John Smith",
+      patientAge: "32",
+      patientGender: "Male",
+      patientPhone: "012 345 6789",
+      doctor: "Dr. Sarah Johnson",
+      doctorDegree: "MBBS, MD (Internal Medicine)",
+      paymentMethod: "Cash",
+      barcodeStr: barcodeSVG(`${s.invoicePrefix || "BL"}-01`, 220, 50),
+      rows: [
+        { name: "Services", description: "2 item(s)", qty: 2, price: 25, total: 25, subItems: [{ name: "Consultation", price: 10, qty: 1, total: 10 }, { name: "Lab Test", price: 15, qty: 1, total: 15 }] },
+        { name: "Medication", description: "1 item(s)", qty: 3, price: 36, total: 36, subItems: [{ name: "Amoxicillin 500mg", price: 12, qty: 3, total: 36 }] },
+        { name: "Injections", description: "1 item(s)", qty: 1, price: 8, total: 8, subItems: [{ name: "Vitamin B12", price: 8, qty: 1, total: 8 }] },
+      ],
+      subtotal: 69,
+      discountAmount: 5,
+      taxRate: s.taxEnabled ? Number(s.taxRate) || 5 : 0,
+      taxAmount: s.taxEnabled ? Math.round((69 - 5) * (Number(s.taxRate) || 5) / 100 * 100) / 100 : 0,
+      grandTotal: formatDualPrice(s.taxEnabled ? 64 + Math.round((64) * (Number(s.taxRate) || 5) / 100 * 100) / 100 : 64),
+      formatPrice,
+      paidFormatted: formatPrice(s.taxEnabled ? 64 + Math.round((64) * (Number(s.taxRate) || 5) / 100 * 100) / 100 : 64),
+      dueFormatted: formatPrice(0),
+      dueAmount: 0,
+    });
+  }, [settings.invoiceTheme]);
 
   return (
     <div className="space-y-6">
@@ -736,6 +779,26 @@ const InvoiceThemeTab = () => {
         <Button onClick={async () => { await saveSettingsNow(); toast.success("Invoice theme saved"); }}>
           <Save className="w-4 h-4 mr-2" /> Save Theme
         </Button>
+      </div>
+
+      {/* Live Full-Size Preview */}
+      <div className="mt-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Eye className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Live Preview</h3>
+          <Badge variant="secondary" className="text-[10px]">
+            {invoiceThemes.find(t => t.id === settings.invoiceTheme)?.name || "Classic"}
+          </Badge>
+        </div>
+        <div className="border border-border rounded-xl overflow-hidden shadow-lg bg-white">
+          <iframe
+            ref={previewRef}
+            srcDoc={previewHtml}
+            className="w-full border-0"
+            style={{ height: "700px", pointerEvents: "none" }}
+            title="Invoice Theme Preview"
+          />
+        </div>
       </div>
     </div>
   );
