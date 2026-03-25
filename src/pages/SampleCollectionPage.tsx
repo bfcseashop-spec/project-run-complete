@@ -32,6 +32,7 @@ import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
+import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { toast } from "sonner";
 import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
