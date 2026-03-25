@@ -838,12 +838,6 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
-            {/* Section Title */}
-            {sec.title && (
-              <div className="px-6 py-2 bg-primary/5 border-b border-primary/20">
-                <span className="text-xs font-extrabold text-primary uppercase tracking-wider">{sec.title}</span>
-              </div>
-            )}
 
             {/* Investigation Rows */}
             {sec.investigations.map((inv, iIdx) => {
@@ -878,7 +872,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   </div>
                   {/* Unit */}
                   <div className="col-span-2 pr-2">
-                    <span className="text-sm text-muted-foreground">{inv.unit || "—"}</span>
+                    <span className="text-sm text-muted-foreground">%</span>
                   </div>
                   {/* Normal/Reference Range */}
                   <div className="col-span-3">
