@@ -779,20 +779,26 @@ const LabReportsPage = () => {
 
       {/* ========== INPUT TEST RESULTS DIALOG ========== */}
       <Dialog open={!!inputResultsReport} onOpenChange={(open) => !open && setInputResultsReport(null)}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Input Test Results — {inputResultsReport?.id}</DialogTitle>
-            <DialogDescription>
-              Quickly enter results for {inputResultsReport?.testName} ({inputResultsReport?.patient})
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <div className="px-6 pt-5 pb-3">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ClipboardEdit className="w-5 h-5 text-primary" />
+                Input Test Results
+              </DialogTitle>
+              <DialogDescription>
+                Enter results for {inputResultsReport?.id} — {inputResultsReport?.testName}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
           {inputResultsReport && (
             <InputTestResultsForm
               report={inputResultsReport}
-              onSave={(sections, remarks) => {
+              onSave={(sections, remarks, technician) => {
                 updateLabReport(inputResultsReport.id, {
                   sections,
                   remarks,
+                  technician,
                   status: "completed",
                   resultDate: new Date().toISOString().split("T")[0],
                   reportedAt: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
@@ -840,7 +846,7 @@ const LabReportsPage = () => {
 
 function InputTestResultsForm({ report, onSave, onCancel }: {
   report: LabReport;
-  onSave: (sections: ReportSection[], remarks: string) => void;
+  onSave: (sections: ReportSection[], remarks: string, technician: string) => void;
   onCancel: () => void;
 }) {
   const [sections, setSections] = useState<ReportSection[]>(
@@ -850,11 +856,22 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     })) : [{ title: report.testName, investigations: [{ ...emptyInvestigation }] }]
   );
   const [remarks, setRemarks] = useState(report.remarks);
+  const [technician, setTechnician] = useState(report.technician);
 
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
     const invs = [...newSections[sIdx].investigations];
-    invs[iIdx] = { ...invs[iIdx], [field]: value };
+    const updated = { ...invs[iIdx], [field]: value };
+
+    // Auto-detect flag from result vs reference range
+    if (field === "result" && value && invs[iIdx].referenceValue) {
+      updated.flag = detectFlag(value, invs[iIdx].referenceValue);
+    }
+    if (field === "referenceValue" && value && invs[iIdx].result) {
+      updated.flag = detectFlag(invs[iIdx].result, value);
+    }
+
+    invs[iIdx] = updated;
     newSections[sIdx] = { ...newSections[sIdx], investigations: invs };
     setSections(newSections);
   };
@@ -869,59 +886,159 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   };
 
   return (
-    <div className="space-y-4">
-      {sections.map((sec, sIdx) => (
-        <div key={sIdx} className="border border-border rounded-lg overflow-hidden">
-          <div className="bg-muted/50 px-3 py-2 text-xs font-bold uppercase tracking-wider text-card-foreground">
-            {sec.title || `Section ${sIdx + 1}`}
-          </div>
-          <div className="divide-y divide-border/50">
-            {sec.investigations.map((inv, iIdx) => (
-              <div key={iIdx} className="grid grid-cols-12 gap-2 px-3 py-1.5 items-center">
-                <div className="col-span-4">
-                  <Input className="h-7 text-xs" placeholder="Investigation" value={inv.name} onChange={e => updateInv(sIdx, iIdx, "name", e.target.value)} />
-                </div>
-                <div className="col-span-2">
-                  <Input className="h-7 text-xs font-semibold" placeholder="Result" value={inv.result} onChange={e => updateInv(sIdx, iIdx, "result", e.target.value)} />
-                </div>
-                <div className="col-span-3">
-                  <Input className="h-7 text-xs" placeholder="Ref. Value" value={inv.referenceValue} onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)} />
-                </div>
-                <div className="col-span-1">
-                  <Input className="h-7 text-xs" placeholder="Unit" value={inv.unit} onChange={e => updateInv(sIdx, iIdx, "unit", e.target.value)} />
-                </div>
-                <div className="col-span-2">
-                  <Select value={inv.flag || "none"} onValueChange={v => updateInv(sIdx, iIdx, "flag", v === "none" ? undefined : v)}>
-                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Normal</SelectItem>
-                      <SelectItem value="High"><span className="text-destructive font-semibold">High</span></SelectItem>
-                      <SelectItem value="Low"><span className="text-info font-semibold">Low</span></SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="px-3 py-1.5 border-t border-border/50">
-            <Button variant="ghost" size="sm" className="text-xs h-6 text-primary" onClick={() => addInv(sIdx)}>
-              <Plus className="w-3 h-3 mr-1" /> Add Row
-            </Button>
-          </div>
-        </div>
-      ))}
-      <div className="space-y-1.5">
-        <Label className="text-xs">Remarks</Label>
-        <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} rows={2} placeholder="Clinical notes..." />
+    <div className="space-y-0">
+      {/* Lab Technologist */}
+      <div className="px-6 pb-4 space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Lab Technologist</Label>
+        <Input
+          value={technician}
+          onChange={e => setTechnician(e.target.value)}
+          placeholder="Enter technologist name"
+          className="h-9"
+        />
       </div>
-      <div className="flex justify-end gap-2">
+
+      {/* Table Header */}
+      <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-muted/60 border-y border-border">
+        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
+        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
+        <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
+        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
+      </div>
+
+      {/* Sections & Investigations */}
+      <div className="max-h-[50vh] overflow-y-auto">
+        {sections.map((sec, sIdx) => (
+          <div key={sIdx}>
+            {/* Section Header */}
+            <div className="px-6 py-2 bg-primary/5 border-b border-border">
+              <Input
+                className="h-6 bg-transparent border-0 px-0 font-bold text-xs uppercase tracking-widest text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/50 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
+                value={sec.title}
+                onChange={e => {
+                  const newSections = [...sections];
+                  newSections[sIdx] = { ...newSections[sIdx], title: e.target.value };
+                  setSections(newSections);
+                }}
+                placeholder="Section title (e.g. HAEMATOLOGY)"
+              />
+            </div>
+
+            {/* Investigation Rows */}
+            {sec.investigations.map((inv, iIdx) => {
+              const isOutOfRange = inv.flag === "High" || inv.flag === "Low";
+              return (
+                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-2.5 border-b border-border/40 items-center hover:bg-muted/20 transition-colors">
+                  <div className="col-span-4 pr-3">
+                    <Input
+                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium text-card-foreground"
+                      value={inv.name}
+                      onChange={e => updateInv(sIdx, iIdx, "name", e.target.value)}
+                      placeholder="e.g. Hemoglobin"
+                    />
+                  </div>
+                  <div className="col-span-3 pr-3">
+                    <Input
+                      className={`h-8 text-sm font-semibold rounded-md ${
+                        isOutOfRange
+                          ? "border-destructive/50 bg-destructive/5 text-destructive"
+                          : "border-border"
+                      }`}
+                      value={inv.result}
+                      onChange={e => updateInv(sIdx, iIdx, "result", e.target.value)}
+                      placeholder="Enter result"
+                    />
+                  </div>
+                  <div className="col-span-2 pr-3">
+                    <span className="text-xs text-muted-foreground">
+                      {inv.unit || "—"}
+                    </span>
+                    <Input
+                      className="h-6 text-xs border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground sr-only"
+                      value={inv.unit}
+                      onChange={e => updateInv(sIdx, iIdx, "unit", e.target.value)}
+                      placeholder="Unit"
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <span className="text-xs text-muted-foreground">
+                      {inv.referenceValue ? `(${inv.referenceValue})` : "—"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Add Row */}
+            <div className="px-6 py-1.5 border-b border-border/30">
+              <Button variant="ghost" size="sm" className="text-xs h-6 text-primary" onClick={() => addInv(sIdx)}>
+                <Plus className="w-3 h-3 mr-1" /> Add Parameter
+              </Button>
+            </div>
+          </div>
+        ))}
+
+        {/* Add Section */}
+        <div className="px-6 py-2">
+          <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => {
+            setSections([...sections, { title: "", investigations: [{ ...emptyInvestigation }] }]);
+          }}>
+            <Plus className="w-3 h-3 mr-1" /> Add Section
+          </Button>
+        </div>
+      </div>
+
+      {/* Remarks */}
+      <div className="px-6 pt-4 pb-2 space-y-1.5 border-t border-border">
+        <Label className="text-xs text-muted-foreground">Remarks</Label>
+        <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} rows={2} placeholder="Clinical notes, observations..." />
+      </div>
+
+      {/* Footer Actions */}
+      <div className="flex justify-end gap-2 px-6 py-3 border-t border-border bg-muted/30">
         <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
-        <Button size="sm" onClick={() => onSave(sections, remarks)}>
+        <Button size="sm" onClick={() => onSave(sections, remarks, technician)}>
           <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Save & Complete
         </Button>
       </div>
     </div>
   );
+}
+
+/** Auto-detect High/Low flag by comparing numeric result to reference range */
+function detectFlag(result: string, refRange: string): "High" | "Low" | undefined {
+  const num = parseFloat(result);
+  if (isNaN(num)) return undefined;
+
+  // Handle formats: "4.0-10.0", "(4.0-10.0)", "<10.0", ">5.0"
+  const cleaned = refRange.replace(/[()]/g, "").trim();
+
+  const rangeMatch = cleaned.match(/^([\d.]+)\s*[-–]\s*([\d.]+)$/);
+  if (rangeMatch) {
+    const low = parseFloat(rangeMatch[1]);
+    const high = parseFloat(rangeMatch[2]);
+    if (!isNaN(low) && !isNaN(high)) {
+      if (num < low) return "Low";
+      if (num > high) return "High";
+      return undefined;
+    }
+  }
+
+  const ltMatch = cleaned.match(/^<\s*([\d.]+)$/);
+  if (ltMatch) {
+    const max = parseFloat(ltMatch[1]);
+    if (!isNaN(max) && num >= max) return "High";
+    return undefined;
+  }
+
+  const gtMatch = cleaned.match(/^>\s*([\d.]+)$/);
+  if (gtMatch) {
+    const min = parseFloat(gtMatch[1]);
+    if (!isNaN(min) && num <= min) return "Low";
+    return undefined;
+  }
+
+  return undefined;
 }
 
 function UploadReportForm({ report, onDone, onCancel }: {
