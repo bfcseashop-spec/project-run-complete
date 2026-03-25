@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -6,7 +6,8 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search, PackagePlus, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search, PackagePlus, ImageIcon, Upload, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -235,8 +236,38 @@ const InjectionsPage = () => {
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Ceftriaxone" />
               </div>
               <div className="col-span-2">
-                <Label>Image URL</Label>
-                <Input value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} placeholder="https://..." />
+                <Label>Image</Label>
+                <div className="flex items-center gap-3 mt-1">
+                  {form.image ? (
+                    <div className="relative">
+                      <img src={form.image} alt="Preview" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                      <button type="button" onClick={() => setForm(f => ({ ...f, image: "" }))} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center border border-dashed border-border">
+                      <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div>
+                    <input type="file" accept="image/*" className="hidden" id="inj-image-upload" onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const ext = file.name.split(".").pop();
+                      const path = `${Date.now()}.${ext}`;
+                      const { error } = await supabase.storage.from("injection-images").upload(path, file);
+                      if (error) { toast.error("Upload failed"); return; }
+                      const { data: urlData } = supabase.storage.from("injection-images").getPublicUrl(path);
+                      setForm(f => ({ ...f, image: urlData.publicUrl }));
+                      toast.success("Image uploaded");
+                    }} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById("inj-image-upload")?.click()}>
+                      <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Image
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
+                  </div>
+                </div>
               </div>
               <div>
                 <Label>Purchase Price</Label>
