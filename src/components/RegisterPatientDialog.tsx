@@ -221,6 +221,37 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
             <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} className={!form.complaint ? "border-amber-300/50" : "border-green-400/50"} />
           </div>
 
+          {/* Vital Signs */}
+          <div>
+            <Label className="flex items-center gap-1.5 mb-2">Vital Signs <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">SpO₂ (%)</Label>
+                <Input placeholder="e.g. 98" value={form.spo2} onChange={(e) => update("spo2", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Weight / Wt (kg)</Label>
+                <Input placeholder="e.g. 65" value={form.weight} onChange={(e) => update("weight", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">BP (mmHg)</Label>
+                <Input placeholder="e.g. 120/80" value={form.bp} onChange={(e) => update("bp", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">RR (breaths/min)</Label>
+                <Input placeholder="e.g. 18" value={form.rr} onChange={(e) => update("rr", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">HR (bpm)</Label>
+                <Input placeholder="e.g. 72" value={form.hr} onChange={(e) => update("hr", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Temp (°C)</Label>
+                <Input placeholder="e.g. 36.5" value={form.temp} onChange={(e) => update("temp", e.target.value)} />
+              </div>
+            </div>
+          </div>
+
           {/* Row 5: Medical History */}
           <div>
             <Label className="flex items-center gap-1.5">Medical History <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
