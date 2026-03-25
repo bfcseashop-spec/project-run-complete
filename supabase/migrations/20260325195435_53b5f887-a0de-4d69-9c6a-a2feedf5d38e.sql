@@ -1,0 +1,1 @@
+ALTER TABLE public.injections ADD COLUMN IF NOT EXISTS quantity integer DEFAULT 0;
