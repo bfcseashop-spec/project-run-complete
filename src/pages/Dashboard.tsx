@@ -6,7 +6,8 @@ import {
   Banknote, CreditCard, Building2, Landmark,
   ClipboardList, TrendingUp, TrendingDown,
   Smartphone, Coins, Send, Shield,
-  BarChart3, Star, Percent,
+  BarChart3, Star, Percent, CircleDollarSign,
+  Package, Layers,
 } from "lucide-react";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -21,7 +22,7 @@ import { getXrayRecords, subscribeXray } from "@/data/xrayRecords";
 import { getUltrasoundRecords, subscribeUltrasound } from "@/data/ultrasoundRecords";
 import { getExpenseRecords, subscribeExpenses } from "@/data/expenseStore";
 import { parseISO, isWithinInterval } from "date-fns";
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
   Cash: { color: "hsl(142, 71%, 45%)", icon: Banknote },
@@ -35,41 +36,22 @@ const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = 
   Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
 };
 
-const quickActions = [
-  { icon: Users, label: "Register Patient", desc: "New OPD registration", path: "/opd", color: "hsl(160, 84%, 39%)" },
-  { icon: TestTube, label: "Lab Tests", desc: "Order & manage tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
-  { icon: FileText, label: "Prescription", desc: "Write prescriptions", path: "/prescription", color: "hsl(270, 60%, 55%)" },
-  { icon: DollarSign, label: "New Invoice", desc: "Create billing invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)" },
-  { icon: ScanLine, label: "X-Ray", desc: "Request imaging", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
-  { icon: Syringe, label: "Injections", desc: "Administer injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
-  { icon: Pill, label: "Medicine", desc: "Medicine inventory", path: "/medicine", color: "hsl(215, 60%, 55%)" },
-  { icon: Heart, label: "Health Services", desc: "Manage services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
+const DONUT_COLORS = [
+  "hsl(168, 80%, 35%)", "hsl(200, 80%, 50%)", "hsl(38, 92%, 50%)",
+  "hsl(270, 60%, 55%)", "hsl(350, 65%, 55%)", "hsl(142, 71%, 45%)",
+  "hsl(15, 85%, 52%)", "hsl(195, 80%, 45%)", "hsl(45, 90%, 48%)",
 ];
 
-/* ─── Stat Card (clean, left-bordered) ─── */
-interface MetricCardProps {
-  label: string;
-  value: string | number;
-  sub: string;
-  icon: React.ElementType;
-  borderColor: string;
-  iconColor: string;
-}
-const MetricCard = ({ label, value, sub, icon: Icon, borderColor, iconColor }: MetricCardProps) => (
-  <div
-    className="bg-card rounded-xl border border-border/40 p-4 sm:p-5 hover:shadow-md transition-shadow"
-    style={{ borderLeft: `4px solid ${borderColor}` }}
-  >
-    <div className="flex items-start justify-between mb-3">
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${iconColor}14` }}>
-        <Icon className="w-4 h-4" style={{ color: iconColor }} />
-      </div>
-    </div>
-    <p className="text-2xl font-black text-card-foreground font-number tracking-tight leading-none">{value}</p>
-    <p className="text-[11px] text-muted-foreground mt-1.5">{sub}</p>
-  </div>
-);
+const quickActions = [
+  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(160, 84%, 39%)" },
+  { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
+  { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(270, 60%, 55%)" },
+  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(142, 71%, 45%)" },
+  { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
+  { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
+  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(215, 60%, 55%)" },
+  { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
+];
 
 const Dashboard = () => {
   useSettings();
@@ -128,7 +110,6 @@ const Dashboard = () => {
     const profit = netResult > 0 ? netResult : 0;
     const loss = netResult < 0 ? Math.abs(netResult) : 0;
 
-    // Calculate cash and bank totals
     const bankMethods = ["aba", "acleda", "card", "wing", "binance(usdt)", "true money", "bank transfer", "insurance"];
     let totalCash = 0;
     let totalBank = 0;
@@ -155,22 +136,6 @@ const Dashboard = () => {
       pendingUltrasounds: ultrasoundRecs.filter(r => r.status === "pending" || r.status === "in-progress").length,
     };
   }, [filteredBilling, patients, labReports, expenses, xrayRecs, ultrasoundRecs, filterPreset, customRange]);
-
-  const salesByCategory = useMemo(() => {
-    const catMap: Record<string, number> = {};
-    filteredBilling.forEach(r => {
-      if (r.formData?.lineItems) {
-        r.formData.lineItems.forEach((li: any) => {
-          const typeMap: Record<string, string> = { SVC: "Service", MED: "Medicine", INJ: "Injection", PKG: "Package", CUSTOM: "Custom" };
-          const cat = typeMap[li.type] || "Other";
-          catMap[cat] = (catMap[cat] || 0) + li.price * li.qty;
-        });
-      } else {
-        catMap["Other"] = (catMap["Other"] || 0) + r.amount;
-      }
-    });
-    return Object.entries(catMap).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
-  }, [filteredBilling]);
 
   const salesByPayment = useMemo(() => {
     const methodMap: Record<string, number> = {};
@@ -199,8 +164,14 @@ const Dashboard = () => {
     }));
   }, [billingRecords]);
 
+  const paymentDonutData = useMemo(() => {
+    return salesByPayment.filter(s => s.amount > 0);
+  }, [salesByPayment]);
+
+  const paymentTotal = useMemo(() => paymentDonutData.reduce((s, d) => s + d.amount, 0), [paymentDonutData]);
+
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-5 w-full">
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -215,184 +186,180 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* ── Row 1: 5 cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <MetricCard
-          label="Total Bills"
+      {/* ── Hero Stats Row ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <HeroStat
+          label="Total Revenue"
           value={formatPrice(stats.totalBills)}
-          sub="All invoiced amount"
-          icon={Receipt}
-          borderColor="hsl(260, 60%, 55%)"
-          iconColor="hsl(260, 60%, 55%)"
+          change={`${stats.invoiceCount} invoices`}
+          icon={CircleDollarSign}
+          gradient="from-[hsl(168,80%,30%)] to-[hsl(168,70%,42%)]"
         />
-        <MetricCard
-          label="Total Bank"
-          value={formatPrice(stats.totalBank)}
-          sub="ABA, ACleda, Card, etc."
-          icon={Building2}
-          borderColor="hsl(200, 80%, 50%)"
-          iconColor="hsl(200, 80%, 50%)"
-        />
-        <MetricCard
-          label="Total Due"
-          value={formatPrice(stats.totalDue)}
-          sub={`${stats.pendingInvoices} pending invoices`}
-          icon={TrendingDown}
-          borderColor="hsl(350, 65%, 55%)"
-          iconColor="hsl(350, 65%, 55%)"
-        />
-        <MetricCard
-          label="Total Cash"
+        <HeroStat
+          label="Cash Received"
           value={formatPrice(stats.totalCash)}
-          sub="Cash payments"
+          change="Cash payments"
           icon={Banknote}
-          borderColor="hsl(142, 71%, 45%)"
-          iconColor="hsl(142, 71%, 45%)"
+          gradient="from-[hsl(142,71%,40%)] to-[hsl(142,60%,50%)]"
         />
-        <MetricCard
-          label="Total Discount"
-          value={formatPrice(stats.totalDiscount)}
-          sub={`${stats.invoiceCount} invoices`}
-          icon={Percent}
-          borderColor="hsl(38, 92%, 50%)"
-          iconColor="hsl(38, 92%, 50%)"
+        <HeroStat
+          label="Bank Received"
+          value={formatPrice(stats.totalBank)}
+          change="ABA, ACleda, Card, etc."
+          icon={Building2}
+          gradient="from-[hsl(200,80%,45%)] to-[hsl(200,70%,55%)]"
         />
-      </div>
-
-      {/* ── Row 2: 4 cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Total Expenses"
-          value={formatPrice(stats.totalExpense)}
-          sub="For selected period"
-          icon={Wallet}
-          borderColor="hsl(15, 85%, 52%)"
-          iconColor="hsl(15, 85%, 52%)"
-        />
-        <MetricCard
-          label="Total Invoices"
-          value={stats.invoiceCount}
-          sub={`${stats.completedInvoices} completed`}
-          icon={ClipboardList}
-          borderColor="hsl(200, 80%, 50%)"
-          iconColor="hsl(200, 80%, 50%)"
-        />
-        <MetricCard
-          label="Profit / Loss"
-          value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
-          sub={stats.profit > 0 ? "Revenue − Expenses" : "Expenses exceed revenue"}
-          icon={stats.profit > 0 ? TrendingUp : TrendingDown}
-          borderColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
-          iconColor={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"}
-        />
-        <MetricCard
-          label="Total Patients"
-          value={stats.totalPatients}
-          sub={`${stats.activePatients} active patients`}
-          icon={Users}
-          borderColor="hsl(280, 55%, 55%)"
-          iconColor="hsl(280, 55%, 55%)"
+        <HeroStat
+          label="Outstanding Due"
+          value={formatPrice(stats.totalDue)}
+          change={`${stats.pendingInvoices} pending`}
+          icon={TrendingDown}
+          gradient="from-[hsl(350,65%,50%)] to-[hsl(350,55%,60%)]"
         />
       </div>
 
-      {/* ── Row 3: Charts ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* ── Secondary Stats ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <MiniStat label="Expenses" value={formatPrice(stats.totalExpense)} icon={Wallet} color="hsl(15, 85%, 52%)" />
+        <MiniStat label="Discount" value={formatPrice(stats.totalDiscount)} icon={Percent} color="hsl(38, 92%, 50%)" />
+        <MiniStat label="Profit / Loss" value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)} icon={stats.profit > 0 ? TrendingUp : TrendingDown} color={stats.profit > 0 ? "hsl(160, 84%, 39%)" : "hsl(0, 65%, 50%)"} />
+        <MiniStat label="Patients" value={String(stats.totalPatients)} icon={Users} color="hsl(270, 55%, 55%)" />
+        <MiniStat label="Invoices" value={String(stats.invoiceCount)} icon={ClipboardList} color="hsl(200, 80%, 50%)" />
+        <MiniStat label="Completed" value={String(stats.completedInvoices)} icon={Receipt} color="hsl(168, 80%, 35%)" />
+      </div>
 
-        {/* Sales by Payment */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Sales by Payment</h3>
-          {salesByPayment.length > 0 ? (
-            <div className="space-y-0">
-              {salesByPayment.map((item, i) => (
-                <div key={item.name} className={`flex items-center justify-between py-3.5 px-1 ${i < salesByPayment.length - 1 ? "border-b border-border/40" : ""}`}>
-                  <span className="text-sm font-semibold text-card-foreground">{item.name}</span>
-                  <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
+      {/* ── Middle: Payment Donut + Popular Medicine + Clinical ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Payment Breakdown Donut */}
+        <div className="lg:col-span-4 bg-card rounded-2xl border border-border/40 p-5">
+          <h3 className="text-sm font-bold text-card-foreground font-heading mb-4 uppercase tracking-wider">Payment Breakdown</h3>
+          {paymentDonutData.length > 0 ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <ResponsiveContainer width={180} height={180}>
+                  <PieChart>
+                    <Pie
+                      data={paymentDonutData}
+                      innerRadius={55}
+                      outerRadius={82}
+                      paddingAngle={3}
+                      dataKey="amount"
+                      stroke="none"
+                    >
+                      {paymentDonutData.map((_, i) => (
+                        <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }}
+                      formatter={(value: number) => [formatPrice(value), "Amount"]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                  <span className="text-lg font-black text-card-foreground font-number">{formatPrice(paymentTotal)}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium">Total</span>
                 </div>
-              ))}
+              </div>
+              <div className="w-full space-y-1.5">
+                {paymentDonutData.map((item, i) => (
+                  <div key={item.name} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }} />
+                      <span className="text-card-foreground font-medium">{item.name}</span>
+                    </div>
+                    <span className="font-bold text-card-foreground font-number">{formatPrice(item.amount)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No sales in this period</div>
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No payment data</div>
           )}
+        </div>
+
+        {/* Recent Invoices */}
+        <div className="lg:col-span-5 bg-card rounded-2xl border border-border/40 p-5">
+          <h3 className="text-sm font-bold text-card-foreground font-heading mb-3 uppercase tracking-wider">Recent Invoices</h3>
+          <div className="space-y-0">
+            {recentInvoices.map((inv, i) => {
+              const statusColor = inv.status === "completed" ? "hsl(160, 84%, 39%)" : inv.status === "pending" ? "hsl(38, 92%, 50%)" : "hsl(0, 65%, 50%)";
+              return (
+                <div key={inv.id} className={`flex items-center justify-between py-2.5 ${i < recentInvoices.length - 1 ? "border-b border-border/30" : ""}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: statusColor }} />
+                    <div>
+                      <p className="text-sm font-bold text-card-foreground">{inv.id}</p>
+                      <p className="text-[11px] text-muted-foreground">{inv.patient}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-card-foreground font-number">{formatPrice(inv.total)}</p>
+                    <p className="text-[10px] font-semibold capitalize" style={{ color: statusColor }}>{inv.status}</p>
+                  </div>
+                </div>
+              );
+            })}
+            {recentInvoices.length === 0 && (
+              <div className="py-8 text-center text-sm text-muted-foreground">No recent invoices</div>
+            )}
+          </div>
         </div>
 
         {/* Popular Medicine */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Popular Medicine</h3>
+        <div className="lg:col-span-3 bg-card rounded-2xl border border-border/40 p-5">
+          <h3 className="text-sm font-bold text-card-foreground font-heading mb-3 uppercase tracking-wider">Top Medicine</h3>
           {popularMedicine.length > 0 ? (
             <div className="space-y-0">
               {popularMedicine.map((item, i) => (
-                <div key={item.id} className={`flex items-center justify-between py-3 px-1 ${i < popularMedicine.length - 1 ? "border-b border-border/40" : ""}`}>
-                  <div>
-                    <p className="text-sm font-semibold text-card-foreground">{item.name}</p>
-                    <p className="text-[11px] text-primary font-medium">{item.sold} sold</p>
+                <div key={item.id} className={`flex items-center justify-between py-2.5 ${i < popularMedicine.length - 1 ? "border-b border-border/30" : ""}`}>
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-card-foreground leading-tight">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{item.sold} sold</p>
+                    </div>
                   </div>
-                  <span className="text-sm font-bold text-card-foreground font-number">{formatPrice(item.price)}</span>
+                  <span className="text-xs font-bold text-card-foreground font-number">{formatPrice(item.price)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No medicine data</div>
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No data</div>
           )}
         </div>
       </div>
 
-      {/* ── Row 4: Clinical Overview ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Lab Reports" value={stats.totalLabs} sub={`${stats.pendingLabs} pending`} icon={TestTube} borderColor="hsl(200, 80%, 45%)" iconColor="hsl(200, 80%, 45%)" />
-        <MetricCard label="X-Ray" value={xrayRecs.length} sub={`${stats.pendingXrays} pending`} icon={ScanLine} borderColor="hsl(38, 70%, 48%)" iconColor="hsl(38, 70%, 48%)" />
-        <MetricCard label="Ultrasound" value={ultrasoundRecs.length} sub={`${stats.pendingUltrasounds} pending`} icon={Heart} borderColor="hsl(280, 65%, 55%)" iconColor="hsl(280, 65%, 55%)" />
-        <MetricCard label="In Queue" value={stats.pendingPatients} sub={`${stats.activePatients} active today`} icon={Activity} borderColor="hsl(160, 84%, 39%)" iconColor="hsl(160, 84%, 39%)" />
+      {/* ── Clinical Overview Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <ClinicalCard label="Lab Reports" count={stats.totalLabs} pending={stats.pendingLabs} icon={TestTube} color="hsl(200, 80%, 45%)" />
+        <ClinicalCard label="X-Ray" count={xrayRecs.length} pending={stats.pendingXrays} icon={ScanLine} color="hsl(38, 70%, 48%)" />
+        <ClinicalCard label="Ultrasound" count={ultrasoundRecs.length} pending={stats.pendingUltrasounds} icon={Heart} color="hsl(280, 65%, 55%)" />
+        <ClinicalCard label="In Queue" count={stats.pendingPatients} pending={stats.activePatients} icon={Activity} color="hsl(160, 84%, 39%)" pendingLabel="active" />
       </div>
 
-      {/* ── Row 5: Recent Invoices ── */}
-      <div className="bg-card rounded-xl border border-border/40 p-5">
-        <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Recent Invoices</h3>
-        <div className="space-y-0">
-          {recentInvoices.map((inv, i) => {
-            const statusColor = inv.status === "completed" ? "hsl(160, 84%, 39%)" : inv.status === "pending" ? "hsl(38, 92%, 50%)" : "hsl(0, 65%, 50%)";
-            const statusLabel = inv.status === "completed" ? "Completed" : inv.status === "pending" ? "Pending" : "Critical";
-            return (
-              <div key={inv.id} className={`flex items-center justify-between py-3.5 px-2 ${i < recentInvoices.length - 1 ? "border-b border-border/40" : ""}`}>
-                <div>
-                  <p className="text-sm font-bold text-card-foreground">{inv.id}</p>
-                  <p className="text-xs text-muted-foreground">{inv.date} · {inv.patient}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-card-foreground font-number">{formatPrice(inv.total)}</p>
-                  <p className="text-[11px] font-semibold" style={{ color: statusColor }}>{statusLabel}</p>
-                </div>
-              </div>
-            );
-          })}
-          {recentInvoices.length === 0 && (
-            <div className="py-8 text-center text-sm text-muted-foreground">No recent invoices</div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Row 6: Quick Actions ── */}
+      {/* ── Quick Actions ── */}
       <div>
-        <h3 className="text-base font-bold text-foreground font-heading mb-3 flex items-center gap-2">
-          <ArrowRight className="w-4 h-4 text-primary" />
+        <h3 className="text-sm font-bold text-foreground font-heading mb-3 uppercase tracking-wider flex items-center gap-2">
+          <ArrowRight className="w-3.5 h-3.5 text-primary" />
           Quick Actions
         </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
           {quickActions.map((op, i) => (
             <a
               key={i}
               href={op.path}
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+              className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group text-center"
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
                 style={{ background: `${op.color}14` }}
               >
                 <op.icon className="w-5 h-5" style={{ color: op.color }} />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-card-foreground group-hover:text-primary transition-colors">{op.label}</p>
-                <p className="text-xs text-muted-foreground hidden lg:block">{op.desc}</p>
-              </div>
+              <span className="text-xs font-bold text-card-foreground group-hover:text-primary transition-colors leading-tight">{op.label}</span>
             </a>
           ))}
         </div>
@@ -400,5 +367,69 @@ const Dashboard = () => {
     </div>
   );
 };
+
+/* ─── Hero Stat Card ─── */
+interface HeroStatProps {
+  label: string;
+  value: string;
+  change: string;
+  icon: React.ElementType;
+  gradient: string;
+}
+const HeroStat = ({ label, value, change, icon: Icon, gradient }: HeroStatProps) => (
+  <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-4 sm:p-5 text-white`}>
+    <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-white/10 -translate-y-6 translate-x-6" />
+    <div className="absolute bottom-0 left-0 w-14 h-14 rounded-full bg-white/5 translate-y-4 -translate-x-4" />
+    <div className="relative z-10">
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-4 h-4 opacity-80" />
+        <span className="text-xs font-semibold uppercase tracking-wider opacity-90">{label}</span>
+      </div>
+      <p className="text-xl sm:text-2xl font-black font-number tracking-tight">{value}</p>
+      <p className="text-[11px] opacity-75 mt-0.5">{change}</p>
+    </div>
+  </div>
+);
+
+/* ─── Mini Stat ─── */
+interface MiniStatProps {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  color: string;
+}
+const MiniStat = ({ label, value, icon: Icon, color }: MiniStatProps) => (
+  <div className="bg-card rounded-xl border border-border/40 p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow">
+    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}14` }}>
+      <Icon className="w-4 h-4" style={{ color }} />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg font-black text-card-foreground font-number leading-none">{value}</p>
+      <p className="text-[10px] text-muted-foreground font-medium mt-0.5 uppercase tracking-wider">{label}</p>
+    </div>
+  </div>
+);
+
+/* ─── Clinical Card ─── */
+interface ClinicalCardProps {
+  label: string;
+  count: number;
+  pending: number;
+  icon: React.ElementType;
+  color: string;
+  pendingLabel?: string;
+}
+const ClinicalCard = ({ label, count, pending, icon: Icon, color, pendingLabel = "pending" }: ClinicalCardProps) => (
+  <div className="bg-card rounded-xl border border-border/40 p-4 flex items-center justify-between hover:shadow-sm transition-shadow">
+    <div>
+      <p className="text-2xl font-black text-card-foreground font-number">{count}</p>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-[10px] text-muted-foreground mt-0.5">{pending} {pendingLabel}</p>
+    </div>
+    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: `${color}14` }}>
+      <Icon className="w-5 h-5" style={{ color }} />
+    </div>
+  </div>
+);
 
 export default Dashboard;
