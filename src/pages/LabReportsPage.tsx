@@ -23,10 +23,15 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
+  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown,
 } from "lucide-react";
-import { printBarcode } from "@/lib/printUtils";
+import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/printUtils";
+import { toast } from "sonner";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
   reportCategories,
