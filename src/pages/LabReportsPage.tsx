@@ -68,10 +68,12 @@ const emptyForm: Omit<LabReport, "id"> = {
 
 const LabReportsPage = () => {
   const navigate = useNavigate();
-  const { activeTestNames, findByName } = useTestNameStore();
+  const { activeTestNames, findByName, addTest } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const [addParamOpen, setAddParamOpen] = useState(false);
+  const [paramName, setParamName] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
@@ -375,7 +377,7 @@ const LabReportsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
-        <Button variant="outline" onClick={() => navigate("/lab-tests/names")}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
+        <Button variant="outline" onClick={() => { setParamName(""); setAddParamOpen(true); }}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
 
@@ -653,7 +655,29 @@ const LabReportsPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ========== UPLOAD REPORT DIALOG ========== */}
+      {/* ========== ADD PARAMETER DIALOG ========== */}
+      <Dialog open={addParamOpen} onOpenChange={setAddParamOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Add Parameter</DialogTitle>
+            <DialogDescription>Add a new test parameter name</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Name <span className="text-destructive">*</span></Label>
+              <Input value={paramName} onChange={(e) => setParamName(e.target.value)} placeholder="Enter parameter name" />
+            </div>
+            <Button className="w-full" disabled={!paramName.trim()} onClick={async () => {
+              try {
+                await addTest({ name: paramName.trim(), category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true });
+                toast.success(`Parameter "${paramName.trim()}" added`);
+                setAddParamOpen(false);
+              } catch { toast.error("Failed to add parameter"); }
+            }}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!uploadReport} onOpenChange={(open) => !open && setUploadReport(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
