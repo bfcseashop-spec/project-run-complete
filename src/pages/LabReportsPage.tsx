@@ -340,7 +340,7 @@ const LabReportsPage = () => {
           date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
           status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
           sampleType: "Blood", collectedAt: "", reportedAt: "",
-          technician: "", pathologist: "", instrument: "", sections: [],
+          technician: "", pathologist: "", instrument: "", sections: [], attachments: [],
         });
       });
     }
