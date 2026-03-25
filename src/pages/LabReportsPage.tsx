@@ -539,7 +539,7 @@ const LabReportsPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Price ($) <span className="text-destructive">*</span></Label>
-                <Input type="number" value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="0.00" />
+                <Input type="number" value={form.normalRange} readOnly className="bg-muted/50 cursor-not-allowed" placeholder="0.00" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Turnaround Time</Label>
