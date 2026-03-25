@@ -30,7 +30,7 @@ import {
 } from "@/data/injectionStore";
 
 const emptyForm: Omit<InjectionItem, "id"> = {
-  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, purchase_price: 0, image: "", status: "in-stock",
+  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, purchase_price: 0, image: "", quantity: 0, sold_out: 0, status: "in-stock",
 };
 
 const InjectionsPage = () => {
@@ -52,7 +52,7 @@ const InjectionsPage = () => {
   const openNew = () => { setEditInj(null); setForm({ ...emptyForm }); setDialogOpen(true); };
   const openEdit = (inj: InjectionItem) => {
     setEditInj(inj);
-    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, purchase_price: inj.purchase_price, image: inj.image, status: inj.status });
+    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, purchase_price: inj.purchase_price, image: inj.image, quantity: inj.quantity, sold_out: inj.sold_out, status: inj.status });
     setDialogOpen(true);
   };
 
@@ -114,11 +114,13 @@ const InjectionsPage = () => {
     { key: "name", header: "Injection Name" },
     { key: "purchase_price", header: "Purchase Price", render: (i: InjectionItem) => formatPrice(i.purchase_price) },
     { key: "price", header: "Sale Price", render: (i: InjectionItem) => formatPrice(i.price) },
-    { key: "stock", header: "Stock", render: (i: InjectionItem) => (
+    { key: "quantity", header: "Quantity", render: (i: InjectionItem) => <span className="font-medium text-foreground">{i.quantity}</span> },
+    { key: "stock", header: "Stock Available", render: (i: InjectionItem) => (
       <span className={`font-medium ${i.stock === 0 ? "text-destructive" : i.stock <= 20 ? "text-warning" : "text-foreground"}`}>
         {i.stock}
       </span>
     )},
+    { key: "sold_out", header: "Sold Out", render: (i: InjectionItem) => <span className="font-medium text-foreground">{i.sold_out}</span> },
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
@@ -160,7 +162,8 @@ const InjectionsPage = () => {
           strength: String(row.strength || ""), route: String(row.route || ""),
           stock: Number(row.stock) || 0, unit: String(row.unit || ""),
           price: Number(row.price) || 0, purchase_price: Number(row.purchase_price) || 0,
-          image: String(row.image || ""), status: computeInjectionStatus(Number(row.stock) || 0),
+          image: String(row.image || ""), quantity: Number(row.quantity) || 0,
+          sold_out: Number(row.sold_out) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
         });
       });
     }
@@ -244,7 +247,11 @@ const InjectionsPage = () => {
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
               </div>
               <div>
-                <Label>Stock</Label>
+                <Label>Quantity</Label>
+                <Input type="number" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Stock Available</Label>
                 <Input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
               </div>
               <div>
@@ -286,7 +293,9 @@ const InjectionsPage = () => {
                 <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
-                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock}</p></div>
+                <div><p className="text-xs text-muted-foreground">Quantity</p><p className="font-medium text-foreground">{viewInj.quantity}</p></div>
+                <div><p className="text-xs text-muted-foreground">Stock Available</p><p className="font-medium text-foreground">{viewInj.stock}</p></div>
+                <div><p className="text-xs text-muted-foreground">Sold Out</p><p className="font-medium text-foreground">{viewInj.sold_out}</p></div>
                 <div><p className="text-xs text-muted-foreground">Purchase Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.purchase_price)}</p></div>
                 <div><p className="text-xs text-muted-foreground">Sale Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
               </div>

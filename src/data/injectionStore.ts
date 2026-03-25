@@ -11,6 +11,8 @@ export interface InjectionItem {
   price: number;
   purchase_price: number;
   image: string;
+  quantity: number;
+  sold_out: number;
   status: "in-stock" | "low-stock" | "out-of-stock";
 }
 
@@ -24,6 +26,7 @@ const toItem = (r: any): InjectionItem => ({
   id: r.id, name: r.name, category: r.category, strength: r.strength,
   route: r.route, stock: r.stock, unit: r.unit, price: Number(r.price),
   purchase_price: Number(r.purchase_price) || 0, image: r.image || "",
+  quantity: Number(r.quantity) || 0, sold_out: Number(r.sold_out) || 0,
   status: r.status as InjectionItem["status"],
 });
 
@@ -50,7 +53,8 @@ export const addInjection = async (inj: InjectionItem) => {
   const { error } = await supabase.from("injections").insert({
     id: inj.id, name: inj.name, category: inj.category, strength: inj.strength,
     route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price,
-    purchase_price: inj.purchase_price, image: inj.image, status: inj.status,
+    purchase_price: inj.purchase_price, image: inj.image,
+    quantity: inj.quantity, sold_out: inj.sold_out, status: inj.status,
   });
   if (error) throw error;
   injections = [inj, ...injections]; notify();
@@ -67,6 +71,8 @@ export const updateInjection = async (id: string, data: Partial<InjectionItem>) 
   if (data.price !== undefined) dbUp.price = data.price;
   if (data.purchase_price !== undefined) dbUp.purchase_price = data.purchase_price;
   if (data.image !== undefined) dbUp.image = data.image;
+  if (data.quantity !== undefined) dbUp.quantity = data.quantity;
+  if (data.sold_out !== undefined) dbUp.sold_out = data.sold_out;
   if (data.status !== undefined) dbUp.status = data.status;
   const { error } = await supabase.from("injections").update(dbUp).eq("id", id);
   if (error) throw error;
