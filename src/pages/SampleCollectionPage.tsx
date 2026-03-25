@@ -488,7 +488,7 @@ const SampleCollectionPage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Collector</Label>
+                <Label>Lab Technician</Label>
                 <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
                   <SelectTrigger><SelectValue placeholder="Assign" /></SelectTrigger>
                   <SelectContent>
