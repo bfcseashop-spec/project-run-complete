@@ -751,6 +751,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onSave: (sections: ReportSection[], remarks: string, technician: string) => void;
   onCancel: () => void;
 }) {
+  const { activeTestNames } = useTestNameStore();
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
