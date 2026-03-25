@@ -16,6 +16,7 @@ const toReport = (r: any): LabReport => ({
   sampleType: r.sample_type, collectedAt: r.collected_at, reportedAt: r.reported_at,
   technician: r.technician, pathologist: r.pathologist, instrument: r.instrument,
   expectedTAT: r.expected_tat || undefined, sections: r.sections as any[] || [],
+  attachments: (r.attachments as any[]) || [],
 });
 
 const load = async () => {
