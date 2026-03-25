@@ -276,6 +276,12 @@ const LabReportsPage = () => {
       },
     },
     {
+      key: "sampleType", header: "Sample Type",
+      render: (r: LabReport) => (
+        <span className="text-xs">{r.sampleType || "—"}</span>
+      ),
+    },
+    {
       key: "attachments", header: "Files",
       render: (r: LabReport) => {
         const files = r.attachments || [];
