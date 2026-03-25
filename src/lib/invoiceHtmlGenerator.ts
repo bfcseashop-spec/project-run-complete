@@ -140,10 +140,11 @@ function classicLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Header: Top line + centered clinic name -->
     <div style="border-top:4px double ${t.accent};border-bottom:2px solid ${t.accent};padding:16px 0;margin-bottom:20px;text-align:center">
+      ${d.clinicLogo ? `<div style="margin-bottom:8px">${logoImg(d, 52)}</div>` : ''}
       <h1 style="font-size:24px;font-weight:800;color:${t.accent};text-transform:uppercase;letter-spacing:3px">${d.clinicName}</h1>
       <p style="font-size:11px;color:${t.accentLight};margin-top:2px;letter-spacing:1px">${d.clinicTagline}</p>
       <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
