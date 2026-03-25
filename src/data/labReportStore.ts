@@ -48,6 +48,7 @@ export async function addLabReport(report: Omit<LabReport, "id">): Promise<LabRe
     reported_at: report.reportedAt, technician: report.technician, pathologist: report.pathologist,
     instrument: report.instrument, expected_tat: report.expectedTAT || null,
     sections: JSON.parse(JSON.stringify(report.sections)),
+    attachments: JSON.parse(JSON.stringify(report.attachments || [])),
   });
   if (error) throw error;
   reports = [newReport, ...reports]; emit();
