@@ -460,304 +460,123 @@ const LabReportsPage = () => {
       {/* Report View */}
       <LabReportView report={viewReport} open={viewOpen} onOpenChange={setViewOpen} />
 
-      {/* ========== NEW / EDIT REPORT FORM ========== */}
+      {/* ========== NEW / EDIT REPORT FORM (Simplified) ========== */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto p-0">
-          <div className="bg-primary px-6 py-4 rounded-t-lg">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
+          <div className="bg-primary px-5 py-3.5 rounded-t-lg">
             <DialogHeader>
-              <DialogTitle className="text-primary-foreground text-lg">
-                {editReport ? "Edit Lab Report" : "New Lab Report"}
+              <DialogTitle className="text-primary-foreground text-base">
+                {editReport ? `Edit (${editReport.id})` : "New Lab Report"}
               </DialogTitle>
-              <DialogDescription className="text-primary-foreground/70">
-                {editReport ? "Update report details and investigation results." : "Fill in patient details, test information, and investigation results."}
+              <DialogDescription className="text-primary-foreground/70 text-xs sr-only">
+                {editReport ? "Update report details." : "Create a new lab report."}
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="px-6 py-4 space-y-6">
-            {/* Patient Information */}
-            <Card>
-              <CardContent className="pt-5 space-y-4">
-                <h3 className="text-sm font-bold text-card-foreground uppercase tracking-wider">Patient Information</h3>
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="space-y-1.5 col-span-2">
-                    <Label className="text-xs">Patient Name <span className="text-destructive">*</span></Label>
-                    <Select value={form.patient} onValueChange={(v) => {
-                      const p = patients.find((pt) => pt.name === v);
-                      setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
-                    }}>
-                      <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                      <SelectContent>
-                        {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Patient ID</Label>
-                    <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Age</Label>
-                    <Input type="number" value={form.age || ""} onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) || 0 })} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Gender</Label>
-                    <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v as LabReport["gender"] })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Ref. By Doctor <span className="text-destructive">*</span></Label>
-                    <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
-                      <SelectContent>
-                        {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Sample Type</Label>
-                    <Input value={form.sampleType} onChange={(e) => setForm({ ...form, sampleType: e.target.value })} placeholder="Blood, Urine..." />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="px-5 py-4 space-y-4">
+            {/* Test Name */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Test Name <span className="text-destructive">*</span></Label>
+              <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
+                <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
+                <SelectContent>
+                  {activeTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
 
-            {/* Test & Report Info */}
-            <Card>
-              <CardContent className="pt-5 space-y-4">
-                <h3 className="text-sm font-bold text-card-foreground uppercase tracking-wider">Test & Report Details</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Test Name <span className="text-destructive">*</span></Label>
-                    <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
-                      <SelectContent>
-                        {activeTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Category</Label>
-                    <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as LabReport["category"] })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {reportCategories.map((c) => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Status</Label>
-                    <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as LabReport["status"] })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-5 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Registered Date</Label>
-                    <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Collected At</Label>
-                    <Input value={form.collectedAt} onChange={(e) => setForm({ ...form, collectedAt: e.target.value })} placeholder="08:30 AM" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Reported Date</Label>
-                    <Input type="date" value={form.resultDate} onChange={(e) => setForm({ ...form, resultDate: e.target.value })} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Reported At</Label>
-                    <Input value={form.reportedAt} onChange={(e) => setForm({ ...form, reportedAt: e.target.value })} placeholder="04:35 PM" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Expected TAT</Label>
-                    <Select value={form.expectedTAT || ""} onValueChange={(v) => setForm({ ...form, expectedTAT: v })}>
-                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1h">1 Hour</SelectItem>
-                        <SelectItem value="2h">2 Hours</SelectItem>
-                        <SelectItem value="4h">4 Hours</SelectItem>
-                        <SelectItem value="6h">6 Hours</SelectItem>
-                        <SelectItem value="12h">12 Hours</SelectItem>
-                        <SelectItem value="1d">1 Day</SelectItem>
-                        <SelectItem value="2d">2 Days</SelectItem>
-                        <SelectItem value="3d">3 Days</SelectItem>
-                        <SelectItem value="5d">5 Days</SelectItem>
-                        <SelectItem value="1w">1 Week</SelectItem>
-                        <SelectItem value="2w">2 Weeks</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Technician</Label>
-                    <Input value={form.technician} onChange={(e) => setForm({ ...form, technician: e.target.value })} placeholder="Tech. Name" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Pathologist</Label>
-                    <Input value={form.pathologist} onChange={(e) => setForm({ ...form, pathologist: e.target.value })} placeholder="Dr. Name" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Instrument</Label>
-                    <Input value={form.instrument} onChange={(e) => setForm({ ...form, instrument: e.target.value })} placeholder="e.g. Mindray 300" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Patient */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Patient</Label>
+              <Select value={form.patient} onValueChange={(v) => {
+                const p = patients.find((pt) => pt.name === v);
+                setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
+              }}>
+                <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
+                <SelectContent>
+                  {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
 
-            {/* Investigation Sections */}
-            <Card>
-              <CardContent className="pt-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-card-foreground uppercase tracking-wider">Investigations</h3>
-                  <Button variant="outline" size="sm" onClick={addSection}>
-                    <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Section
-                  </Button>
-                </div>
+            {/* Category + Sample Type */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Category <span className="text-destructive">*</span></Label>
+                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as LabReport["category"] })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {reportCategories.map((c) => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Sample Type <span className="text-destructive">*</span></Label>
+                <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Blood">Blood</SelectItem>
+                    <SelectItem value="Urine">Urine</SelectItem>
+                    <SelectItem value="Stool">Stool</SelectItem>
+                    <SelectItem value="Sputum">Sputum</SelectItem>
+                    <SelectItem value="Swab">Swab</SelectItem>
+                    <SelectItem value="CSF">CSF</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-                {form.sections.map((section, sIdx) => (
-                  <div key={sIdx} className="border border-border rounded-lg overflow-hidden">
-                    {/* Section Header */}
-                    <div className="bg-muted/50 px-4 py-2.5 flex items-center gap-3">
-                      <Input
-                        className="bg-transparent border-0 px-0 h-8 font-bold text-sm uppercase tracking-wider focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
-                        value={section.title}
-                        onChange={(e) => updateSection(sIdx, "title", e.target.value)}
-                        placeholder="Section title (e.g. HEMOGLOBIN, RBC COUNT)"
-                      />
-                      {form.sections.length > 1 && (
-                        <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={() => removeSection(sIdx)}>
-                          <X className="w-3.5 h-3.5 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
+            {/* Price + Turnaround Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Price ($) <span className="text-destructive">*</span></Label>
+                <Input type="number" value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="0.00" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Turnaround Time</Label>
+                <Input value={form.expectedTAT || ""} onChange={(e) => setForm({ ...form, expectedTAT: e.target.value })} placeholder="e.g. 2 hours, 1 day" />
+              </div>
+            </div>
 
-                    {/* Table Header */}
-                    <div className="grid grid-cols-12 gap-2 px-4 py-2 border-b border-border bg-muted/30">
-                      <div className="col-span-4 text-[10px] font-bold text-muted-foreground uppercase">Investigation</div>
-                      <div className="col-span-2 text-[10px] font-bold text-muted-foreground uppercase">Result</div>
-                      <div className="col-span-3 text-[10px] font-bold text-muted-foreground uppercase">Reference Value</div>
-                      <div className="col-span-1 text-[10px] font-bold text-muted-foreground uppercase">Unit</div>
-                      <div className="col-span-1 text-[10px] font-bold text-muted-foreground uppercase">Flag</div>
-                      <div className="col-span-1"></div>
-                    </div>
+            {/* Refer Name (Doctor) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Refer Name</Label>
+              <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                <SelectTrigger><SelectValue placeholder="Person who referred/uploaded" /></SelectTrigger>
+                <SelectContent>
+                  {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
 
-                    {/* Investigation Rows */}
-                    {section.investigations.map((inv, iIdx) => (
-                      <div key={iIdx} className="grid grid-cols-12 gap-2 px-4 py-1.5 border-b border-border/50 last:border-0 items-center">
-                        <div className="col-span-4">
-                          <Input
-                            className="h-8 text-sm"
-                            value={inv.name}
-                            onChange={(e) => updateInvestigation(sIdx, iIdx, "name", e.target.value)}
-                            placeholder="e.g. Hemoglobin (Hb)"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <Input
-                            className="h-8 text-sm font-semibold"
-                            value={inv.result}
-                            onChange={(e) => updateInvestigation(sIdx, iIdx, "result", e.target.value)}
-                            placeholder="Value"
-                          />
-                        </div>
-                        <div className="col-span-3">
-                          <Input
-                            className="h-8 text-sm"
-                            value={inv.referenceValue}
-                            onChange={(e) => updateInvestigation(sIdx, iIdx, "referenceValue", e.target.value)}
-                            placeholder="e.g. 13.0 - 17.0"
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          <Input
-                            className="h-8 text-sm"
-                            value={inv.unit}
-                            onChange={(e) => updateInvestigation(sIdx, iIdx, "unit", e.target.value)}
-                            placeholder="g/dL"
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          <Select
-                            value={inv.flag || "none"}
-                            onValueChange={(v) => updateInvestigation(sIdx, iIdx, "flag", v === "none" ? undefined : v)}
-                          >
-                            <SelectTrigger className="h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">—</SelectItem>
-                              <SelectItem value="High">
-                                <span className="text-destructive font-semibold">High</span>
-                              </SelectItem>
-                              <SelectItem value="Low">
-                                <span className="text-warning font-semibold">Low</span>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="col-span-1 flex justify-center">
-                          {section.investigations.length > 1 && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeInvestigation(sIdx, iIdx)}>
-                              <X className="w-3 h-3 text-muted-foreground" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+            {/* Description / Remarks */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Description</Label>
+              <Textarea value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} rows={3} placeholder="" />
+            </div>
 
-                    {/* Add Row */}
-                    <div className="px-4 py-2 border-t border-border/50">
-                      <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => addInvestigation(sIdx)}>
-                        <Plus className="w-3 h-3 mr-1" /> Add Investigation
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Summary & Remarks */}
-            <Card>
-              <CardContent className="pt-5 space-y-4">
-                <h3 className="text-sm font-bold text-card-foreground uppercase tracking-wider">Summary</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Overall Result</Label>
-                    <Input value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })} placeholder="e.g. Normal, Borderline High" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Normal Range (Summary)</Label>
-                    <Input value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Remarks</Label>
-                  <Textarea value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} rows={2} placeholder="Clinical observations, recommendations..." />
-                </div>
-              </CardContent>
-            </Card>
+            {/* Status */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Status</Label>
+              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as LabReport["status"] })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Complete</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <Separator />
-          <DialogFooter className="px-6 py-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{editReport ? "Update Report" : "Create Report"}</Button>
-          </DialogFooter>
+          {/* Full-width action button */}
+          <div className="px-5 pb-5">
+            <Button className="w-full h-11 text-sm font-semibold" onClick={handleSubmit}>
+              {editReport ? "Update" : "Create Report"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
