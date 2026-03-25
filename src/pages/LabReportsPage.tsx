@@ -797,6 +797,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     setSections(newSections);
   };
 
+  const isPositiveResult = (result: string) => {
     return result.toLowerCase() === "positive";
   };
 
