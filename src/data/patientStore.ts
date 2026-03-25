@@ -50,6 +50,9 @@ export async function updatePatient(id: string, updated: OPDPatient) {
     blood_type: updated.bloodType || null, patient_type: updated.patientType || null,
     phone: updated.phone || null, medical_history: updated.medicalHistory || null,
     photo: updated.photo || null,
+    spo2: updated.spo2 || null, weight: updated.weight || null,
+    bp: updated.bp || null, rr: updated.rr || null,
+    hr: updated.hr || null, temp: updated.temp || null,
   }).eq("id", id);
   if (error) throw error;
   _patients = _patients.map((p) => (p.id === id ? updated : p)); notify();
