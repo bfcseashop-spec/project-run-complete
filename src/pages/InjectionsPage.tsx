@@ -6,7 +6,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search, PackagePlus, ImageIcon } from "lucide-react";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
@@ -30,7 +30,7 @@ import {
 } from "@/data/injectionStore";
 
 const emptyForm: Omit<InjectionItem, "id"> = {
-  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, status: "in-stock",
+  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, purchase_price: 0, image: "", status: "in-stock",
 };
 
 const InjectionsPage = () => {
@@ -44,13 +44,15 @@ const InjectionsPage = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [addStockInj, setAddStockInj] = useState<InjectionItem | null>(null);
+  const [addStockQty, setAddStockQty] = useState(0);
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
   const openNew = () => { setEditInj(null); setForm({ ...emptyForm }); setDialogOpen(true); };
   const openEdit = (inj: InjectionItem) => {
     setEditInj(inj);
-    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, status: inj.status });
+    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, purchase_price: inj.purchase_price, image: inj.image, status: inj.status });
     setDialogOpen(true);
   };
 
@@ -84,14 +86,39 @@ const InjectionsPage = () => {
     setBulkDeleteOpen(false);
   };
 
+  const handleAddStock = async () => {
+    if (!addStockInj || addStockQty <= 0) return;
+    const newStock = addStockInj.stock + addStockQty;
+    await updateInjection(addStockInj.id, { stock: newStock, status: computeInjectionStatus(newStock) });
+    toast.success(`Added ${addStockQty} to ${addStockInj.name}`);
+    setAddStockInj(null);
+    setAddStockQty(0);
+  };
+
   const lowStockCount = injections.filter((i) => i.status === "low-stock").length;
   const outOfStockCount = injections.filter((i) => i.status === "out-of-stock").length;
 
   const columns = [
+    {
+      key: "image", header: "Image", render: (i: InjectionItem) => (
+        i.image ? (
+          <img src={i.image} alt={i.name} className="w-9 h-9 rounded-md object-cover border border-border" />
+        ) : (
+          <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center">
+            <ImageIcon className="w-4 h-4 text-muted-foreground" />
+          </div>
+        )
+      ),
+    },
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
-    { key: "price", header: "Price", render: (i: InjectionItem) => formatPrice(i.price) },
-    
+    { key: "purchase_price", header: "Purchase Price", render: (i: InjectionItem) => formatPrice(i.purchase_price) },
+    { key: "price", header: "Sale Price", render: (i: InjectionItem) => formatPrice(i.price) },
+    { key: "stock", header: "Stock", render: (i: InjectionItem) => (
+      <span className={`font-medium ${i.stock === 0 ? "text-destructive" : i.stock <= 20 ? "text-warning" : "text-foreground"}`}>
+        {i.stock}
+      </span>
+    )},
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
@@ -100,6 +127,9 @@ const InjectionsPage = () => {
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-emerald-500/10" title="Add Stock" onClick={() => { setAddStockInj(i); setAddStockQty(0); }}>
+            <PackagePlus className="w-3.5 h-3.5 text-emerald-600" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
             id: i.id, name: i.name, category: i.category,
@@ -129,7 +159,8 @@ const InjectionsPage = () => {
           id: nextId, name: String(row.name || ""), category: String(row.category || ""),
           strength: String(row.strength || ""), route: String(row.route || ""),
           stock: Number(row.stock) || 0, unit: String(row.unit || ""),
-          price: Number(row.price) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
+          price: Number(row.price) || 0, purchase_price: Number(row.purchase_price) || 0,
+          image: String(row.image || ""), status: computeInjectionStatus(Number(row.stock) || 0),
         });
       });
     }
@@ -200,9 +231,21 @@ const InjectionsPage = () => {
                 <Label>Injection Name *</Label>
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Ceftriaxone" />
               </div>
+              <div className="col-span-2">
+                <Label>Image URL</Label>
+                <Input value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} placeholder="https://..." />
+              </div>
               <div>
-                <Label>Price</Label>
+                <Label>Purchase Price</Label>
+                <Input type="number" value={form.purchase_price} onChange={(e) => setForm((f) => ({ ...f, purchase_price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Sale Price</Label>
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Stock</Label>
+                <Input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
               </div>
               <div>
                 <Label>Status</Label>
@@ -234,11 +277,18 @@ const InjectionsPage = () => {
           </DialogHeader>
           {viewInj && (
             <div className="space-y-4 py-2">
+              {viewInj.image && (
+                <div className="flex justify-center">
+                  <img src={viewInj.image} alt={viewInj.name} className="w-20 h-20 rounded-lg object-cover border border-border" />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
-                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock}</p></div>
+                <div><p className="text-xs text-muted-foreground">Purchase Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.purchase_price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Sale Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
               </div>
             </div>
           )}
@@ -286,6 +336,30 @@ const InjectionsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Stock Dialog */}
+      <Dialog open={!!addStockInj} onOpenChange={(open) => { if (!open) setAddStockInj(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PackagePlus className="w-5 h-5 text-emerald-600" /> Add Stock
+            </DialogTitle>
+          </DialogHeader>
+          {addStockInj && (
+            <div className="space-y-4 py-2">
+              <p className="text-sm text-muted-foreground">Adding stock to <strong className="text-foreground">{addStockInj.name}</strong> (Current: {addStockInj.stock})</p>
+              <div>
+                <Label>Quantity to Add</Label>
+                <Input type="number" min={1} value={addStockQty} onChange={(e) => setAddStockQty(Number(e.target.value))} placeholder="Enter quantity" />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddStockInj(null)}>Cancel</Button>
+            <Button onClick={handleAddStock} disabled={addStockQty <= 0}>Add Stock</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -316,8 +316,10 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          image: string | null
           name: string
           price: number
+          purchase_price: number | null
           route: string
           status: string
           stock: number
@@ -328,8 +330,10 @@ export type Database = {
           category?: string
           created_at?: string
           id: string
+          image?: string | null
           name?: string
           price?: number
+          purchase_price?: number | null
           route?: string
           status?: string
           stock?: number
@@ -340,8 +344,10 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          image?: string | null
           name?: string
           price?: number
+          purchase_price?: number | null
           route?: string
           status?: string
           stock?: number
