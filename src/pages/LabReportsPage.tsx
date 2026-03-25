@@ -29,7 +29,7 @@ import {
 import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
-  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown,
+  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown, Paperclip,
 } from "lucide-react";
 import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/printUtils";
 import { toast } from "sonner";
