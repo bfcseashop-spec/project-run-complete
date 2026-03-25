@@ -854,7 +854,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   <div className="col-span-3 pr-2">
                     <Select value={inv.name} onValueChange={(v) => updateInv(sIdx, iIdx, "name", v)}>
                       <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-foreground">
-                        <SelectValue placeholder="Select parameter" />
+                        <SelectValue placeholder="Select test name" />
                       </SelectTrigger>
                       <SelectContent>
                         {activeTestNames.map((name) => (
