@@ -79,6 +79,16 @@ function doctorInfo(d: InvoiceData) {
   return s;
 }
 
+function logoImg(d: InvoiceData, size: number = 48, style: string = "") {
+  if (!d.clinicLogo) return "";
+  return `<img src="${d.clinicLogo}" alt="Logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:6px;${style}" />`;
+}
+
+function watermarkImg(d: InvoiceData) {
+  if (!d.clinicLogo) return "";
+  return `<img src="${d.clinicLogo}" class="watermark" alt="" />`;
+}
+
 function totalsBlock(d: InvoiceData, accentColor: string, borderColor: string) {
   let h = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
     <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${d.formatPrice(d.subtotal)}</span></div>`;
