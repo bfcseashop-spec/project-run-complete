@@ -13,11 +13,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Check, Search } from "lucide-react";
 import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 interface TestEntry {
   id: number;
@@ -61,36 +63,47 @@ const AddTestPage = () => {
     }
   };
 
-  const [tests, setTests] = useState<TestEntry[]>([
-    { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 },
-  ]);
+  const [tests, setTests] = useState<TestEntry[]>([]);
+  const [multiSelectOpen, setMultiSelectOpen] = useState(false);
+  const [multiSearch, setMultiSearch] = useState("");
 
-  const addTest = () => {
-    setTests([...tests, { id: entryCounter++, mode: "auto", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 }]);
+  const selectedTestNames = useMemo(() => new Set(tests.filter(t => t.mode === "auto").map(t => t.test)), [tests]);
+
+  const filteredTests = useMemo(() => {
+    if (!multiSearch) return activeTests;
+    const q = multiSearch.toLowerCase();
+    return activeTests.filter(t => t.name.toLowerCase().includes(q));
+  }, [activeTests, multiSearch]);
+
+  const toggleTestSelection = (testName: string) => {
+    if (selectedTestNames.has(testName)) {
+      setTests(prev => prev.filter(t => !(t.mode === "auto" && t.test === testName)));
+    } else {
+      const entry = findByName(testName);
+      if (entry) {
+        setTests(prev => [...prev, {
+          id: entryCounter++,
+          mode: "auto",
+          test: testName,
+          sampleType: (entry.sampleType as LabTest["sampleType"]) || "blood",
+          normalRange: entry.normalRange,
+          unit: entry.unit,
+          price: entry.price,
+        }]);
+      }
+    }
+  };
+
+  const addManualTest = () => {
+    setTests([...tests, { id: entryCounter++, mode: "manual", test: "", sampleType: "blood", normalRange: "", unit: "", price: 0 }]);
   };
 
   const removeTest = (id: number) => {
-    if (tests.length <= 1) return;
     setTests(tests.filter((t) => t.id !== id));
   };
 
   const updateTest = (id: number, patch: Partial<TestEntry>) => {
     setTests(tests.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-  };
-
-  const handleAutoSelect = (id: number, testName: string) => {
-    const entry = findByName(testName);
-    if (entry) {
-      updateTest(id, {
-        test: testName,
-        sampleType: (entry.sampleType as LabTest["sampleType"]) || "blood",
-        normalRange: entry.normalRange,
-        unit: entry.unit,
-        price: entry.price,
-      });
-    } else {
-      updateTest(id, { test: testName });
-    }
   };
 
   const totalPrice = tests.reduce((sum, t) => sum + (t.price || 0), 0);
@@ -107,7 +120,6 @@ const AddTestPage = () => {
       return;
     }
 
-    // Add each test as a pending sample record
     const sampleEntries = validTests.map((t) => ({
       patient: form.patient,
       patientId: form.patientId,
@@ -198,56 +210,115 @@ const AddTestPage = () => {
                   <h3 className="text-base font-semibold text-card-foreground font-heading">
                     Tests ({tests.length})
                   </h3>
-                  <Button type="button" variant="outline" size="sm" onClick={addTest}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Test
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={addManualTest}>
+                      <Plus className="w-4 h-4 mr-1" /> Manual Entry
+                    </Button>
+                  </div>
                 </div>
 
+                {/* Multi-select Test Name Picker */}
+                <div className="mb-4 space-y-1.5">
+                  <Label className="text-xs font-medium">Test Name <span className="text-destructive">*</span> — Select multiple tests</Label>
+                  <Popover open={multiSelectOpen} onOpenChange={setMultiSelectOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start text-left h-auto min-h-[40px] font-normal"
+                      >
+                        {selectedTestNames.size === 0 ? (
+                          <span className="text-muted-foreground">Click to select tests...</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
+                            {Array.from(selectedTestNames).map(name => (
+                              <Badge key={name} variant="secondary" className="text-xs gap-1">
+                                {name}
+                                <button
+                                  type="button"
+                                  className="ml-0.5 hover:text-destructive"
+                                  onClick={(e) => { e.stopPropagation(); toggleTestSelection(name); }}
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[460px] p-0" align="start">
+                      <div className="p-2 border-b border-border">
+                        <div className="flex items-center gap-2 px-2">
+                          <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <input
+                            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            placeholder="Search tests..."
+                            value={multiSearch}
+                            onChange={(e) => setMultiSearch(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-[240px] overflow-y-auto p-1">
+                        {filteredTests.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">No tests found</p>
+                        ) : (
+                          filteredTests.map(t => {
+                            const isSelected = selectedTestNames.has(t.name);
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-left text-sm transition-colors ${
+                                  isSelected ? "bg-primary/10 text-primary" : "hover:bg-accent"
+                                }`}
+                                onClick={() => toggleTestSelection(t.name)}
+                              >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                                  isSelected ? "bg-primary border-primary" : "border-input"
+                                }`}>
+                                  {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                                </div>
+                                <span className="flex-1 truncate">{t.name}</span>
+                                <span className="text-xs text-muted-foreground">{formatPrice(t.price)}</span>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                      {selectedTestNames.size > 0 && (
+                        <div className="border-t border-border p-2 flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{selectedTestNames.size} test(s) selected</span>
+                          <Button type="button" size="sm" variant="ghost" className="text-xs h-7" onClick={() => setMultiSelectOpen(false)}>
+                            Done
+                          </Button>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Test Entry Cards */}
                 <div className="space-y-4">
                   {tests.map((t, idx) => (
                     <div key={t.id} className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-muted-foreground">Test #{idx + 1}</span>
                         <div className="flex items-center gap-2">
-                          {/* Mode toggle */}
-                          <div className="flex rounded-md border border-input overflow-hidden text-xs">
-                            <button
-                              type="button"
-                              className={`px-3 py-1 transition-colors ${t.mode === "auto" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"}`}
-                              onClick={() => updateTest(t.id, { mode: "auto", test: "", normalRange: "", unit: "", price: 0 })}
-                            >
-                              Auto
-                            </button>
-                            <button
-                              type="button"
-                              className={`px-3 py-1 transition-colors ${t.mode === "manual" ? "bg-primary text-primary-foreground" : "bg-background text-foreground hover:bg-accent"}`}
-                              onClick={() => updateTest(t.id, { mode: "manual", test: "", normalRange: "", unit: "", price: 0 })}
-                            >
-                              Manual
-                            </button>
-                          </div>
-                          {tests.length > 1 && (
-                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTest(t.id)}>
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          )}
+                          <Badge variant={t.mode === "auto" ? "default" : "outline"} className="text-[10px] h-5">
+                            {t.mode === "auto" ? "Auto" : "Manual"}
+                          </Badge>
+                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTest(t.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label className="text-xs">Test Name <span className="text-destructive">*</span></Label>
+                          <Label className="text-xs">Test Name</Label>
                           {t.mode === "auto" ? (
-                            <Select value={t.test} onValueChange={(v) => handleAutoSelect(t.id, v)}>
-                              <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
-                              <SelectContent>
-                                {activeTests.map((at) => (
-                                  <SelectItem key={at.id} value={at.name}>
-                                    {at.name} — {formatPrice(at.price)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <Input value={t.test} readOnly className="bg-muted font-medium" />
                           ) : (
                             <Input
                               value={t.test}
@@ -284,6 +355,12 @@ const AddTestPage = () => {
                     </div>
                   ))}
                 </div>
+
+                {tests.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">
+                    <p className="text-sm">No tests added yet. Select tests above or add a manual entry.</p>
+                  </div>
+                )}
 
                 {/* Total */}
                 {tests.length > 0 && (
