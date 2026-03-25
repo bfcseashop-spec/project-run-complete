@@ -903,39 +903,32 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             <SelectValue placeholder="Select lab technologist" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={technician || "__custom__"}>
-              {technician || "Select technologist"}
-            </SelectItem>
+            {technician && !["Md Ekbal Hossain (Lab Technologist)", "Dr. Shaheen Akter (Lab Technologist)", "Farhan Rahman (Lab Technologist)"].includes(technician) && (
+              <SelectItem value={technician}>{technician}</SelectItem>
+            )}
             <SelectItem value="Md Ekbal Hossain (Lab Technologist)">Md Ekbal Hossain (Lab Technologist)</SelectItem>
             <SelectItem value="Dr. Shaheen Akter (Lab Technologist)">Dr. Shaheen Akter (Lab Technologist)</SelectItem>
             <SelectItem value="Farhan Rahman (Lab Technologist)">Farhan Rahman (Lab Technologist)</SelectItem>
           </SelectContent>
         </Select>
-        <Input
-          value={technician}
-          onChange={e => setTechnician(e.target.value)}
-          placeholder="Or type technologist name manually"
-          className="h-9 text-sm mt-1"
-        />
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-0 px-6 py-3 bg-muted/50 border-y border-border">
+      <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border" style={{ background: "hsl(var(--muted) / 0.5)" }}>
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
-        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
+        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
         <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
-        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider leading-tight">Normal/Reference<br/>Ranges</div>
+        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider leading-tight">Normal/Reference<br/>Ranges</div>
       </div>
 
       {/* Sections & Investigations */}
-      <div className="max-h-[55vh] overflow-y-auto">
+      <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
-            {/* Section Header */}
-            <div className="px-6 py-2.5 border-b border-border">
+            {/* Section Header — styled label like image */}
+            <div className="px-6 py-2.5 border-b border-border/40">
               <Input
-                className="h-6 bg-transparent border-0 px-1.5 py-0.5 font-bold text-xs uppercase tracking-widest text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/50 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal w-auto inline-block"
-                style={{ background: "hsl(var(--primary) / 0.08)", borderRadius: "4px", paddingRight: "8px" }}
+                className="h-6 bg-transparent border-0 px-0 font-bold text-sm uppercase tracking-wide text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/40 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
                 value={sec.title}
                 onChange={e => {
                   const newSections = [...sections];
@@ -950,7 +943,8 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             {sec.investigations.map((inv, iIdx) => {
               const flagged = isResultFlagged(inv);
               return (
-                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3 border-b border-border/30 items-center">
+                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-center">
+                  {/* Parameter */}
                   <div className="col-span-3 pr-2">
                     <Input
                       className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium text-card-foreground"
@@ -959,11 +953,12 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="e.g. Hemoglobin"
                     />
                   </div>
-                  <div className="col-span-4 pr-4">
+                  {/* Result */}
+                  <div className="col-span-3 pr-4">
                     <Input
-                      className={`h-9 text-sm font-semibold rounded-md ${
+                      className={`h-9 text-sm font-semibold rounded-md px-3 ${
                         flagged
-                          ? "border-2 border-destructive text-destructive bg-destructive/5"
+                          ? "border-2 border-destructive text-destructive"
                           : "border border-border"
                       }`}
                       value={inv.result}
@@ -971,21 +966,15 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="Enter result"
                     />
                   </div>
+                  {/* Unit — display as text, editable inline */}
                   <div className="col-span-2 pr-2">
-                    <Input
-                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
-                      value={inv.unit}
-                      onChange={e => updateInv(sIdx, iIdx, "unit", e.target.value)}
-                      placeholder="—"
-                    />
+                    <span className="text-sm text-muted-foreground">{inv.unit || "—"}</span>
                   </div>
-                  <div className="col-span-3">
-                    <Input
-                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
-                      value={inv.referenceValue}
-                      onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)}
-                      placeholder="—"
-                    />
+                  {/* Normal/Reference Range — display as text with parentheses */}
+                  <div className="col-span-4">
+                    <span className="text-sm text-muted-foreground">
+                      {inv.referenceValue ? `(${inv.referenceValue.replace(/^\(|\)$/g, "")})` : "—"}
+                    </span>
                   </div>
                 </div>
               );
