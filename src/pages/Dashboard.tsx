@@ -256,8 +256,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── Secondary Row: Discount, Profit, Patients, Invoices ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* ── Secondary Row ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" />
         <CompactStat
           icon={stats.profit > 0 ? TrendingUp : TrendingDown}
