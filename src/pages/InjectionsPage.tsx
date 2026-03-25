@@ -162,7 +162,8 @@ const InjectionsPage = () => {
           strength: String(row.strength || ""), route: String(row.route || ""),
           stock: Number(row.stock) || 0, unit: String(row.unit || ""),
           price: Number(row.price) || 0, purchase_price: Number(row.purchase_price) || 0,
-          image: String(row.image || ""), status: computeInjectionStatus(Number(row.stock) || 0),
+          image: String(row.image || ""), quantity: Number(row.quantity) || 0,
+          sold_out: Number(row.sold_out) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
         });
       });
     }
