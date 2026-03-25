@@ -41,7 +41,7 @@ const AddTestPage = () => {
   const { activeTests, findByName } = useTestNameStore();
   const patients = useSyncExternalStore(subscribePatients, getPatients);
 
-  const doctors = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const technicians = useSyncExternalStore(subscribeTechnicians, getTechnicians);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
