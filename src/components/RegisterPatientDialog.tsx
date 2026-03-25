@@ -49,10 +49,16 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         patientType: editPatient.patientType || "",
         phone: editPatient.phone || "",
         medicalHistory: editPatient.medicalHistory || "",
+        spo2: editPatient.spo2 || "",
+        weight: editPatient.weight || "",
+        bp: editPatient.bp || "",
+        rr: editPatient.rr || "",
+        hr: editPatient.hr || "",
+        temp: editPatient.temp || "",
       });
       setImagePreview(editPatient.photo || null);
     } else {
-      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
+      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
       setImagePreview(null);
     }
   }, [editPatient, open]);
