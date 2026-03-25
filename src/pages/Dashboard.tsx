@@ -26,32 +26,32 @@ import { parseISO, isWithinInterval, format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis } from "recharts";
 
 const paymentMeta: Record<string, { color: string; icon: React.ElementType }> = {
-  Cash: { color: "hsl(152, 60%, 40%)", icon: Banknote },
-  ABA: { color: "hsl(217, 91%, 60%)", icon: Building2 },
-  ACleda: { color: "hsl(38, 92%, 50%)", icon: Landmark },
-  Card: { color: "hsl(270, 60%, 55%)", icon: CreditCard },
-  Wing: { color: "hsl(195, 80%, 45%)", icon: Smartphone },
-  "Binance(USDT)": { color: "hsl(45, 90%, 48%)", icon: Coins },
-  "True Money": { color: "hsl(15, 85%, 52%)", icon: Smartphone },
-  "Bank Transfer": { color: "hsl(200, 50%, 40%)", icon: Send },
-  Insurance: { color: "hsl(340, 60%, 50%)", icon: Shield },
+  Cash: { color: "hsl(168, 65%, 38%)", icon: Banknote },
+  ABA: { color: "hsl(210, 70%, 50%)", icon: Building2 },
+  ACleda: { color: "hsl(195, 65%, 45%)", icon: Landmark },
+  Card: { color: "hsl(220, 55%, 55%)", icon: CreditCard },
+  Wing: { color: "hsl(185, 60%, 42%)", icon: Smartphone },
+  "Binance(USDT)": { color: "hsl(175, 55%, 40%)", icon: Coins },
+  "True Money": { color: "hsl(200, 60%, 48%)", icon: Smartphone },
+  "Bank Transfer": { color: "hsl(215, 50%, 45%)", icon: Send },
+  Insurance: { color: "hsl(190, 55%, 40%)", icon: Shield },
 };
 
 const DONUT_COLORS = [
-  "hsl(168, 80%, 35%)", "hsl(200, 80%, 50%)", "hsl(38, 92%, 50%)",
-  "hsl(270, 60%, 55%)", "hsl(350, 65%, 55%)", "hsl(152, 60%, 40%)",
-  "hsl(15, 85%, 52%)", "hsl(195, 80%, 45%)", "hsl(45, 90%, 48%)",
+  "hsl(168, 65%, 38%)", "hsl(210, 70%, 50%)", "hsl(195, 65%, 45%)",
+  "hsl(220, 55%, 55%)", "hsl(185, 60%, 42%)", "hsl(175, 55%, 40%)",
+  "hsl(200, 60%, 48%)", "hsl(215, 50%, 45%)", "hsl(190, 55%, 40%)",
 ];
 
 const quickActions = [
-  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(168, 80%, 30%)" },
-  { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
-  { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(270, 60%, 55%)" },
-  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(152, 60%, 40%)" },
-  { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
-  { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
-  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(200, 80%, 50%)" },
-  { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
+  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(168, 65%, 38%)" },
+  { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(210, 70%, 50%)" },
+  { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(220, 55%, 55%)" },
+  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(168, 65%, 38%)" },
+  { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(195, 65%, 45%)" },
+  { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(200, 60%, 48%)" },
+  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(210, 70%, 50%)" },
+  { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(185, 60%, 42%)" },
 ];
 
 const Dashboard = () => {
@@ -196,66 +196,68 @@ const Dashboard = () => {
       </div>
 
       {/* ── Bento Grid: Main Financial ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3">
-        {/* Total Revenue - Large */}
-        <div className="col-span-2 md:col-span-2 lg:col-span-3 bg-foreground text-primary-foreground rounded-2xl p-5 relative overflow-hidden group">
-          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-primary/20 group-hover:scale-110 transition-transform duration-500" />
-          <div className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <CircleDollarSign className="w-5 h-5 text-primary" />
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-4">
+        {/* Total Revenue - Dark Slate */}
+        <div className="col-span-2 md:col-span-2 lg:col-span-3 rounded-2xl p-5 sm:p-6 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(215, 28%, 17%), hsl(220, 25%, 22%))" }}>
+          <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-20 group-hover:scale-125 transition-transform duration-700"
+            style={{ background: "radial-gradient(circle, hsl(168, 65%, 45%) 0%, transparent 70%)" }} />
+          <div className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.2)" }}>
+            <CircleDollarSign className="w-5 h-5" style={{ color: "hsl(168, 65%, 55%)" }} />
           </div>
-          <p className="text-xs font-medium opacity-60 uppercase tracking-widest mb-1">Total Revenue</p>
-          <p className="text-2xl sm:text-3xl font-black font-body tracking-tight relative z-10">{formatPrice(stats.totalBills)}</p>
-          <p className="text-xs opacity-50 mt-1">{stats.invoiceCount} invoices</p>
+          <p className="text-xs font-medium uppercase tracking-widest mb-1.5" style={{ color: "hsl(210, 20%, 65%)" }}>Total Revenue</p>
+          <p className="text-2xl sm:text-3xl font-black font-body tracking-tight relative z-10 text-white">{formatPrice(stats.totalBills)}</p>
+          <p className="text-xs mt-1.5" style={{ color: "hsl(210, 15%, 55%)" }}>{stats.invoiceCount} invoices</p>
         </div>
 
         {/* Cash */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-primary/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-              <Banknote className="w-4 h-4 text-success" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.1)" }}>
+              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 38%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Cash</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Cash Received</p>
         </div>
 
         {/* Bank */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-info/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-info" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
+              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Bank</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Bank Received</p>
         </div>
 
         {/* Expenses */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-warning/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-warning" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(195, 65%, 45% / 0.1)" }}>
+              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(195, 65%, 45%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Expenses</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Expenses</p>
         </div>
 
         {/* Due */}
-        <div className="col-span-1 lg:col-span-3 bg-destructive/5 rounded-2xl border border-destructive/20 p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-3 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200" style={{ borderColor: "hsl(210, 70%, 50% / 0.15)" }}>
           <div className="flex items-center justify-between mb-3">
-            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-destructive" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
+              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
             </div>
-            <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">{stats.pendingInvoices} pending</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(210, 70%, 45%)", background: "hsl(210, 70%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Outstanding</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Outstanding</p>
         </div>
       </div>
 
-      {/* ── Secondary Row: Discount, Profit, Patients, Invoices ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* ── Secondary Row ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" />
         <CompactStat
           icon={stats.profit > 0 ? TrendingUp : TrendingDown}
@@ -267,8 +269,8 @@ const Dashboard = () => {
         <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" />
       </div>
 
-      {/* ── Middle Section: Chart + Invoices + Medicine ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* ── Middle Section ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Revenue Trend + Payment Donut */}
         <div className="lg:col-span-5 space-y-4">
           {/* Revenue Trend */}
@@ -281,11 +283,11 @@ const Dashboard = () => {
               <AreaChart data={revenueTrend}>
                 <defs>
                   <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(210, 70%, 50%)" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="hsl(210, 70%, 50%)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="amount" stroke="hsl(168, 80%, 30%)" strokeWidth={2.5} fill="url(#revGrad)" />
+                <Area type="monotone" dataKey="amount" stroke="hsl(210, 70%, 50%)" strokeWidth={2.5} fill="url(#revGrad)" />
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(215, 12%, 50%)" }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ borderRadius: "10px", border: "1px solid hsl(210, 18%, 90%)", background: "hsl(0, 0%, 100%)", fontSize: "11px", fontWeight: 700 }}
@@ -409,10 +411,10 @@ const Dashboard = () => {
           Clinical Pipeline
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <PipelineCard icon={TestTube} label="Lab Reports" total={stats.totalLabs} pending={stats.pendingLabs} color="hsl(200, 80%, 45%)" />
-          <PipelineCard icon={ScanLine} label="X-Ray" total={xrayRecs.length} pending={stats.pendingXrays} color="hsl(38, 70%, 48%)" />
-          <PipelineCard icon={Heart} label="Ultrasound" total={ultrasoundRecs.length} pending={stats.pendingUltrasounds} color="hsl(270, 60%, 55%)" />
-          <PipelineCard icon={Users} label="Queue" total={stats.totalPatients} pending={stats.activePatients} color="hsl(168, 80%, 30%)" pendingLabel="active" />
+          <PipelineCard icon={TestTube} label="Lab Reports" total={stats.totalLabs} pending={stats.pendingLabs} color="hsl(210, 70%, 50%)" />
+          <PipelineCard icon={ScanLine} label="X-Ray" total={xrayRecs.length} pending={stats.pendingXrays} color="hsl(195, 65%, 45%)" />
+          <PipelineCard icon={Heart} label="Ultrasound" total={ultrasoundRecs.length} pending={stats.pendingUltrasounds} color="hsl(220, 55%, 55%)" />
+          <PipelineCard icon={Users} label="Queue" total={stats.totalPatients} pending={stats.activePatients} color="hsl(168, 65%, 38%)" pendingLabel="active" />
         </div>
       </div>
 
