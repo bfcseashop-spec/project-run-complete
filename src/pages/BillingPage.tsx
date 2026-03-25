@@ -276,24 +276,25 @@ const BillingPage = () => {
   const handleDelete = () => { if (deleteRecord) { removeBillingRecord(deleteRecord.id); toast.success(`Invoice ${deleteRecord.id} deleted`); setDeleteRecord(null); } };
   const printInvoiceWindow = (record: BillingRecord) => {
     const s = appSettings;
+    const theme = getInvoiceTheme(s.invoiceTheme || "modern-teal");
     const p = patients.find((pt) => pt.name === record.patient);
     const d = doctors.find((doc) => doc.name === record.formData?.doctor);
     const items = record.formData?.lineItems;
     const grouped = items && items.length > 0 ? groupLineItems(items) : record.service.split(" + ").map((svc) => ({ name: svc, description: "—", qty: 1, price: 0, total: 0, subItems: [] as { name: string; price: number; qty: number; total: number }[] }));
     const rows = grouped.map((item, i) => {
-      const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:13px">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b">${item.description}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:13px;font-weight:600">${item.qty}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600">${formatPrice(item.price)}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
+      const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};color:#64748b;font-size:13px">${i + 1}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};font-weight:700;font-size:13px">${item.name}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};font-size:12px;color:#64748b">${item.description}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:center;font-size:13px;font-weight:600">${item.qty}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600">${formatPrice(item.price)}</td>
+       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
       const subRows = (item.subItems || []).map((sub: any) =>
-        `<tr><td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
+        `<tr><td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
+         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
+         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
       ).join("");
       return mainRow + subRows;
     }).join("");
@@ -301,7 +302,7 @@ const BillingPage = () => {
       <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatPrice(record.amount)}</span></div>`;
     if (record.discount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(record.discount)}</span></div>`;
     if (record.tax > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax</span><span style="font-weight:500">${formatPrice(record.tax)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid #0f766e;margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:#0f766e">${formatDualPrice(record.total)}</span></div>`;
+    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid ${theme.totalBorderColor};margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:${theme.accent}">${formatDualPrice(record.total)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(record.paid)}</span></div>`;
     totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${record.due > 0 ? '#ef4444' : '#16a34a'}">${formatPrice(record.due)}</span></div></div>`;
     const barcodeStr = barcodeSVG(record.id, 220, 50);
@@ -312,27 +313,27 @@ const BillingPage = () => {
 <div class="page">
   <img src="${clinicLogo}" class="watermark" alt="" />
   <div class="content">
-    <div style="background:linear-gradient(135deg,#0f766e,#0369a1);border-radius:12px;padding:20px 28px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+    <div style="background:${theme.headerGradient};border-radius:12px;padding:20px 28px;color:${theme.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
       <div><h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1><p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p><p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p></div>
       <div style="text-align:right"><p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Invoice</p><p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${record.id}</p></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#16a34a;font-weight:600;margin-bottom:6px">Patient Info</p>
+      <div style="background:${theme.patientBg};border:1px solid ${theme.patientBorder};border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${theme.patientLabel};font-weight:600;margin-bottom:6px">Patient Info</p>
         <p><strong>${record.patient}</strong></p>
         ${p?.age || p?.gender ? `<p style="color:#64748b;margin-top:2px">${p.age ? `Age: ${p.age}` : ''}${p.age && p.gender ? ' · ' : ''}${p.gender ? `Gender: ${p.gender}` : ''}</p>` : ''}
         ${p?.phone ? `<p style="color:#64748b;margin-top:2px">📞 ${p.phone}</p>` : ''}
       </div>
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#2563eb;font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
+      <div style="background:${theme.doctorBg};border:1px solid ${theme.doctorBorder};border-radius:8px;padding:12px 16px">
+        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${theme.doctorLabel};font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
         ${record.formData?.doctor ? `<p><strong>${record.formData.doctor}</strong></p>` : ''}
         ${d?.qualification ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${d.qualification}</p>` : ''}
         <p style="margin-top:4px">Date: <strong>${record.date}</strong></p>
         <p style="margin-top:2px">Payment: <strong>${record.method}</strong></p>
       </div>
     </div>
-    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:4px">
-      <thead><tr style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5)">
+    <table style="width:100%;border-collapse:collapse;border:1px solid ${theme.tableBorder};border-radius:8px;overflow:hidden;margin-bottom:4px">
+      <thead><tr style="background:${theme.tableHeaderGradient}">
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
         <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
@@ -347,8 +348,8 @@ const BillingPage = () => {
       <div style="display:inline-block">${barcodeStr}</div>
       <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${record.id}</p>
     </div>
-    <div style="text-align:center;margin-top:20px;padding:12px 0;background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:8px">
-      <p style="font-size:11px;color:#0f766e;font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
+    <div style="text-align:center;margin-top:20px;padding:12px 0;background:${theme.footerBg};border-radius:8px">
+      <p style="font-size:11px;color:${theme.footerText};font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
       <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
     </div>
   </div>
