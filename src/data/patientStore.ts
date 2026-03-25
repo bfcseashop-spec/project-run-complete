@@ -35,6 +35,9 @@ export async function addPatient(patient: OPDPatient) {
     blood_type: patient.bloodType || null, patient_type: patient.patientType || null,
     phone: patient.phone || null, medical_history: patient.medicalHistory || null,
     photo: patient.photo || null,
+    spo2: patient.spo2 || null, weight: patient.weight || null,
+    bp: patient.bp || null, rr: patient.rr || null,
+    hr: patient.hr || null, temp: patient.temp || null,
   });
   if (error) throw error;
   _patients = [patient, ..._patients]; notify();
