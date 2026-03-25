@@ -144,8 +144,7 @@ const PrescriptionPage = () => {
       if (data.tests.length > 0) {
         const patient = getPatients().find((p) => p.name === data.patient);
         const patientId = patient?.id || "";
-        const genderMap: Record<string, string> = { Female: "F", Male: "M", Other: "O" };
-        const gender: "Female" | "Male" | "Other" = genderMap[data.gender] === "F" ? "Female" : genderMap[data.gender] === "O" ? "Other" : "Male";
+        const gender: "Female" | "Male" | "Other" = data.gender === "Female" ? "Female" : data.gender === "Other" ? "Other" : "Male";
         const today = new Date().toISOString().split("T")[0];
 
         const sampleRecords: Omit<import("@/data/sampleRecords").SampleRecord, "id">[] = data.tests.map((test) => ({
