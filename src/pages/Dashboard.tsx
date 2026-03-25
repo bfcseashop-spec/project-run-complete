@@ -196,16 +196,18 @@ const Dashboard = () => {
       </div>
 
       {/* ── Bento Grid: Main Financial ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3">
-        {/* Total Revenue - Large */}
-        <div className="col-span-2 md:col-span-2 lg:col-span-3 bg-foreground text-primary-foreground rounded-2xl p-5 relative overflow-hidden group">
-          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-primary/20 group-hover:scale-110 transition-transform duration-500" />
-          <div className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-            <CircleDollarSign className="w-5 h-5 text-primary" />
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-4">
+        {/* Total Revenue - Dark Slate */}
+        <div className="col-span-2 md:col-span-2 lg:col-span-3 rounded-2xl p-5 sm:p-6 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(215, 28%, 17%), hsl(220, 25%, 22%))" }}>
+          <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-20 group-hover:scale-125 transition-transform duration-700"
+            style={{ background: "radial-gradient(circle, hsl(168, 65%, 45%) 0%, transparent 70%)" }} />
+          <div className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.2)" }}>
+            <CircleDollarSign className="w-5 h-5" style={{ color: "hsl(168, 65%, 55%)" }} />
           </div>
-          <p className="text-xs font-medium opacity-60 uppercase tracking-widest mb-1">Total Revenue</p>
-          <p className="text-2xl sm:text-3xl font-black font-body tracking-tight relative z-10">{formatPrice(stats.totalBills)}</p>
-          <p className="text-xs opacity-50 mt-1">{stats.invoiceCount} invoices</p>
+          <p className="text-xs font-medium uppercase tracking-widest mb-1.5" style={{ color: "hsl(210, 20%, 65%)" }}>Total Revenue</p>
+          <p className="text-2xl sm:text-3xl font-black font-body tracking-tight relative z-10 text-white">{formatPrice(stats.totalBills)}</p>
+          <p className="text-xs mt-1.5" style={{ color: "hsl(210, 15%, 55%)" }}>{stats.invoiceCount} invoices</p>
         </div>
 
         {/* Cash */}
