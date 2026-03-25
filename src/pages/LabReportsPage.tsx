@@ -213,14 +213,6 @@ const LabReportsPage = () => {
     { key: "doctor", header: "Doctor" },
     { key: "date", header: "Date" },
     {
-      key: "result", header: "Result",
-      render: (r: LabReport) => r.result ? (
-        <span className="font-medium text-card-foreground">{r.result}</span>
-      ) : (
-        <span className="text-muted-foreground italic">Awaiting</span>
-      ),
-    },
-    {
       key: "processingTime", header: "Processing Time",
       render: (r: LabReport) => {
         if (!r.date) return <span className="text-muted-foreground">—</span>;
