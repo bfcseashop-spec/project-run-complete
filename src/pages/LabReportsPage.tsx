@@ -482,7 +482,7 @@ const LabReportsPage = () => {
                   ...form,
                   testName: v,
                   normalRange: testInfo ? String(testInfo.price) : form.normalRange,
-                  sampleType: testInfo?.sample_type || form.sampleType,
+                  sampleType: testInfo?.sampleType || form.sampleType,
                   category: (testInfo?.category as any) || form.category,
                 });
               }}>
