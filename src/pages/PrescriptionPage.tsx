@@ -148,11 +148,11 @@ const PrescriptionPage = () => {
         const gender: "Female" | "Male" | "Other" = genderMap[data.gender] === "F" ? "Female" : genderMap[data.gender] === "O" ? "Other" : "Male";
         const today = new Date().toISOString().split("T")[0];
 
-        const sampleRecords = data.tests.map((test) => ({
+        const sampleRecords: Omit<import("@/data/sampleRecords").SampleRecord, "id">[] = data.tests.map((test) => ({
           patient: data.patient,
           patientId,
           age: parseInt(data.age) || 0,
-          gender: gender === "F" ? "Female" : gender === "M" ? "Male" : "Other",
+          gender,
           testName: test.name,
           doctor: data.doctor,
           collectionDate: today,
