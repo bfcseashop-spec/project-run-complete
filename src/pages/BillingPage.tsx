@@ -135,7 +135,8 @@ const BillingPage = () => {
             const inj = allInj.find(i => i.name === li.name);
             if (inj && inj.stock >= li.qty) {
               const newStock = inj.stock - li.qty;
-              await updateInjection(inj.id, { stock: newStock, status: computeInjectionStatus(newStock) });
+              const newSoldOut = (inj.sold_out || 0) + li.qty;
+              await updateInjection(inj.id, { stock: newStock, sold_out: newSoldOut, status: computeInjectionStatus(newStock) });
             }
           }
         }

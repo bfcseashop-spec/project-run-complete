@@ -205,7 +205,11 @@ const RefundPage = () => {
     for (const item of selectedItems) {
       if (item.type === "INJ") {
         const inj = injections.find((i) => i.name === item.name);
-        if (inj) updateInjection(inj.id, { stock: inj.stock + item.refundQty, status: computeInjectionStatus(inj.stock + item.refundQty) });
+        if (inj) {
+          const newStock = inj.stock + item.refundQty;
+          const newSoldOut = Math.max(0, (inj.sold_out || 0) - item.refundQty);
+          updateInjection(inj.id, { stock: newStock, sold_out: newSoldOut, status: computeInjectionStatus(newStock) });
+        }
       } else if (item.type === "MED") {
         await restockMedicine(item.name, item.refundQty);
       }
