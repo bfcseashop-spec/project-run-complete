@@ -28,7 +28,8 @@ import {
   Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
-import { type SampleRecord, sampleTypes, storageTempOptions, collectors } from "@/data/sampleRecords";
+import { type SampleRecord, sampleTypes, storageTempOptions } from "@/data/sampleRecords";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
@@ -71,6 +72,7 @@ const SampleCollectionPage = () => {
   const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const { activeTests } = useTestNameStore();
   const allTestNames = useMemo(() => {
     const storeNames = activeTests.map(t => t.name);
@@ -488,11 +490,11 @@ const SampleCollectionPage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Collector</Label>
+                <Label>Lab Technician</Label>
                 <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
                   <SelectTrigger><SelectValue placeholder="Assign" /></SelectTrigger>
                   <SelectContent>
-                    {collectors.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {technicianList.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
