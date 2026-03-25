@@ -283,23 +283,45 @@ const LabReportsPage = () => {
     {
       key: "actions", header: "Actions",
       render: (r: LabReport) => (
-        <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-info/10" title="View Report" onClick={() => openView(r)}>
-            <Eye className="w-3.5 h-3.5 text-info" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(r)}>
-            <Pencil className="w-3.5 h-3.5 text-warning" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printLabReport(r)}>
-            <Printer className="w-3.5 h-3.5 text-primary" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-accent/50" title="Barcode" onClick={() => printBarcode(r.id, r.patient)}>
-            <BarcodeIcon className="w-3.5 h-3.5 text-accent-foreground" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-destructive/10" title="Delete" onClick={() => setDeleteReport(r)}>
-            <Trash2 className="w-3.5 h-3.5 text-destructive" />
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => openView(r)}>
+              <Eye className="w-3.5 h-3.5 mr-2 text-info" /> View
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openEdit(r)}>
+              <Pencil className="w-3.5 h-3.5 mr-2 text-warning" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setUploadReport(r)}>
+              <Upload className="w-3.5 h-3.5 mr-2 text-primary" /> Upload Report
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setInputResultsReport(r)}>
+              <ClipboardEdit className="w-3.5 h-3.5 mr-2 text-emerald-600" /> Input Test Results
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => printBarcode(r.id, r.patient)}>
+              <BarcodeIcon className="w-3.5 h-3.5 mr-2" /> Barcode
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => printSampleBarcodes({ id: r.id, patient: r.patient, patientId: r.patientId, testName: r.testName, sampleType: r.sampleType, date: r.date })}>
+              <Tag className="w-3.5 h-3.5 mr-2" /> Sample Barcodes
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => printCompactLabReport(r)}>
+              <FileDown className="w-3.5 h-3.5 mr-2 text-indigo-600" /> Print (Compact)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => printLabReport(r)}>
+              <Printer className="w-3.5 h-3.5 mr-2 text-indigo-600" /> Print (Full Size)
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setDeleteReport(r)} className="text-destructive focus:text-destructive">
+              <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
