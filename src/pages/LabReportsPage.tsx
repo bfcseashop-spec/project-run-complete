@@ -646,16 +646,16 @@ const LabReportsPage = () => {
               Upload a scanned report or document for {uploadReport?.patient}
             </DialogDescription>
           </DialogHeader>
-          {uploadReport && (
+            {uploadReport && (
             <UploadReportForm
               report={uploadReport}
-              onDone={(attachment) => {
+              onDone={(attachments) => {
                 const existing = uploadReport.attachments || [];
                 updateLabReport(uploadReport.id, {
-                  attachments: [...existing, attachment],
+                  attachments: [...existing, ...attachments],
                   status: uploadReport.status === "pending" ? "in-progress" : uploadReport.status,
                 });
-                toast.success("Report file uploaded successfully");
+                toast.success(`${attachments.length} file${attachments.length > 1 ? "s" : ""} uploaded successfully`);
                 setUploadReport(null);
               }}
               onCancel={() => setUploadReport(null)}
@@ -859,42 +859,48 @@ function detectFlag(result: string, refRange: string): "High" | "Low" | undefine
 
 function UploadReportForm({ report, onDone, onCancel }: {
   report: LabReport;
-  onDone: (attachment: { name: string; url: string; type: string; uploadedAt: string }) => void;
+  onDone: (attachments: { name: string; url: string; type: string; uploadedAt: string }[]) => void;
   onCancel: () => void;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<{ name: string; url: string | null }[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) {
-      setFile(f);
+    const selected = Array.from(e.target.files || []);
+    if (selected.length === 0) return;
+    setFiles((prev) => [...prev, ...selected]);
+    selected.forEach((f) => {
       if (f.type.startsWith("image/")) {
         const reader = new FileReader();
-        reader.onload = () => setPreview(reader.result as string);
+        reader.onload = () => setPreviews((prev) => [...prev, { name: f.name, url: reader.result as string }]);
         reader.readAsDataURL(f);
       } else {
-        setPreview(null);
+        setPreviews((prev) => [...prev, { name: f.name, url: null }]);
       }
-    }
+    });
+    e.target.value = "";
+  };
+
+  const removeFile = (idx: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+    setPreviews((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "file";
-      const path = `${report.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("lab-reports").upload(path, file);
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from("lab-reports").getPublicUrl(path);
-      onDone({
-        name: file.name,
-        url: urlData.publicUrl,
-        type: file.type,
-        uploadedAt: new Date().toISOString(),
-      });
+      const results: { name: string; url: string; type: string; uploadedAt: string }[] = [];
+      for (const file of files) {
+        const ext = file.name.split(".").pop() || "file";
+        const path = `${report.id}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        const { error } = await supabase.storage.from("lab-reports").upload(path, file);
+        if (error) throw error;
+        const { data: urlData } = supabase.storage.from("lab-reports").getPublicUrl(path);
+        results.push({ name: file.name, url: urlData.publicUrl, type: file.type, uploadedAt: new Date().toISOString() });
+      }
+      onDone(results);
     } catch {
       toast.error("Upload failed");
     } finally {
@@ -906,20 +912,34 @@ function UploadReportForm({ report, onDone, onCancel }: {
     <div className="space-y-4">
       <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
         <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground mb-3">Select a report file (PDF, Image)</p>
-        <Input type="file" accept="image/*,.pdf" onChange={handleFileChange} className="max-w-xs mx-auto" />
+        <p className="text-sm text-muted-foreground mb-3">Select report files (PDF, Image) — multiple allowed</p>
+        <Input type="file" accept="image/*,.pdf" multiple onChange={handleFileChange} className="max-w-xs mx-auto" />
       </div>
-      {preview && (
-        <div className="border border-border rounded-lg overflow-hidden">
-          <img src={preview} alt="Preview" className="max-h-48 mx-auto object-contain" />
+      {previews.length > 0 && (
+        <div className="space-y-2 max-h-52 overflow-y-auto">
+          {previews.map((p, i) => (
+            <div key={i} className="flex items-center gap-2 border border-border rounded-lg p-2">
+              {p.url ? (
+                <img src={p.url} alt={p.name} className="h-16 w-16 object-cover rounded flex-shrink-0" />
+              ) : (
+                <div className="h-16 w-16 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                  <Paperclip className="w-5 h-5 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{p.name}</p>
+                <p className="text-[10px] text-muted-foreground">{(files[i]?.size / 1024).toFixed(1)} KB</p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 flex-shrink-0" onClick={() => removeFile(i)}>
+                <X className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          ))}
         </div>
       )}
-      {file && (
-        <p className="text-xs text-muted-foreground text-center">
-          Selected: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
-        </p>
+      {files.length > 0 && (
+        <p className="text-xs text-muted-foreground text-center">{files.length} file{files.length > 1 ? "s" : ""} selected</p>
       )}
-      {/* Show existing attachments */}
       {(report.attachments || []).length > 0 && (
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">Existing Files</Label>
@@ -934,8 +954,8 @@ function UploadReportForm({ report, onDone, onCancel }: {
       )}
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
-        <Button size="sm" disabled={!file || uploading} onClick={handleUpload}>
-          <Upload className="w-3.5 h-3.5 mr-1.5" /> {uploading ? "Uploading..." : "Upload"}
+        <Button size="sm" disabled={files.length === 0 || uploading} onClick={handleUpload}>
+          <Upload className="w-3.5 h-3.5 mr-1.5" /> {uploading ? "Uploading..." : `Upload${files.length > 1 ? ` (${files.length})` : ""}`}
         </Button>
       </div>
     </div>
