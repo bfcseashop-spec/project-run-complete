@@ -320,6 +320,7 @@ export type Database = {
           name: string
           price: number
           purchase_price: number | null
+          quantity: number | null
           route: string
           status: string
           stock: number
@@ -334,6 +335,7 @@ export type Database = {
           name?: string
           price?: number
           purchase_price?: number | null
+          quantity?: number | null
           route?: string
           status?: string
           stock?: number
@@ -348,6 +350,7 @@ export type Database = {
           name?: string
           price?: number
           purchase_price?: number | null
+          quantity?: number | null
           route?: string
           status?: string
           stock?: number
