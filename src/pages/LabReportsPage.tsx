@@ -788,7 +788,15 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     setSections(newSections);
   };
 
-  const isPositiveResult = (result: string) => {
+  const removeInv = (sIdx: number, iIdx: number) => {
+    const newSections = [...sections];
+    newSections[sIdx] = {
+      ...newSections[sIdx],
+      investigations: newSections[sIdx].investigations.filter((_, i) => i !== iIdx),
+    };
+    setSections(newSections);
+  };
+
     return result.toLowerCase() === "positive";
   };
 
