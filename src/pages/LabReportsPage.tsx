@@ -885,35 +885,57 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     setSections(newSections);
   };
 
+  const isPositiveResult = (result: string) => {
+    return result.toLowerCase() === "positive";
+  };
+
+  const isResultFlagged = (inv: ReportInvestigation) => {
+    return inv.flag === "High" || inv.flag === "Low" || isPositiveResult(inv.result);
+  };
+
   return (
     <div className="space-y-0">
       {/* Lab Technologist */}
-      <div className="px-6 pb-4 space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Lab Technologist</Label>
+      <div className="px-6 pb-5 space-y-1.5">
+        <Label className="text-xs text-muted-foreground font-medium">Lab Technologist</Label>
+        <Select value={technician} onValueChange={setTechnician}>
+          <SelectTrigger className="h-10">
+            <SelectValue placeholder="Select lab technologist" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={technician || "__custom__"}>
+              {technician || "Select technologist"}
+            </SelectItem>
+            <SelectItem value="Md Ekbal Hossain (Lab Technologist)">Md Ekbal Hossain (Lab Technologist)</SelectItem>
+            <SelectItem value="Dr. Shaheen Akter (Lab Technologist)">Dr. Shaheen Akter (Lab Technologist)</SelectItem>
+            <SelectItem value="Farhan Rahman (Lab Technologist)">Farhan Rahman (Lab Technologist)</SelectItem>
+          </SelectContent>
+        </Select>
         <Input
           value={technician}
           onChange={e => setTechnician(e.target.value)}
-          placeholder="Enter technologist name"
-          className="h-9"
+          placeholder="Or type technologist name manually"
+          className="h-9 text-sm mt-1"
         />
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-muted/60 border-y border-border">
-        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
-        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
+      <div className="grid grid-cols-12 gap-0 px-6 py-3 bg-muted/50 border-y border-border">
+        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
+        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
         <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
-        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
+        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider leading-tight">Normal/Reference<br/>Ranges</div>
       </div>
 
       {/* Sections & Investigations */}
-      <div className="max-h-[50vh] overflow-y-auto">
+      <div className="max-h-[55vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
             {/* Section Header */}
-            <div className="px-6 py-2 bg-primary/5 border-b border-border">
+            <div className="px-6 py-2.5 border-b border-border">
               <Input
-                className="h-6 bg-transparent border-0 px-0 font-bold text-xs uppercase tracking-widest text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/50 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
+                className="h-6 bg-transparent border-0 px-1.5 py-0.5 font-bold text-xs uppercase tracking-widest text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/50 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal w-auto inline-block"
+                style={{ background: "hsl(var(--primary) / 0.08)", borderRadius: "4px", paddingRight: "8px" }}
                 value={sec.title}
                 onChange={e => {
                   const newSections = [...sections];
@@ -926,10 +948,10 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
             {/* Investigation Rows */}
             {sec.investigations.map((inv, iIdx) => {
-              const isOutOfRange = inv.flag === "High" || inv.flag === "Low";
+              const flagged = isResultFlagged(inv);
               return (
-                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-2.5 border-b border-border/40 items-center hover:bg-muted/20 transition-colors">
-                  <div className="col-span-4 pr-3">
+                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3 border-b border-border/30 items-center">
+                  <div className="col-span-3 pr-2">
                     <Input
                       className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium text-card-foreground"
                       value={inv.name}
@@ -937,41 +959,41 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="e.g. Hemoglobin"
                     />
                   </div>
-                  <div className="col-span-3 pr-3">
+                  <div className="col-span-4 pr-4">
                     <Input
-                      className={`h-8 text-sm font-semibold rounded-md ${
-                        isOutOfRange
-                          ? "border-destructive/50 bg-destructive/5 text-destructive"
-                          : "border-border"
+                      className={`h-9 text-sm font-semibold rounded-md ${
+                        flagged
+                          ? "border-2 border-destructive text-destructive bg-destructive/5"
+                          : "border border-border"
                       }`}
                       value={inv.result}
                       onChange={e => updateInv(sIdx, iIdx, "result", e.target.value)}
                       placeholder="Enter result"
                     />
                   </div>
-                  <div className="col-span-2 pr-3">
-                    <span className="text-xs text-muted-foreground">
-                      {inv.unit || "—"}
-                    </span>
+                  <div className="col-span-2 pr-2">
                     <Input
-                      className="h-6 text-xs border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground sr-only"
+                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
                       value={inv.unit}
                       onChange={e => updateInv(sIdx, iIdx, "unit", e.target.value)}
-                      placeholder="Unit"
+                      placeholder="—"
                     />
                   </div>
                   <div className="col-span-3">
-                    <span className="text-xs text-muted-foreground">
-                      {inv.referenceValue ? `(${inv.referenceValue})` : "—"}
-                    </span>
+                    <Input
+                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
+                      value={inv.referenceValue}
+                      onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)}
+                      placeholder="—"
+                    />
                   </div>
                 </div>
               );
             })}
 
             {/* Add Row */}
-            <div className="px-6 py-1.5 border-b border-border/30">
-              <Button variant="ghost" size="sm" className="text-xs h-6 text-primary" onClick={() => addInv(sIdx)}>
+            <div className="px-6 py-1.5 border-b border-border/20">
+              <Button variant="ghost" size="sm" className="text-xs h-6 text-primary hover:text-primary" onClick={() => addInv(sIdx)}>
                 <Plus className="w-3 h-3 mr-1" /> Add Parameter
               </Button>
             </div>
@@ -979,7 +1001,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
         ))}
 
         {/* Add Section */}
-        <div className="px-6 py-2">
+        <div className="px-6 py-3">
           <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => {
             setSections([...sections, { title: "", investigations: [{ ...emptyInvestigation }] }]);
           }}>
@@ -990,7 +1012,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
       {/* Remarks */}
       <div className="px-6 pt-4 pb-2 space-y-1.5 border-t border-border">
-        <Label className="text-xs text-muted-foreground">Remarks</Label>
+        <Label className="text-xs text-muted-foreground font-medium">Remarks</Label>
         <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} rows={2} placeholder="Clinical notes, observations..." />
       </div>
 
