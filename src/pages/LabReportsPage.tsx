@@ -838,12 +838,6 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
-            {/* Section Title */}
-            {sec.title && (
-              <div className="px-6 py-2 bg-primary/5 border-b border-primary/20">
-                <span className="text-xs font-extrabold text-primary uppercase tracking-wider">{sec.title}</span>
-              </div>
-            )}
 
             {/* Investigation Rows */}
             {sec.investigations.map((inv, iIdx) => {
