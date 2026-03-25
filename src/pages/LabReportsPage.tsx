@@ -788,7 +788,15 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     setSections(newSections);
   };
 
-  const isPositiveResult = (result: string) => {
+  const removeInv = (sIdx: number, iIdx: number) => {
+    const newSections = [...sections];
+    newSections[sIdx] = {
+      ...newSections[sIdx],
+      investigations: newSections[sIdx].investigations.filter((_, i) => i !== iIdx),
+    };
+    setSections(newSections);
+  };
+
     return result.toLowerCase() === "positive";
   };
 
@@ -820,8 +828,9 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border bg-muted/40">
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
-        <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
+        <div className="col-span-1 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
         <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
+        <div className="col-span-1"></div>
       </div>
 
       {/* Sections & Investigations */}
@@ -832,9 +841,9 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             {sec.investigations.map((inv, iIdx) => {
               const flagged = isResultFlagged(inv);
               return (
-                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-start">
+                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-center">
                   {/* Parameter */}
-                  <div className="col-span-3 pr-2 pt-0.5">
+                  <div className="col-span-3 pr-2">
                     <Select value={inv.name} onValueChange={(v) => updateInv(sIdx, iIdx, "name", v)}>
                       <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-card-foreground">
                         <SelectValue placeholder="Select parameter" />
@@ -846,8 +855,8 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       </SelectContent>
                     </Select>
                   </div>
-                  {/* Result — editable */}
-                  <div className="col-span-3 pr-4 pt-0.5">
+                  {/* Result */}
+                  <div className="col-span-3 pr-4">
                     <Input
                       className={`h-9 text-sm font-semibold rounded-md px-3 ${
                         flagged
@@ -860,11 +869,11 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                     />
                   </div>
                   {/* Unit */}
-                  <div className="col-span-2 pr-2 pt-2">
+                  <div className="col-span-1 pr-2">
                     <span className="text-sm text-muted-foreground">%</span>
                   </div>
-                  {/* Normal/Reference Range — editable, multiline support */}
-                  <div className="col-span-4 pt-0.5">
+                  {/* Normal/Reference Range */}
+                  <div className="col-span-4">
                     <Textarea
                       className="min-h-[36px] text-sm border-0 bg-transparent px-0 py-1.5 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
                       value={inv.referenceValue}
@@ -872,6 +881,12 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="—"
                       rows={1}
                     />
+                  </div>
+                  {/* Delete */}
+                  <div className="col-span-1 flex justify-end">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeInv(sIdx, iIdx)}>
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
                   </div>
                 </div>
               );
