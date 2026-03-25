@@ -296,31 +296,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── Row 3: Charts ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Sales by Category */}
-        <div className="bg-card rounded-xl border border-border/40 p-5">
-          <h3 className="text-base font-bold text-card-foreground font-heading mb-4">Sales by Category</h3>
-          {salesByCategory.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={salesByCategory} barSize={28}>
-                <defs>
-                  <linearGradient id="catBarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(260, 60%, 55%)" stopOpacity={1} />
-                    <stop offset="100%" stopColor="hsl(260, 60%, 55%)" stopOpacity={0.4} />
-                  </linearGradient>
-                </defs>
-                <Bar dataKey="amount" fill="url(#catBarGrad)" radius={[6, 6, 0, 0]} />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", fontWeight: 600 }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: "12px", fontWeight: 700 }}
-                  formatter={(value: number) => [formatPrice(value), "Amount"]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center text-sm text-muted-foreground">No sales data</div>
-          )}
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Sales by Payment */}
         <div className="bg-card rounded-xl border border-border/40 p-5">
