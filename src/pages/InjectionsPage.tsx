@@ -159,7 +159,8 @@ const InjectionsPage = () => {
           id: nextId, name: String(row.name || ""), category: String(row.category || ""),
           strength: String(row.strength || ""), route: String(row.route || ""),
           stock: Number(row.stock) || 0, unit: String(row.unit || ""),
-          price: Number(row.price) || 0, status: computeInjectionStatus(Number(row.stock) || 0),
+          price: Number(row.price) || 0, purchase_price: Number(row.purchase_price) || 0,
+          image: String(row.image || ""), status: computeInjectionStatus(Number(row.stock) || 0),
         });
       });
     }
