@@ -79,6 +79,16 @@ function doctorInfo(d: InvoiceData) {
   return s;
 }
 
+function logoImg(d: InvoiceData, size: number = 48, style: string = "") {
+  if (!d.clinicLogo) return "";
+  return `<img src="${d.clinicLogo}" alt="Logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:6px;${style}" />`;
+}
+
+function watermarkImg(d: InvoiceData) {
+  if (!d.clinicLogo) return "";
+  return `<img src="${d.clinicLogo}" class="watermark" alt="" />`;
+}
+
 function totalsBlock(d: InvoiceData, accentColor: string, borderColor: string) {
   let h = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
     <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${d.formatPrice(d.subtotal)}</span></div>`;
@@ -130,10 +140,11 @@ function classicLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Header: Top line + centered clinic name -->
     <div style="border-top:4px double ${t.accent};border-bottom:2px solid ${t.accent};padding:16px 0;margin-bottom:20px;text-align:center">
+      ${d.clinicLogo ? `<div style="margin-bottom:8px">${logoImg(d, 52)}</div>` : ''}
       <h1 style="font-size:24px;font-weight:800;color:${t.accent};text-transform:uppercase;letter-spacing:3px">${d.clinicName}</h1>
       <p style="font-size:11px;color:${t.accentLight};margin-top:2px;letter-spacing:1px">${d.clinicTagline}</p>
       <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
@@ -208,13 +219,16 @@ function modernTealLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <div style="background:${t.headerGradient};border-radius:12px;padding:20px 28px;color:${t.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
-        <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
-        <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        ${logoImg(d, 44, "border-radius:8px;border:2px solid rgba(255,255,255,0.2)")}
+        <div>
+          <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
+          <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
+          <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+        </div>
       </div>
       <div style="text-align:right">
         <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">${d.invoiceLabel}</p>
@@ -278,10 +292,11 @@ function royalBlueLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Elegant header with centered crest-style -->
     <div style="text-align:center;padding:24px 0 18px;border-bottom:3px double ${t.accent};margin-bottom:20px">
+      ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:50%;border:3px solid " + t.accentBorder)}</div>` : ''}
       <div style="display:inline-block;background:${t.headerGradient};color:${t.headerText};padding:10px 40px;border-radius:4px;margin-bottom:10px">
         <h1 style="font-size:22px;font-weight:800;font-family:Georgia,serif;letter-spacing:2px;margin:0">${d.clinicName}</h1>
       </div>
@@ -357,14 +372,17 @@ function minimalGrayLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page" style="padding:48px 56px">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Minimal header — just text, no background -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
-      <div>
-        <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
-        <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
-        <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        ${logoImg(d, 40, "border-radius:4px;opacity:0.7")}
+        <div>
+          <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
+          <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
+          <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
+        </div>
       </div>
       <div style="text-align:right">
         <p style="font-size:32px;font-weight:200;color:#e2e8f0;margin:0;line-height:1">${d.invoiceLabel.toUpperCase()}</p>
@@ -433,17 +451,20 @@ function warmCoralLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page" style="padding:0">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div style="display:flex;min-height:100vh">
     <!-- Left accent sidebar -->
     <div style="width:8px;background:${t.headerGradient};flex-shrink:0"></div>
     <div class="content" style="flex:1;padding:32px 36px">
       <!-- Header with bold colored banner -->
       <div style="background:${t.headerGradient};border-radius:10px;padding:22px 28px;color:${t.headerText};margin-bottom:22px;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1 style="font-size:24px;font-weight:900;margin:0">${d.clinicName}</h1>
-          <p style="font-size:12px;opacity:0.85;margin-top:3px">${d.clinicTagline}</p>
-          <p style="font-size:10px;opacity:0.65;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+        <div style="display:flex;align-items:center;gap:14px">
+          ${logoImg(d, 46, "border-radius:8px;border:2px solid rgba(255,255,255,0.25)")}
+          <div>
+            <h1 style="font-size:24px;font-weight:900;margin:0">${d.clinicName}</h1>
+            <p style="font-size:12px;opacity:0.85;margin-top:3px">${d.clinicTagline}</p>
+            <p style="font-size:10px;opacity:0.65;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+          </div>
         </div>
         <div style="text-align:right;background:rgba(255,255,255,0.15);padding:10px 18px;border-radius:8px">
           <p style="font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:1.5px">${d.invoiceLabel}</p>

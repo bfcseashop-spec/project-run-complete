@@ -537,7 +537,7 @@ const InvoiceThemeTab = () => {
       clinicPhone: s.clinicPhone || "000 12345 6149",
       clinicWebsite: s.clinicWebsite || "www.clinic.com",
       clinicEmail: s.clinicEmail || "info@primeclinic.com",
-      clinicLogo: "",
+      clinicLogo: s.clinicLogo || "",
       invoiceId: `${s.invoicePrefix || "BL"}-01`,
       invoiceLabel: "Invoice",
       dateTimeStr: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit" }),

@@ -283,7 +283,7 @@ const BillingPage = () => {
     const html = generateInvoiceHtml(s.invoiceTheme || "modern-teal", {
       clinicName: s.clinicName, clinicTagline: s.clinicTagline, clinicAddress: s.clinicAddress,
       clinicPhone: s.clinicPhone, clinicWebsite: s.clinicWebsite, clinicEmail: s.clinicEmail,
-      clinicLogo, invoiceId: record.id, invoiceLabel: "Invoice", dateTimeStr: record.date,
+      clinicLogo: s.clinicLogo || clinicLogo, invoiceId: record.id, invoiceLabel: "Invoice", dateTimeStr: record.date,
       patient: record.patient, patientAge: p?.age, patientGender: p?.gender, patientPhone: p?.phone,
       doctor: record.formData?.doctor, doctorDegree: d?.qualification,
       paymentMethod: record.method, barcodeStr: barcodeSVG(record.id, 220, 50),
