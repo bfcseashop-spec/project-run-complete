@@ -273,7 +273,7 @@ const NewInvoicePage = () => {
     const html = generateInvoiceHtml(s.invoiceTheme || "modern-teal", {
       clinicName: s.clinicName, clinicTagline: s.clinicTagline, clinicAddress: s.clinicAddress,
       clinicPhone: s.clinicPhone, clinicWebsite: s.clinicWebsite, clinicEmail: s.clinicEmail,
-      clinicLogo, invoiceId, invoiceLabel: "Draft Invoice", dateTimeStr, patient,
+      clinicLogo: s.clinicLogo || clinicLogo, invoiceId, invoiceLabel: "Draft Invoice", dateTimeStr, patient,
       patientAge, patientGender, patientPhone, doctor, doctorDegree,
       paymentMethod: payMethodStr, barcodeStr: barcodeSVG(invoiceId, 220, 50),
       rows: previewItems as InvoiceRow[], subtotal, discountAmount, taxRate, taxAmount,
