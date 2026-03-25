@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2, Check, Search } from "lucide-react";
-import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
+import { sampleTypes, priorityLevels, type LabTest } from "@/data/labTests";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
+import ManageTechniciansDialog from "@/components/ManageTechniciansDialog";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { toast } from "sonner";
