@@ -322,6 +322,7 @@ export type Database = {
           purchase_price: number | null
           quantity: number | null
           route: string
+          sold_out: number | null
           status: string
           stock: number
           strength: string
@@ -337,6 +338,7 @@ export type Database = {
           purchase_price?: number | null
           quantity?: number | null
           route?: string
+          sold_out?: number | null
           status?: string
           stock?: number
           strength?: string
@@ -352,6 +354,7 @@ export type Database = {
           purchase_price?: number | null
           quantity?: number | null
           route?: string
+          sold_out?: number | null
           status?: string
           stock?: number
           strength?: string

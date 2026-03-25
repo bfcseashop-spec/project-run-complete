@@ -1,0 +1,1 @@
+ALTER TABLE public.injections ADD COLUMN IF NOT EXISTS sold_out integer DEFAULT 0;
