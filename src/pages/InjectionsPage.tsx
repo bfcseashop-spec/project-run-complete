@@ -114,11 +114,13 @@ const InjectionsPage = () => {
     { key: "name", header: "Injection Name" },
     { key: "purchase_price", header: "Purchase Price", render: (i: InjectionItem) => formatPrice(i.purchase_price) },
     { key: "price", header: "Sale Price", render: (i: InjectionItem) => formatPrice(i.price) },
-    { key: "stock", header: "Stock", render: (i: InjectionItem) => (
+    { key: "quantity", header: "Quantity", render: (i: InjectionItem) => <span className="font-medium text-foreground">{i.quantity}</span> },
+    { key: "stock", header: "Stock Available", render: (i: InjectionItem) => (
       <span className={`font-medium ${i.stock === 0 ? "text-destructive" : i.stock <= 20 ? "text-warning" : "text-foreground"}`}>
         {i.stock}
       </span>
     )},
+    { key: "sold_out", header: "Sold Out", render: (i: InjectionItem) => <span className="font-medium text-foreground">{i.sold_out}</span> },
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">

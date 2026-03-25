@@ -71,6 +71,8 @@ export const updateInjection = async (id: string, data: Partial<InjectionItem>) 
   if (data.price !== undefined) dbUp.price = data.price;
   if (data.purchase_price !== undefined) dbUp.purchase_price = data.purchase_price;
   if (data.image !== undefined) dbUp.image = data.image;
+  if (data.quantity !== undefined) dbUp.quantity = data.quantity;
+  if (data.sold_out !== undefined) dbUp.sold_out = data.sold_out;
   if (data.status !== undefined) dbUp.status = data.status;
   const { error } = await supabase.from("injections").update(dbUp).eq("id", id);
   if (error) throw error;
