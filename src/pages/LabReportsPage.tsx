@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import PageHeader from "@/components/PageHeader";
