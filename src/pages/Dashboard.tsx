@@ -44,14 +44,14 @@ const DONUT_COLORS = [
 ];
 
 const quickActions = [
-  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(168, 80%, 30%)" },
-  { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(200, 80%, 45%)" },
-  { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(270, 60%, 55%)" },
-  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(152, 60%, 40%)" },
-  { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(38, 92%, 50%)" },
-  { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(350, 65%, 55%)" },
-  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(200, 80%, 50%)" },
-  { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(340, 70%, 55%)" },
+  { icon: Users, label: "Register Patient", path: "/opd", color: "hsl(168, 65%, 38%)" },
+  { icon: TestTube, label: "Lab Tests", path: "/lab-tests", color: "hsl(210, 70%, 50%)" },
+  { icon: FileText, label: "Prescription", path: "/prescription", color: "hsl(220, 55%, 55%)" },
+  { icon: DollarSign, label: "New Invoice", path: "/billing/new", color: "hsl(168, 65%, 38%)" },
+  { icon: ScanLine, label: "X-Ray", path: "/x-ray", color: "hsl(195, 65%, 45%)" },
+  { icon: Syringe, label: "Injections", path: "/injections", color: "hsl(200, 60%, 48%)" },
+  { icon: Pill, label: "Medicine", path: "/medicine", color: "hsl(210, 70%, 50%)" },
+  { icon: Heart, label: "Health Services", path: "/health-services", color: "hsl(185, 60%, 42%)" },
 ];
 
 const Dashboard = () => {
