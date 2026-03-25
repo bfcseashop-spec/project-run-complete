@@ -655,7 +655,29 @@ const LabReportsPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ========== UPLOAD REPORT DIALOG ========== */}
+      {/* ========== ADD PARAMETER DIALOG ========== */}
+      <Dialog open={addParamOpen} onOpenChange={setAddParamOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Add Parameter</DialogTitle>
+            <DialogDescription>Add a new test parameter name</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Name <span className="text-destructive">*</span></Label>
+              <Input value={paramName} onChange={(e) => setParamName(e.target.value)} placeholder="Enter parameter name" />
+            </div>
+            <Button className="w-full" disabled={!paramName.trim()} onClick={async () => {
+              try {
+                await addTest({ name: paramName.trim(), category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true });
+                toast.success(`Parameter "${paramName.trim()}" added`);
+                setAddParamOpen(false);
+              } catch { toast.error("Failed to add parameter"); }
+            }}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!uploadReport} onOpenChange={(open) => !open && setUploadReport(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
