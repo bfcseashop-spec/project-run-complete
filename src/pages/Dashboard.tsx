@@ -283,8 +283,8 @@ const Dashboard = () => {
               <AreaChart data={revenueTrend}>
                 <defs>
                   <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(168, 80%, 30%)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(210, 70%, 50%)" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="hsl(210, 70%, 50%)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <Area type="monotone" dataKey="amount" stroke="hsl(168, 80%, 30%)" strokeWidth={2.5} fill="url(#revGrad)" />
