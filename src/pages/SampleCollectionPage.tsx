@@ -72,6 +72,7 @@ const SampleCollectionPage = () => {
   const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const { activeTests } = useTestNameStore();
   const allTestNames = useMemo(() => {
     const storeNames = activeTests.map(t => t.name);
