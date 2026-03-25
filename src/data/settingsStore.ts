@@ -25,6 +25,7 @@ export interface AppSettings {
   nextInvoiceNumber: string;
   taxEnabled: boolean;
   taxRate: string;
+  invoiceTheme: string;
 }
 
 const defaultSettings: AppSettings = {
