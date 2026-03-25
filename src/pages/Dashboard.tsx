@@ -287,7 +287,7 @@ const Dashboard = () => {
                     <stop offset="100%" stopColor="hsl(210, 70%, 50%)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <Area type="monotone" dataKey="amount" stroke="hsl(168, 80%, 30%)" strokeWidth={2.5} fill="url(#revGrad)" />
+                <Area type="monotone" dataKey="amount" stroke="hsl(210, 70%, 50%)" strokeWidth={2.5} fill="url(#revGrad)" />
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(215, 12%, 50%)" }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ borderRadius: "10px", border: "1px solid hsl(210, 18%, 90%)", background: "hsl(0, 0%, 100%)", fontSize: "11px", fontWeight: 700 }}
