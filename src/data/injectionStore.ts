@@ -26,6 +26,7 @@ const toItem = (r: any): InjectionItem => ({
   id: r.id, name: r.name, category: r.category, strength: r.strength,
   route: r.route, stock: r.stock, unit: r.unit, price: Number(r.price),
   purchase_price: Number(r.purchase_price) || 0, image: r.image || "",
+  quantity: Number(r.quantity) || 0, sold_out: Number(r.sold_out) || 0,
   status: r.status as InjectionItem["status"],
 });
 
