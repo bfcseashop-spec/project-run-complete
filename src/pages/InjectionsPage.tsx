@@ -52,7 +52,7 @@ const InjectionsPage = () => {
   const openNew = () => { setEditInj(null); setForm({ ...emptyForm }); setDialogOpen(true); };
   const openEdit = (inj: InjectionItem) => {
     setEditInj(inj);
-    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, status: inj.status });
+    setForm({ name: inj.name, category: inj.category, strength: inj.strength, route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price, purchase_price: inj.purchase_price, image: inj.image, status: inj.status });
     setDialogOpen(true);
   };
 
