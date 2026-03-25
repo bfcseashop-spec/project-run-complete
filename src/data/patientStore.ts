@@ -13,6 +13,9 @@ const toPatient = (r: any): OPDPatient => ({
   bloodType: r.blood_type || undefined, patientType: r.patient_type || undefined,
   phone: r.phone || undefined, medicalHistory: r.medical_history || undefined,
   photo: r.photo || undefined,
+  spo2: r.spo2 || undefined, weight: r.weight || undefined,
+  bp: r.bp || undefined, rr: r.rr || undefined,
+  hr: r.hr || undefined, temp: r.temp || undefined,
 });
 
 const load = async () => {
