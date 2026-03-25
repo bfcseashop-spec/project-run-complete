@@ -27,6 +27,8 @@ import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
 import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
+import { addSampleRecords } from "@/data/sampleStore";
+import { getPatients } from "@/data/patientStore";
 
 interface Prescription {
   id: string;
@@ -137,6 +139,39 @@ const PrescriptionPage = () => {
         ...prev,
       ]);
       toast.success("Prescription created");
+
+      // Auto-send prescribed tests to Sample Collection
+      if (data.tests.length > 0) {
+        const patient = getPatients().find((p) => p.name === data.patient);
+        const patientId = patient?.id || "";
+        const gender: "Female" | "Male" | "Other" = data.gender === "Female" ? "Female" : data.gender === "Other" ? "Other" : "Male";
+        const today = new Date().toISOString().split("T")[0];
+
+        const sampleRecords: Omit<import("@/data/sampleRecords").SampleRecord, "id">[] = data.tests.map((test) => ({
+          patient: data.patient,
+          patientId,
+          age: parseInt(data.age) || 0,
+          gender,
+          testName: test.name,
+          doctor: data.doctor,
+          collectionDate: today,
+          collectionTime: "",
+          sampleType: test.sampleType as any,
+          status: "pending" as const,
+          priority: "routine" as const,
+          collectedBy: "",
+          storageTemp: "room" as const,
+          barcode: "",
+          rejectionReason: "",
+          notes: `From Prescription ${nextId}`,
+        }));
+
+        addSampleRecords(sampleRecords).then(() => {
+          toast.success(`${data.tests.length} test(s) sent to Sample Collection`);
+        }).catch(() => {
+          toast.error("Failed to send tests to Sample Collection");
+        });
+      }
     }
     setDialogOpen(false);
   };
