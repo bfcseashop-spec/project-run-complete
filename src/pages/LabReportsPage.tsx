@@ -968,7 +968,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   </div>
                   {/* Unit */}
                   <div className="col-span-2 pr-2 pt-2">
-                    <span className="text-sm text-muted-foreground">{inv.unit || "—"}</span>
+                    <span className="text-sm text-muted-foreground">%</span>
                   </div>
                   {/* Normal/Reference Range — editable, multiline support */}
                   <div className="col-span-4 pt-0.5">
