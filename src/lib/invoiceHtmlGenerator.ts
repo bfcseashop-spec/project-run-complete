@@ -292,10 +292,11 @@ function royalBlueLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Elegant header with centered crest-style -->
     <div style="text-align:center;padding:24px 0 18px;border-bottom:3px double ${t.accent};margin-bottom:20px">
+      ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:50%;border:3px solid " + t.accentBorder)}</div>` : ''}
       <div style="display:inline-block;background:${t.headerGradient};color:${t.headerText};padding:10px 40px;border-radius:4px;margin-bottom:10px">
         <h1 style="font-size:22px;font-weight:800;font-family:Georgia,serif;letter-spacing:2px;margin:0">${d.clinicName}</h1>
       </div>
