@@ -31,6 +31,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
   const [form, setForm] = useState({
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
     bloodType: "", patientType: "", phone: "", medicalHistory: "",
+    spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
