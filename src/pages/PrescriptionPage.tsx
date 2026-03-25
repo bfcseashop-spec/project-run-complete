@@ -139,6 +139,40 @@ const PrescriptionPage = () => {
         ...prev,
       ]);
       toast.success("Prescription created");
+
+      // Auto-send prescribed tests to Sample Collection
+      if (data.tests.length > 0) {
+        const patient = getPatients().find((p) => p.name === data.patient);
+        const patientId = patient?.id || "";
+        const genderMap: Record<string, string> = { Female: "F", Male: "M", Other: "O" };
+        const gender = genderMap[data.gender] || data.gender || "";
+        const today = new Date().toISOString().split("T")[0];
+
+        const sampleRecords = data.tests.map((test) => ({
+          patient: data.patient,
+          patientId,
+          age: parseInt(data.age) || 0,
+          gender: gender === "F" ? "Female" : gender === "M" ? "Male" : "Other",
+          testName: test.name,
+          doctor: data.doctor,
+          collectionDate: today,
+          collectionTime: "",
+          sampleType: test.sampleType as any,
+          status: "pending" as const,
+          priority: "routine" as const,
+          collectedBy: "",
+          storageTemp: "room" as const,
+          barcode: "",
+          rejectionReason: "",
+          notes: `From Prescription ${nextId}`,
+        }));
+
+        addSampleRecords(sampleRecords).then(() => {
+          toast.success(`${data.tests.length} test(s) sent to Sample Collection`);
+        }).catch(() => {
+          toast.error("Failed to send tests to Sample Collection");
+        });
+      }
     }
     setDialogOpen(false);
   };
