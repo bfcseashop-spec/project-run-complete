@@ -77,6 +77,7 @@ export async function updateLabReport(id: string, patch: Partial<LabReport>) {
   if (patch.pathologist !== undefined) dbUp.pathologist = patch.pathologist;
   if (patch.instrument !== undefined) dbUp.instrument = patch.instrument;
   if (patch.sections !== undefined) dbUp.sections = JSON.parse(JSON.stringify(patch.sections));
+  if (patch.attachments !== undefined) dbUp.attachments = JSON.parse(JSON.stringify(patch.attachments));
   await supabase.from("lab_reports").update(dbUp).eq("id", id);
   reports = reports.map((r) => (r.id === id ? { ...r, ...patch } : r)); emit();
 }

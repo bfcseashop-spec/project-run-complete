@@ -61,6 +61,7 @@ const emptyForm: Omit<LabReport, "id"> = {
   technician: "", pathologist: "", instrument: "",
   expectedTAT: "",
   sections: [{ title: "", investigations: [{ ...emptyInvestigation }] }],
+  attachments: [],
 };
 
 const LabReportsPage = () => {
