@@ -476,7 +476,16 @@ const LabReportsPage = () => {
             {/* Test Name */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Test Name <span className="text-destructive">*</span></Label>
-              <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
+              <Select value={form.testName} onValueChange={(v) => {
+                const testInfo = findByName(v);
+                setForm({
+                  ...form,
+                  testName: v,
+                  normalRange: testInfo ? String(testInfo.price) : form.normalRange,
+                  sampleType: testInfo?.sample_type || form.sampleType,
+                  category: (testInfo?.category as any) || form.category,
+                });
+              }}>
                 <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
                 <SelectContent>
                   {activeTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
