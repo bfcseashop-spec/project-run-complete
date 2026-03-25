@@ -17,6 +17,7 @@ import type { InvoiceFormData, SplitPayment } from "@/components/NewInvoiceDialo
 import { toast } from "sonner";
 import { barcodeSVG } from "@/lib/barcode";
 import clinicLogo from "@/assets/clinic-logo.png";
+import { getInvoiceTheme } from "@/lib/invoiceThemes";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
 import { deductMedicine, refreshMedicines } from "@/data/medicineStore";
