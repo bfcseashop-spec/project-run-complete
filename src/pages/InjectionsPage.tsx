@@ -44,6 +44,8 @@ const InjectionsPage = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [addStockInj, setAddStockInj] = useState<InjectionItem | null>(null);
+  const [addStockQty, setAddStockQty] = useState(0);
 
   useEffect(() => { const unsub = subscribeInjections(() => setInjections([...getInjections()])); return () => { unsub(); }; }, []);
 
