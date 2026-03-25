@@ -704,6 +704,9 @@ const SettingsPage = () => {
           <TabsTrigger value="security" className="flex items-center gap-1.5 text-xs">
             <KeyRound className="w-3.5 h-3.5" /> Security
           </TabsTrigger>
+          <TabsTrigger value="invoice-theme" className="flex items-center gap-1.5 text-xs">
+            <FileText className="w-3.5 h-3.5" /> Invoice Theme
+          </TabsTrigger>
         </TabsList>
 
         <div className="mt-6 rounded-lg border border-border bg-card p-6">
@@ -714,6 +717,7 @@ const SettingsPage = () => {
           <TabsContent value="printer" className="mt-0"><PrinterTab /></TabsContent>
           <TabsContent value="currency" className="mt-0"><CurrencyLanguageTab /></TabsContent>
           <TabsContent value="security" className="mt-0"><SecurityTab /></TabsContent>
+          <TabsContent value="invoice-theme" className="mt-0"><InvoiceThemeTab /></TabsContent>
         </div>
       </Tabs>
     </div>
