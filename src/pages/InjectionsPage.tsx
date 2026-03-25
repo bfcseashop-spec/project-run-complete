@@ -30,7 +30,7 @@ import {
 } from "@/data/injectionStore";
 
 const emptyForm: Omit<InjectionItem, "id"> = {
-  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, status: "in-stock",
+  name: "", category: "", strength: "", route: "", stock: 0, unit: "", price: 0, purchase_price: 0, image: "", status: "in-stock",
 };
 
 const InjectionsPage = () => {
