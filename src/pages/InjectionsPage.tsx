@@ -336,6 +336,30 @@ const InjectionsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Stock Dialog */}
+      <Dialog open={!!addStockInj} onOpenChange={(open) => { if (!open) setAddStockInj(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PackagePlus className="w-5 h-5 text-emerald-600" /> Add Stock
+            </DialogTitle>
+          </DialogHeader>
+          {addStockInj && (
+            <div className="space-y-4 py-2">
+              <p className="text-sm text-muted-foreground">Adding stock to <strong className="text-foreground">{addStockInj.name}</strong> (Current: {addStockInj.stock})</p>
+              <div>
+                <Label>Quantity to Add</Label>
+                <Input type="number" min={1} value={addStockQty} onChange={(e) => setAddStockQty(Number(e.target.value))} placeholder="Enter quantity" />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddStockInj(null)}>Cancel</Button>
+            <Button onClick={handleAddStock} disabled={addStockQty <= 0}>Add Stock</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
