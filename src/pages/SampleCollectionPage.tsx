@@ -494,7 +494,7 @@ const SampleCollectionPage = () => {
                 <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
                   <SelectTrigger><SelectValue placeholder="Assign" /></SelectTrigger>
                   <SelectContent>
-                    {collectors.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {technicianList.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
