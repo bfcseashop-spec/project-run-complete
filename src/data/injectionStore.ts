@@ -53,7 +53,8 @@ export const addInjection = async (inj: InjectionItem) => {
   const { error } = await supabase.from("injections").insert({
     id: inj.id, name: inj.name, category: inj.category, strength: inj.strength,
     route: inj.route, stock: inj.stock, unit: inj.unit, price: inj.price,
-    purchase_price: inj.purchase_price, image: inj.image, status: inj.status,
+    purchase_price: inj.purchase_price, image: inj.image,
+    quantity: inj.quantity, sold_out: inj.sold_out, status: inj.status,
   });
   if (error) throw error;
   injections = [inj, ...injections]; notify();
