@@ -247,7 +247,11 @@ const InjectionsPage = () => {
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
               </div>
               <div>
-                <Label>Stock</Label>
+                <Label>Quantity</Label>
+                <Input type="number" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Stock Available</Label>
                 <Input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
               </div>
               <div>
