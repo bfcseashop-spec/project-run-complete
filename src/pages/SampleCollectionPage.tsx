@@ -30,6 +30,7 @@ import {
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { type SampleRecord, sampleTypes, storageTempOptions } from "@/data/sampleRecords";
 import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
+import ManageTechniciansDialog from "@/components/ManageTechniciansDialog";
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
 import { createReportFromSample } from "@/data/labReportStore";
 import { labTestNames } from "@/data/labTests";
