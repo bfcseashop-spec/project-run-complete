@@ -925,20 +925,6 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
-            {/* Section Header */}
-            <div className="px-6 py-2.5 border-b border-border/40">
-              <Input
-                className="h-6 bg-transparent border-0 px-0 font-bold text-sm uppercase tracking-wide text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/40 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
-                value={sec.title}
-                onChange={e => {
-                  const newSections = [...sections];
-                  newSections[sIdx] = { ...newSections[sIdx], title: e.target.value };
-                  setSections(newSections);
-                }}
-                placeholder="Section title (e.g. HAEMATOLOGY)"
-              />
-            </div>
-
             {/* Investigation Rows */}
             {sec.investigations.map((inv, iIdx) => {
               const flagged = isResultFlagged(inv);
@@ -992,15 +978,6 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             </div>
           </div>
         ))}
-
-        {/* Add Section */}
-        <div className="px-6 py-3">
-          <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => {
-            setSections([...sections, { title: "", investigations: [{ ...emptyInvestigation }] }]);
-          }}>
-            <Plus className="w-3 h-3 mr-1" /> Add Section
-          </Button>
-        </div>
       </div>
 
       {/* Remarks */}
