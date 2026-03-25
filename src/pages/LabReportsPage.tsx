@@ -67,6 +67,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 };
 
 const LabReportsPage = () => {
+  const navigate = useNavigate();
   const { activeTestNames, findByName } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
