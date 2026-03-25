@@ -28,8 +28,9 @@ import {
 } from "lucide-react";
 import {
   labTests as initialLabTests, type LabTest, labTestNames, sampleTypes,
-  priorityLevels, technicians,
+  priorityLevels,
 } from "@/data/labTests";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import { getActiveDoctorNames, subscribeDoctors } from "@/data/doctorStore";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 
@@ -55,6 +56,7 @@ const emptyForm: Omit<LabTest, "id"> = {
 const LabTestsPage = () => {
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const technicians = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const [tests, setTests] = useState<LabTest[]>(initialLabTests);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
@@ -368,7 +370,7 @@ const LabTestsPage = () => {
                 <Select value={form.technicianAssigned} onValueChange={(v) => setForm({ ...form, technicianAssigned: v })}>
                   <SelectTrigger><SelectValue placeholder="Assign technician" /></SelectTrigger>
                   <SelectContent>
-                    {technicians.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

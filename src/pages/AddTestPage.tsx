@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2, Check, Search } from "lucide-react";
-import { sampleTypes, priorityLevels, technicians, type LabTest } from "@/data/labTests";
+import { sampleTypes, priorityLevels, type LabTest } from "@/data/labTests";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
+import ManageTechniciansDialog from "@/components/ManageTechniciansDialog";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import { getPatients, subscribe as subscribePatients } from "@/data/patientStore";
 import { toast } from "sonner";
@@ -40,6 +42,7 @@ const AddTestPage = () => {
   const patients = useSyncExternalStore(subscribePatients, getPatients);
 
   const doctors = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const technicians = useSyncExternalStore(subscribeTechnicians, getTechnicians);
 
   const [form, setForm] = useState({
     patient: "", patientId: "", age: "", gender: "Male" as LabTest["gender"],
@@ -353,11 +356,14 @@ const AddTestPage = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Assign Technician</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Assign Technician</Label>
+                    <ManageTechniciansDialog />
+                  </div>
                   <Select value={form.technicianAssigned} onValueChange={(v) => setForm({ ...form, technicianAssigned: v })}>
                     <SelectTrigger><SelectValue placeholder="Select technician" /></SelectTrigger>
                     <SelectContent>
-                      {technicians.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
