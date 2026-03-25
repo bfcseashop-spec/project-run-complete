@@ -16,6 +16,7 @@ const toReport = (r: any): LabReport => ({
   sampleType: r.sample_type, collectedAt: r.collected_at, reportedAt: r.reported_at,
   technician: r.technician, pathologist: r.pathologist, instrument: r.instrument,
   expectedTAT: r.expected_tat || undefined, sections: r.sections as any[] || [],
+  attachments: (r.attachments as any[]) || [],
 });
 
 const load = async () => {
@@ -47,6 +48,7 @@ export async function addLabReport(report: Omit<LabReport, "id">): Promise<LabRe
     reported_at: report.reportedAt, technician: report.technician, pathologist: report.pathologist,
     instrument: report.instrument, expected_tat: report.expectedTAT || null,
     sections: JSON.parse(JSON.stringify(report.sections)),
+    attachments: JSON.parse(JSON.stringify(report.attachments || [])),
   });
   if (error) throw error;
   reports = [newReport, ...reports]; emit();
@@ -75,6 +77,7 @@ export async function updateLabReport(id: string, patch: Partial<LabReport>) {
   if (patch.pathologist !== undefined) dbUp.pathologist = patch.pathologist;
   if (patch.instrument !== undefined) dbUp.instrument = patch.instrument;
   if (patch.sections !== undefined) dbUp.sections = JSON.parse(JSON.stringify(patch.sections));
+  if (patch.attachments !== undefined) dbUp.attachments = JSON.parse(JSON.stringify(patch.attachments));
   await supabase.from("lab_reports").update(dbUp).eq("id", id);
   reports = reports.map((r) => (r.id === id ? { ...r, ...patch } : r)); emit();
 }
@@ -98,6 +101,6 @@ export async function createReportFromSample(sample: {
     category: "biochemistry", result: "", normalRange: "", remarks: "",
     sampleType: sample.sampleType, collectedAt: sample.collectionTime,
     reportedAt: "", technician: sample.collectedBy, pathologist: "",
-    instrument: "", sections,
+    instrument: "", sections, attachments: [],
   });
 }

@@ -401,6 +401,7 @@ export type Database = {
       lab_reports: {
         Row: {
           age: number
+          attachments: Json
           category: string
           collected_at: string
           created_at: string
@@ -426,6 +427,7 @@ export type Database = {
         }
         Insert: {
           age?: number
+          attachments?: Json
           category?: string
           collected_at?: string
           created_at?: string
@@ -451,6 +453,7 @@ export type Database = {
         }
         Update: {
           age?: number
+          attachments?: Json
           category?: string
           collected_at?: string
           created_at?: string

@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
@@ -28,7 +29,7 @@ import {
 import {
   Plus, Pencil, Trash2, FileText, Clock, CheckCircle, FlaskConical,
   Droplets, Bug, Microscope, ScanLine, Shield, Search, Eye, X, Printer, Barcode as BarcodeIcon,
-  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown,
+  MoreHorizontal, Upload, ClipboardEdit, Tag, FileDown, Paperclip,
 } from "lucide-react";
 import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/printUtils";
 import { toast } from "sonner";
@@ -61,6 +62,7 @@ const emptyForm: Omit<LabReport, "id"> = {
   technician: "", pathologist: "", instrument: "",
   expectedTAT: "",
   sections: [{ title: "", investigations: [{ ...emptyInvestigation }] }],
+  attachments: [],
 };
 
 const LabReportsPage = () => {
@@ -274,6 +276,19 @@ const LabReportsPage = () => {
       },
     },
     {
+      key: "attachments", header: "Files",
+      render: (r: LabReport) => {
+        const files = r.attachments || [];
+        if (files.length === 0) return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <div className="flex items-center gap-1">
+            <Paperclip className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-medium text-primary">{files.length} file{files.length > 1 ? "s" : ""}</span>
+          </div>
+        );
+      },
+    },
+    {
       key: "status", header: "Status",
       render: (r: LabReport) => {
         const mapped = r.status === "in-progress" ? "active" : r.status;
@@ -339,7 +354,7 @@ const LabReportsPage = () => {
           date: String(row.date || new Date().toISOString().split("T")[0]), resultDate: "",
           status: "pending", category: "biochemistry", result: "", normalRange: "", remarks: "",
           sampleType: "Blood", collectedAt: "", reportedAt: "",
-          technician: "", pathologist: "", instrument: "", sections: [],
+          technician: "", pathologist: "", instrument: "", sections: [], attachments: [],
         });
       });
     }
@@ -803,11 +818,10 @@ const LabReportsPage = () => {
           {uploadReport && (
             <UploadReportForm
               report={uploadReport}
-              onDone={(url) => {
+              onDone={(attachment) => {
+                const existing = uploadReport.attachments || [];
                 updateLabReport(uploadReport.id, {
-                  remarks: uploadReport.remarks
-                    ? `${uploadReport.remarks}\n📎 Uploaded: ${url}`
-                    : `📎 Uploaded: ${url}`,
+                  attachments: [...existing, attachment],
                   status: uploadReport.status === "pending" ? "in-progress" : uploadReport.status,
                 });
                 toast.success("Report file uploaded successfully");
@@ -912,7 +926,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
 function UploadReportForm({ report, onDone, onCancel }: {
   report: LabReport;
-  onDone: (url: string) => void;
+  onDone: (attachment: { name: string; url: string; type: string; uploadedAt: string }) => void;
   onCancel: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
@@ -937,15 +951,20 @@ function UploadReportForm({ report, onDone, onCancel }: {
     if (!file) return;
     setUploading(true);
     try {
-      // Store as data URL in remarks for now (no storage bucket needed)
-      const reader = new FileReader();
-      reader.onload = () => {
-        const url = file.name;
-        onDone(url);
-      };
-      reader.readAsDataURL(file);
+      const ext = file.name.split(".").pop() || "file";
+      const path = `${report.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("lab-reports").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("lab-reports").getPublicUrl(path);
+      onDone({
+        name: file.name,
+        url: urlData.publicUrl,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
+      });
     } catch {
       toast.error("Upload failed");
+    } finally {
       setUploading(false);
     }
   };
@@ -966,6 +985,19 @@ function UploadReportForm({ report, onDone, onCancel }: {
         <p className="text-xs text-muted-foreground text-center">
           Selected: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
         </p>
+      )}
+      {/* Show existing attachments */}
+      {(report.attachments || []).length > 0 && (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Existing Files</Label>
+          {(report.attachments || []).map((att, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs bg-muted/50 rounded px-2 py-1.5">
+              <Paperclip className="w-3 h-3 text-primary flex-shrink-0" />
+              <a href={att.url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">{att.name}</a>
+              <span className="text-muted-foreground ml-auto flex-shrink-0">{new Date(att.uploadedAt).toLocaleDateString()}</span>
+            </div>
+          ))}
+        </div>
       )}
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
