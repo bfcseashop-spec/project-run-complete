@@ -277,11 +277,18 @@ const InjectionsPage = () => {
           </DialogHeader>
           {viewInj && (
             <div className="space-y-4 py-2">
+              {viewInj.image && (
+                <div className="flex justify-center">
+                  <img src={viewInj.image} alt={viewInj.name} className="w-20 h-20 rounded-lg object-cover border border-border" />
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div><p className="text-xs text-muted-foreground">Code</p><p className="font-medium text-foreground">{viewInj.id}</p></div>
                 <div><p className="text-xs text-muted-foreground">Status</p><StatusBadge status={viewInj.status} /></div>
                 <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium text-foreground">{viewInj.name}</p></div>
-                <div><p className="text-xs text-muted-foreground">Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Stock</p><p className="font-medium text-foreground">{viewInj.stock}</p></div>
+                <div><p className="text-xs text-muted-foreground">Purchase Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.purchase_price)}</p></div>
+                <div><p className="text-xs text-muted-foreground">Sale Price</p><p className="font-semibold text-foreground">{formatPrice(viewInj.price)}</p></div>
               </div>
             </div>
           )}
