@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import PageHeader from "@/components/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
