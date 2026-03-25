@@ -877,11 +877,11 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   {/* Normal/Reference Range */}
                   <div className="col-span-3">
                     <Textarea
-                      className="min-h-[36px] text-sm border-0 bg-transparent px-0 py-1.5 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
+                      className="min-h-[36px] text-sm border border-border rounded-md bg-transparent px-2 py-1.5 resize-y focus-visible:ring-1 focus-visible:ring-ring text-muted-foreground overflow-auto break-words whitespace-pre-wrap"
                       value={inv.referenceValue}
                       onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)}
                       placeholder="—"
-                      rows={1}
+                      rows={2}
                     />
                   </div>
                   {/* Delete */}
