@@ -780,6 +780,26 @@ const InvoiceThemeTab = () => {
           <Save className="w-4 h-4 mr-2" /> Save Theme
         </Button>
       </div>
+
+      {/* Live Full-Size Preview */}
+      <div className="mt-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Eye className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Live Preview</h3>
+          <Badge variant="secondary" className="text-[10px]">
+            {invoiceThemes.find(t => t.id === settings.invoiceTheme)?.name || "Classic"}
+          </Badge>
+        </div>
+        <div className="border border-border rounded-xl overflow-hidden shadow-lg bg-white">
+          <iframe
+            ref={previewRef}
+            srcDoc={previewHtml}
+            className="w-full border-0"
+            style={{ height: "700px", pointerEvents: "none" }}
+            title="Invoice Theme Preview"
+          />
+        </div>
+      </div>
     </div>
   );
 };
