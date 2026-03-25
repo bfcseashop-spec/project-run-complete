@@ -827,7 +827,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-primary text-primary-foreground">
-        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Parameter</div>
+        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Test Name</div>
         <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Result</div>
         <div className="col-span-2 text-[11px] font-bold uppercase tracking-wider">Unit</div>
         <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Normal/Reference Ranges</div>
@@ -854,7 +854,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   <div className="col-span-3 pr-2">
                     <Select value={inv.name} onValueChange={(v) => updateInv(sIdx, iIdx, "name", v)}>
                       <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-foreground">
-                        <SelectValue placeholder="Select parameter" />
+                        <SelectValue placeholder="Select test name" />
                       </SelectTrigger>
                       <SelectContent>
                         {activeTestNames.map((name) => (
@@ -903,7 +903,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             {/* Add Row */}
             <div className="px-6 py-1.5 border-b border-border/20">
               <Button variant="ghost" size="sm" className="text-xs h-6 text-primary hover:text-primary" onClick={() => addInv(sIdx)}>
-                <Plus className="w-3 h-3 mr-1" /> Add Parameter
+                <Plus className="w-3 h-3 mr-1" /> Add Test
               </Button>
             </div>
           </div>
