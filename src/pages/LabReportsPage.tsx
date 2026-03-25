@@ -826,11 +826,11 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border bg-muted/40">
-        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
-        <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
-        <div className="col-span-1 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
-        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
+      <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-primary text-primary-foreground">
+        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Parameter</div>
+        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Result</div>
+        <div className="col-span-2 text-[11px] font-bold uppercase tracking-wider">Unit</div>
+        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Normal/Reference Ranges</div>
         <div className="col-span-1"></div>
       </div>
 
@@ -838,15 +838,22 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
+            {/* Section Title */}
+            {sec.title && (
+              <div className="px-6 py-2 bg-primary/5 border-b border-primary/20">
+                <span className="text-xs font-extrabold text-primary uppercase tracking-wider">{sec.title}</span>
+              </div>
+            )}
+
             {/* Investigation Rows */}
             {sec.investigations.map((inv, iIdx) => {
               const flagged = isResultFlagged(inv);
               return (
-                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-center">
+                <div key={iIdx} className={`grid grid-cols-12 gap-0 px-6 py-3 border-b border-border/30 items-center ${flagged ? "bg-destructive/[0.03]" : "hover:bg-muted/30"} transition-colors`}>
                   {/* Parameter */}
                   <div className="col-span-3 pr-2">
                     <Select value={inv.name} onValueChange={(v) => updateInv(sIdx, iIdx, "name", v)}>
-                      <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-card-foreground">
+                      <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-foreground">
                         <SelectValue placeholder="Select parameter" />
                       </SelectTrigger>
                       <SelectContent>
@@ -859,9 +866,9 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   {/* Result */}
                   <div className="col-span-3 pr-4">
                     <Input
-                      className={`h-9 text-sm font-semibold rounded-md px-3 ${
+                      className={`h-9 text-sm font-bold rounded-md px-3 ${
                         flagged
-                          ? "border-2 border-destructive text-destructive"
+                          ? "border-2 border-destructive text-destructive bg-destructive/5"
                           : "border border-border"
                       }`}
                       value={inv.result}
@@ -870,11 +877,11 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                     />
                   </div>
                   {/* Unit */}
-                  <div className="col-span-1 pr-2">
-                    <span className="text-sm text-muted-foreground">%</span>
+                  <div className="col-span-2 pr-2">
+                    <span className="text-sm text-muted-foreground">{inv.unit || "—"}</span>
                   </div>
                   {/* Normal/Reference Range */}
-                  <div className="col-span-4">
+                  <div className="col-span-3">
                     <Textarea
                       className="min-h-[36px] text-sm border-0 bg-transparent px-0 py-1.5 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
                       value={inv.referenceValue}
