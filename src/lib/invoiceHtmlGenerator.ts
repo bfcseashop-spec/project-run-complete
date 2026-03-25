@@ -372,14 +372,17 @@ function minimalGrayLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page" style="padding:48px 56px">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <!-- Minimal header — just text, no background -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
-      <div>
-        <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
-        <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
-        <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        ${logoImg(d, 40, "border-radius:4px;opacity:0.7")}
+        <div>
+          <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
+          <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
+          <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
+        </div>
       </div>
       <div style="text-align:right">
         <p style="font-size:32px;font-weight:200;color:#e2e8f0;margin:0;line-height:1">${d.invoiceLabel.toUpperCase()}</p>
