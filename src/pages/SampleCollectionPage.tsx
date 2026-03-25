@@ -71,6 +71,12 @@ const SampleCollectionPage = () => {
   const records = useSyncExternalStore(subscribeSamples, getSampleRecords);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const { activeTests } = useTestNameStore();
+  const allTestNames = useMemo(() => {
+    const storeNames = activeTests.map(t => t.name);
+    const merged = new Set([...labTestNames, ...storeNames]);
+    return Array.from(merged).sort();
+  }, [activeTests]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
