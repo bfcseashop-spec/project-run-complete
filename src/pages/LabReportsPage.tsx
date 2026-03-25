@@ -827,7 +827,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-primary text-primary-foreground">
-        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Parameter</div>
+        <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Test Name</div>
         <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Result</div>
         <div className="col-span-2 text-[11px] font-bold uppercase tracking-wider">Unit</div>
         <div className="col-span-3 text-[11px] font-bold uppercase tracking-wider">Normal/Reference Ranges</div>
