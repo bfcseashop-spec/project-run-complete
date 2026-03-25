@@ -211,48 +211,48 @@ const Dashboard = () => {
         </div>
 
         {/* Cash */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-primary/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-              <Banknote className="w-4 h-4 text-success" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.1)" }}>
+              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 38%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Cash</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Cash Received</p>
         </div>
 
         {/* Bank */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-info/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-info" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
+              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Bank</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Bank Received</p>
         </div>
 
         {/* Expenses */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-warning/20">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-warning" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(195, 65%, 45% / 0.1)" }}>
+              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(195, 65%, 45%)" }} />
             </div>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Expenses</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Expenses</p>
         </div>
 
         {/* Due */}
-        <div className="col-span-1 lg:col-span-3 bg-destructive/5 rounded-2xl border border-destructive/20 p-4 hover:shadow-md transition-shadow">
+        <div className="col-span-1 lg:col-span-3 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200" style={{ borderColor: "hsl(210, 70%, 50% / 0.15)" }}>
           <div className="flex items-center justify-between mb-3">
-            <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-destructive" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
+              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
             </div>
-            <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">{stats.pendingInvoices} pending</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(210, 70%, 45%)", background: "hsl(210, 70%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
           </div>
-          <p className="text-xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Outstanding</p>
+          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
+          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Outstanding</p>
         </div>
       </div>
 
