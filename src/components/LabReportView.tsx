@@ -221,150 +221,136 @@ export function printLabReport(report: LabReport) {
 const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   if (!report) return null;
 
+  const s = getSettings();
   const isComplete = report.status === "completed";
   const isPending = report.status === "pending";
   const statusLabel = isComplete ? "Complete" : isPending ? "Pending" : "In Progress";
-
   const hasResults = report.sections.some(s => s.investigations.some(inv => inv.name));
-  const attachments = report.attachments || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-border/60 shadow-2xl">
+      <DialogContent className="sm:max-w-[680px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-none shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Lab Report - {report.id}</DialogTitle>
           <DialogDescription>Detailed view of lab report for {report.patient}</DialogDescription>
         </DialogHeader>
 
-        {/* ── Top Bar ── */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FlaskConical className="w-[18px] h-[18px] text-primary" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-foreground tracking-tight">Lab Test Report</h2>
-              <p className="text-[11px] text-muted-foreground">{report.id} · {report.date}</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => onOpenChange(false)}>
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-
-        <ScrollArea className="max-h-[calc(95vh-140px)]">
-          {/* ── Patient & Test Info Cards ── */}
-          <div className="px-6 pt-5 pb-4 space-y-4">
-
-            {/* ID + Status Row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Test ID</span>
-                <span className="text-sm font-extrabold text-foreground font-mono">{report.id}</span>
+        {/* ── Blue Header with Logo ── */}
+        <div className="bg-gradient-to-r from-[hsl(221,83%,53%)] to-[hsl(217,91%,60%)] px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-white/95 flex items-center justify-center shadow-md overflow-hidden shrink-0">
+                {s.clinicLogo ? (
+                  <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
+                ) : (
+                  <FlaskConical className="w-5 h-5 text-[hsl(221,83%,53%)]" />
+                )}
               </div>
-              <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">{s.clinicName || "Lab Report"}</h2>
+                <p className="text-[11px] text-white/80 font-medium">{s.clinicTagline || "Laboratory Report"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${
                 isComplete
-                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                  ? "bg-emerald-400/20 text-emerald-100 ring-1 ring-emerald-300/30"
                   : isPending
-                  ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
-                  : "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
+                  ? "bg-amber-400/20 text-amber-100 ring-1 ring-amber-300/30"
+                  : "bg-white/20 text-white ring-1 ring-white/30"
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  isComplete ? "bg-emerald-500" : isPending ? "bg-amber-500" : "bg-blue-500"
+                  isComplete ? "bg-emerald-300" : isPending ? "bg-amber-300" : "bg-white"
                 }`} />
                 {statusLabel}
               </span>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10" onClick={() => onOpenChange(false)}>
+                <X className="w-4 h-4" />
+              </Button>
             </div>
+          </div>
+        </div>
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <InfoCard icon={TestTube} label="Test Name" value={report.testName} accent />
-              <InfoCard icon={User} label="Patient" value={report.patient} />
-              <InfoCard icon={Activity} label="Category" value={report.category} tag />
-              <InfoCard icon={FileText} label="Sample Type" value={report.sampleType || "—"} tag />
-              <InfoCard icon={Stethoscope} label="Referring Doctor" value={report.doctor || "—"} />
-              <InfoCard icon={Clock} label="Turnaround Time" value={report.expectedTAT || "—"} />
+        <ScrollArea className="max-h-[calc(95vh-160px)]">
+          {/* ── Patient & Test Info Strip ── */}
+          <div className="px-6 py-4 bg-muted/30 border-b border-border">
+            <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+              <MetaItem label="Report ID" value={report.id} mono />
+              <MetaItem label="Test Name" value={report.testName} bold />
+              <MetaItem label="Patient" value={report.patient} bold />
+              <MetaItem label="Category" value={report.category} />
+              <MetaItem label="Sample Type" value={report.sampleType || "—"} />
+              <MetaItem label="Referring Doctor" value={report.doctor || "—"} />
+              <MetaItem label="Date" value={report.date} />
+              <MetaItem label="Turnaround Time" value={report.expectedTAT || "—"} />
+              <MetaItem label="Patient ID" value={report.patientId} mono />
             </div>
-
-            {/* Report Attachments */}
-            {attachments.length > 0 && (
-              <div className="rounded-lg border border-border bg-card p-3">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-2">Attachments</p>
-                <div className="space-y-1">
-                  {attachments.map((att, i) => (
-                    <a key={i} href={att.url} target="_blank" rel="noreferrer" className="text-xs text-primary font-medium hover:underline block">
-                      📎 {att.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* ── Results Table ── */}
           {hasResults && (
-            <div className="border-t border-border">
-              {/* Test Title */}
-              <div className="text-center py-3 border-b-2 border-primary">
-                <h3 className="text-base font-extrabold text-foreground">{report.testName || report.category}</h3>
-              </div>
+            <div className="px-6 pt-4 pb-2">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-foreground/80">
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[36%]">Investigation</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[18%]">Result</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[24%]">Reference Value</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 w-[22%]">Normal Ranges</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.sections.map((section, sIdx) => (
+                    <>
+                      {section.title && (
+                        <tr key={`sec-${sIdx}`}>
+                          <td colSpan={4} className="pt-4 pb-1.5 text-[11px] font-extrabold text-foreground uppercase tracking-wider border-b border-border/50">
+                            {section.title}
+                          </td>
+                        </tr>
+                      )}
+                      {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
+                        const isHigh = inv.flag === "High";
+                        const isLow = inv.flag === "Low";
+                        const isPositive = inv.result?.toLowerCase() === "positive";
+                        const flagged = isHigh || isLow || isPositive;
 
-              {/* Column Headers */}
-              <div className="grid grid-cols-12 gap-0 px-5 py-2.5 border-b-2 border-foreground/80">
-                <div className="col-span-4 text-[11px] font-extrabold text-foreground">Investigation</div>
-                <div className="col-span-2 text-[11px] font-extrabold text-foreground">Result</div>
-                <div className="col-span-1 text-[11px] font-extrabold text-foreground"></div>
-                <div className="col-span-3 text-[11px] font-extrabold text-foreground">Reference Value</div>
-                <div className="col-span-2 text-[11px] font-extrabold text-foreground">Unit</div>
-              </div>
+                        return (
+                          <tr key={`${sIdx}-${iIdx}`} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                            <td className="py-2 pr-3 text-[12px] text-foreground font-medium">{inv.name}</td>
+                            <td className={`py-2 pr-3 text-[12px] font-bold ${
+                              isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : "text-foreground"
+                            }`}>
+                              <span className="flex items-center gap-1.5">
+                                {inv.result || "—"}
+                                {flagged && (
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                    isHigh || isPositive ? "bg-orange-100 text-orange-700" : "bg-blue-100 text-blue-700"
+                                  }`}>
+                                    {isHigh ? "↑ High" : isLow ? "↓ Low" : "Positive"}
+                                  </span>
+                                )}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</td>
+                            <td className="py-2 text-[12px] text-muted-foreground">
+                              {inv.referenceValue ? `${inv.referenceValue} ${inv.unit || ""}`.trim() : "—"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-              {/* Sample Type Row */}
-              {report.sampleType && (
-                <div className="grid grid-cols-12 gap-0 px-5 py-2 border-b border-border/30">
-                  <div className="col-span-4 text-[12px] text-foreground">Primary Sample Type :</div>
-                  <div className="col-span-2 text-[12px] font-medium text-foreground">{report.sampleType}</div>
-                  <div className="col-span-6"></div>
-                </div>
-              )}
-
-              {/* Sections */}
-              {report.sections.map((section, sIdx) => (
-                <div key={sIdx}>
-                  {/* Section Header - bold inline like reference */}
-                  {section.title && (
-                    <div className="px-5 pt-3 pb-1">
-                      <span className="text-[12px] font-extrabold text-foreground uppercase tracking-wide">{section.title}</span>
-                    </div>
-                  )}
-                  {/* Data Rows */}
-                  {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
-                    const isHigh = inv.flag === "High";
-                    const isLow = inv.flag === "Low";
-                    const isPositive = inv.result?.toLowerCase() === "positive";
-                    const flagLabel = isHigh ? "High" : isLow ? "Low" : isPositive ? "Positive" : "";
-
-                    return (
-                      <div key={iIdx} className="grid grid-cols-12 gap-0 px-5 py-1.5 hover:bg-muted/20 transition-colors">
-                        <div className="col-span-4 text-[12px] text-foreground">{inv.name}</div>
-                        <div className={`col-span-2 text-[12px] font-bold ${
-                          isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : "text-foreground"
-                        }`}>
-                          {inv.result || "—"}
-                        </div>
-                        <div className="col-span-1">
-                          {flagLabel && (
-                            <span className={`text-[10px] font-bold ${
-                              isHigh || isPositive ? "text-orange-600" : "text-blue-600"
-                            }`}>{flagLabel}</span>
-                          )}
-                        </div>
-                        <div className="col-span-3 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</div>
-                        <div className="col-span-2 text-[12px] text-muted-foreground">{inv.unit || "—"}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+          {!hasResults && (
+            <div className="px-6 py-10 text-center">
+              <FlaskConical className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">No test results available yet</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Results will appear here once entered</p>
             </div>
           )}
 
@@ -392,26 +378,13 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   );
 };
 
-function InfoCard({ icon: Icon, label, value, accent, tag }: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  accent?: boolean;
-  tag?: boolean;
-}) {
+function MetaItem({ label, value, bold, mono }: { label: string; value: string; bold?: boolean; mono?: boolean }) {
   return (
-    <div className={`rounded-lg border p-3 flex items-start gap-2.5 transition-colors ${accent ? "border-primary/20 bg-primary/[0.04]" : "border-border bg-card"}`}>
-      <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${accent ? "bg-primary/10" : "bg-muted"}`}>
-        <Icon className={`w-3.5 h-3.5 ${accent ? "text-primary" : "text-muted-foreground"}`} />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{label}</p>
-        {tag ? (
-          <span className="inline-block mt-0.5 text-xs font-semibold text-foreground bg-muted px-2 py-0.5 rounded-md">{value}</span>
-        ) : (
-          <p className={`text-sm font-semibold text-foreground truncate mt-0.5 ${accent ? "text-primary" : ""}`}>{value}</p>
-        )}
-      </div>
+    <div>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">{label}</p>
+      <p className={`text-[13px] text-foreground truncate ${bold ? "font-bold" : "font-medium"} ${mono ? "font-mono" : ""}`}>
+        {value || "—"}
+      </p>
     </div>
   );
 }
