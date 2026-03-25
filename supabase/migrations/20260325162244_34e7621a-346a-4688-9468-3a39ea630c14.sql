@@ -1,0 +1,7 @@
+ALTER TABLE public.opd_patients
+  ADD COLUMN IF NOT EXISTS spo2 text,
+  ADD COLUMN IF NOT EXISTS weight text,
+  ADD COLUMN IF NOT EXISTS bp text,
+  ADD COLUMN IF NOT EXISTS rr text,
+  ADD COLUMN IF NOT EXISTS hr text,
+  ADD COLUMN IF NOT EXISTS temp text;

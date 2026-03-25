@@ -31,6 +31,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
   const [form, setForm] = useState({
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
     bloodType: "", patientType: "", phone: "", medicalHistory: "",
+    spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,10 +49,16 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         patientType: editPatient.patientType || "",
         phone: editPatient.phone || "",
         medicalHistory: editPatient.medicalHistory || "",
+        spo2: editPatient.spo2 || "",
+        weight: editPatient.weight || "",
+        bp: editPatient.bp || "",
+        rr: editPatient.rr || "",
+        hr: editPatient.hr || "",
+        temp: editPatient.temp || "",
       });
       setImagePreview(editPatient.photo || null);
     } else {
-      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
+      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
       setImagePreview(null);
     }
   }, [editPatient, open]);
@@ -89,9 +96,15 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       phone: form.phone || undefined,
       medicalHistory: form.medicalHistory || undefined,
       photo: imagePreview || undefined,
+      spo2: form.spo2 || undefined,
+      weight: form.weight || undefined,
+      bp: form.bp || undefined,
+      rr: form.rr || undefined,
+      hr: form.hr || undefined,
+      temp: form.temp || undefined,
     };
     onSubmit(patient);
-    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "" });
+    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
     setImagePreview(null);
   };
 
@@ -206,6 +219,37 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
           <div>
             <Label className="flex items-center gap-1.5">Complaint <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
             <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} className={!form.complaint ? "border-amber-300/50" : "border-green-400/50"} />
+          </div>
+
+          {/* Vital Signs */}
+          <div>
+            <Label className="flex items-center gap-1.5 mb-2">Vital Signs <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">SpO₂ (%)</Label>
+                <Input placeholder="e.g. 98" value={form.spo2} onChange={(e) => update("spo2", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Weight / Wt (kg)</Label>
+                <Input placeholder="e.g. 65" value={form.weight} onChange={(e) => update("weight", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">BP (mmHg)</Label>
+                <Input placeholder="e.g. 120/80" value={form.bp} onChange={(e) => update("bp", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">RR (breaths/min)</Label>
+                <Input placeholder="e.g. 18" value={form.rr} onChange={(e) => update("rr", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">HR (bpm)</Label>
+                <Input placeholder="e.g. 72" value={form.hr} onChange={(e) => update("hr", e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Temp (°C)</Label>
+                <Input placeholder="e.g. 36.5" value={form.temp} onChange={(e) => update("temp", e.target.value)} />
+              </div>
+            </div>
           </div>
 
           {/* Row 5: Medical History */}

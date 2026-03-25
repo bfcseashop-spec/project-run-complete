@@ -13,6 +13,9 @@ const toPatient = (r: any): OPDPatient => ({
   bloodType: r.blood_type || undefined, patientType: r.patient_type || undefined,
   phone: r.phone || undefined, medicalHistory: r.medical_history || undefined,
   photo: r.photo || undefined,
+  spo2: r.spo2 || undefined, weight: r.weight || undefined,
+  bp: r.bp || undefined, rr: r.rr || undefined,
+  hr: r.hr || undefined, temp: r.temp || undefined,
 });
 
 const load = async () => {
@@ -32,6 +35,9 @@ export async function addPatient(patient: OPDPatient) {
     blood_type: patient.bloodType || null, patient_type: patient.patientType || null,
     phone: patient.phone || null, medical_history: patient.medicalHistory || null,
     photo: patient.photo || null,
+    spo2: patient.spo2 || null, weight: patient.weight || null,
+    bp: patient.bp || null, rr: patient.rr || null,
+    hr: patient.hr || null, temp: patient.temp || null,
   });
   if (error) throw error;
   _patients = [patient, ..._patients]; notify();
@@ -44,6 +50,9 @@ export async function updatePatient(id: string, updated: OPDPatient) {
     blood_type: updated.bloodType || null, patient_type: updated.patientType || null,
     phone: updated.phone || null, medical_history: updated.medicalHistory || null,
     photo: updated.photo || null,
+    spo2: updated.spo2 || null, weight: updated.weight || null,
+    bp: updated.bp || null, rr: updated.rr || null,
+    hr: updated.hr || null, temp: updated.temp || null,
   }).eq("id", id);
   if (error) throw error;
   _patients = _patients.map((p) => (p.id === id ? updated : p)); notify();

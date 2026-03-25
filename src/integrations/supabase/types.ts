@@ -537,50 +537,68 @@ export type Database = {
         Row: {
           age: number
           blood_type: string | null
+          bp: string | null
           complaint: string
           created_at: string
           doctor: string
           gender: string
+          hr: string | null
           id: string
           medical_history: string | null
           name: string
           patient_type: string | null
           phone: string | null
           photo: string | null
+          rr: string | null
+          spo2: string | null
           status: string
+          temp: string | null
           time: string
+          weight: string | null
         }
         Insert: {
           age?: number
           blood_type?: string | null
+          bp?: string | null
           complaint?: string
           created_at?: string
           doctor?: string
           gender?: string
+          hr?: string | null
           id: string
           medical_history?: string | null
           name?: string
           patient_type?: string | null
           phone?: string | null
           photo?: string | null
+          rr?: string | null
+          spo2?: string | null
           status?: string
+          temp?: string | null
           time?: string
+          weight?: string | null
         }
         Update: {
           age?: number
           blood_type?: string | null
+          bp?: string | null
           complaint?: string
           created_at?: string
           doctor?: string
           gender?: string
+          hr?: string | null
           id?: string
           medical_history?: string | null
           name?: string
           patient_type?: string | null
           phone?: string | null
           photo?: string | null
+          rr?: string | null
+          spo2?: string | null
           status?: string
+          temp?: string | null
           time?: string
+          weight?: string | null
         }
         Relationships: []
       }
