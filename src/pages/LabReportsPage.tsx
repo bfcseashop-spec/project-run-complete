@@ -926,7 +926,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
 
 function UploadReportForm({ report, onDone, onCancel }: {
   report: LabReport;
-  onDone: (url: string) => void;
+  onDone: (attachment: { name: string; url: string; type: string; uploadedAt: string }) => void;
   onCancel: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
@@ -951,15 +951,20 @@ function UploadReportForm({ report, onDone, onCancel }: {
     if (!file) return;
     setUploading(true);
     try {
-      // Store as data URL in remarks for now (no storage bucket needed)
-      const reader = new FileReader();
-      reader.onload = () => {
-        const url = file.name;
-        onDone(url);
-      };
-      reader.readAsDataURL(file);
+      const ext = file.name.split(".").pop() || "file";
+      const path = `${report.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("lab-reports").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("lab-reports").getPublicUrl(path);
+      onDone({
+        name: file.name,
+        url: urlData.publicUrl,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
+      });
     } catch {
       toast.error("Upload failed");
+    } finally {
       setUploading(false);
     }
   };
@@ -980,6 +985,19 @@ function UploadReportForm({ report, onDone, onCancel }: {
         <p className="text-xs text-muted-foreground text-center">
           Selected: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(1)} KB)
         </p>
+      )}
+      {/* Show existing attachments */}
+      {(report.attachments || []).length > 0 && (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Existing Files</Label>
+          {(report.attachments || []).map((att, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs bg-muted/50 rounded px-2 py-1.5">
+              <Paperclip className="w-3 h-3 text-primary flex-shrink-0" />
+              <a href={att.url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">{att.name}</a>
+              <span className="text-muted-foreground ml-auto flex-shrink-0">{new Date(att.uploadedAt).toLocaleDateString()}</span>
+            </div>
+          ))}
+        </div>
       )}
       <div className="flex justify-end gap-2">
         <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
