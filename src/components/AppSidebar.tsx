@@ -32,7 +32,6 @@ const menuSections: MenuSection[] = [
       { icon: FileText, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(270, 60%, 50%)" },
       { icon: Heart, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(340, 70%, 50%)",
         subItems: [
-          { icon: Plus, labelKey: "addService", path: "/health-services" },
           { icon: Package, labelKey: "healthPackages", path: "/health-services/packages" },
         ],
       },

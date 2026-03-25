@@ -188,7 +188,7 @@ const BillingPage = () => {
       const qty = getMedQty(d);
       return <span className="tabular-nums text-sm">{qty > 0 ? qty : "—"}</span>;
     }},
-    { key: "services", header: "Services", render: (d: BillingRecord) => {
+    { key: "services", header: "Test Name", render: (d: BillingRecord) => {
       if (d.formData?.lineItems) {
         const svcs = d.formData.lineItems.filter(li => li.type === "SVC" || li.type === "CUSTOM");
         return <span className="text-sm truncate max-w-[140px] block">{svcs.length > 0 ? svcs.map(li => li.name).join(", ") : "—"}</span>;
