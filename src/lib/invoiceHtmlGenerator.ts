@@ -219,13 +219,16 @@ function modernTealLayout(t: InvoiceTheme, d: InvoiceData): string {
   }).join("");
 
   const body = `<div class="page">
-  <img src="${d.clinicLogo}" class="watermark" alt="" />
+  ${watermarkImg(d)}
   <div class="content">
     <div style="background:${t.headerGradient};border-radius:12px;padding:20px 28px;color:${t.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
-        <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
-        <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        ${logoImg(d, 44, "border-radius:8px;border:2px solid rgba(255,255,255,0.2)")}
+        <div>
+          <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
+          <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
+          <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
+        </div>
       </div>
       <div style="text-align:right">
         <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">${d.invoiceLabel}</p>
