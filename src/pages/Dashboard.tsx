@@ -411,10 +411,10 @@ const Dashboard = () => {
           Clinical Pipeline
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <PipelineCard icon={TestTube} label="Lab Reports" total={stats.totalLabs} pending={stats.pendingLabs} color="hsl(200, 80%, 45%)" />
-          <PipelineCard icon={ScanLine} label="X-Ray" total={xrayRecs.length} pending={stats.pendingXrays} color="hsl(38, 70%, 48%)" />
-          <PipelineCard icon={Heart} label="Ultrasound" total={ultrasoundRecs.length} pending={stats.pendingUltrasounds} color="hsl(270, 60%, 55%)" />
-          <PipelineCard icon={Users} label="Queue" total={stats.totalPatients} pending={stats.activePatients} color="hsl(168, 80%, 30%)" pendingLabel="active" />
+          <PipelineCard icon={TestTube} label="Lab Reports" total={stats.totalLabs} pending={stats.pendingLabs} color="hsl(210, 70%, 50%)" />
+          <PipelineCard icon={ScanLine} label="X-Ray" total={xrayRecs.length} pending={stats.pendingXrays} color="hsl(195, 65%, 45%)" />
+          <PipelineCard icon={Heart} label="Ultrasound" total={ultrasoundRecs.length} pending={stats.pendingUltrasounds} color="hsl(220, 55%, 55%)" />
+          <PipelineCard icon={Users} label="Queue" total={stats.totalPatients} pending={stats.activePatients} color="hsl(168, 65%, 38%)" pendingLabel="active" />
         </div>
       </div>
 
