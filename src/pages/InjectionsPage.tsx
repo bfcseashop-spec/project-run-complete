@@ -86,14 +86,39 @@ const InjectionsPage = () => {
     setBulkDeleteOpen(false);
   };
 
+  const handleAddStock = async () => {
+    if (!addStockInj || addStockQty <= 0) return;
+    const newStock = addStockInj.stock + addStockQty;
+    await updateInjection(addStockInj.id, { stock: newStock, status: computeInjectionStatus(newStock) });
+    toast.success(`Added ${addStockQty} to ${addStockInj.name}`);
+    setAddStockInj(null);
+    setAddStockQty(0);
+  };
+
   const lowStockCount = injections.filter((i) => i.status === "low-stock").length;
   const outOfStockCount = injections.filter((i) => i.status === "out-of-stock").length;
 
   const columns = [
+    {
+      key: "image", header: "Image", render: (i: InjectionItem) => (
+        i.image ? (
+          <img src={i.image} alt={i.name} className="w-9 h-9 rounded-md object-cover border border-border" />
+        ) : (
+          <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center">
+            <ImageIcon className="w-4 h-4 text-muted-foreground" />
+          </div>
+        )
+      ),
+    },
     { key: "id", header: "Code" },
     { key: "name", header: "Injection Name" },
-    { key: "price", header: "Price", render: (i: InjectionItem) => formatPrice(i.price) },
-    
+    { key: "purchase_price", header: "Purchase Price", render: (i: InjectionItem) => formatPrice(i.purchase_price) },
+    { key: "price", header: "Sale Price", render: (i: InjectionItem) => formatPrice(i.price) },
+    { key: "stock", header: "Stock", render: (i: InjectionItem) => (
+      <span className={`font-medium ${i.stock === 0 ? "text-destructive" : i.stock <= 20 ? "text-warning" : "text-foreground"}`}>
+        {i.stock}
+      </span>
+    )},
     {
       key: "actions", header: "Actions", render: (i: InjectionItem) => (
         <div className="flex items-center gap-0.5">
@@ -102,6 +127,9 @@ const InjectionsPage = () => {
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-warning/10" title="Edit" onClick={() => openEdit(i)}>
             <Pencil className="w-3.5 h-3.5 text-warning" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-emerald-500/10" title="Add Stock" onClick={() => { setAddStockInj(i); setAddStockQty(0); }}>
+            <PackagePlus className="w-3.5 h-3.5 text-emerald-600" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-primary/10" title="Print" onClick={() => printInjectionReport({
             id: i.id, name: i.name, category: i.category,
