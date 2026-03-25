@@ -3,10 +3,10 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Printer, FlaskConical, X } from "lucide-react";
+import { Printer, FlaskConical, X, User, Stethoscope, Clock, FileText, Activity, TestTube } from "lucide-react";
 import { getSettings } from "@/data/settingsStore";
 import { barcodeSVG } from "@/lib/barcode";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LabReportViewProps {
   report: LabReport | null;
@@ -69,7 +69,6 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;bac
 .patient-row .pvalue{color:#1a1a1a;font-weight:500}
 .barcode-col{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .barcode-col .case-label{font-size:11px;font-weight:700;color:#0f766e}
-.barcode-col .pat-no{font-size:10px;color:#666;margin-top:4px}
 .report-body{padding:20px 28px}
 .report-category{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0f766e;padding-bottom:8px;margin-bottom:16px}
 .report-category h2{font-size:18px;font-weight:800;text-transform:uppercase;color:#0f766e;letter-spacing:1px}
@@ -172,137 +171,155 @@ export function printLabReport(report: LabReport) {
 const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   if (!report) return null;
 
-  const statusColor = report.status === "completed"
-    ? "text-green-600 bg-green-50 border-green-200"
-    : report.status === "pending"
-    ? "text-amber-600 bg-amber-50 border-amber-200"
-    : "text-blue-600 bg-blue-50 border-blue-200";
-
-  const statusLabel = report.status === "completed" ? "Complete" : report.status === "pending" ? "Pending" : "In Progress";
+  const isComplete = report.status === "completed";
+  const isPending = report.status === "pending";
+  const statusLabel = isComplete ? "Complete" : isPending ? "Pending" : "In Progress";
 
   const hasResults = report.sections.some(s => s.investigations.some(inv => inv.name));
   const attachments = report.attachments || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[560px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-border/60 shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Lab Report - {report.id}</DialogTitle>
           <DialogDescription>Detailed view of lab report for {report.patient}</DialogDescription>
         </DialogHeader>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border">
-          <div className="flex items-center gap-2">
-            <FlaskConical className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-bold text-card-foreground">Lab Test Management</h2>
+        {/* ── Top Bar ── */}
+        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FlaskConical className="w-[18px] h-[18px] text-primary" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-foreground tracking-tight">Lab Test Report</h2>
+              <p className="text-[11px] text-muted-foreground">{report.id} · {report.date}</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive" onClick={() => onOpenChange(false)}>
             <X className="w-4 h-4" />
           </Button>
         </div>
 
-        {/* Metadata Grid */}
-        <div className="px-5 py-4 space-y-3">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
-            <MetaField label="Test ID" value={report.id} bold />
-            <MetaField label="Test Name" value={report.testName} bold />
-            <MetaField label="Patient" value={report.patient} />
-            <MetaField label="Category">
-              <Badge variant="outline" className="text-xs font-medium">{report.category}</Badge>
-            </MetaField>
-            <MetaField label="Sample Type">
-              <Badge variant="secondary" className="text-xs">{report.sampleType || "—"}</Badge>
-            </MetaField>
-            <MetaField label="Price" value={report.normalRange ? `$${report.normalRange}` : "—"} bold className="text-green-600" />
-            <MetaField label="Processing" value={report.status === "completed" ? "Completed" : "In Progress"} />
-            <MetaField label="Status">
-              <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${statusColor}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        <ScrollArea className="max-h-[calc(95vh-140px)]">
+          {/* ── Patient & Test Info Cards ── */}
+          <div className="px-6 pt-5 pb-4 space-y-4">
+
+            {/* ID + Status Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Test ID</span>
+                <span className="text-sm font-extrabold text-foreground font-mono">{report.id}</span>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
+                isComplete
+                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                  : isPending
+                  ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                  : "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  isComplete ? "bg-emerald-500" : isPending ? "bg-amber-500" : "bg-blue-500"
+                }`} />
                 {statusLabel}
               </span>
-            </MetaField>
-            <MetaField label="Turnaround Time" value={report.expectedTAT || "—"} />
-            <MetaField label="Refer Name" value={report.doctor || "—"} />
-          </div>
+            </div>
 
-          {/* Report Attachments */}
-          <div className="pt-1">
-            <p className="text-xs text-muted-foreground font-medium mb-1">Report</p>
-            {attachments.length > 0 ? (
-              <div className="space-y-1">
-                {attachments.map((att, i) => (
-                  <a key={i} href={att.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline block">
-                    {att.name}
-                  </a>
-                ))}
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCard icon={TestTube} label="Test Name" value={report.testName} accent />
+              <InfoCard icon={User} label="Patient" value={report.patient} />
+              <InfoCard icon={Activity} label="Category" value={report.category} tag />
+              <InfoCard icon={FileText} label="Sample Type" value={report.sampleType || "—"} tag />
+              <InfoCard icon={Stethoscope} label="Referring Doctor" value={report.doctor || "—"} />
+              <InfoCard icon={Clock} label="Turnaround Time" value={report.expectedTAT || "—"} />
+            </div>
+
+            {/* Report Attachments */}
+            {attachments.length > 0 && (
+              <div className="rounded-lg border border-border bg-card p-3">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-2">Attachments</p>
+                <div className="space-y-1">
+                  {attachments.map((att, i) => (
+                    <a key={i} href={att.url} target="_blank" rel="noreferrer" className="text-xs text-primary font-medium hover:underline block">
+                      📎 {att.name}
+                    </a>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">No report</p>
             )}
           </div>
-        </div>
 
-        {/* Test Results */}
-        {hasResults && (
-          <div className="border-t border-border">
-            <div className="px-5 pt-3 pb-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Test Results</p>
-            </div>
-
-            {/* Table Header */}
-            <div className="grid grid-cols-12 gap-0 px-5 py-2 bg-muted/40 border-y border-border">
-              <div className="col-span-4 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Parameter</div>
-              <div className="col-span-3 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Result</div>
-              <div className="col-span-2 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Unit</div>
-              <div className="col-span-3 text-[11px] font-bold text-card-foreground uppercase tracking-wide">Normal/Reference Ranges</div>
-            </div>
-
-            {/* Sections */}
-            {report.sections.map((section, sIdx) => (
-              <div key={sIdx}>
-                {/* Section Title */}
-                {section.title && (
-                  <div className="px-5 py-2 bg-muted/20 border-b border-border">
-                    <span className="text-xs font-extrabold text-primary uppercase tracking-wider">{section.title}</span>
-                  </div>
-                )}
-                {/* Rows */}
-                {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
-                  const isHigh = inv.flag === "High";
-                  const isLow = inv.flag === "Low";
-                  const isPositive = inv.result?.toLowerCase() === "positive";
-                  const resultColor = isHigh ? "text-destructive font-bold"
-                    : isLow ? "text-blue-600 font-bold"
-                    : isPositive ? "text-destructive font-bold"
-                    : "text-card-foreground font-semibold";
-
-                  return (
-                    <div key={iIdx} className="grid grid-cols-12 gap-0 px-5 py-2 border-b border-border/30 hover:bg-muted/20 transition-colors">
-                      <div className="col-span-4 text-sm text-card-foreground">{inv.name}</div>
-                      <div className={`col-span-3 text-sm ${resultColor}`}>{inv.result || "—"}</div>
-                      <div className="col-span-2 text-sm text-muted-foreground">{inv.unit || "—"}</div>
-                      <div className="col-span-3 text-sm text-muted-foreground">{inv.referenceValue || "—"}</div>
-                    </div>
-                  );
-                })}
+          {/* ── Results Table ── */}
+          {hasResults && (
+            <div className="border-t border-border">
+              <div className="px-6 pt-4 pb-2">
+                <h3 className="text-xs font-extrabold text-primary uppercase tracking-[0.15em]">Test Results</h3>
               </div>
-            ))}
-          </div>
-        )}
 
-        {/* Remarks */}
-        {report.remarks && (
-          <div className="px-5 py-3 border-t border-border">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Remarks</p>
-            <p className="text-sm text-card-foreground leading-relaxed">{report.remarks}</p>
-          </div>
-        )}
+              {/* Column Headers */}
+              <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-primary/5 border-y border-border/60">
+                <div className="col-span-4 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Parameter</div>
+                <div className="col-span-2 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Result</div>
+                <div className="col-span-2 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Unit</div>
+                <div className="col-span-4 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Reference Range</div>
+              </div>
 
-        {/* Print Button */}
-        <div className="px-5 py-3 border-t border-border flex justify-end">
-          <Button size="sm" onClick={() => printLabReport(report)}>
-            <Printer className="w-3.5 h-3.5 mr-1.5" /> Print Report
+              {/* Sections */}
+              {report.sections.map((section, sIdx) => (
+                <div key={sIdx}>
+                  {/* Section Header */}
+                  {section.title && (
+                    <div className="px-6 py-2 border-b border-border/40 bg-primary/[0.03]">
+                      <span className="text-[11px] font-extrabold text-primary uppercase tracking-[0.1em]">{section.title}</span>
+                    </div>
+                  )}
+                  {/* Data Rows */}
+                  {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
+                    const isHigh = inv.flag === "High";
+                    const isLow = inv.flag === "Low";
+                    const isPositive = inv.result?.toLowerCase() === "positive";
+                    const flagged = isHigh || isLow || isPositive;
+
+                    return (
+                      <div key={iIdx} className={`grid grid-cols-12 gap-0 px-6 py-2.5 border-b border-border/20 transition-colors hover:bg-muted/30 ${flagged ? "bg-destructive/[0.03]" : ""}`}>
+                        <div className="col-span-4 text-[13px] font-medium text-foreground">{inv.name}</div>
+                        <div className={`col-span-2 text-[13px] font-bold ${
+                          isHigh ? "text-destructive" : isLow ? "text-blue-600" : isPositive ? "text-destructive" : "text-foreground"
+                        }`}>
+                          {inv.result || "—"}
+                          {(isHigh || isLow) && (
+                            <span className="ml-1 text-[9px] font-extrabold">{isHigh ? "↑" : "↓"}</span>
+                          )}
+                        </div>
+                        <div className="col-span-2 text-[13px] text-muted-foreground">{inv.unit || "—"}</div>
+                        <div className="col-span-4 text-[12px] text-muted-foreground leading-relaxed whitespace-pre-line">{inv.referenceValue || "—"}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Remarks ── */}
+          {report.remarks && (
+            <div className="px-6 py-4 border-t border-border">
+              <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.15em] mb-1.5">Remarks</p>
+              <p className="text-sm text-foreground leading-relaxed bg-muted/30 rounded-lg p-3 border border-border/40">{report.remarks}</p>
+            </div>
+          )}
+        </ScrollArea>
+
+        {/* ── Sticky Footer ── */}
+        <div className="px-6 py-3 border-t border-border bg-card flex items-center justify-between">
+          <p className="text-[11px] text-muted-foreground">
+            {isComplete ? "Report finalised" : "Awaiting results"}
+          </p>
+          <Button size="sm" className="rounded-lg px-5 gap-2 font-semibold shadow-sm" onClick={() => printLabReport(report)}>
+            <Printer className="w-3.5 h-3.5" />
+            Print Report
           </Button>
         </div>
       </DialogContent>
@@ -310,21 +327,26 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   );
 };
 
-function MetaField({ label, value, bold, className, children }: {
+function InfoCard({ icon: Icon, label, value, accent, tag }: {
+  icon: React.ElementType;
   label: string;
-  value?: string;
-  bold?: boolean;
-  className?: string;
-  children?: React.ReactNode;
+  value: string;
+  accent?: boolean;
+  tag?: boolean;
 }) {
   return (
-    <div>
-      <p className="text-[11px] text-muted-foreground font-medium">{label}</p>
-      {children || (
-        <p className={`text-sm ${bold ? "font-bold" : "font-medium"} ${className || "text-card-foreground"}`}>
-          {value}
-        </p>
-      )}
+    <div className={`rounded-lg border p-3 flex items-start gap-2.5 transition-colors ${accent ? "border-primary/20 bg-primary/[0.04]" : "border-border bg-card"}`}>
+      <div className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${accent ? "bg-primary/10" : "bg-muted"}`}>
+        <Icon className={`w-3.5 h-3.5 ${accent ? "text-primary" : "text-muted-foreground"}`} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{label}</p>
+        {tag ? (
+          <span className="inline-block mt-0.5 text-xs font-semibold text-foreground bg-muted px-2 py-0.5 rounded-md">{value}</span>
+        ) : (
+          <p className={`text-sm font-semibold text-foreground truncate mt-0.5 ${accent ? "text-primary" : ""}`}>{value}</p>
+        )}
+      </div>
     </div>
   );
 }
