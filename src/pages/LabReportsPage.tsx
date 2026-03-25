@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
 import PageHeader from "@/components/PageHeader";
@@ -66,6 +67,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 };
 
 const LabReportsPage = () => {
+  const navigate = useNavigate();
   const { activeTestNames, findByName } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
@@ -373,6 +375,7 @@ const LabReportsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
+        <Button variant="outline" onClick={() => navigate("/test-names")}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
 
