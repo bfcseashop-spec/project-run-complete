@@ -914,18 +914,18 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border" style={{ background: "hsl(var(--muted) / 0.5)" }}>
+      <div className="grid grid-cols-12 gap-0 px-6 py-3 border-y border-border bg-muted/40">
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Parameter</div>
         <div className="col-span-3 text-xs font-bold text-primary uppercase tracking-wider">Result</div>
         <div className="col-span-2 text-xs font-bold text-primary uppercase tracking-wider">Unit</div>
-        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider leading-tight">Normal/Reference<br/>Ranges</div>
+        <div className="col-span-4 text-xs font-bold text-primary uppercase tracking-wider">Normal/Reference Ranges</div>
       </div>
 
       {/* Sections & Investigations */}
       <div className="max-h-[60vh] overflow-y-auto">
         {sections.map((sec, sIdx) => (
           <div key={sIdx}>
-            {/* Section Header — styled label like image */}
+            {/* Section Header */}
             <div className="px-6 py-2.5 border-b border-border/40">
               <Input
                 className="h-6 bg-transparent border-0 px-0 font-bold text-sm uppercase tracking-wide text-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-primary/40 placeholder:font-normal placeholder:normal-case placeholder:tracking-normal"
@@ -943,9 +943,9 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             {sec.investigations.map((inv, iIdx) => {
               const flagged = isResultFlagged(inv);
               return (
-                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-center">
+                <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-start">
                   {/* Parameter */}
-                  <div className="col-span-3 pr-2">
+                  <div className="col-span-3 pr-2 pt-1.5">
                     <Input
                       className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium text-card-foreground"
                       value={inv.name}
@@ -953,8 +953,8 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="e.g. Hemoglobin"
                     />
                   </div>
-                  {/* Result */}
-                  <div className="col-span-3 pr-4">
+                  {/* Result — editable */}
+                  <div className="col-span-3 pr-4 pt-0.5">
                     <Input
                       className={`h-9 text-sm font-semibold rounded-md px-3 ${
                         flagged
@@ -966,15 +966,19 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                       placeholder="Enter result"
                     />
                   </div>
-                  {/* Unit — display as text, editable inline */}
-                  <div className="col-span-2 pr-2">
+                  {/* Unit */}
+                  <div className="col-span-2 pr-2 pt-2">
                     <span className="text-sm text-muted-foreground">{inv.unit || "—"}</span>
                   </div>
-                  {/* Normal/Reference Range — display as text with parentheses */}
-                  <div className="col-span-4">
-                    <span className="text-sm text-muted-foreground">
-                      {inv.referenceValue ? `(${inv.referenceValue.replace(/^\(|\)$/g, "")})` : "—"}
-                    </span>
+                  {/* Normal/Reference Range — editable, multiline support */}
+                  <div className="col-span-4 pt-0.5">
+                    <Textarea
+                      className="min-h-[36px] text-sm border-0 bg-transparent px-0 py-1.5 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-muted-foreground"
+                      value={inv.referenceValue}
+                      onChange={e => updateInv(sIdx, iIdx, "referenceValue", e.target.value)}
+                      placeholder="—"
+                      rows={1}
+                    />
                   </div>
                 </div>
               );
@@ -1000,16 +1004,15 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       </div>
 
       {/* Remarks */}
-      <div className="px-6 pt-4 pb-2 space-y-1.5 border-t border-border">
+      <div className="px-6 pt-4 pb-3 space-y-1.5 border-t border-border">
         <Label className="text-xs text-muted-foreground font-medium">Remarks</Label>
         <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} rows={2} placeholder="Clinical notes, observations..." />
       </div>
 
-      {/* Footer Actions */}
-      <div className="flex justify-end gap-2 px-6 py-3 border-t border-border bg-muted/30">
-        <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
-        <Button size="sm" onClick={() => onSave(sections, remarks, technician)}>
-          <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Save & Complete
+      {/* Full-width Save Button */}
+      <div className="px-6 pb-4">
+        <Button className="w-full h-11 text-sm font-semibold" onClick={() => onSave(sections, remarks, technician)}>
+          Save Results
         </Button>
       </div>
     </div>
