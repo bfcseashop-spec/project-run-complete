@@ -276,6 +276,19 @@ const LabReportsPage = () => {
       },
     },
     {
+      key: "attachments", header: "Files",
+      render: (r: LabReport) => {
+        const files = r.attachments || [];
+        if (files.length === 0) return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <div className="flex items-center gap-1">
+            <Paperclip className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-medium text-primary">{files.length} file{files.length > 1 ? "s" : ""}</span>
+          </div>
+        );
+      },
+    },
+    {
       key: "status", header: "Status",
       render: (r: LabReport) => {
         const mapped = r.status === "in-progress" ? "active" : r.status;
