@@ -301,57 +301,17 @@ const AddTestPage = () => {
                 {/* Test Entry Cards */}
                 <div className="space-y-4">
                   {tests.map((t, idx) => (
-                    <div key={t.id} className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-muted-foreground">Test #{idx + 1}</span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={t.mode === "auto" ? "default" : "outline"} className="text-[10px] h-5">
-                            {t.mode === "auto" ? "Auto" : "Manual"}
-                          </Badge>
-                          <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeTest(t.id)}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Test Name</Label>
-                          {t.mode === "auto" ? (
-                            <Input value={t.test} readOnly className="bg-muted font-medium" />
-                          ) : (
-                            <Input
-                              value={t.test}
-                              onChange={(e) => updateTest(t.id, { test: e.target.value })}
-                              placeholder="Enter test name"
-                            />
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Sample Type</Label>
-                          <Select value={t.sampleType} onValueChange={(v) => updateTest(t.id, { sampleType: v as LabTest["sampleType"] })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Normal Range</Label>
-                          <Input value={t.normalRange} onChange={(e) => updateTest(t.id, { normalRange: e.target.value })} placeholder="e.g. 70-100" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Unit</Label>
-                          <Input value={t.unit} onChange={(e) => updateTest(t.id, { unit: e.target.value })} placeholder="e.g. mg/dL" />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Price</Label>
-                          <Input type="number" value={t.price || ""} onChange={(e) => updateTest(t.id, { price: Number(e.target.value) || 0 })} placeholder="0" />
-                        </div>
-                      </div>
+                    <div key={t.id} className="border border-border rounded-lg px-4 py-3 bg-muted/30 flex items-center gap-4">
+                      <span className="text-xs font-medium text-muted-foreground shrink-0 w-14">#{idx + 1}</span>
+                      <span className="text-sm font-medium text-foreground flex-1 truncate">{t.test || "—"}</span>
+                      <span className="text-xs text-muted-foreground capitalize shrink-0">{t.sampleType}</span>
+                      <span className="text-sm font-semibold text-foreground shrink-0 w-20 text-right">{formatPrice(t.price)}</span>
+                      <Badge variant={t.mode === "auto" ? "default" : "outline"} className="text-[10px] h-5 shrink-0">
+                        {t.mode === "auto" ? "Auto" : "Manual"}
+                      </Badge>
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0" onClick={() => removeTest(t.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   ))}
                 </div>
