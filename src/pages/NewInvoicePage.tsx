@@ -579,10 +579,10 @@ const NewInvoicePage = () => {
                 <div className="space-y-4">
                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Briefcase className="w-3 h-3" /> Service</Label>
+                      <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><Briefcase className="w-3 h-3" /> Test Name</Label>
                       <SearchableItemSelect
-                        placeholder="Add service..."
-                        searchPlaceholder="Search service..."
+                        placeholder="Add test name..."
+                        searchPlaceholder="Search test name..."
                         icon={<Briefcase className="w-3.5 h-3.5 text-primary opacity-60" />}
                         options={serviceOptions.map(s => ({
                           value: s.name,
