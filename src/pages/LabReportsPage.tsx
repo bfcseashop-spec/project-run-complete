@@ -68,12 +68,13 @@ const emptyForm: Omit<LabReport, "id"> = {
 
 const LabReportsPage = () => {
   const navigate = useNavigate();
-  const { activeTestNames, findByName, addTest } = useTestNameStore();
+  const { activeTests, activeTestNames, findByName, addTest, updateTest, removeTest } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const [addParamOpen, setAddParamOpen] = useState(false);
   const [paramName, setParamName] = useState("");
+  const [editParamId, setEditParamId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editReport, setEditReport] = useState<LabReport | null>(null);
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
@@ -657,23 +658,59 @@ const LabReportsPage = () => {
 
       {/* ========== ADD PARAMETER DIALOG ========== */}
       <Dialog open={addParamOpen} onOpenChange={setAddParamOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Parameter</DialogTitle>
-            <DialogDescription>Add a new test parameter name</DialogDescription>
+            <DialogTitle>Parameters</DialogTitle>
+            <DialogDescription>Manage test parameter names</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Name <span className="text-destructive">*</span></Label>
-              <Input value={paramName} onChange={(e) => setParamName(e.target.value)} placeholder="Enter parameter name" />
+            {/* Add / Edit input */}
+            <div className="flex gap-2">
+              <Input value={paramName} onChange={(e) => setParamName(e.target.value)} placeholder="Enter parameter name" className="flex-1" />
+              <Button size="sm" disabled={!paramName.trim()} onClick={async () => {
+                try {
+                  if (editParamId) {
+                    await updateTest(editParamId, { name: paramName.trim() });
+                    toast.success("Parameter updated");
+                    setEditParamId(null);
+                  } else {
+                    await addTest({ name: paramName.trim(), category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true });
+                    toast.success(`Parameter "${paramName.trim()}" added`);
+                  }
+                  setParamName("");
+                } catch { toast.error("Failed to save parameter"); }
+              }}>{editParamId ? "Update" : "Save"}</Button>
+              {editParamId && (
+                <Button size="sm" variant="outline" onClick={() => { setEditParamId(null); setParamName(""); }}>Cancel</Button>
+              )}
             </div>
-            <Button className="w-full" disabled={!paramName.trim()} onClick={async () => {
-              try {
-                await addTest({ name: paramName.trim(), category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true });
-                toast.success(`Parameter "${paramName.trim()}" added`);
-                setAddParamOpen(false);
-              } catch { toast.error("Failed to add parameter"); }
-            }}>Save</Button>
+
+            {/* Parameter list */}
+            {activeTests.length > 0 && (
+              <div className="border border-border rounded-lg max-h-64 overflow-y-auto divide-y divide-border">
+                {activeTests.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between px-3 py-2 hover:bg-muted/50">
+                    <span className="text-sm font-medium truncate flex-1">{t.name}</span>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditParamId(t.id); setParamName(t.name); }}>
+                        <Pencil className="w-3.5 h-3.5 text-warning" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
+                        try {
+                          await removeTest(t.id);
+                          toast.success(`"${t.name}" deleted`);
+                        } catch { toast.error("Failed to delete"); }
+                      }}>
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {activeTests.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">No parameters yet. Add one above.</p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
