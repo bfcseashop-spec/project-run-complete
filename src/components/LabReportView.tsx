@@ -278,6 +278,8 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               <MetaItem label="Report ID" value={report.id} mono />
               <MetaItem label="Test Name" value={report.testName} bold />
               <MetaItem label="Patient" value={report.patient} bold />
+              <MetaItem label="Age" value={report.age ? `${report.age} Years` : "—"} />
+              <MetaItem label="Gender" value={report.gender || "—"} />
               <MetaItem label="Category" value={report.category} />
               <MetaItem label="Sample Type" value={report.sampleType || "—"} />
               <MetaItem label="Referring Doctor" value={report.doctor || "—"} />
