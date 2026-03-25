@@ -231,9 +231,21 @@ const InjectionsPage = () => {
                 <Label>Injection Name *</Label>
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Ceftriaxone" />
               </div>
+              <div className="col-span-2">
+                <Label>Image URL</Label>
+                <Input value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} placeholder="https://..." />
+              </div>
               <div>
-                <Label>Price</Label>
+                <Label>Purchase Price</Label>
+                <Input type="number" value={form.purchase_price} onChange={(e) => setForm((f) => ({ ...f, purchase_price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Sale Price</Label>
                 <Input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
+              </div>
+              <div>
+                <Label>Stock</Label>
+                <Input type="number" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))} />
               </div>
               <div>
                 <Label>Status</Label>
