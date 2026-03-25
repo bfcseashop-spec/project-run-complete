@@ -73,6 +73,8 @@ const LabReportsPage = () => {
   const [deleteReport, setDeleteReport] = useState<LabReport | null>(null);
   const [viewReport, setViewReport] = useState<LabReport | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
+  const [inputResultsReport, setInputResultsReport] = useState<LabReport | null>(null);
+  const [uploadReport, setUploadReport] = useState<LabReport | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
