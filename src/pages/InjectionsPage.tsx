@@ -6,7 +6,7 @@ import DataToolbar from "@/components/DataToolbar";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useDataToolbar } from "@/hooks/use-data-toolbar";
-import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Syringe, Eye, Printer, Barcode, Search, PackagePlus, ImageIcon } from "lucide-react";
 import { printInjectionReport, printBarcode } from "@/lib/printUtils";
 import { formatPrice } from "@/lib/currency";
 import { useSettings } from "@/hooks/use-settings";
