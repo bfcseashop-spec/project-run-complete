@@ -293,10 +293,10 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b-2 border-foreground/80">
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[36%]">Investigation</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[18%]">Result</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[24%]">Reference Value</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 w-[22%]">Normal Ranges</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[34%]">Test Name</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[22%]">Result</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[18%]">Unit</th>
+                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 w-[26%]">Normal Ranges</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -332,10 +332,8 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
                                 )}
                               </span>
                             </td>
-                            <td className="py-2 pr-3 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</td>
-                            <td className="py-2 text-[12px] text-muted-foreground">
-                              {inv.referenceValue ? `${inv.referenceValue} ${inv.unit || ""}`.trim() : "—"}
-                            </td>
+                            <td className="py-2 pr-3 text-[12px] text-muted-foreground">{inv.unit || "—"}</td>
+                            <td className="py-2 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</td>
                           </tr>
                         );
                       })}
