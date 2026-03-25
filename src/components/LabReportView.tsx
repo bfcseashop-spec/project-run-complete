@@ -304,25 +304,36 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
           {/* ── Results Table ── */}
           {hasResults && (
             <div className="border-t border-border">
-              <div className="px-6 pt-4 pb-2">
-                <h3 className="text-xs font-extrabold text-primary uppercase tracking-[0.15em]">Test Results</h3>
+              {/* Test Title */}
+              <div className="text-center py-3 border-b-2 border-primary">
+                <h3 className="text-base font-extrabold text-foreground">{report.testName || report.category}</h3>
               </div>
 
               {/* Column Headers */}
-              <div className="grid grid-cols-12 gap-0 px-6 py-2.5 bg-primary/5 border-y border-border/60">
-                <div className="col-span-4 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Parameter</div>
-                <div className="col-span-2 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Result</div>
-                <div className="col-span-2 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Unit</div>
-                <div className="col-span-4 text-[10px] font-extrabold text-foreground uppercase tracking-[0.12em]">Reference Range</div>
+              <div className="grid grid-cols-12 gap-0 px-5 py-2.5 border-b-2 border-foreground/80">
+                <div className="col-span-4 text-[11px] font-extrabold text-foreground">Investigation</div>
+                <div className="col-span-2 text-[11px] font-extrabold text-foreground">Result</div>
+                <div className="col-span-1 text-[11px] font-extrabold text-foreground"></div>
+                <div className="col-span-3 text-[11px] font-extrabold text-foreground">Reference Value</div>
+                <div className="col-span-2 text-[11px] font-extrabold text-foreground">Unit</div>
               </div>
+
+              {/* Sample Type Row */}
+              {report.sampleType && (
+                <div className="grid grid-cols-12 gap-0 px-5 py-2 border-b border-border/30">
+                  <div className="col-span-4 text-[12px] text-foreground">Primary Sample Type :</div>
+                  <div className="col-span-2 text-[12px] font-medium text-foreground">{report.sampleType}</div>
+                  <div className="col-span-6"></div>
+                </div>
+              )}
 
               {/* Sections */}
               {report.sections.map((section, sIdx) => (
                 <div key={sIdx}>
-                  {/* Section Header */}
+                  {/* Section Header - bold inline like reference */}
                   {section.title && (
-                    <div className="px-6 py-2 border-b border-border/40 bg-primary/[0.03]">
-                      <span className="text-[11px] font-extrabold text-primary uppercase tracking-[0.1em]">{section.title}</span>
+                    <div className="px-5 pt-3 pb-1">
+                      <span className="text-[12px] font-extrabold text-foreground uppercase tracking-wide">{section.title}</span>
                     </div>
                   )}
                   {/* Data Rows */}
@@ -330,21 +341,25 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
                     const isHigh = inv.flag === "High";
                     const isLow = inv.flag === "Low";
                     const isPositive = inv.result?.toLowerCase() === "positive";
-                    const flagged = isHigh || isLow || isPositive;
+                    const flagLabel = isHigh ? "High" : isLow ? "Low" : isPositive ? "Positive" : "";
 
                     return (
-                      <div key={iIdx} className={`grid grid-cols-12 gap-0 px-6 py-2.5 border-b border-border/20 transition-colors hover:bg-muted/30 ${flagged ? "bg-destructive/[0.03]" : ""}`}>
-                        <div className="col-span-4 text-[13px] font-medium text-foreground">{inv.name}</div>
-                        <div className={`col-span-2 text-[13px] font-bold ${
-                          isHigh ? "text-destructive" : isLow ? "text-blue-600" : isPositive ? "text-destructive" : "text-foreground"
+                      <div key={iIdx} className="grid grid-cols-12 gap-0 px-5 py-1.5 hover:bg-muted/20 transition-colors">
+                        <div className="col-span-4 text-[12px] text-foreground">{inv.name}</div>
+                        <div className={`col-span-2 text-[12px] font-bold ${
+                          isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : "text-foreground"
                         }`}>
                           {inv.result || "—"}
-                          {(isHigh || isLow) && (
-                            <span className="ml-1 text-[9px] font-extrabold">{isHigh ? "↑" : "↓"}</span>
+                        </div>
+                        <div className="col-span-1">
+                          {flagLabel && (
+                            <span className={`text-[10px] font-bold ${
+                              isHigh || isPositive ? "text-orange-600" : "text-blue-600"
+                            }`}>{flagLabel}</span>
                           )}
                         </div>
-                        <div className="col-span-2 text-[13px] text-muted-foreground">{inv.unit || "—"}</div>
-                        <div className="col-span-4 text-[12px] text-muted-foreground leading-relaxed whitespace-pre-line">{inv.referenceValue || "—"}</div>
+                        <div className="col-span-3 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</div>
+                        <div className="col-span-2 text-[12px] text-muted-foreground">{inv.unit || "—"}</div>
                       </div>
                     );
                   })}
