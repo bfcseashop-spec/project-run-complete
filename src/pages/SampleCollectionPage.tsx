@@ -452,7 +452,7 @@ const SampleCollectionPage = () => {
                 <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
                   <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
                   <SelectContent>
-                    {labTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {allTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
