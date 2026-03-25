@@ -563,7 +563,7 @@ const NewInvoicePage = () => {
               <button onClick={() => setActiveTab("services")}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-wide transition-colors
                   ${activeTab === "services" ? "text-primary border-b-2 border-primary bg-card" : "text-muted-foreground hover:text-foreground"}`}>
-                <Layers className="w-3.5 h-3.5" /> Services & More
+                <Layers className="w-3.5 h-3.5" /> Test Names & More
                 {svcCount + injCount + pkgCount > 0 && <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full font-bold">{svcCount + injCount + pkgCount}</span>}
               </button>
               <button onClick={() => setActiveTab("medicines")}
