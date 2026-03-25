@@ -818,11 +818,10 @@ const LabReportsPage = () => {
           {uploadReport && (
             <UploadReportForm
               report={uploadReport}
-              onDone={(url) => {
+              onDone={(attachment) => {
+                const existing = uploadReport.attachments || [];
                 updateLabReport(uploadReport.id, {
-                  remarks: uploadReport.remarks
-                    ? `${uploadReport.remarks}\n📎 Uploaded: ${url}`
-                    : `📎 Uploaded: ${url}`,
+                  attachments: [...existing, attachment],
                   status: uploadReport.status === "pending" ? "in-progress" : uploadReport.status,
                 });
                 toast.success("Report file uploaded successfully");
