@@ -518,6 +518,166 @@ const SecurityTab = () => {
   );
 };
 
+/* ─── Invoice Theme Templates ─── */
+const invoiceThemes = [
+  {
+    id: "classic",
+    name: "Classic",
+    description: "Clean professional layout with traditional styling",
+    headerBg: "hsl(215, 28%, 17%)",
+    headerText: "white",
+    accent: "hsl(215, 28%, 17%)",
+    tableBorder: "hsl(210, 18%, 85%)",
+    tableHeader: "hsl(210, 20%, 96%)",
+    style: "border-l-4 border-l-[hsl(215,28%,17%)]",
+  },
+  {
+    id: "modern-teal",
+    name: "Modern Teal",
+    description: "Fresh teal gradient with modern card-based design",
+    headerBg: "hsl(168, 80%, 30%)",
+    headerText: "white",
+    accent: "hsl(168, 80%, 30%)",
+    tableBorder: "hsl(168, 40%, 85%)",
+    tableHeader: "hsl(168, 30%, 96%)",
+    style: "border-l-4 border-l-[hsl(168,80%,30%)]",
+  },
+  {
+    id: "royal-blue",
+    name: "Royal Blue",
+    description: "Elegant blue theme with sophisticated typography",
+    headerBg: "hsl(220, 70%, 45%)",
+    headerText: "white",
+    accent: "hsl(220, 70%, 45%)",
+    tableBorder: "hsl(220, 40%, 85%)",
+    tableHeader: "hsl(220, 30%, 96%)",
+    style: "border-l-4 border-l-[hsl(220,70%,45%)]",
+  },
+  {
+    id: "minimal-gray",
+    name: "Minimal Gray",
+    description: "Ultra-clean minimalist with subtle gray accents",
+    headerBg: "hsl(210, 10%, 30%)",
+    headerText: "white",
+    accent: "hsl(210, 10%, 40%)",
+    tableBorder: "hsl(210, 10%, 88%)",
+    tableHeader: "hsl(210, 10%, 97%)",
+    style: "border-l-4 border-l-[hsl(210,10%,30%)]",
+  },
+  {
+    id: "warm-coral",
+    name: "Warm Coral",
+    description: "Warm and inviting with coral and gold highlights",
+    headerBg: "hsl(12, 70%, 50%)",
+    headerText: "white",
+    accent: "hsl(12, 70%, 50%)",
+    tableBorder: "hsl(12, 30%, 88%)",
+    tableHeader: "hsl(12, 20%, 97%)",
+    style: "border-l-4 border-l-[hsl(12,70%,50%)]",
+  },
+];
+
+const InvoiceThemeTab = () => {
+  const { settings, update } = useSettings();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground mb-1">Invoice Theme Template</h3>
+        <p className="text-xs text-muted-foreground">Choose a theme for your printed invoices. The selected theme will be applied to all new invoices.</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {invoiceThemes.map((theme) => {
+          const isSelected = settings.invoiceTheme === theme.id;
+          return (
+            <button
+              key={theme.id}
+              onClick={() => update({ invoiceTheme: theme.id })}
+              className={cn(
+                "relative text-left rounded-xl border-2 p-0 overflow-hidden transition-all duration-200 hover:shadow-lg",
+                isSelected ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/40"
+              )}
+            >
+              {/* Selected badge */}
+              {isSelected && (
+                <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                </div>
+              )}
+
+              {/* Mini invoice preview */}
+              <div className="p-3">
+                {/* Header preview */}
+                <div className="rounded-t-lg p-2.5" style={{ background: theme.headerBg }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="w-16 h-1.5 rounded-full bg-white/70 mb-1" />
+                      <div className="w-10 h-1 rounded-full bg-white/40" />
+                    </div>
+                    <div className="text-right">
+                      <div className="w-12 h-1.5 rounded-full bg-white/60 mb-1 ml-auto" />
+                      <div className="w-8 h-1 rounded-full bg-white/30 ml-auto" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info cards preview */}
+                <div className="flex gap-1.5 my-1.5">
+                  <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
+                    <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
+                    <div className="w-12 h-1 rounded-full bg-muted-foreground/20" />
+                  </div>
+                  <div className="flex-1 rounded p-1.5" style={{ background: theme.tableHeader, border: `1px solid ${theme.tableBorder}` }}>
+                    <div className="w-8 h-1 rounded-full mb-1" style={{ background: theme.accent, opacity: 0.4 }} />
+                    <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+                  </div>
+                </div>
+
+                {/* Table preview */}
+                <div className="rounded" style={{ border: `1px solid ${theme.tableBorder}` }}>
+                  <div className="flex gap-1 p-1.5" style={{ background: theme.tableHeader }}>
+                    <div className="w-3 h-1 rounded-full bg-muted-foreground/30" />
+                    <div className="flex-1 h-1 rounded-full bg-muted-foreground/30" />
+                    <div className="w-5 h-1 rounded-full bg-muted-foreground/30" />
+                  </div>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-1 p-1.5" style={{ borderTop: `1px solid ${theme.tableBorder}` }}>
+                      <div className="w-3 h-1 rounded-full bg-muted-foreground/15" />
+                      <div className="flex-1 h-1 rounded-full bg-muted-foreground/15" />
+                      <div className="w-5 h-1 rounded-full bg-muted-foreground/15" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer preview */}
+                <div className="flex justify-end mt-1.5">
+                  <div className="w-16 rounded p-1.5" style={{ background: theme.headerBg }}>
+                    <div className="w-10 h-1 rounded-full bg-white/60 mb-0.5 ml-auto" />
+                    <div className="w-8 h-1.5 rounded-full bg-white/80 ml-auto" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Theme info */}
+              <div className={cn("px-3 pb-3 pt-1", theme.style)}>
+                <p className="text-sm font-bold text-card-foreground">{theme.name}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{theme.description}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-end">
+        <Button onClick={async () => { await saveSettingsNow(); toast.success("Invoice theme saved"); }}>
+          <Save className="w-4 h-4 mr-2" /> Save Theme
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 /* ─── Main Settings Page ─── */
 const SettingsPage = () => {
   return (
