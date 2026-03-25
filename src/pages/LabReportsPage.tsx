@@ -375,7 +375,7 @@ const LabReportsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
-        <Button variant="outline" onClick={() => navigate("/test-names")}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
+        <Button variant="outline" onClick={() => navigate("/lab-tests/names")}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
 
