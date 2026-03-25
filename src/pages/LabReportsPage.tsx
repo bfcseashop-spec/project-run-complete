@@ -751,6 +751,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onSave: (sections: ReportSection[], remarks: string, technician: string) => void;
   onCancel: () => void;
 }) {
+  const { activeTestNames } = useTestNameStore();
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
@@ -833,13 +834,17 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
               return (
                 <div key={iIdx} className="grid grid-cols-12 gap-0 px-6 py-3.5 border-b border-border/30 items-start">
                   {/* Parameter */}
-                  <div className="col-span-3 pr-2 pt-1.5">
-                    <Input
-                      className="h-8 text-sm border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium text-card-foreground"
-                      value={inv.name}
-                      onChange={e => updateInv(sIdx, iIdx, "name", e.target.value)}
-                      placeholder="e.g. Hemoglobin"
-                    />
+                  <div className="col-span-3 pr-2 pt-0.5">
+                    <Select value={inv.name} onValueChange={(v) => updateInv(sIdx, iIdx, "name", v)}>
+                      <SelectTrigger className="h-8 text-sm border-0 bg-transparent px-0 focus:ring-0 shadow-none font-medium text-card-foreground">
+                        <SelectValue placeholder="Select parameter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeTestNames.map((name) => (
+                          <SelectItem key={name} value={name}>{name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   {/* Result — editable */}
                   <div className="col-span-3 pr-4 pt-0.5">
