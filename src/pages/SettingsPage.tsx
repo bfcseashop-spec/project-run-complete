@@ -603,7 +603,7 @@ const InvoiceThemeTab = () => {
               </div>
 
               {/* Theme info */}
-              <div className={cn("px-3 pb-3 pt-1", theme.style)}>
+              <div className="px-3 pb-3 pt-1 border-l-4" style={{ borderLeftColor: theme.headerBg }}>
                 <p className="text-sm font-bold text-card-foreground">{theme.name}</p>
                 <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{theme.description}</p>
               </div>
