@@ -318,100 +318,25 @@ const NewInvoicePage = () => {
 
   const handlePrintFromInvoice = () => {
     const s = appSettings;
-    const theme = getInvoiceTheme(s.invoiceTheme || "modern-teal");
-    const invoiceItems = previewItems;
     const invoiceId = nextInvoiceId;
     const now = new Date();
     const dateTimeStr = `${date} ${now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
-    const barcodeStr = barcodeSVG(invoiceId, 220, 50);
-    const rows = invoiceItems.map((item, i) => {
-      const mainRow = `<tr style="background:#f8fafc"><td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};color:#64748b;font-size:13px">${i + 1}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};font-weight:700;font-size:13px">${item.name}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};font-size:12px;color:#64748b">${item.description}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:center;font-size:13px;font-weight:600">${item.qty}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:right;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600">${formatPrice(item.price)}</td>
-       <td style="padding:10px 14px;border-bottom:1px solid ${theme.tableBorder};text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
-      const subRows = item.subItems.map((sub) =>
-        `<tr><td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader}"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid ${theme.tableHeader};text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
-      ).join("");
-      return mainRow + subRows;
-    }).join("");
-    let totalsHtml = `<div style="margin-left:auto;width:320px;font-size:13px;margin-top:16px">
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Subtotal</span><span style="font-weight:500">${formatPrice(subtotal)}</span></div>`;
-    if (discountAmount > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Discount</span><span style="color:#ef4444;font-weight:500">-${formatPrice(discountAmount)}</span></div>`;
-    if (taxRate > 0) totalsHtml += `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Tax (${taxRate}%)</span><span style="font-weight:500">${formatPrice(taxAmount)}</span></div>`;
-    totalsHtml += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid ${theme.totalBorderColor};margin-top:8px;font-weight:800;font-size:18px"><span>Grand Total</span><span style="color:${theme.accent}">${formatDualPrice(grandTotal)}</span></div>`;
     const finalPaid = splitMode ? splitPaidTotal : (paymentMethod === "Due" ? paidAmount : grandTotal);
     const finalDue = Math.max(0, grandTotal - finalPaid);
-    const paidLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Paid</span><span style="color:#16a34a;font-weight:600">${formatPrice(finalPaid)}</span></div>`;
-    const dueLine = `<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#64748b">Due</span><span style="font-weight:600;color:${finalDue > 0 ? '#ef4444' : '#16a34a'}">${formatPrice(finalDue)}</span></div>`;
-    totalsHtml += paidLine + dueLine + `</div>`;
     const payMethodStr = splitMode ? splitPayments.filter(sp => sp.amount > 0).map(sp => `${sp.method}: ${formatDualPrice(sp.amount)}`).join(", ") : paymentMethod;
+    const html = generateInvoiceHtml(s.invoiceTheme || "modern-teal", {
+      clinicName: s.clinicName, clinicTagline: s.clinicTagline, clinicAddress: s.clinicAddress,
+      clinicPhone: s.clinicPhone, clinicWebsite: s.clinicWebsite, clinicEmail: s.clinicEmail,
+      clinicLogo, invoiceId, invoiceLabel: "Invoice", dateTimeStr, patient,
+      patientAge, patientGender, patientPhone, doctor, doctorDegree,
+      paymentMethod: payMethodStr, barcodeStr: barcodeSVG(invoiceId, 220, 50),
+      rows: previewItems as InvoiceRow[], subtotal, discountAmount, taxRate, taxAmount,
+      grandTotal: formatDualPrice(grandTotal), formatPrice,
+      paidFormatted: formatPrice(finalPaid), dueFormatted: formatPrice(finalDue), dueAmount: finalDue,
+    });
     const win = window.open("", "_blank", "width=800,height=900");
     if (!win) return;
-    win.document.write(`<!DOCTYPE html><html><head><title>Invoice - ${patient}</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;background:#fff;padding:0;position:relative}
-.page{padding:32px 40px;position:relative;overflow:hidden}
-.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;width:320px;height:320px;pointer-events:none;z-index:0}
-.content{position:relative;z-index:1}
-@media print{@page{margin:15mm}body{padding:0}.page{padding:20px 30px}}</style></head><body>
-<div class="page">
-  <img src="${clinicLogo}" class="watermark" alt="" />
-  <div class="content">
-    <div style="background:${theme.headerGradient};border-radius:12px;padding:20px 28px;color:${theme.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h1 style="font-size:22px;font-weight:800;margin:0">${s.clinicName}</h1>
-        <p style="font-size:12px;opacity:0.8;margin-top:2px">${s.clinicTagline}</p>
-        <p style="font-size:10px;opacity:0.6;margin-top:4px">${s.clinicAddress} · ${s.clinicPhone}</p>
-      </div>
-      <div style="text-align:right">
-        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Invoice</p>
-        <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${invoiceId}</p>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
-      <div style="background:${theme.patientBg};border:1px solid ${theme.patientBorder};border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${theme.patientLabel};font-weight:600;margin-bottom:6px">Patient Info</p>
-        <p><strong>${patient}</strong></p>
-        ${patientAge || patientGender ? `<p style="color:#64748b;margin-top:2px">${patientAge ? `Age: ${patientAge}` : ''}${patientAge && patientGender ? ' · ' : ''}${patientGender ? `Gender: ${patientGender}` : ''}</p>` : ''}
-        ${patientPhone ? `<p style="color:#64748b;margin-top:2px">📞 ${patientPhone}</p>` : ''}
-      </div>
-      <div style="background:${theme.doctorBg};border:1px solid ${theme.doctorBorder};border-radius:8px;padding:12px 16px">
-        <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${theme.doctorLabel};font-weight:600;margin-bottom:6px">Doctor & Invoice</p>
-        ${doctor ? `<p><strong>${doctor}</strong></p>` : ''}
-        ${doctorDegree ? `<p style="color:#64748b;font-size:12px;margin-top:1px">${doctorDegree}</p>` : ''}
-        <p style="margin-top:4px">Date: <strong>${dateTimeStr}</strong></p>
-        <p style="margin-top:2px">Payment: <strong>${payMethodStr}</strong></p>
-      </div>
-    </div>
-    <table style="width:100%;border-collapse:collapse;border:1px solid ${theme.tableBorder};border-radius:8px;overflow:hidden;margin-bottom:4px">
-      <thead><tr style="background:${theme.tableHeaderGradient}">
-        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">#</th>
-        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Item</th>
-        <th style="padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Description</th>
-        <th style="padding:10px 14px;text-align:center;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Qty</th>
-        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Price</th>
-        <th style="padding:10px 14px;text-align:right;font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:0.5px;font-weight:600">Total</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    ${totalsHtml}
-    <div style="text-align:center;margin-top:28px;padding-top:16px;border-top:1px dashed #cbd5e1">
-      <div style="display:inline-block">${barcodeStr}</div>
-      <p style="font-family:monospace;font-size:12px;letter-spacing:3px;font-weight:600;margin-top:4px;color:#475569">${invoiceId}</p>
-    </div>
-    <div style="text-align:center;margin-top:20px;padding:12px 0;background:${theme.footerBg};border-radius:8px">
-      <p style="font-size:11px;color:${theme.footerText};font-weight:500">Thank you for choosing ${s.clinicName}. Get well soon! 🙏</p>
-      <p style="font-size:9px;color:#94a3b8;margin-top:4px">${s.clinicWebsite} · ${s.clinicEmail}</p>
-    </div>
-  </div>
-</div>
-</body></html>`);
+    win.document.write(html);
     win.document.close();
     setTimeout(() => win.print(), 400);
   };
