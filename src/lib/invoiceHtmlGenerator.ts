@@ -157,13 +157,8 @@ function classicLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page">
   ${watermarkImg(d)}
   <div class="content">
-    <!-- Header: Top line + centered clinic name -->
-    <div style="border-top:4px double ${t.accent};border-bottom:2px solid ${t.accent};padding:16px 0;margin-bottom:20px;text-align:center">
-      ${d.clinicLogo ? `<div style="margin-bottom:8px">${logoImg(d, 52)}</div>` : ''}
-      <h1 style="font-size:24px;font-weight:800;color:${t.accent};text-transform:uppercase;letter-spacing:3px">${d.clinicName}</h1>
-      <p style="font-size:11px;color:${t.accentLight};margin-top:2px;letter-spacing:1px">${d.clinicTagline}</p>
-      <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-    </div>
+    <!-- Header: Centered clinic name & logo -->
+    ${centeredHeader(d, t, { borderStyle: "border-top:4px double " + t.accent + ";border-bottom:2px solid " + t.accent })}
 
     <!-- Invoice ID Row -->
     <div style="display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid ${t.tableBorder}">
