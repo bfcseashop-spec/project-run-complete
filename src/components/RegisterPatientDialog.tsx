@@ -59,7 +59,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       });
       setImagePreview(editPatient.photo || null);
     } else {
-      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
+      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "", onExamination: "" });
       setImagePreview(null);
     }
   }, [editPatient, open]);
