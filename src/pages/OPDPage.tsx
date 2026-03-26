@@ -158,76 +158,35 @@ const OPDPage = () => {
       </PageHeader>
 
       {/* OPD Dashboard Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {/* Total Patients */}
-        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 90%, 62%))", boxShadow: "0 4px 20px hsl(210, 100%, 56% / 0.3)" }}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-              <Users className="w-5 h-5 text-white" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {[
+          { label: "Total Patients", val: String(patients.length), icon: Users, grad: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 85%, 58%))", shadow: "0 4px 20px hsl(210, 100%, 56% / 0.25)" },
+          { label: "Walk In", val: String(patients.filter(p => p.patientType === "Walk In").length), icon: UserCheck, grad: "linear-gradient(135deg, hsl(152, 68%, 45%), hsl(165, 72%, 40%))", shadow: "0 4px 20px hsl(152, 68%, 45% / 0.25)" },
+          { label: "Indoor", val: String(patients.filter(p => p.patientType === "Indoor").length), icon: Building, grad: "linear-gradient(135deg, hsl(262, 78%, 55%), hsl(275, 72%, 50%))", shadow: "0 4px 20px hsl(262, 78%, 55% / 0.25)" },
+          { label: "Outdoor", val: String(patients.filter(p => p.patientType === "Outdoor").length), icon: TreePine, grad: "linear-gradient(135deg, hsl(38, 92%, 50%), hsl(28, 90%, 48%))", shadow: "0 4px 20px hsl(38, 92%, 50% / 0.25)" },
+          { label: "Emergency", val: String(patients.filter(p => p.patientType === "Emergency").length), icon: AlertCircle, grad: "linear-gradient(135deg, hsl(0, 72%, 51%), hsl(348, 80%, 47%))", shadow: "0 4px 20px hsl(0, 72%, 51% / 0.25)" },
+        ].map((c) => {
+          const IconComp = c.icon;
+          return (
+            <div
+              key={c.label}
+              className="relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              style={{ background: c.grad, boxShadow: c.shadow }}
+            >
+              <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10" />
+              <div className="absolute -left-3 -bottom-3 w-14 h-14 rounded-full bg-white/5" />
+              <div className="relative z-10 flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-white/90">{c.label}</p>
+                  <p className="text-3xl font-black text-white font-number tracking-tight leading-none drop-shadow-sm">{c.val}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.18)", backdropFilter: "blur(8px)" }}>
+                  <IconComp className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-3xl font-bold text-white font-number">{patients.length}</p>
-              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Total Patients</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Walk In */}
-        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(155, 75%, 42%), hsl(168, 80%, 38%))", boxShadow: "0 4px 20px hsl(155, 75%, 42% / 0.3)" }}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-              <UserCheck className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Walk In").length}</p>
-              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Walk In</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Indoor */}
-        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(250, 80%, 58%), hsl(270, 75%, 52%))", boxShadow: "0 4px 20px hsl(250, 80%, 58% / 0.3)" }}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-              <Building className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Indoor").length}</p>
-              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Indoor</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Outdoor */}
-        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(38, 95%, 50%), hsl(28, 90%, 52%))", boxShadow: "0 4px 20px hsl(38, 95%, 50% / 0.3)" }}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-              <TreePine className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Outdoor").length}</p>
-              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Outdoor</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Emergency */}
-        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(0, 75%, 52%), hsl(350, 80%, 48%))", boxShadow: "0 4px 20px hsl(0, 75%, 52% / 0.3)" }}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-              <AlertCircle className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Emergency").length}</p>
-              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Emergency</p>
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Search & Filters */}
