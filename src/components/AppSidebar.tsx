@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import {
-  LayoutGrid, Wallet, Users, FileText, FlaskConical, ScanLine,
+  LayoutDashboard, Wallet, Users, FileText, FlaskConical, ScanLine,
   Radio, HeartPulse, UserCog, Stethoscope, ClipboardCheck, Syringe,
   ReceiptText, Landmark, TrendingUp, Beaker, BadgeDollarSign, Settings2,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, Sliders,
@@ -21,7 +21,7 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "overview", color: "hsl(220, 70%, 50%)",
     items: [
-      { icon: LayoutGrid, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
+      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
       { icon: Wallet, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(250, 65%, 55%)" },
     ],
   },
