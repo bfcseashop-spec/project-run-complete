@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import {
-  LayoutDashboard, Pill, Users, FileText, TestTube, Scan,
-  MonitorSpeaker, Heart, UserCog, Stethoscope, ClipboardList, Syringe,
-  Receipt, CreditCard, TrendingUp, Pipette, DollarSign, Settings,
-  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, SlidersHorizontal,
-  RotateCcw, Package, LogOut, X, Sparkles,
+  LayoutGrid, Wallet, Users, FileText, FlaskConical, ScanLine,
+  Radio, HeartPulse, UserCog, Stethoscope, ClipboardCheck, Syringe,
+  ReceiptText, Landmark, TrendingUp, Beaker, BadgeDollarSign, Settings2,
+  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, Sliders,
+  RefreshCcw, PackageOpen, LogOut, X, Sparkles, Microscope, FileBarChart,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -19,64 +19,64 @@ interface MenuSection { labelKey: TranslationKey; items: MenuItem[]; color?: str
 
 const menuSections: MenuSection[] = [
   {
-    labelKey: "overview", color: "hsl(168, 80%, 35%)",
+    labelKey: "overview", color: "hsl(220, 70%, 50%)",
     items: [
-      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(168, 80%, 35%)" },
-      { icon: Receipt, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(200, 80%, 45%)" },
+      { icon: LayoutGrid, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
+      { icon: Wallet, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(250, 65%, 55%)" },
     ],
   },
   {
-    labelKey: "patientCare", color: "hsl(340, 70%, 50%)",
+    labelKey: "patientCare", color: "hsl(350, 70%, 52%)",
     items: [
-      { icon: ClipboardList, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 60%, 38%)" },
-      { icon: FileText, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(270, 60%, 50%)" },
-      { icon: Heart, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(340, 70%, 50%)",
+      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(170, 65%, 38%)" },
+      { icon: FileBarChart, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(262, 60%, 52%)" },
+      { icon: HeartPulse, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(350, 70%, 52%)",
         subItems: [
-          { icon: Package, labelKey: "healthPackages", path: "/health-services/packages" },
+          { icon: PackageOpen, labelKey: "healthPackages", path: "/health-services/packages" },
         ],
       },
-      { icon: Syringe, labelKey: "injections", path: "/injections", module: "Injections", color: "hsl(15, 85%, 50%)" },
+      { icon: Syringe, labelKey: "injections", path: "/injections", module: "Injections", color: "hsl(25, 90%, 50%)" },
     ],
   },
   {
-    labelKey: "diagnostics", color: "hsl(200, 80%, 45%)",
+    labelKey: "diagnostics", color: "hsl(195, 80%, 42%)",
     items: [
       {
-        icon: TestTube, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(200, 80%, 45%)",
+        icon: FlaskConical, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(195, 80%, 42%)",
         subItems: [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
-          { icon: Pipette, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
-          { icon: TestTube, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
+          { icon: Beaker, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
+          { icon: Microscope, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
         ],
       },
-      { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(217, 80%, 50%)" },
-      { icon: Scan, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(38, 92%, 48%)" },
-      { icon: MonitorSpeaker, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound", color: "hsl(280, 65%, 50%)" },
+      { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(215, 75%, 48%)" },
+      { icon: ScanLine, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(42, 90%, 48%)" },
+      { icon: Radio, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound", color: "hsl(285, 60%, 50%)" },
     ],
   },
   {
-    labelKey: "management", color: "hsl(270, 60%, 50%)",
+    labelKey: "management", color: "hsl(162, 60%, 40%)",
     items: [
-      { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors", color: "hsl(160, 50%, 38%)" },
-      { icon: Pill, labelKey: "medicine", path: "/medicine", module: "Medicine", color: "hsl(270, 60%, 50%)" },
+      { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors", color: "hsl(162, 60%, 40%)" },
+      { icon: Activity, labelKey: "medicine", path: "/medicine", module: "Medicine", color: "hsl(275, 55%, 50%)" },
     ],
   },
   {
-    labelKey: "finance", color: "hsl(142, 71%, 40%)",
+    labelKey: "finance", color: "hsl(145, 65%, 38%)",
     items: [
-      { icon: RotateCcw, labelKey: "refund", path: "/refund", module: "Refund", color: "hsl(38, 80%, 48%)" },
-      { icon: Receipt, labelKey: "dueManagement", path: "/dues", module: "Due Management", color: "hsl(350, 65%, 50%)" },
-      { icon: DollarSign, labelKey: "expenses", path: "/expenses", module: "Expenses", color: "hsl(15, 85%, 48%)" },
-      { icon: CreditCard, labelKey: "bankTransactions", path: "/bank", module: "Bank Transactions", color: "hsl(217, 91%, 50%)" },
-      { icon: TrendingUp, labelKey: "investments", path: "/investments", module: "Investments", color: "hsl(142, 71%, 40%)" },
+      { icon: RefreshCcw, labelKey: "refund", path: "/refund", module: "Refund", color: "hsl(42, 85%, 48%)" },
+      { icon: ReceiptText, labelKey: "dueManagement", path: "/dues", module: "Due Management", color: "hsl(355, 70%, 50%)" },
+      { icon: BadgeDollarSign, labelKey: "expenses", path: "/expenses", module: "Expenses", color: "hsl(20, 85%, 48%)" },
+      { icon: Landmark, labelKey: "bankTransactions", path: "/bank", module: "Bank Transactions", color: "hsl(220, 80%, 50%)" },
+      { icon: TrendingUp, labelKey: "investments", path: "/investments", module: "Investments", color: "hsl(145, 65%, 38%)" },
     ],
   },
   {
-    labelKey: "system", color: "hsl(215, 60%, 50%)",
+    labelKey: "system", color: "hsl(210, 55%, 50%)",
     items: [
-      { icon: SlidersHorizontal, labelKey: "systemManage", path: "/system-manage", module: "System Manage", color: "hsl(200, 50%, 45%)" },
-      { icon: Settings, labelKey: "settings", path: "/settings", module: "Settings", color: "hsl(215, 60%, 50%)" },
-      { icon: Users, labelKey: "usersAccess", path: "/users-access", module: "Users & Access", color: "hsl(168, 80%, 35%)" },
+      { icon: Sliders, labelKey: "systemManage", path: "/system-manage", module: "System Manage", color: "hsl(200, 55%, 45%)" },
+      { icon: Settings2, labelKey: "settings", path: "/settings", module: "Settings", color: "hsl(210, 55%, 50%)" },
+      { icon: UserCog, labelKey: "usersAccess", path: "/users-access", module: "Users & Access", color: "hsl(175, 70%, 36%)" },
     ],
   },
 ];
