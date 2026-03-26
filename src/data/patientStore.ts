@@ -39,6 +39,7 @@ export async function addPatient(patient: OPDPatient) {
     spo2: patient.spo2 || null, weight: patient.weight || null,
     bp: patient.bp || null, rr: patient.rr || null,
     hr: patient.hr || null, temp: patient.temp || null,
+    on_examination: patient.onExamination || null,
   });
   if (error) throw error;
   _patients = [patient, ..._patients]; notify();
