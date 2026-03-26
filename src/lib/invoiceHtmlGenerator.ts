@@ -461,19 +461,23 @@ function warmCoralLayout(t: InvoiceTheme, d: InvoiceData): string {
     <!-- Left accent sidebar -->
     <div style="width:8px;background:${t.headerGradient};flex-shrink:0"></div>
     <div class="content" style="flex:1;padding:32px 36px">
-      <!-- Header with bold colored banner -->
-      <div style="background:${t.headerGradient};border-radius:10px;padding:22px 28px;color:${t.headerText};margin-bottom:22px;display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;align-items:center;gap:14px">
-          ${logoImg(d, 46, "border-radius:8px;border:2px solid rgba(255,255,255,0.25)")}
-          <div>
-            <h1 style="font-size:24px;font-weight:900;margin:0">${d.clinicName}</h1>
-            <p style="font-size:12px;opacity:0.85;margin-top:3px">${d.clinicTagline}</p>
-            <p style="font-size:10px;opacity:0.65;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-          </div>
-        </div>
-        <div style="text-align:right;background:rgba(255,255,255,0.15);padding:10px 18px;border-radius:8px">
+      <!-- Centered Header with Coral accent -->
+      <div style="text-align:center;padding:24px 20px 18px;margin-bottom:20px;border-bottom:3px solid ${t.accent};background:${t.footerBg};border-radius:12px">
+        ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:12px;box-shadow:0 4px 12px rgba(194,65,12,0.15)")}</div>` : ''}
+        <h1 style="font-size:24px;font-weight:900;color:${t.accent};letter-spacing:1px;margin:0">${d.clinicName}</h1>
+        <p style="font-size:11px;color:${t.accentLight};margin-top:4px">${d.clinicTagline}</p>
+        <p style="font-size:10px;color:#78716c;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+      </div>
+
+      <!-- Invoice ID banner -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:10px 20px;background:${t.headerGradient};border-radius:8px;color:${t.headerText}">
+        <div>
           <p style="font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:1.5px">${d.invoiceLabel}</p>
           <p style="font-size:18px;font-weight:800;font-family:monospace;letter-spacing:1px;margin-top:2px">${d.invoiceId}</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:1px">Date</p>
+          <p style="font-size:13px;font-weight:600">${d.dateTimeStr}</p>
         </div>
       </div>
 
