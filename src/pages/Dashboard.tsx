@@ -211,62 +211,69 @@ const Dashboard = () => {
         </div>
 
         {/* Cash */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-primary/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(160, 45%, 96%), hsl(168, 50%, 92%))", border: "1px solid hsl(168, 40%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.1)" }}>
-              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 38%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.15)" }}>
+              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 32%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Cash Received</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(168, 55%, 25%)" }}>{formatPrice(stats.totalCash)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(168, 40%, 40%)" }}>Cash Received</p>
         </div>
 
         {/* Bank */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-info/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(210, 50%, 96%), hsl(215, 55%, 92%))", border: "1px solid hsl(210, 45%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
-              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.15)" }}>
+              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 40%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Bank Received</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(210, 60%, 30%)" }}>{formatPrice(stats.totalBank)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(210, 45%, 45%)" }}>Bank Received</p>
         </div>
 
         {/* Expenses */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-warning/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(25, 60%, 96%), hsl(20, 55%, 92%))", border: "1px solid hsl(25, 50%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(195, 65%, 45% / 0.1)" }}>
-              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(195, 65%, 45%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(25, 65%, 50% / 0.15)" }}>
+              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(25, 65%, 40%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Expenses</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(25, 55%, 30%)" }}>{formatPrice(stats.totalExpense)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(25, 45%, 45%)" }}>Expenses</p>
         </div>
 
         {/* Due */}
-        <div className="col-span-1 lg:col-span-3 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200" style={{ borderColor: "hsl(210, 70%, 50% / 0.15)" }}>
+        <div className="col-span-1 lg:col-span-3 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(0, 50%, 97%), hsl(355, 50%, 93%))", border: "1px solid hsl(0, 40%, 87%)" }}>
           <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
-              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 60%, 50% / 0.12)" }}>
+              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(0, 60%, 45%)" }} />
             </div>
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(210, 70%, 45%)", background: "hsl(210, 70%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(0, 55%, 42%)", background: "hsl(0, 55%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Outstanding</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(0, 50%, 30%)" }}>{formatPrice(stats.totalDue)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(0, 35%, 45%)" }}>Outstanding</p>
         </div>
       </div>
 
       {/* ── Secondary Row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" />
+        <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" color="hsl(270, 55%, 55%)" bgColor="hsl(270, 50%, 95%)" borderColor="hsl(270, 40%, 88%)" />
         <CompactStat
           icon={stats.profit > 0 ? TrendingUp : TrendingDown}
           label={stats.profit > 0 ? "Net Profit" : "Net Loss"}
           value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
           variant={stats.profit > 0 ? "success" : "danger"}
+          color={stats.profit > 0 ? "hsl(150, 60%, 35%)" : "hsl(0, 60%, 45%)"}
+          bgColor={stats.profit > 0 ? "hsl(150, 50%, 94%)" : "hsl(0, 50%, 96%)"}
+          borderColor={stats.profit > 0 ? "hsl(150, 40%, 85%)" : "hsl(0, 40%, 88%)"}
         />
-        <CompactStat icon={Users} label="Patients" value={String(stats.totalPatients)} variant="accent" />
-        <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" />
+        <CompactStat icon={Users} label="Patients" value={String(stats.totalPatients)} variant="accent" color="hsl(195, 65%, 40%)" bgColor="hsl(195, 50%, 95%)" borderColor="hsl(195, 40%, 87%)" />
+        <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" color="hsl(210, 70%, 45%)" bgColor="hsl(210, 50%, 95%)" borderColor="hsl(210, 40%, 87%)" />
       </div>
 
       {/* ── Middle Section ── */}
@@ -449,25 +456,22 @@ interface CompactStatProps {
   label: string;
   value: string;
   variant: "muted" | "success" | "danger" | "accent" | "primary";
+  color?: string;
+  bgColor?: string;
+  borderColor?: string;
 }
-const variantStyles: Record<string, { bg: string; iconColor: string }> = {
-  muted: { bg: "bg-muted", iconColor: "text-muted-foreground" },
-  success: { bg: "bg-success/10", iconColor: "text-success" },
-  danger: { bg: "bg-destructive/10", iconColor: "text-destructive" },
-  accent: { bg: "bg-accent/10", iconColor: "text-accent" },
-  primary: { bg: "bg-primary/10", iconColor: "text-primary" },
-};
 
-const CompactStat = ({ icon: Icon, label, value, variant }: CompactStatProps) => {
-  const style = variantStyles[variant];
+const CompactStat = ({ icon: Icon, label, value, color, bgColor, borderColor }: CompactStatProps) => {
   return (
-    <div className="bg-card rounded-xl border border-border p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${style.bg}`}>
-        <Icon className={`w-4 h-4 ${style.iconColor}`} />
+    <div className="rounded-xl p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow"
+      style={{ background: bgColor || "hsl(0,0%,100%)", border: `1px solid ${borderColor || "hsl(0,0%,90%)"}` }}>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: `${color || "hsl(0,0%,50%)"}15` }}>
+        <Icon className="w-4 h-4" style={{ color: color || "hsl(0,0%,50%)" }} />
       </div>
       <div className="min-w-0">
-        <p className="text-lg font-black text-card-foreground font-body leading-none truncate">{value}</p>
-        <p className="text-[10px] text-muted-foreground font-semibold mt-0.5 uppercase tracking-widest">{label}</p>
+        <p className="text-lg font-black font-body leading-none truncate" style={{ color: color || "hsl(0,0%,20%)" }}>{value}</p>
+        <p className="text-[10px] font-semibold mt-0.5 uppercase tracking-widest" style={{ color: `${color || "hsl(0,0%,50%)"}99` }}>{label}</p>
       </div>
     </div>
   );
