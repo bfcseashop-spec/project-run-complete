@@ -16,6 +16,7 @@ const toPatient = (r: any): OPDPatient => ({
   spo2: r.spo2 || undefined, weight: r.weight || undefined,
   bp: r.bp || undefined, rr: r.rr || undefined,
   hr: r.hr || undefined, temp: r.temp || undefined,
+  onExamination: r.on_examination || undefined,
 });
 
 const load = async () => {
