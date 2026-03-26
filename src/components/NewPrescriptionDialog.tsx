@@ -98,6 +98,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
   const [form, setForm] = useState<PrescriptionFormData>({ ...defaultForm });
   const [patients, setPatients] = useState(getPatients());
   const [injectionInventory, setInjectionInventory] = useState(getInjections());
+  const [patientPopoverOpen, setPatientPopoverOpen] = useState(false);
   const [testSearch, setTestSearch] = useState("");
   const [testCategoryFilter, setTestCategoryFilter] = useState("all");
   const [doctorsList, setDoctorsList] = useState(getActiveDoctorsWithDetails());
