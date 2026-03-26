@@ -135,11 +135,7 @@ const DraftsPage = () => {
        <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px">${formatPrice(item.total)}</td></tr>`;
       const subRows = item.subItems.map((sub) =>
         `<tr><td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9"></td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.price)}</td>
-         <td style="padding:4px 14px;border-bottom:1px solid #f1f5f9;text-align:right;font-size:11px;color:#94a3b8;font-variant-numeric:tabular-nums">${formatPrice(sub.total)}</td></tr>`
+         <td colspan="5" style="padding:4px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td></tr>`
       ).join("");
       return mainRow + subRows;
     }).join("");
