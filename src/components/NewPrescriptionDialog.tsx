@@ -15,7 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Trash2, Plus, Search, TestTube, X, Syringe, Stethoscope, ClipboardList, Activity, Check, ChevronsUpDown } from "lucide-react";
+import { Trash2, Plus, Search, TestTube, X, Syringe, Stethoscope, ClipboardList, Activity, Check, ChevronsUpDown, Heart, Thermometer, Wind, Droplets, Weight, Gauge } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { initPatients, getPatients, subscribe } from "@/data/patientStore";
 import { opdPatients } from "@/data/opdPatients";
