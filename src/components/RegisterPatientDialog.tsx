@@ -31,7 +31,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
   const [form, setForm] = useState({
     name: "", age: "", gender: "", doctor: "", complaint: "", time: "",
     bloodType: "", patientType: "", phone: "", medicalHistory: "",
-    spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "",
+    spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "", onExamination: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,10 +55,11 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         rr: editPatient.rr || "",
         hr: editPatient.hr || "",
         temp: editPatient.temp || "",
+        onExamination: editPatient.onExamination || "",
       });
       setImagePreview(editPatient.photo || null);
     } else {
-      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
+      setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "", onExamination: "" });
       setImagePreview(null);
     }
   }, [editPatient, open]);
@@ -102,9 +103,10 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       rr: form.rr || undefined,
       hr: form.hr || undefined,
       temp: form.temp || undefined,
+      onExamination: form.onExamination || undefined,
     };
     onSubmit(patient);
-    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
+    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "", onExamination: "" });
     setImagePreview(null);
   };
 
@@ -250,6 +252,12 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
                 <Input placeholder="e.g. 36.5" value={form.temp} onChange={(e) => update("temp", e.target.value)} />
               </div>
             </div>
+          </div>
+
+          {/* On Examination */}
+          <div>
+            <Label className="flex items-center gap-1.5">On Examination <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
+            <Textarea placeholder="e.g. SLR positive, Tenderness over L4-L5, Sensory intact..." value={form.onExamination} onChange={(e) => update("onExamination", e.target.value)} rows={3} />
           </div>
 
           {/* Row 5: Medical History */}
