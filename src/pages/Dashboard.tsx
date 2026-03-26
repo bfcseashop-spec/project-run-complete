@@ -262,15 +262,18 @@ const Dashboard = () => {
 
       {/* ── Secondary Row ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" />
+        <CompactStat icon={Percent} label="Discount" value={formatPrice(stats.totalDiscount)} variant="muted" color="hsl(270, 55%, 55%)" bgColor="hsl(270, 50%, 95%)" borderColor="hsl(270, 40%, 88%)" />
         <CompactStat
           icon={stats.profit > 0 ? TrendingUp : TrendingDown}
           label={stats.profit > 0 ? "Net Profit" : "Net Loss"}
           value={formatPrice(stats.profit > 0 ? stats.profit : stats.loss)}
           variant={stats.profit > 0 ? "success" : "danger"}
+          color={stats.profit > 0 ? "hsl(150, 60%, 35%)" : "hsl(0, 60%, 45%)"}
+          bgColor={stats.profit > 0 ? "hsl(150, 50%, 94%)" : "hsl(0, 50%, 96%)"}
+          borderColor={stats.profit > 0 ? "hsl(150, 40%, 85%)" : "hsl(0, 40%, 88%)"}
         />
-        <CompactStat icon={Users} label="Patients" value={String(stats.totalPatients)} variant="accent" />
-        <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" />
+        <CompactStat icon={Users} label="Patients" value={String(stats.totalPatients)} variant="accent" color="hsl(195, 65%, 40%)" bgColor="hsl(195, 50%, 95%)" borderColor="hsl(195, 40%, 87%)" />
+        <CompactStat icon={CheckCircle2} label="Completed" value={`${stats.completedInvoices}/${stats.invoiceCount}`} variant="primary" color="hsl(210, 70%, 45%)" bgColor="hsl(210, 50%, 95%)" borderColor="hsl(210, 40%, 87%)" />
       </div>
 
       {/* ── Middle Section ── */}
