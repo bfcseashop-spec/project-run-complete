@@ -84,6 +84,21 @@ function logoImg(d: InvoiceData, size: number = 48, style: string = "") {
   return `<img src="${d.clinicLogo}" alt="Logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:6px;${style}" />`;
 }
 
+function centeredHeader(d: InvoiceData, t: InvoiceTheme, opts: { serif?: boolean; borderStyle?: string; bgStyle?: string } = {}) {
+  const font = opts.serif ? "font-family:Georgia,serif;" : "";
+  const logoHtml = d.clinicLogo
+    ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1)")}</div>`
+    : '';
+  const border = opts.borderStyle || `border-bottom:3px solid ${t.accent}`;
+  const bg = opts.bgStyle || '';
+  return `<div style="text-align:center;padding:24px 20px 18px;${border};margin-bottom:20px;${bg}">
+    ${logoHtml}
+    <h1 style="font-size:24px;font-weight:800;color:${t.accent};letter-spacing:1.5px;margin:0;${font}">${d.clinicName}</h1>
+    <p style="font-size:11px;color:${t.accentLight};margin-top:4px;${font}">${d.clinicTagline}</p>
+    <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+  </div>`;
+}
+
 function watermarkImg(d: InvoiceData) {
   if (!d.clinicLogo) return "";
   return `<img src="${d.clinicLogo}" class="watermark" alt="" />`;
@@ -142,13 +157,8 @@ function classicLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page">
   ${watermarkImg(d)}
   <div class="content">
-    <!-- Header: Top line + centered clinic name -->
-    <div style="border-top:4px double ${t.accent};border-bottom:2px solid ${t.accent};padding:16px 0;margin-bottom:20px;text-align:center">
-      ${d.clinicLogo ? `<div style="margin-bottom:8px">${logoImg(d, 52)}</div>` : ''}
-      <h1 style="font-size:24px;font-weight:800;color:${t.accent};text-transform:uppercase;letter-spacing:3px">${d.clinicName}</h1>
-      <p style="font-size:11px;color:${t.accentLight};margin-top:2px;letter-spacing:1px">${d.clinicTagline}</p>
-      <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-    </div>
+    <!-- Header: Centered clinic name & logo -->
+    ${centeredHeader(d, t, { borderStyle: "border-top:4px double " + t.accent + ";border-bottom:2px solid " + t.accent })}
 
     <!-- Invoice ID Row -->
     <div style="display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid ${t.tableBorder}">
@@ -221,20 +231,21 @@ function modernTealLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page">
   ${watermarkImg(d)}
   <div class="content">
-    <div style="background:${t.headerGradient};border-radius:12px;padding:20px 28px;color:${t.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;align-items:center;gap:14px">
-        ${logoImg(d, 44, "border-radius:8px;border:2px solid rgba(255,255,255,0.2)")}
-        <div>
-          <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
-          <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
-          <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-        </div>
-      </div>
-      <div style="text-align:right">
+    <!-- Centered Header -->
+    ${centeredHeader(d, t, { bgStyle: "background:" + t.tableHeaderGradient + ";border-radius:12px;", borderStyle: "border-bottom:none" })}
+
+    <!-- Invoice ID Row -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:10px 20px;background:${t.headerGradient};border-radius:8px;color:${t.headerText}">
+      <div>
         <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">${d.invoiceLabel}</p>
         <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${d.invoiceId}</p>
       </div>
+      <div style="text-align:right">
+        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Date</p>
+        <p style="font-size:13px;font-weight:600">${d.dateTimeStr}</p>
+      </div>
     </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
       <div style="background:${t.patientBg};border:1px solid ${t.patientBorder};border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${t.patientLabel};font-weight:600;margin-bottom:6px">Patient Info</p>
@@ -294,15 +305,8 @@ function royalBlueLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page">
   ${watermarkImg(d)}
   <div class="content">
-    <!-- Elegant header with centered crest-style -->
-    <div style="text-align:center;padding:24px 0 18px;border-bottom:3px double ${t.accent};margin-bottom:20px">
-      ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:50%;border:3px solid " + t.accentBorder)}</div>` : ''}
-      <div style="display:inline-block;background:${t.headerGradient};color:${t.headerText};padding:10px 40px;border-radius:4px;margin-bottom:10px">
-        <h1 style="font-size:22px;font-weight:800;font-family:Georgia,serif;letter-spacing:2px;margin:0">${d.clinicName}</h1>
-      </div>
-      <p style="font-size:12px;color:${t.accent};font-style:italic;margin-top:6px">${d.clinicTagline}</p>
-      <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-    </div>
+    <!-- Elegant centered header -->
+    ${centeredHeader(d, t, { serif: true, borderStyle: "border-bottom:3px double " + t.accent })}
 
     <!-- Invoice ID centered with decorative element -->
     <div style="text-align:center;margin-bottom:18px">
@@ -374,24 +378,25 @@ function minimalGrayLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page" style="padding:48px 56px">
   ${watermarkImg(d)}
   <div class="content">
-    <!-- Minimal header — just text, no background -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
-      <div style="display:flex;align-items:center;gap:14px">
-        ${logoImg(d, 40, "border-radius:4px;opacity:0.7")}
-        <div>
-          <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
-          <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
-          <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
-        </div>
-      </div>
-      <div style="text-align:right">
+    <!-- Centered minimal header -->
+    <div style="text-align:center;padding:28px 20px 22px;margin-bottom:28px;border-bottom:1px solid #f1f5f9">
+      ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 48, "border-radius:8px;opacity:0.8")}</div>` : ''}
+      <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
+      <p style="font-size:11px;color:#94a3b8;margin-top:6px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+    </div>
+
+    <!-- Invoice ID + Date row -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #f1f5f9">
+      <div>
         <p style="font-size:32px;font-weight:200;color:#e2e8f0;margin:0;line-height:1">${d.invoiceLabel.toUpperCase()}</p>
         <p style="font-size:14px;font-weight:600;font-family:monospace;color:${t.accent};margin-top:4px">${d.invoiceId}</p>
+      </div>
+      <div style="text-align:right">
         <p style="font-size:11px;color:#94a3b8;margin-top:2px">${d.dateTimeStr}</p>
       </div>
     </div>
 
-    <!-- Simple two-column patient/doctor with thin separator -->
+    <!-- Simple two-column patient/doctor -->
     <div style="display:flex;gap:40px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #f1f5f9;font-size:13px">
       <div style="flex:1">
         <p style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#cbd5e1;margin-bottom:6px;font-weight:600">Bill To</p>
@@ -456,19 +461,23 @@ function warmCoralLayout(t: InvoiceTheme, d: InvoiceData): string {
     <!-- Left accent sidebar -->
     <div style="width:8px;background:${t.headerGradient};flex-shrink:0"></div>
     <div class="content" style="flex:1;padding:32px 36px">
-      <!-- Header with bold colored banner -->
-      <div style="background:${t.headerGradient};border-radius:10px;padding:22px 28px;color:${t.headerText};margin-bottom:22px;display:flex;justify-content:space-between;align-items:center">
-        <div style="display:flex;align-items:center;gap:14px">
-          ${logoImg(d, 46, "border-radius:8px;border:2px solid rgba(255,255,255,0.25)")}
-          <div>
-            <h1 style="font-size:24px;font-weight:900;margin:0">${d.clinicName}</h1>
-            <p style="font-size:12px;opacity:0.85;margin-top:3px">${d.clinicTagline}</p>
-            <p style="font-size:10px;opacity:0.65;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-          </div>
-        </div>
-        <div style="text-align:right;background:rgba(255,255,255,0.15);padding:10px 18px;border-radius:8px">
+      <!-- Centered Header with Coral accent -->
+      <div style="text-align:center;padding:24px 20px 18px;margin-bottom:20px;border-bottom:3px solid ${t.accent};background:${t.footerBg};border-radius:12px">
+        ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:12px;box-shadow:0 4px 12px rgba(194,65,12,0.15)")}</div>` : ''}
+        <h1 style="font-size:24px;font-weight:900;color:${t.accent};letter-spacing:1px;margin:0">${d.clinicName}</h1>
+        <p style="font-size:11px;color:${t.accentLight};margin-top:4px">${d.clinicTagline}</p>
+        <p style="font-size:10px;color:#78716c;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+      </div>
+
+      <!-- Invoice ID banner -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:10px 20px;background:${t.headerGradient};border-radius:8px;color:${t.headerText}">
+        <div>
           <p style="font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:1.5px">${d.invoiceLabel}</p>
           <p style="font-size:18px;font-weight:800;font-family:monospace;letter-spacing:1px;margin-top:2px">${d.invoiceId}</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:10px;opacity:0.7;text-transform:uppercase;letter-spacing:1px">Date</p>
+          <p style="font-size:13px;font-weight:600">${d.dateTimeStr}</p>
         </div>
       </div>
 
