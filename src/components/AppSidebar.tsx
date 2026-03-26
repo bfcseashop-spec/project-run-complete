@@ -335,7 +335,7 @@ const AppSidebar = () => {
           <div className="px-2 pb-2 flex justify-center">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold shadow-md cursor-pointer"
-              style={{ background: "linear-gradient(135deg, hsl(168, 80%, 32%), hsl(200, 80%, 42%))" }}
+              style={{ background: "linear-gradient(135deg, hsl(220, 70%, 48%), hsl(250, 65%, 55%))" }}
               title={`${profile.full_name} — Click sidebar expand to sign out`}
             >
               <span className="text-white">
