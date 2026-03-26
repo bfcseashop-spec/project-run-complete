@@ -481,8 +481,8 @@ const MedicinePage = () => {
               <div className="absolute -left-3 -bottom-3 w-14 h-14 rounded-full bg-white/5" />
               <div className="relative z-10 flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "hsl(0, 0%, 100% / 0.75)" }}>{c.label}</p>
-                  <p className="text-2xl font-black text-white font-number tracking-tight leading-none">{c.val}</p>
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-white/90">{c.label}</p>
+                  <p className="text-3xl font-black text-white font-number tracking-tight leading-none drop-shadow-sm">{c.val}</p>
                 </div>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.18)", backdropFilter: "blur(8px)" }}>
                   <IconComp className="w-5 h-5 text-white" />
