@@ -25,7 +25,7 @@ import {
 import {
   Plus, Pencil, Pipette, Clock, CheckCircle, PackageCheck,
   Search, AlertTriangle, Snowflake, Thermometer, ThermometerSun,
-  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2,
+  Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2, User,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
 import { type SampleRecord, sampleTypes, storageTempOptions } from "@/data/sampleRecords";
@@ -401,139 +401,174 @@ const SampleCollectionPage = () => {
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editRecord ? "Edit Sample Record" : "New Sample Collection"}</DialogTitle>
-            <DialogDescription>{editRecord ? "Update sample details." : "Register a new sample for collection."}</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2 col-span-2">
-                <Label>Patient Name *</Label>
-                <Select value={form.patient} onValueChange={(v) => {
-                  const p = patients.find((pt) => pt.name === v);
-                  setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
-                }}>
-                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                  <SelectContent>
-                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden rounded-xl">
+          {/* Header */}
+          <div className="bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 px-6 py-5 relative">
+            <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-white/5" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <TestTube className="w-5 h-5 text-emerald-300" />
               </div>
-              <div className="space-y-2">
-                <Label>Patient ID</Label>
-                <Input value={form.patientId} readOnly className="bg-muted" placeholder="Auto-filled" />
+              <div>
+                <h2 className="text-base font-bold text-white">{editRecord ? "Edit Sample Record" : "New Sample Collection"}</h2>
+                <p className="text-[11px] text-white/50">{editRecord ? "Update sample details" : "Register a new sample for collection"}</p>
               </div>
-              <div className="space-y-2">
-                <Label>Age</Label>
-                <Input type="number" value={form.age || ""} onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) || 0 })} />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Gender</Label>
-                <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v as SampleRecord["gender"] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Doctor *</Label>
-                <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select doctor" /></SelectTrigger>
-                  <SelectContent>
-                    {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Test Name *</Label>
-                <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
-                  <SelectContent>
-                    {allTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Sample Type</Label>
-                <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v as SampleRecord["sampleType"] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Priority</Label>
-                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as SampleRecord["priority"] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="routine">Routine</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                    <SelectItem value="stat">Stat</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Storage Temp</Label>
-                <Select value={form.storageTemp} onValueChange={(v) => setForm({ ...form, storageTemp: v as SampleRecord["storageTemp"] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {storageTempOptions.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Lab Technician</Label>
-                  <ManageTechniciansDialog />
-                </div>
-                <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
-                  <SelectTrigger><SelectValue placeholder="Assign" /></SelectTrigger>
-                  <SelectContent>
-                    {technicianList.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Collection Date</Label>
-                <Input type="date" value={form.collectionDate} onChange={(e) => setForm({ ...form, collectionDate: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Collection Time</Label>
-                <Input type="time" value={form.collectionTime} onChange={(e) => setForm({ ...form, collectionTime: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as SampleRecord["status"] })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="collected">Collected</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Notes</Label>
-              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Special instructions, patient prep notes..." />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{editRecord ? "Update" : "Register Sample"}</Button>
-          </DialogFooter>
+
+          <div className="overflow-y-auto max-h-[calc(90vh-160px)] px-6 py-5 space-y-5">
+            {/* Patient Information */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <User className="w-3.5 h-3.5 text-primary" />
+                <h3 className="text-[11px] font-bold text-foreground uppercase tracking-widest">Patient Information</h3>
+              </div>
+              <div className="grid grid-cols-4 gap-3 p-3.5 rounded-lg border border-border bg-muted/20">
+                <div className="space-y-1.5 col-span-2">
+                  <Label className="text-[11px] font-semibold flex items-center gap-1">Patient Name <span className="text-destructive">*</span></Label>
+                  <Select value={form.patient} onValueChange={(v) => {
+                    const p = patients.find((pt) => pt.name === v);
+                    setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
+                  }}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Select patient" /></SelectTrigger>
+                    <SelectContent>
+                      {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Patient ID</Label>
+                  <Input value={form.patientId} readOnly className="bg-muted/50 h-9 text-xs" placeholder="Auto-filled" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Age</Label>
+                  <Input type="number" className="h-9 text-xs" value={form.age || ""} onChange={(e) => setForm({ ...form, age: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Gender</Label>
+                  <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v as SampleRecord["gender"] })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold flex items-center gap-1">Doctor <span className="text-destructive">*</span></Label>
+                  <Select value={form.doctor} onValueChange={(v) => setForm({ ...form, doctor: v })}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Select doctor" /></SelectTrigger>
+                    <SelectContent>
+                      {doctorNames.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5 col-span-2">
+                  <Label className="text-[11px] font-semibold flex items-center gap-1">Test Name <span className="text-destructive">*</span></Label>
+                  <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Select test" /></SelectTrigger>
+                    <SelectContent>
+                      {allTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Sample Details */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Droplets className="w-3.5 h-3.5 text-primary" />
+                <h3 className="text-[11px] font-bold text-foreground uppercase tracking-widest">Sample Details</h3>
+              </div>
+              <div className="grid grid-cols-4 gap-3 p-3.5 rounded-lg border border-border bg-muted/20">
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Sample Type</Label>
+                  <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v as SampleRecord["sampleType"] })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Priority</Label>
+                  <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as SampleRecord["priority"] })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="routine">Routine</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="stat">Stat</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Storage Temp</Label>
+                  <Select value={form.storageTemp} onValueChange={(v) => setForm({ ...form, storageTemp: v as SampleRecord["storageTemp"] })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {storageTempOptions.map((t) => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technician</Label>
+                    <ManageTechniciansDialog />
+                  </div>
+                  <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Assign" /></SelectTrigger>
+                    <SelectContent>
+                      {technicianList.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Collection & Status */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-3.5 h-3.5 text-primary" />
+                <h3 className="text-[11px] font-bold text-foreground uppercase tracking-widest">Collection & Status</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-3 p-3.5 rounded-lg border border-border bg-muted/20">
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Collection Date</Label>
+                  <Input type="date" className="h-9 text-xs" value={form.collectionDate} onChange={(e) => setForm({ ...form, collectionDate: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Collection Time</Label>
+                  <Input type="time" className="h-9 text-xs" value={form.collectionTime} onChange={(e) => setForm({ ...form, collectionTime: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Status</Label>
+                  <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as SampleRecord["status"] })}>
+                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="collected">Collected</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-muted-foreground">Notes</Label>
+              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Special instructions, patient prep notes..." className="text-xs" />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border bg-muted/30">
+            <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleSubmit}>{editRecord ? "Update Record" : "Register Sample"}</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
