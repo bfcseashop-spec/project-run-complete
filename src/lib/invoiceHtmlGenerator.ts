@@ -147,9 +147,7 @@ function classicLayout(t: InvoiceTheme, d: InvoiceData): string {
     </tr>`;
     item.subItems.forEach(sub => {
       r += `<tr><td style="border:1px solid ${t.tableBorder}"></td>
-        <td colspan="3" style="padding:3px 12px 3px 28px;border:1px solid ${t.tableBorder};font-size:11px;color:#94a3b8">↳ ${sub.name}</td>
-        <td style="padding:3px 12px;border:1px solid ${t.tableBorder};text-align:right;font-size:11px;color:#94a3b8">${d.formatPrice(sub.price)}</td>
-        <td style="padding:3px 12px;border:1px solid ${t.tableBorder};text-align:right;font-size:11px;color:#94a3b8">${d.formatPrice(sub.total)}</td></tr>`;
+        <td colspan="5" style="padding:3px 12px 3px 28px;border:1px solid ${t.tableBorder};font-size:11px;color:#94a3b8">↳ ${sub.name}</td></tr>`;
     });
     return r;
   }).join("");
