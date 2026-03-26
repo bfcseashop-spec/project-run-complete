@@ -579,6 +579,7 @@ export type Database = {
           id: string
           medical_history: string | null
           name: string
+          on_examination: string | null
           patient_type: string | null
           phone: string | null
           photo: string | null
@@ -601,6 +602,7 @@ export type Database = {
           id: string
           medical_history?: string | null
           name?: string
+          on_examination?: string | null
           patient_type?: string | null
           phone?: string | null
           photo?: string | null
@@ -623,6 +625,7 @@ export type Database = {
           id?: string
           medical_history?: string | null
           name?: string
+          on_examination?: string | null
           patient_type?: string | null
           phone?: string | null
           photo?: string | null

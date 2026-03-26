@@ -1,0 +1,1 @@
+ALTER TABLE public.opd_patients ADD COLUMN IF NOT EXISTS on_examination text DEFAULT NULL;
