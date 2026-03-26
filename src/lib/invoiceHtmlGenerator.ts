@@ -360,9 +360,7 @@ function minimalGrayLayout(t: InvoiceTheme, d: InvoiceData): string {
     </tr>`;
     item.subItems.forEach(sub => {
       r += `<tr><td></td>
-        <td colspan="3" style="padding:2px 8px 2px 24px;font-size:11px;color:#cbd5e1">↳ ${sub.name}</td>
-        <td style="padding:2px 8px;text-align:right;font-size:11px;color:#cbd5e1">${d.formatPrice(sub.price)}</td>
-        <td style="padding:2px 8px;text-align:right;font-size:11px;color:#cbd5e1">${d.formatPrice(sub.total)}</td></tr>`;
+        <td colspan="5" style="padding:2px 8px 2px 24px;font-size:11px;color:#cbd5e1">↳ ${sub.name}</td></tr>`;
     });
     return r;
   }).join("");
