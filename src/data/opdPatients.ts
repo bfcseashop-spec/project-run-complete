@@ -21,6 +21,7 @@ export interface OPDPatient {
   rr?: string;
   hr?: string;
   temp?: string;
+  onExamination?: string;
 }
 
 export const opdPatients: OPDPatient[] = [

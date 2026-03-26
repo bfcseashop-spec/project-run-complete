@@ -254,6 +254,12 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
             </div>
           </div>
 
+          {/* On Examination */}
+          <div>
+            <Label className="flex items-center gap-1.5">On Examination <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
+            <Textarea placeholder="e.g. SLR positive, Tenderness over L4-L5, Sensory intact..." value={form.onExamination} onChange={(e) => update("onExamination", e.target.value)} rows={3} />
+          </div>
+
           {/* Row 5: Medical History */}
           <div>
             <Label className="flex items-center gap-1.5">Medical History <span className="text-xs font-normal text-muted-foreground">Optional</span></Label>
