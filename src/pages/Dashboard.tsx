@@ -456,25 +456,22 @@ interface CompactStatProps {
   label: string;
   value: string;
   variant: "muted" | "success" | "danger" | "accent" | "primary";
+  color?: string;
+  bgColor?: string;
+  borderColor?: string;
 }
-const variantStyles: Record<string, { bg: string; iconColor: string }> = {
-  muted: { bg: "bg-muted", iconColor: "text-muted-foreground" },
-  success: { bg: "bg-success/10", iconColor: "text-success" },
-  danger: { bg: "bg-destructive/10", iconColor: "text-destructive" },
-  accent: { bg: "bg-accent/10", iconColor: "text-accent" },
-  primary: { bg: "bg-primary/10", iconColor: "text-primary" },
-};
 
-const CompactStat = ({ icon: Icon, label, value, variant }: CompactStatProps) => {
-  const style = variantStyles[variant];
+const CompactStat = ({ icon: Icon, label, value, color, bgColor, borderColor }: CompactStatProps) => {
   return (
-    <div className="bg-card rounded-xl border border-border p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${style.bg}`}>
-        <Icon className={`w-4 h-4 ${style.iconColor}`} />
+    <div className="rounded-xl p-3.5 flex items-center gap-3 hover:shadow-sm transition-shadow"
+      style={{ background: bgColor || "hsl(0,0%,100%)", border: `1px solid ${borderColor || "hsl(0,0%,90%)"}` }}>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: `${color || "hsl(0,0%,50%)"}15` }}>
+        <Icon className="w-4 h-4" style={{ color: color || "hsl(0,0%,50%)" }} />
       </div>
       <div className="min-w-0">
-        <p className="text-lg font-black text-card-foreground font-body leading-none truncate">{value}</p>
-        <p className="text-[10px] text-muted-foreground font-semibold mt-0.5 uppercase tracking-widest">{label}</p>
+        <p className="text-lg font-black font-body leading-none truncate" style={{ color: color || "hsl(0,0%,20%)" }}>{value}</p>
+        <p className="text-[10px] font-semibold mt-0.5 uppercase tracking-widest" style={{ color: `${color || "hsl(0,0%,50%)"}99` }}>{label}</p>
       </div>
     </div>
   );
