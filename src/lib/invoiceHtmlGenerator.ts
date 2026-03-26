@@ -231,20 +231,21 @@ function modernTealLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page">
   ${watermarkImg(d)}
   <div class="content">
-    <div style="background:${t.headerGradient};border-radius:12px;padding:20px 28px;color:${t.headerText};margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;align-items:center;gap:14px">
-        ${logoImg(d, 44, "border-radius:8px;border:2px solid rgba(255,255,255,0.2)")}
-        <div>
-          <h1 style="font-size:22px;font-weight:800;margin:0">${d.clinicName}</h1>
-          <p style="font-size:12px;opacity:0.8;margin-top:2px">${d.clinicTagline}</p>
-          <p style="font-size:10px;opacity:0.6;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone}</p>
-        </div>
-      </div>
-      <div style="text-align:right">
+    <!-- Centered Header -->
+    ${centeredHeader(d, t, { bgStyle: "background:" + t.tableHeaderGradient + ";border-radius:12px;", borderStyle: "border-bottom:none" })}
+
+    <!-- Invoice ID Row -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:10px 20px;background:${t.headerGradient};border-radius:8px;color:${t.headerText}">
+      <div>
         <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">${d.invoiceLabel}</p>
         <p style="font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px">${d.invoiceId}</p>
       </div>
+      <div style="text-align:right">
+        <p style="font-size:10px;opacity:0.6;text-transform:uppercase;letter-spacing:1px">Date</p>
+        <p style="font-size:13px;font-weight:600">${d.dateTimeStr}</p>
+      </div>
     </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;font-size:13px">
       <div style="background:${t.patientBg};border:1px solid ${t.patientBorder};border-radius:8px;padding:12px 16px">
         <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${t.patientLabel};font-weight:600;margin-bottom:6px">Patient Info</p>
