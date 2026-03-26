@@ -115,7 +115,7 @@ const OPDPage = () => {
           { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
           { label: "Gender", value: p.gender }, { label: "Blood Type", value: p.bloodType || "N/A" },
           { label: "Patient Type", value: p.patientType || "N/A" }, { label: "Phone", value: p.phone || "N/A" },
-          { label: "Complaint", value: p.complaint }, { label: "Doctor", value: p.doctor },
+          { label: "Chief Complaint", value: p.complaint }, { label: "Doctor", value: p.doctor },
           { label: "Time", value: p.time }, { label: "Status", value: p.status },
           { label: "Medical History", value: p.medicalHistory || "N/A" },
         ];
