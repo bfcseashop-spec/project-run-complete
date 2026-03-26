@@ -2,7 +2,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Heart, Thermometer, Wind, Activity, Weight, Droplets } from "lucide-react";
 import { printRecordReport } from "@/lib/printUtils";
 import StatusBadge from "@/components/StatusBadge";
 import type { OPDPatient } from "@/data/opdPatients";
@@ -23,9 +23,20 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
     "Emergency": "bg-destructive/10 text-destructive",
   };
 
+  const vitals = [
+    { label: "SpO₂", value: patient.spo2, icon: Droplets, unit: "%", color: "text-blue-600 bg-blue-50" },
+    { label: "BP", value: patient.bp, icon: Activity, unit: "mmHg", color: "text-rose-600 bg-rose-50" },
+    { label: "HR", value: patient.hr, icon: Heart, unit: "bpm", color: "text-red-600 bg-red-50" },
+    { label: "Temp", value: patient.temp, icon: Thermometer, unit: "°F", color: "text-amber-600 bg-amber-50" },
+    { label: "RR", value: patient.rr, icon: Wind, unit: "/min", color: "text-teal-600 bg-teal-50" },
+    { label: "Weight", value: patient.weight, icon: Weight, unit: "kg", color: "text-purple-600 bg-purple-50" },
+  ];
+
+  const hasVitals = vitals.some((v) => v.value);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg">Patient Details — {patient.id}</DialogTitle>
         </DialogHeader>
@@ -80,6 +91,25 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
               </div>
             )}
           </div>
+
+          {/* Vital Signs */}
+          {hasVitals && (
+            <div>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Vital Signs</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {vitals.map((v) => {
+                  const Icon = v.icon;
+                  return (
+                    <div key={v.label} className={`rounded-lg p-2.5 text-center ${v.value ? v.color : "bg-muted/50 text-muted-foreground"}`}>
+                      <Icon className="w-4 h-4 mx-auto mb-1 opacity-70" />
+                      <p className="text-[11px] opacity-70">{v.label}</p>
+                      <p className="text-sm font-semibold">{v.value || "—"}{v.value ? ` ${v.unit}` : ""}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
@@ -92,6 +122,12 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
               { label: "Complaint", value: patient.complaint }, { label: "Doctor", value: patient.doctor },
               { label: "Time", value: patient.time }, { label: "Status", value: patient.status },
               { label: "Medical History", value: patient.medicalHistory || "N/A" },
+              { label: "SpO₂", value: patient.spo2 ? `${patient.spo2}%` : "N/A" },
+              { label: "BP", value: patient.bp ? `${patient.bp} mmHg` : "N/A" },
+              { label: "HR", value: patient.hr ? `${patient.hr} bpm` : "N/A" },
+              { label: "Temp", value: patient.temp ? `${patient.temp} °F` : "N/A" },
+              { label: "RR", value: patient.rr ? `${patient.rr} /min` : "N/A" },
+              { label: "Weight", value: patient.weight ? `${patient.weight} kg` : "N/A" },
             ];
             printRecordReport({ id: patient.id, sectionTitle: "OPD Patient Record", fields, photo: patient.photo });
           }}>
