@@ -105,7 +105,7 @@ const OPDPage = () => {
       };
       return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeStyles[p.patientType] || "bg-muted text-muted-foreground"}`}>{p.patientType}</span>;
     }},
-    { key: "complaint", header: "Complaint" },
+    { key: "complaint", header: "Chief Complaint" },
     { key: "doctor", header: "Doctor" },
     { key: "time", header: "Time" },
     
