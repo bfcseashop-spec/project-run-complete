@@ -211,48 +211,52 @@ const Dashboard = () => {
         </div>
 
         {/* Cash */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-primary/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(160, 45%, 96%), hsl(168, 50%, 92%))", border: "1px solid hsl(168, 40%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.1)" }}>
-              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 38%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(168, 65%, 38% / 0.15)" }}>
+              <Banknote className="w-4.5 h-4.5" style={{ color: "hsl(168, 65%, 32%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalCash)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Cash Received</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(168, 55%, 25%)" }}>{formatPrice(stats.totalCash)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(168, 40%, 40%)" }}>Cash Received</p>
         </div>
 
         {/* Bank */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-info/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(210, 50%, 96%), hsl(215, 55%, 92%))", border: "1px solid hsl(210, 45%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
-              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.15)" }}>
+              <Building2 className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 40%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalBank)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Bank Received</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(210, 60%, 30%)" }}>{formatPrice(stats.totalBank)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(210, 45%, 45%)" }}>Bank Received</p>
         </div>
 
         {/* Expenses */}
-        <div className="col-span-1 lg:col-span-2 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200 hover:border-warning/20">
+        <div className="col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(25, 60%, 96%), hsl(20, 55%, 92%))", border: "1px solid hsl(25, 50%, 85%)" }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(195, 65%, 45% / 0.1)" }}>
-              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(195, 65%, 45%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(25, 65%, 50% / 0.15)" }}>
+              <Wallet className="w-4.5 h-4.5" style={{ color: "hsl(25, 65%, 40%)" }} />
             </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalExpense)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Expenses</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(25, 55%, 30%)" }}>{formatPrice(stats.totalExpense)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(25, 45%, 45%)" }}>Expenses</p>
         </div>
 
         {/* Due */}
-        <div className="col-span-1 lg:col-span-3 bg-card rounded-2xl border border-border p-4 sm:p-5 hover:shadow-md transition-all duration-200" style={{ borderColor: "hsl(210, 70%, 50% / 0.15)" }}>
+        <div className="col-span-1 lg:col-span-3 rounded-2xl p-4 sm:p-5 relative overflow-hidden group"
+          style={{ background: "linear-gradient(145deg, hsl(0, 50%, 97%), hsl(355, 50%, 93%))", border: "1px solid hsl(0, 40%, 87%)" }}>
           <div className="flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(210, 70%, 50% / 0.1)" }}>
-              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(210, 70%, 50%)" }} />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 60%, 50% / 0.12)" }}>
+              <AlertCircle className="w-4.5 h-4.5" style={{ color: "hsl(0, 60%, 45%)" }} />
             </div>
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(210, 70%, 45%)", background: "hsl(210, 70%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ color: "hsl(0, 55%, 42%)", background: "hsl(0, 55%, 50% / 0.1)" }}>{stats.pendingInvoices} pending</span>
           </div>
-          <p className="text-xl sm:text-2xl font-black font-body text-card-foreground">{formatPrice(stats.totalDue)}</p>
-          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-1">Outstanding</p>
+          <p className="text-xl sm:text-2xl font-black font-body" style={{ color: "hsl(0, 50%, 30%)" }}>{formatPrice(stats.totalDue)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest mt-1" style={{ color: "hsl(0, 35%, 45%)" }}>Outstanding</p>
         </div>
       </div>
 
