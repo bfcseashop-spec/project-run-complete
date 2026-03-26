@@ -456,17 +456,17 @@ const MedicinePage = () => {
 
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={handleDownloadSample} />
 
-      {/* Colorful Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      {/* Professional Overview Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Items", val: String(totalItems), icon: Package, grad: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 90%, 62%))", shadow: "hsl(210, 100%, 56% / 0.3)", filter: "all" },
-          { label: "In Stock", val: String(inStock), icon: PackageCheck, grad: "linear-gradient(135deg, hsl(152, 68%, 45%), hsl(168, 80%, 42%))", shadow: "hsl(152, 68%, 45% / 0.3)", filter: "in-stock" },
-          { label: "Low Stock", val: String(lowStock), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(38, 92%, 50%), hsl(25, 95%, 53%))", shadow: "hsl(38, 92%, 50% / 0.3)", filter: "low-stock" },
-          { label: "Out of Stock", val: String(outOfStock), icon: PackageX, grad: "linear-gradient(135deg, hsl(0, 72%, 51%), hsl(348, 83%, 47%))", shadow: "hsl(0, 72%, 51% / 0.3)", filter: "out-of-stock" },
-          { label: "Expiring Soon", val: String(expiringSoon), icon: Clock, grad: "linear-gradient(135deg, hsl(30, 90%, 50%), hsl(15, 85%, 55%))", shadow: "hsl(30, 90%, 50% / 0.3)", filter: "expiring" },
-          { label: "Expired", val: String(expired), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(340, 75%, 55%), hsl(0, 70%, 50%))", shadow: "hsl(340, 75%, 55% / 0.3)", filter: "expired" },
-          { label: "Purchase Value", val: formatPrice(purchaseValue), icon: DollarSign, grad: "linear-gradient(135deg, hsl(262, 80%, 55%), hsl(280, 75%, 50%))", shadow: "hsl(262, 80%, 55% / 0.3)", filter: null },
-          { label: "Sales Value", val: formatPrice(salesValue), icon: TrendingUp, grad: "linear-gradient(135deg, hsl(190, 80%, 42%), hsl(200, 85%, 50%))", shadow: "hsl(190, 80%, 42% / 0.3)", filter: null },
+          { label: "Total Items", val: String(totalItems), icon: Package, grad: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 85%, 58%))", shadow: "0 4px 20px hsl(210, 100%, 56% / 0.25)", filter: "all" },
+          { label: "In Stock", val: String(inStock), icon: PackageCheck, grad: "linear-gradient(135deg, hsl(152, 68%, 45%), hsl(165, 72%, 40%))", shadow: "0 4px 20px hsl(152, 68%, 45% / 0.25)", filter: "in-stock" },
+          { label: "Low Stock", val: String(lowStock), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(38, 92%, 50%), hsl(28, 90%, 48%))", shadow: "0 4px 20px hsl(38, 92%, 50% / 0.25)", filter: "low-stock" },
+          { label: "Out of Stock", val: String(outOfStock), icon: PackageX, grad: "linear-gradient(135deg, hsl(0, 72%, 51%), hsl(348, 80%, 47%))", shadow: "0 4px 20px hsl(0, 72%, 51% / 0.25)", filter: "out-of-stock" },
+          { label: "Expiring Soon", val: String(expiringSoon), icon: Clock, grad: "linear-gradient(135deg, hsl(30, 88%, 50%), hsl(18, 85%, 52%))", shadow: "0 4px 20px hsl(30, 88%, 50% / 0.25)", filter: "expiring" },
+          { label: "Expired", val: String(expired), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(340, 75%, 52%), hsl(355, 70%, 48%))", shadow: "0 4px 20px hsl(340, 75%, 52% / 0.25)", filter: "expired" },
+          { label: "Purchase Value", val: formatPrice(purchaseValue), icon: DollarSign, grad: "linear-gradient(135deg, hsl(262, 78%, 55%), hsl(275, 72%, 50%))", shadow: "0 4px 20px hsl(262, 78%, 55% / 0.25)", filter: null },
+          { label: "Sales Value", val: formatPrice(salesValue), icon: TrendingUp, grad: "linear-gradient(135deg, hsl(190, 80%, 42%), hsl(198, 78%, 48%))", shadow: "0 4px 20px hsl(190, 80%, 42% / 0.25)", filter: null },
         ].map((c) => {
           const IconComp = c.icon;
           const isActive = c.filter && filterStatus === c.filter;
@@ -474,18 +474,18 @@ const MedicinePage = () => {
             <div
               key={c.label}
               onClick={() => c.filter && setFilterStatus(filterStatus === c.filter ? "all" : c.filter)}
-              className={`relative overflow-hidden rounded-xl p-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isActive ? "ring-2 ring-white/80" : ""}`}
-              style={{ background: c.grad, boxShadow: `0 4px 20px ${c.shadow}` }}
+              className={`relative overflow-hidden rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isActive ? "ring-2 ring-white/90 scale-[1.02]" : ""}`}
+              style={{ background: c.grad, boxShadow: c.shadow }}
             >
-              <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-white/10" />
-              <div className="absolute -left-2 -bottom-2 w-10 h-10 rounded-full bg-white/5" />
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
-                  <IconComp className="w-5 h-5 text-white" />
+              <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10" />
+              <div className="absolute -left-3 -bottom-3 w-14 h-14 rounded-full bg-white/5" />
+              <div className="relative z-10 flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "hsl(0, 0%, 100% / 0.75)" }}>{c.label}</p>
+                  <p className="text-2xl font-black text-white font-number tracking-tight leading-none">{c.val}</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-black text-white font-number leading-none">{c.val}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>{c.label}</p>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.18)", backdropFilter: "blur(8px)" }}>
+                  <IconComp className="w-5 h-5 text-white" />
                 </div>
               </div>
             </div>
