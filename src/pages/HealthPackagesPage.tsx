@@ -110,7 +110,7 @@ const serviceColors: Record<string, string> = {
 };
 
 const HealthPackagesPage = () => {
-  useSettings();
+  const { settings } = useSettings();
   const { activeTests } = useTestNameStore();
   const [packages, setPackages] = useState<HealthPackage[]>(initialPackages);
   const [dialogOpen, setDialogOpen] = useState(false);
