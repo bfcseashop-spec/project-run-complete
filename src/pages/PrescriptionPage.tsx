@@ -489,24 +489,32 @@ const PrescriptionPage = () => {
         <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-xl shadow-2xl">
           {viewRx && (
             <div className="bg-background">
-              {/* Premium Header */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)] px-7 py-6">
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5" />
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-300/60 via-teal-200/80 to-emerald-300/60" />
-                <div className="relative z-10 flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-heading font-bold text-white tracking-wide">{viewRx.doctor}</h2>
-                    <p className="text-xs text-white/70 mt-0.5">{viewRx.doctorSpecialization || "Physician"}</p>
-                    <p className="text-[10px] text-white/40 mt-0.5">ID: {viewRx.id}</p>
-                  </div>
-                  <div className="flex items-center gap-3 text-right">
-                    <div>
-                      <h3 className="text-base font-heading font-bold text-white">{s.clinicName}</h3>
-                      <p className="text-[10px] text-white/60">{s.clinicTagline}</p>
-                      {s.clinicRegNumber && <p className="text-[9px] text-white/40 mt-0.5">Reg: {s.clinicRegNumber}</p>}
-                    </div>
-                    <img src={clinicLogo} alt={s.clinicName} className="w-11 h-11 rounded-lg bg-white/10 p-1 ring-1 ring-white/20" />
-                  </div>
+              {/* Top accent line */}
+              <div className="h-1.5 bg-gradient-to-r from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)]" />
+
+              {/* Centered Clinic Branding */}
+              <div className="flex flex-col items-center py-5 border-b border-border bg-muted/20">
+                <div className="w-16 h-16 rounded-2xl bg-white border border-border shadow-md flex items-center justify-center overflow-hidden mb-2">
+                  {s.clinicLogo ? (
+                    <img src={s.clinicLogo} alt={s.clinicName} className="w-full h-full object-contain p-1.5" />
+                  ) : (
+                    <img src={clinicLogo} alt={s.clinicName} className="w-full h-full object-contain p-1.5" />
+                  )}
+                </div>
+                <h2 className="text-lg font-heading font-bold text-foreground tracking-wide">{s.clinicName || "Clinic"}</h2>
+                {s.clinicTagline && <p className="text-[11px] text-muted-foreground mt-0.5">{s.clinicTagline}</p>}
+                {s.clinicRegNumber && <p className="text-[9px] text-muted-foreground/60 mt-0.5">Reg: {s.clinicRegNumber}</p>}
+              </div>
+
+              {/* Doctor & Prescription ID Bar */}
+              <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-[hsl(170,70%,22%)] to-[hsl(165,50%,38%)]">
+                <div>
+                  <p className="text-sm font-bold text-white">{viewRx.doctor}</p>
+                  <p className="text-[10px] text-white/60">{viewRx.doctorSpecialization || "Physician"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Prescription</p>
+                  <p className="text-xs font-bold text-white font-mono">{viewRx.id}</p>
                 </div>
               </div>
 
@@ -529,7 +537,11 @@ const PrescriptionPage = () => {
               {/* Two-Column Content */}
               <div className="relative grid grid-cols-[200px_1fr] min-h-[340px]">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <img src={clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  {s.clinicLogo ? (
+                    <img src={s.clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  ) : (
+                    <img src={clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  )}
                 </div>
 
                 {/* Left: Clinical */}
