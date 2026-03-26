@@ -227,20 +227,27 @@ const PrescriptionPage = () => {
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Inter',system-ui,sans-serif;color:#1a2e35;background:#fff}
-  .page{max-width:720px;margin:0 auto;padding:0;border:1px solid #e0e0e0}
-  .header{background:linear-gradient(135deg,#0d4f4f 0%,#0a7a6b 40%,#1a8a75 100%);padding:24px 32px;display:flex;justify-content:space-between;align-items:center}
-  .header-left h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
-  .header-left p{font-size:11px;color:rgba(255,255,255,0.7)}
-  .header-right{text-align:right}
-  .header-right h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#fff}
-  .header-right p{font-size:10px;color:rgba(255,255,255,0.6)}
-  .accent-bar{height:4px;background:linear-gradient(90deg,#0d9373,#4ec6a0,#0d9373)}
+  .page{max-width:720px;margin:0 auto;padding:0;border:1px solid #e0e0e0;position:relative}
+  .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;pointer-events:none;z-index:0}
+  .watermark img{width:200px;height:200px;object-fit:contain}
+  .accent-top{height:5px;background:linear-gradient(90deg,#0d9373,#4ec6a0,#0d9373)}
+  .clinic-brand{display:flex;flex-direction:column;align-items:center;padding:20px 24px 16px;border-bottom:1px solid #e8ece9;background:#fafcfb}
+  .clinic-logo-img{width:56px;height:56px;border-radius:14px;border:1px solid #e0e8e4;box-shadow:0 2px 8px rgba(0,0,0,0.08);object-fit:contain;padding:4px;background:#fff;margin-bottom:8px}
+  .clinic-name-c{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1a2e35}
+  .clinic-tag-c{font-size:11px;color:#6b8a8e;margin-top:2px}
+  .clinic-reg-c{font-size:9px;color:#9bb8b2;margin-top:2px}
+  .doctor-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:linear-gradient(135deg,#0d4f4f 0%,#0a7a6b 40%,#1a8a75 100%)}
+  .doctor-bar .dleft h2{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:1px}
+  .doctor-bar .dleft p{font-size:10px;color:rgba(255,255,255,0.6)}
+  .doctor-bar .dright{text-align:right}
+  .doctor-bar .dright p{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .doctor-bar .dright .rx-id{font-size:12px;font-weight:700;color:#fff;font-family:monospace}
   .patient-bar{display:grid;grid-template-columns:1.2fr 1fr 0.8fr;border-bottom:1px solid #e8ece9;background:#f8faf9}
   .patient-bar .cell{padding:10px 16px;border-right:1px solid #e8ece9;font-size:12px}
   .patient-bar .cell:last-child{border-right:none}
   .patient-bar .lbl{color:#6b8a8e;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
   .patient-bar .val{font-weight:600;color:#1a2e35;margin-top:1px}
-  .content{display:grid;grid-template-columns:200px 1px 1fr;min-height:380px}
+  .content{display:grid;grid-template-columns:200px 1px 1fr;min-height:380px;position:relative;z-index:1}
   .left-col{padding:20px 16px;background:#fcfdfb}
   .divider{background:linear-gradient(180deg,#0d9373 0%,#e8ece9 30%,#e8ece9 100%)}
   .right-col{padding:20px 24px}
@@ -267,18 +274,24 @@ const PrescriptionPage = () => {
   @media print{.page{border:none;max-width:100%}@page{margin:10mm}}
 </style></head><body>
 <div class="page">
-  <div class="header">
-    <div class="header-left">
-      <h2>\${rx.doctor}</h2>
-      <p>\${rx.doctorSpecialization || 'Physician'}</p>
+  ${s.clinicLogo ? `<div class="watermark"><img src="${s.clinicLogo}" /></div>` : ""}
+  <div class="accent-top"></div>
+  <div class="clinic-brand">
+    ${s.clinicLogo ? `<img src="${s.clinicLogo}" class="clinic-logo-img" />` : ""}
+    <div class="clinic-name-c">${s.clinicName}</div>
+    ${s.clinicTagline ? `<div class="clinic-tag-c">${s.clinicTagline}</div>` : ""}
+    ${s.clinicRegNumber ? `<div class="clinic-reg-c">Reg: ${s.clinicRegNumber}</div>` : ""}
+  </div>
+  <div class="doctor-bar">
+    <div class="dleft">
+      <h2>${rx.doctor}</h2>
+      <p>${rx.doctorSpecialization || 'Physician'}</p>
     </div>
-    <div class="header-right">
-      <h3>${s.clinicName}</h3>
-      <p>${s.clinicTagline}</p>
-      ${s.clinicRegNumber ? `<p style="margin-top:2px;font-size:9px;opacity:0.5">Reg: ${s.clinicRegNumber}</p>` : ""}
+    <div class="dright">
+      <p>Prescription</p>
+      <div class="rx-id">${rx.id}</div>
     </div>
   </div>
-  <div class="accent-bar"></div>
   <div class="patient-bar">
     <div class="cell"><div class="lbl">Patient Name</div><div class="val">${rx.patient}</div></div>
     <div class="cell"><div class="lbl">Age / Gender</div><div class="val">${rx.age || "—"} yrs, ${rx.gender || "—"}</div></div>
@@ -489,24 +502,32 @@ const PrescriptionPage = () => {
         <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-xl shadow-2xl">
           {viewRx && (
             <div className="bg-background">
-              {/* Premium Header */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)] px-7 py-6">
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5" />
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-300/60 via-teal-200/80 to-emerald-300/60" />
-                <div className="relative z-10 flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-heading font-bold text-white tracking-wide">{viewRx.doctor}</h2>
-                    <p className="text-xs text-white/70 mt-0.5">{viewRx.doctorSpecialization || "Physician"}</p>
-                    <p className="text-[10px] text-white/40 mt-0.5">ID: {viewRx.id}</p>
-                  </div>
-                  <div className="flex items-center gap-3 text-right">
-                    <div>
-                      <h3 className="text-base font-heading font-bold text-white">{s.clinicName}</h3>
-                      <p className="text-[10px] text-white/60">{s.clinicTagline}</p>
-                      {s.clinicRegNumber && <p className="text-[9px] text-white/40 mt-0.5">Reg: {s.clinicRegNumber}</p>}
-                    </div>
-                    <img src={clinicLogo} alt={s.clinicName} className="w-11 h-11 rounded-lg bg-white/10 p-1 ring-1 ring-white/20" />
-                  </div>
+              {/* Top accent line */}
+              <div className="h-1.5 bg-gradient-to-r from-[hsl(170,70%,22%)] via-[hsl(170,55%,32%)] to-[hsl(165,50%,40%)]" />
+
+              {/* Centered Clinic Branding */}
+              <div className="flex flex-col items-center py-5 border-b border-border bg-muted/20">
+                <div className="w-16 h-16 rounded-2xl bg-white border border-border shadow-md flex items-center justify-center overflow-hidden mb-2">
+                  {s.clinicLogo ? (
+                    <img src={s.clinicLogo} alt={s.clinicName} className="w-full h-full object-contain p-1.5" />
+                  ) : (
+                    <img src={clinicLogo} alt={s.clinicName} className="w-full h-full object-contain p-1.5" />
+                  )}
+                </div>
+                <h2 className="text-lg font-heading font-bold text-foreground tracking-wide">{s.clinicName || "Clinic"}</h2>
+                {s.clinicTagline && <p className="text-[11px] text-muted-foreground mt-0.5">{s.clinicTagline}</p>}
+                {s.clinicRegNumber && <p className="text-[9px] text-muted-foreground/60 mt-0.5">Reg: {s.clinicRegNumber}</p>}
+              </div>
+
+              {/* Doctor & Prescription ID Bar */}
+              <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-[hsl(170,70%,22%)] to-[hsl(165,50%,38%)]">
+                <div>
+                  <p className="text-sm font-bold text-white">{viewRx.doctor}</p>
+                  <p className="text-[10px] text-white/60">{viewRx.doctorSpecialization || "Physician"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Prescription</p>
+                  <p className="text-xs font-bold text-white font-mono">{viewRx.id}</p>
                 </div>
               </div>
 
@@ -529,7 +550,11 @@ const PrescriptionPage = () => {
               {/* Two-Column Content */}
               <div className="relative grid grid-cols-[200px_1fr] min-h-[340px]">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <img src={clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  {s.clinicLogo ? (
+                    <img src={s.clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  ) : (
+                    <img src={clinicLogo} alt="" className="w-44 h-44 opacity-[0.04]" />
+                  )}
                 </div>
 
                 {/* Left: Clinical */}
