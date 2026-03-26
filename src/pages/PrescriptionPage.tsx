@@ -242,19 +242,12 @@ const PrescriptionPage = () => {
   .doctor-bar .dright{text-align:right}
   .doctor-bar .dright p{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;font-weight:600}
   .doctor-bar .dright .rx-id{font-size:12px;font-weight:700;color:#fff;font-family:monospace}
-  .header{background:linear-gradient(135deg,#0d4f4f 0%,#0a7a6b 40%,#1a8a75 100%);padding:24px 32px;display:flex;justify-content:space-between;align-items:center}
-  .header-left h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
-  .header-left p{font-size:11px;color:rgba(255,255,255,0.7)}
-  .header-right{text-align:right}
-  .header-right h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#fff}
-  .header-right p{font-size:10px;color:rgba(255,255,255,0.6)}
-  .accent-bar{height:4px;background:linear-gradient(90deg,#0d9373,#4ec6a0,#0d9373)}
   .patient-bar{display:grid;grid-template-columns:1.2fr 1fr 0.8fr;border-bottom:1px solid #e8ece9;background:#f8faf9}
   .patient-bar .cell{padding:10px 16px;border-right:1px solid #e8ece9;font-size:12px}
   .patient-bar .cell:last-child{border-right:none}
   .patient-bar .lbl{color:#6b8a8e;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
   .patient-bar .val{font-weight:600;color:#1a2e35;margin-top:1px}
-  .content{display:grid;grid-template-columns:200px 1px 1fr;min-height:380px}
+  .content{display:grid;grid-template-columns:200px 1px 1fr;min-height:380px;position:relative;z-index:1}
   .left-col{padding:20px 16px;background:#fcfdfb}
   .divider{background:linear-gradient(180deg,#0d9373 0%,#e8ece9 30%,#e8ece9 100%)}
   .right-col{padding:20px 24px}
@@ -281,18 +274,24 @@ const PrescriptionPage = () => {
   @media print{.page{border:none;max-width:100%}@page{margin:10mm}}
 </style></head><body>
 <div class="page">
-  <div class="header">
-    <div class="header-left">
-      <h2>\${rx.doctor}</h2>
-      <p>\${rx.doctorSpecialization || 'Physician'}</p>
+  ${s.clinicLogo ? `<div class="watermark"><img src="${s.clinicLogo}" /></div>` : ""}
+  <div class="accent-top"></div>
+  <div class="clinic-brand">
+    ${s.clinicLogo ? `<img src="${s.clinicLogo}" class="clinic-logo-img" />` : ""}
+    <div class="clinic-name-c">${s.clinicName}</div>
+    ${s.clinicTagline ? `<div class="clinic-tag-c">${s.clinicTagline}</div>` : ""}
+    ${s.clinicRegNumber ? `<div class="clinic-reg-c">Reg: ${s.clinicRegNumber}</div>` : ""}
+  </div>
+  <div class="doctor-bar">
+    <div class="dleft">
+      <h2>${rx.doctor}</h2>
+      <p>${rx.doctorSpecialization || 'Physician'}</p>
     </div>
-    <div class="header-right">
-      <h3>${s.clinicName}</h3>
-      <p>${s.clinicTagline}</p>
-      ${s.clinicRegNumber ? `<p style="margin-top:2px;font-size:9px;opacity:0.5">Reg: ${s.clinicRegNumber}</p>` : ""}
+    <div class="dright">
+      <p>Prescription</p>
+      <div class="rx-id">${rx.id}</div>
     </div>
   </div>
-  <div class="accent-bar"></div>
   <div class="patient-bar">
     <div class="cell"><div class="lbl">Patient Name</div><div class="val">${rx.patient}</div></div>
     <div class="cell"><div class="lbl">Age / Gender</div><div class="val">${rx.age || "—"} yrs, ${rx.gender || "—"}</div></div>
