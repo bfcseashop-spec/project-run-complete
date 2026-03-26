@@ -231,18 +231,37 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
           <div className="grid grid-cols-5 gap-3 mt-4">
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Patient Name *</Label>
-              <Select value={form.patient} onValueChange={handlePatientSelect}>
-                <SelectTrigger className="h-9 bg-background">
-                  <SelectValue placeholder="Select patient" />
-                </SelectTrigger>
-                <SelectContent>
-                  {patients.map((p) => (
-                    <SelectItem key={p.id} value={p.name}>
-                      {p.name} ({p.id})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={patientPopoverOpen} onOpenChange={setPatientPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" className="w-full h-9 justify-between font-normal bg-background">
+                    {form.patient ? `${form.patient} (${patients.find(p => p.name === form.patient)?.id || ""})` : "Select patient"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[360px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search patient name or ID..." />
+                    <CommandList>
+                      <CommandEmpty>No patient found.</CommandEmpty>
+                      <CommandGroup>
+                        {patients.map((p) => (
+                          <CommandItem
+                            key={p.id}
+                            value={`${p.name} ${p.id}`}
+                            onSelect={() => {
+                              handlePatientSelect(p.name);
+                              setPatientPopoverOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", form.patient === p.name ? "opacity-100" : "opacity-0")} />
+                            {p.name} <span className="ml-1 text-muted-foreground">({p.id})</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Age</Label>
