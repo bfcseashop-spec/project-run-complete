@@ -103,9 +103,10 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
       rr: form.rr || undefined,
       hr: form.hr || undefined,
       temp: form.temp || undefined,
+      onExamination: form.onExamination || undefined,
     };
     onSubmit(patient);
-    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "" });
+    setForm({ name: "", age: "", gender: "", doctor: "", complaint: "", time: "", bloodType: "", patientType: "", phone: "", medicalHistory: "", spo2: "", weight: "", bp: "", rr: "", hr: "", temp: "", onExamination: "" });
     setImagePreview(null);
   };
 
