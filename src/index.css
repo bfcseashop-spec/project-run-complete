@@ -5,6 +5,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-size: 17px;
+  }
   :root {
     --background: 210 20% 98%;
     --foreground: 215 25% 15%;
