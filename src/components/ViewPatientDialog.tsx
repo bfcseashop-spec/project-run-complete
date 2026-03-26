@@ -84,6 +84,12 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
               <span className="text-muted-foreground text-xs">Status</span>
               <div className="mt-0.5"><StatusBadge status={patient.status} /></div>
             </div>
+            {patient.onExamination && (
+              <div className="col-span-2">
+                <span className="text-muted-foreground text-xs">On Examination</span>
+                <p className="mt-0.5 text-foreground">{patient.onExamination}</p>
+              </div>
+            )}
             {patient.medicalHistory && (
               <div className="col-span-2">
                 <span className="text-muted-foreground text-xs">Medical History</span>
@@ -122,6 +128,7 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
               { label: "Complaint", value: patient.complaint }, { label: "Doctor", value: patient.doctor },
               { label: "Time", value: patient.time }, { label: "Status", value: patient.status },
               { label: "Medical History", value: patient.medicalHistory || "N/A" },
+              { label: "On Examination", value: patient.onExamination || "N/A" },
               { label: "SpO₂", value: patient.spo2 ? `${patient.spo2}%` : "N/A" },
               { label: "BP", value: patient.bp ? `${patient.bp} mmHg` : "N/A" },
               { label: "HR", value: patient.hr ? `${patient.hr} bpm` : "N/A" },

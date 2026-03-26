@@ -16,6 +16,7 @@ const toPatient = (r: any): OPDPatient => ({
   spo2: r.spo2 || undefined, weight: r.weight || undefined,
   bp: r.bp || undefined, rr: r.rr || undefined,
   hr: r.hr || undefined, temp: r.temp || undefined,
+  onExamination: r.on_examination || undefined,
 });
 
 const load = async () => {
@@ -38,6 +39,7 @@ export async function addPatient(patient: OPDPatient) {
     spo2: patient.spo2 || null, weight: patient.weight || null,
     bp: patient.bp || null, rr: patient.rr || null,
     hr: patient.hr || null, temp: patient.temp || null,
+    on_examination: patient.onExamination || null,
   });
   if (error) throw error;
   _patients = [patient, ..._patients]; notify();
@@ -53,6 +55,7 @@ export async function updatePatient(id: string, updated: OPDPatient) {
     spo2: updated.spo2 || null, weight: updated.weight || null,
     bp: updated.bp || null, rr: updated.rr || null,
     hr: updated.hr || null, temp: updated.temp || null,
+    on_examination: updated.onExamination || null,
   }).eq("id", id);
   if (error) throw error;
   _patients = _patients.map((p) => (p.id === id ? updated : p)); notify();
