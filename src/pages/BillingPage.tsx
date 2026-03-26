@@ -502,11 +502,7 @@ const BillingPage = () => {
                         {(item.subItems || []).map((sub: any, j: number) => (
                           <div key={j} className="grid grid-cols-[36px_1fr_1fr_40px_90px_100px] px-4 py-1.5 border-t border-border/40 items-center text-xs text-muted-foreground/70">
                             <span></span>
-                            <span className="pl-3">↳ {sub.name}</span>
-                            <span></span>
-                            <span></span>
-                            <span className="text-right tabular-nums">{formatPrice(sub.price)}</span>
-                            <span className="text-right tabular-nums">{formatPrice(sub.total)}</span>
+                            <span className="pl-3 col-span-5">↳ {sub.name}</span>
                           </div>
                         ))}
                       </div>
