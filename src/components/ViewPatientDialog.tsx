@@ -84,6 +84,12 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
               <span className="text-muted-foreground text-xs">Status</span>
               <div className="mt-0.5"><StatusBadge status={patient.status} /></div>
             </div>
+            {patient.onExamination && (
+              <div className="col-span-2">
+                <span className="text-muted-foreground text-xs">On Examination</span>
+                <p className="mt-0.5 text-foreground">{patient.onExamination}</p>
+              </div>
+            )}
             {patient.medicalHistory && (
               <div className="col-span-2">
                 <span className="text-muted-foreground text-xs">Medical History</span>
