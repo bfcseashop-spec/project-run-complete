@@ -176,11 +176,30 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
   const handlePatientSelect = (patientName: string) => {
     const patient = patients.find((p) => p.name === patientName);
     if (patient) {
+      // Build on-examination text from vitals
+      const vitalParts: string[] = [];
+      if (patient.bp) vitalParts.push(`BP: ${patient.bp} mmHg`);
+      if (patient.weight) vitalParts.push(`Weight: ${patient.weight} kg`);
+      if (patient.spo2) vitalParts.push(`SpO₂: ${patient.spo2}%`);
+      if (patient.hr) vitalParts.push(`HR: ${patient.hr} bpm`);
+      if (patient.rr) vitalParts.push(`RR: ${patient.rr}/min`);
+      if (patient.temp) vitalParts.push(`Temp: ${patient.temp}°F`);
+
       setForm((f) => ({
         ...f,
         patient: patient.name,
         age: String(patient.age),
         gender: patient.gender === "F" ? "Female" : patient.gender === "M" ? "Male" : "Other",
+        chiefComplaint: patient.complaint || "",
+        onExamination: vitalParts.join(", "),
+        spo2: patient.spo2 || "",
+        weight: patient.weight || "",
+        bp: patient.bp || "",
+        rr: patient.rr || "",
+        hr: patient.hr || "",
+        temp: patient.temp || "",
+        phone: patient.phone || "",
+        bloodType: patient.bloodType || "",
       }));
     }
   };
