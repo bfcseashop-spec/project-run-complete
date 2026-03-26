@@ -326,6 +326,53 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
           <div className="grid grid-cols-[1fr_2px_1.4fr] min-h-full">
             {/* ======== LEFT COLUMN — Clinical Findings ======== */}
             <div className="p-5 space-y-4">
+              {/* Vital Signs */}
+              {(form.spo2 || form.weight || form.bp || form.rr || form.hr || form.temp) && (
+                <div>
+                  <Label className="text-xs font-bold uppercase tracking-wide text-primary flex items-center gap-1.5 mb-2">
+                    <Heart className="w-3.5 h-3.5" /> Vital Signs
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {form.bp && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Gauge className="w-3.5 h-3.5 text-red-500" />
+                        <div><p className="text-[10px] text-muted-foreground">BP</p><p className="text-xs font-semibold">{form.bp}</p></div>
+                      </div>
+                    )}
+                    {form.spo2 && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Droplets className="w-3.5 h-3.5 text-blue-500" />
+                        <div><p className="text-[10px] text-muted-foreground">SpO₂</p><p className="text-xs font-semibold">{form.spo2}%</p></div>
+                      </div>
+                    )}
+                    {form.hr && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Heart className="w-3.5 h-3.5 text-pink-500" />
+                        <div><p className="text-[10px] text-muted-foreground">HR</p><p className="text-xs font-semibold">{form.hr} bpm</p></div>
+                      </div>
+                    )}
+                    {form.temp && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Thermometer className="w-3.5 h-3.5 text-orange-500" />
+                        <div><p className="text-[10px] text-muted-foreground">Temp</p><p className="text-xs font-semibold">{form.temp}°F</p></div>
+                      </div>
+                    )}
+                    {form.weight && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Weight className="w-3.5 h-3.5 text-green-500" />
+                        <div><p className="text-[10px] text-muted-foreground">Weight</p><p className="text-xs font-semibold">{form.weight} kg</p></div>
+                      </div>
+                    )}
+                    {form.rr && (
+                      <div className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-2 py-1.5">
+                        <Wind className="w-3.5 h-3.5 text-cyan-500" />
+                        <div><p className="text-[10px] text-muted-foreground">RR</p><p className="text-xs font-semibold">{form.rr}/min</p></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Chief Complaint */}
               <div>
                 <Label className="text-xs font-bold uppercase tracking-wide text-primary flex items-center gap-1.5 mb-1.5">
