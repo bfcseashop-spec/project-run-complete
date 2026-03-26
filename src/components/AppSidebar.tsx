@@ -21,7 +21,7 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "overview", color: "hsl(220, 70%, 50%)",
     items: [
-      { icon: LayoutGrid, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
+      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
       { icon: Wallet, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(250, 65%, 55%)" },
     ],
   },
