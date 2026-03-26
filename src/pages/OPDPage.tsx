@@ -52,7 +52,7 @@ const OPDPage = () => {
       .sort((a, b) => {
         const aNumber = Number.parseInt(a.id.replace("OPD-", ""), 10) || 0;
         const bNumber = Number.parseInt(b.id.replace("OPD-", ""), 10) || 0;
-        return aNumber - bNumber;
+        return bNumber - aNumber;
       });
   }, [patients, search, filterBlood, filterType]);
 
