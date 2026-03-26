@@ -55,6 +55,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
         rr: editPatient.rr || "",
         hr: editPatient.hr || "",
         temp: editPatient.temp || "",
+        onExamination: editPatient.onExamination || "",
       });
       setImagePreview(editPatient.photo || null);
     } else {
