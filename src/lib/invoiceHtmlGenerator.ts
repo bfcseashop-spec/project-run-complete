@@ -84,6 +84,21 @@ function logoImg(d: InvoiceData, size: number = 48, style: string = "") {
   return `<img src="${d.clinicLogo}" alt="Logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:6px;${style}" />`;
 }
 
+function centeredHeader(d: InvoiceData, t: InvoiceTheme, opts: { serif?: boolean; borderStyle?: string; bgStyle?: string } = {}) {
+  const font = opts.serif ? "font-family:Georgia,serif;" : "";
+  const logoHtml = d.clinicLogo
+    ? `<div style="margin-bottom:10px">${logoImg(d, 56, "border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1)")}</div>`
+    : '';
+  const border = opts.borderStyle || `border-bottom:3px solid ${t.accent}`;
+  const bg = opts.bgStyle || '';
+  return `<div style="text-align:center;padding:24px 20px 18px;${border};margin-bottom:20px;${bg}">
+    ${logoHtml}
+    <h1 style="font-size:24px;font-weight:800;color:${t.accent};letter-spacing:1.5px;margin:0;${font}">${d.clinicName}</h1>
+    <p style="font-size:11px;color:${t.accentLight};margin-top:4px;${font}">${d.clinicTagline}</p>
+    <p style="font-size:10px;color:#64748b;margin-top:4px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+  </div>`;
+}
+
 function watermarkImg(d: InvoiceData) {
   if (!d.clinicLogo) return "";
   return `<img src="${d.clinicLogo}" class="watermark" alt="" />`;
