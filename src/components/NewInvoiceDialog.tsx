@@ -440,12 +440,12 @@ ${totalsHtml}
                 <Label className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <User className="w-3.5 h-3.5 text-primary" /> Patient <span className="text-destructive">*</span>
                 </Label>
-                <Select value={patient} onValueChange={setPatient}>
-                  <SelectTrigger className="h-10"><SelectValue placeholder="Select patient..." /></SelectTrigger>
-                  <SelectContent>
-                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name} ({p.id})</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <PatientSearchSelect
+                  patients={patients}
+                  value={patient}
+                  onSelect={(p) => setPatient(p.name)}
+                  className="h-10"
+                />
               </div>
               <div>
                 <Label className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

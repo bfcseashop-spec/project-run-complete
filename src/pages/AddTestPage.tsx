@@ -165,14 +165,11 @@ const AddTestPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Patient Name <span className="text-destructive">*</span></Label>
-                  <Select value={form.patientId} onValueChange={handlePatientSelect}>
-                    <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                    <SelectContent>
-                      {patients.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <PatientSearchSelect
+                    patients={patients}
+                    value={patients.find(p => p.id === form.patientId)?.name || ""}
+                    onSelect={(p) => handlePatientSelect(p.id)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Patient ID</Label>
