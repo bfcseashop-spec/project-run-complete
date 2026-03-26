@@ -255,18 +255,18 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               <h2 className="text-white text-lg font-bold tracking-tight">{s.clinicName || "Lab Report"}</h2>
               <p className="text-white/50 text-xs font-medium">{s.clinicTagline || "Laboratory Report"}</p>
             </div>
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${
+            <div className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md border ${
               isComplete
-                ? "bg-emerald-400/20 text-emerald-200 ring-1 ring-emerald-400/30"
+                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
                 : isPending
-                ? "bg-amber-400/20 text-amber-200 ring-1 ring-amber-400/30"
-                : "bg-blue-400/20 text-blue-200 ring-1 ring-blue-400/30"
+                ? "bg-white/10 text-white/70 border-white/15"
+                : "bg-blue-500/15 text-blue-300 border-blue-500/25"
             }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                isComplete ? "bg-emerald-400" : isPending ? "bg-amber-400" : "bg-blue-400"
+              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                isComplete ? "bg-emerald-400" : isPending ? "bg-white/60" : "bg-blue-400"
               }`} />
               {statusLabel}
-            </span>
+            </div>
           </div>
         </div>
 
