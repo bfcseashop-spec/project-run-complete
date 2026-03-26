@@ -128,8 +128,9 @@ const AppSidebar = () => {
             : isCollapsed ? "w-[60px]" : "w-[220px]"
         }`}
         style={{
-          background: "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background)) 100%)",
-          borderRight: "1px solid hsl(var(--sidebar-border))",
+          background: "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background) / 0.97) 100%)",
+          borderRight: "1px solid hsl(var(--sidebar-border) / 0.6)",
+          boxShadow: "2px 0 12px hsl(var(--sidebar-border) / 0.15)",
         }}
       >
         {/* ─── Logo Header ─── */}
