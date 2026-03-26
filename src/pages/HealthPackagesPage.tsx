@@ -299,16 +299,31 @@ const HealthPackagesPage = () => {
         <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl">
           {viewPkg && (
             <div>
-              {/* Header */}
-              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background px-6 pt-6 pb-4 border-b border-border">
+              {/* Company Branding - Center */}
+              <div className="flex flex-col items-center justify-center py-5 border-b border-border bg-muted/20">
+                {settings.clinicLogo ? (
+                  <img src={settings.clinicLogo} alt="Logo" className="w-14 h-14 object-contain rounded-xl mb-2" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mb-2">
+                    <Package className="w-7 h-7 text-white" />
+                  </div>
+                )}
+                <h2 className="text-base font-heading font-bold text-foreground">{settings.clinicName || "Clinic"}</h2>
+                {settings.clinicTagline && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{settings.clinicTagline}</p>
+                )}
+              </div>
+
+              {/* Package Header */}
+              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background px-6 pt-4 pb-3 border-b border-border">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-                      <Package className="w-6 h-6 text-white" />
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md shadow-primary/20">
+                      <Package className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-heading font-bold text-foreground">{viewPkg.name}</h2>
-                      <p className="text-xs text-muted-foreground mt-0.5">{viewPkg.id}</p>
+                      <h3 className="text-base font-heading font-bold text-foreground">{viewPkg.name}</h3>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{viewPkg.id}</p>
                     </div>
                   </div>
                   <StatusBadge status={viewPkg.status} />
