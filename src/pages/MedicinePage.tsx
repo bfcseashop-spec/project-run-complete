@@ -456,16 +456,41 @@ const MedicinePage = () => {
 
       <DataToolbar dateFilter={toolbar.dateFilter} onDateFilterChange={toolbar.setDateFilter} viewMode={toolbar.viewMode} onViewModeChange={toolbar.setViewMode} onExportExcel={handleExportExcel} onExportPDF={toolbar.handleExportPDF} onImport={handleImport} onDownloadSample={handleDownloadSample} />
 
-      {/* Stat Cards */}
+      {/* Colorful Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-        <StatCard title="Total Items" value={String(totalItems)} icon={Package} onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "ring-2 ring-primary" : "cursor-pointer hover:shadow-md transition-shadow"} />
-        <StatCard title="In Stock" value={String(inStock)} icon={PackageCheck} onClick={() => setFilterStatus(filterStatus === "in-stock" ? "all" : "in-stock")} className={filterStatus === "in-stock" ? "ring-2 ring-emerald-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
-        <StatCard title="Low Stock" value={String(lowStock)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "low-stock" ? "all" : "low-stock")} className={filterStatus === "low-stock" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} />
-        <StatCard title="Out of Stock" value={String(outOfStock)} icon={PackageX} onClick={() => setFilterStatus(filterStatus === "out-of-stock" ? "all" : "out-of-stock")} className={filterStatus === "out-of-stock" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} />
-        <StatCard title="Expiring Soon" value={String(expiringSoon)} icon={Clock} onClick={() => setFilterStatus(filterStatus === "expiring" ? "all" : "expiring")} className={filterStatus === "expiring" ? "ring-2 ring-amber-500" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(30, 90%, 50%)" />
-        <StatCard title="Expired" value={String(expired)} icon={AlertTriangle} onClick={() => setFilterStatus(filterStatus === "expired" ? "all" : "expired")} className={filterStatus === "expired" ? "ring-2 ring-destructive" : "cursor-pointer hover:shadow-md transition-shadow"} accentColor="hsl(0, 70%, 50%)" />
-        <StatCard title="Purchase Value" value={`$${purchaseValue.toFixed(2)}`} icon={DollarSign} />
-        <StatCard title="Sales Value" value={`$${salesValue.toFixed(2)}`} icon={TrendingUp} />
+        {[
+          { label: "Total Items", val: String(totalItems), icon: Package, grad: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 90%, 62%))", shadow: "hsl(210, 100%, 56% / 0.3)", filter: "all" },
+          { label: "In Stock", val: String(inStock), icon: PackageCheck, grad: "linear-gradient(135deg, hsl(152, 68%, 45%), hsl(168, 80%, 42%))", shadow: "hsl(152, 68%, 45% / 0.3)", filter: "in-stock" },
+          { label: "Low Stock", val: String(lowStock), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(38, 92%, 50%), hsl(25, 95%, 53%))", shadow: "hsl(38, 92%, 50% / 0.3)", filter: "low-stock" },
+          { label: "Out of Stock", val: String(outOfStock), icon: PackageX, grad: "linear-gradient(135deg, hsl(0, 72%, 51%), hsl(348, 83%, 47%))", shadow: "hsl(0, 72%, 51% / 0.3)", filter: "out-of-stock" },
+          { label: "Expiring Soon", val: String(expiringSoon), icon: Clock, grad: "linear-gradient(135deg, hsl(30, 90%, 50%), hsl(15, 85%, 55%))", shadow: "hsl(30, 90%, 50% / 0.3)", filter: "expiring" },
+          { label: "Expired", val: String(expired), icon: AlertTriangle, grad: "linear-gradient(135deg, hsl(340, 75%, 55%), hsl(0, 70%, 50%))", shadow: "hsl(340, 75%, 55% / 0.3)", filter: "expired" },
+          { label: "Purchase Value", val: formatPrice(purchaseValue), icon: DollarSign, grad: "linear-gradient(135deg, hsl(262, 80%, 55%), hsl(280, 75%, 50%))", shadow: "hsl(262, 80%, 55% / 0.3)", filter: null },
+          { label: "Sales Value", val: formatPrice(salesValue), icon: TrendingUp, grad: "linear-gradient(135deg, hsl(190, 80%, 42%), hsl(200, 85%, 50%))", shadow: "hsl(190, 80%, 42% / 0.3)", filter: null },
+        ].map((c) => {
+          const IconComp = c.icon;
+          const isActive = c.filter && filterStatus === c.filter;
+          return (
+            <div
+              key={c.label}
+              onClick={() => c.filter && setFilterStatus(filterStatus === c.filter ? "all" : c.filter)}
+              className={`relative overflow-hidden rounded-xl p-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isActive ? "ring-2 ring-white/80" : ""}`}
+              style={{ background: c.grad, boxShadow: `0 4px 20px ${c.shadow}` }}
+            >
+              <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-white/10" />
+              <div className="absolute -left-2 -bottom-2 w-10 h-10 rounded-full bg-white/5" />
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+                  <IconComp className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-white font-number leading-none">{c.val}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>{c.label}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Search & Filters */}
