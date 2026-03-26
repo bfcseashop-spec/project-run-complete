@@ -70,6 +70,15 @@ export interface PrescriptionFormData {
   onExamination: string;
   advices: string;
   followUp: string;
+  // Vital signs from OPD
+  spo2?: string;
+  weight?: string;
+  bp?: string;
+  rr?: string;
+  hr?: string;
+  temp?: string;
+  phone?: string;
+  bloodType?: string;
 }
 
 interface NewPrescriptionDialogProps {
