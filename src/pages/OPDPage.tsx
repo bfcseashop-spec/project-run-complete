@@ -158,12 +158,76 @@ const OPDPage = () => {
       </PageHeader>
 
       {/* OPD Dashboard Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <StatCard title="Total Patients" value={String(patients.length)} icon={Users} accentColor="hsl(var(--primary))" />
-        <StatCard title="Walk In" value={String(patients.filter(p => p.patientType === "Walk In").length)} icon={UserCheck} accentColor="hsl(142, 71%, 45%)" />
-        <StatCard title="Indoor" value={String(patients.filter(p => p.patientType === "Indoor").length)} icon={Building} accentColor="hsl(217, 91%, 60%)" />
-        <StatCard title="Outdoor" value={String(patients.filter(p => p.patientType === "Outdoor").length)} icon={TreePine} accentColor="hsl(25, 95%, 53%)" />
-        <StatCard title="Emergency" value={String(patients.filter(p => p.patientType === "Emergency").length)} icon={AlertCircle} accentColor="hsl(0, 84%, 60%)" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {/* Total Patients */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 90%, 62%))", boxShadow: "0 4px 20px hsl(210, 100%, 56% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{patients.length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Total Patients</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Walk In */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(155, 75%, 42%), hsl(168, 80%, 38%))", boxShadow: "0 4px 20px hsl(155, 75%, 42% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <UserCheck className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Walk In").length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Walk In</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Indoor */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(250, 80%, 58%), hsl(270, 75%, 52%))", boxShadow: "0 4px 20px hsl(250, 80%, 58% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Building className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Indoor").length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Indoor</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Outdoor */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(38, 95%, 50%), hsl(28, 90%, 52%))", boxShadow: "0 4px 20px hsl(38, 95%, 50% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <TreePine className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Outdoor").length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Outdoor</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Emergency */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(0, 75%, 52%), hsl(350, 80%, 48%))", boxShadow: "0 4px 20px hsl(0, 75%, 52% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <AlertCircle className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{patients.filter(p => p.patientType === "Emergency").length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Emergency</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Search & Filters */}
