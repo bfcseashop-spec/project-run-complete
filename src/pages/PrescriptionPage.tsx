@@ -227,7 +227,21 @@ const PrescriptionPage = () => {
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Inter',system-ui,sans-serif;color:#1a2e35;background:#fff}
-  .page{max-width:720px;margin:0 auto;padding:0;border:1px solid #e0e0e0}
+  .page{max-width:720px;margin:0 auto;padding:0;border:1px solid #e0e0e0;position:relative}
+  .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;pointer-events:none;z-index:0}
+  .watermark img{width:200px;height:200px;object-fit:contain}
+  .accent-top{height:5px;background:linear-gradient(90deg,#0d9373,#4ec6a0,#0d9373)}
+  .clinic-brand{display:flex;flex-direction:column;align-items:center;padding:20px 24px 16px;border-bottom:1px solid #e8ece9;background:#fafcfb}
+  .clinic-logo-img{width:56px;height:56px;border-radius:14px;border:1px solid #e0e8e4;box-shadow:0 2px 8px rgba(0,0,0,0.08);object-fit:contain;padding:4px;background:#fff;margin-bottom:8px}
+  .clinic-name-c{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1a2e35}
+  .clinic-tag-c{font-size:11px;color:#6b8a8e;margin-top:2px}
+  .clinic-reg-c{font-size:9px;color:#9bb8b2;margin-top:2px}
+  .doctor-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:linear-gradient(135deg,#0d4f4f 0%,#0a7a6b 40%,#1a8a75 100%)}
+  .doctor-bar .dleft h2{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:1px}
+  .doctor-bar .dleft p{font-size:10px;color:rgba(255,255,255,0.6)}
+  .doctor-bar .dright{text-align:right}
+  .doctor-bar .dright p{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .doctor-bar .dright .rx-id{font-size:12px;font-weight:700;color:#fff;font-family:monospace}
   .header{background:linear-gradient(135deg,#0d4f4f 0%,#0a7a6b 40%,#1a8a75 100%);padding:24px 32px;display:flex;justify-content:space-between;align-items:center}
   .header-left h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
   .header-left p{font-size:11px;color:rgba(255,255,255,0.7)}
