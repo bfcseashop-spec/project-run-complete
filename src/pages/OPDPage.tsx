@@ -108,7 +108,7 @@ const OPDPage = () => {
     { key: "complaint", header: "Complaint" },
     { key: "doctor", header: "Doctor" },
     { key: "time", header: "Time" },
-    { key: "status", header: "Status", render: (p: OPDPatient) => <StatusBadge status={p.status} /> },
+    
     {
       key: "actions", header: "Actions", render: (p: OPDPatient) => {
         const fields = [
