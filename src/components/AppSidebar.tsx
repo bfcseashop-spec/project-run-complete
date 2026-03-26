@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import {
-  LayoutDashboard, Wallet, Users, FileText, FlaskConical, ScanLine,
+  LayoutDashboard, Wallet, FileText, FlaskConical, ScanLine,
   Radio, HeartPulse, UserCog, Stethoscope, ClipboardCheck, Syringe,
   ReceiptText, Landmark, TrendingUp, Beaker, BadgeDollarSign, Settings2,
-  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, List, Sliders,
-  RefreshCcw, PackageOpen, LogOut, X, Sparkles, Microscope, FileBarChart,
+  ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, Sliders,
+  RefreshCcw, PackageOpen, LogOut, X, Microscope, FileBarChart,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/hooks/use-settings";
@@ -19,64 +19,64 @@ interface MenuSection { labelKey: TranslationKey; items: MenuItem[]; color?: str
 
 const menuSections: MenuSection[] = [
   {
-    labelKey: "overview", color: "hsl(220, 70%, 50%)",
+    labelKey: "overview", color: "hsl(210, 100%, 68%)",
     items: [
-      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(220, 70%, 50%)" },
-      { icon: Wallet, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(250, 65%, 55%)" },
+      { icon: LayoutDashboard, labelKey: "dashboard", path: "/", module: "Dashboard", color: "hsl(210, 100%, 68%)" },
+      { icon: Wallet, labelKey: "billing", path: "/billing", module: "Billing", color: "hsl(258, 80%, 68%)" },
     ],
   },
   {
-    labelKey: "patientCare", color: "hsl(350, 70%, 52%)",
+    labelKey: "patientCare", color: "hsl(340, 85%, 62%)",
     items: [
-      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(170, 65%, 38%)" },
-      { icon: FileBarChart, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(262, 60%, 52%)" },
-      { icon: HeartPulse, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(350, 70%, 52%)",
+      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)" },
+      { icon: FileBarChart, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(270, 70%, 65%)" },
+      { icon: HeartPulse, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(340, 85%, 62%)",
         subItems: [
           { icon: PackageOpen, labelKey: "healthPackages", path: "/health-services/packages" },
         ],
       },
-      { icon: Syringe, labelKey: "injections", path: "/injections", module: "Injections", color: "hsl(25, 90%, 50%)" },
+      { icon: Syringe, labelKey: "injections", path: "/injections", module: "Injections", color: "hsl(28, 95%, 58%)" },
     ],
   },
   {
-    labelKey: "diagnostics", color: "hsl(195, 80%, 42%)",
+    labelKey: "diagnostics", color: "hsl(190, 90%, 52%)",
     items: [
       {
-        icon: FlaskConical, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(195, 80%, 42%)",
+        icon: FlaskConical, labelKey: "labTests", path: "/lab-tests", module: "Lab Tests", color: "hsl(190, 90%, 52%)",
         subItems: [
           { icon: Plus, labelKey: "add", path: "/lab-tests/add" },
           { icon: Beaker, labelKey: "sampleCollection", path: "/sample-collection", module: "Sample Collection" },
           { icon: Microscope, labelKey: "name", path: "/lab-tests/names", module: "Test Names" },
         ],
       },
-      { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(215, 75%, 48%)" },
-      { icon: ScanLine, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(42, 90%, 48%)" },
-      { icon: Radio, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound", color: "hsl(285, 60%, 50%)" },
+      { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(220, 85%, 62%)" },
+      { icon: ScanLine, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(45, 95%, 55%)" },
+      { icon: Radio, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound", color: "hsl(285, 75%, 62%)" },
     ],
   },
   {
-    labelKey: "management", color: "hsl(162, 60%, 40%)",
+    labelKey: "management", color: "hsl(155, 70%, 48%)",
     items: [
-      { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors", color: "hsl(162, 60%, 40%)" },
-      { icon: Activity, labelKey: "medicine", path: "/medicine", module: "Medicine", color: "hsl(275, 55%, 50%)" },
+      { icon: Stethoscope, labelKey: "doctors", path: "/doctors", module: "Doctors", color: "hsl(155, 70%, 48%)" },
+      { icon: Activity, labelKey: "medicine", path: "/medicine", module: "Medicine", color: "hsl(280, 65%, 60%)" },
     ],
   },
   {
-    labelKey: "finance", color: "hsl(145, 65%, 38%)",
+    labelKey: "finance", color: "hsl(140, 72%, 45%)",
     items: [
-      { icon: RefreshCcw, labelKey: "refund", path: "/refund", module: "Refund", color: "hsl(42, 85%, 48%)" },
-      { icon: ReceiptText, labelKey: "dueManagement", path: "/dues", module: "Due Management", color: "hsl(355, 70%, 50%)" },
-      { icon: BadgeDollarSign, labelKey: "expenses", path: "/expenses", module: "Expenses", color: "hsl(20, 85%, 48%)" },
-      { icon: Landmark, labelKey: "bankTransactions", path: "/bank", module: "Bank Transactions", color: "hsl(220, 80%, 50%)" },
-      { icon: TrendingUp, labelKey: "investments", path: "/investments", module: "Investments", color: "hsl(145, 65%, 38%)" },
+      { icon: RefreshCcw, labelKey: "refund", path: "/refund", module: "Refund", color: "hsl(45, 90%, 55%)" },
+      { icon: ReceiptText, labelKey: "dueManagement", path: "/dues", module: "Due Management", color: "hsl(0, 75%, 58%)" },
+      { icon: BadgeDollarSign, labelKey: "expenses", path: "/expenses", module: "Expenses", color: "hsl(22, 90%, 55%)" },
+      { icon: Landmark, labelKey: "bankTransactions", path: "/bank", module: "Bank Transactions", color: "hsl(215, 85%, 58%)" },
+      { icon: TrendingUp, labelKey: "investments", path: "/investments", module: "Investments", color: "hsl(140, 72%, 45%)" },
     ],
   },
   {
-    labelKey: "system", color: "hsl(210, 55%, 50%)",
+    labelKey: "system", color: "hsl(200, 60%, 55%)",
     items: [
-      { icon: Sliders, labelKey: "systemManage", path: "/system-manage", module: "System Manage", color: "hsl(200, 55%, 45%)" },
-      { icon: Settings2, labelKey: "settings", path: "/settings", module: "Settings", color: "hsl(210, 55%, 50%)" },
-      { icon: UserCog, labelKey: "usersAccess", path: "/users-access", module: "Users & Access", color: "hsl(175, 70%, 36%)" },
+      { icon: Sliders, labelKey: "systemManage", path: "/system-manage", module: "System Manage", color: "hsl(200, 60%, 55%)" },
+      { icon: Settings2, labelKey: "settings", path: "/settings", module: "Settings", color: "hsl(210, 55%, 58%)" },
+      { icon: UserCog, labelKey: "usersAccess", path: "/users-access", module: "Users & Access", color: "hsl(175, 75%, 45%)" },
     ],
   },
 ];
@@ -116,7 +116,7 @@ const AppSidebar = () => {
     <>
       {isMobile && mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -125,131 +125,125 @@ const AppSidebar = () => {
         className={`fixed left-0 top-0 h-screen flex flex-col z-50 transition-all duration-300 ${
           isMobile
             ? `w-[270px] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`
-            : isCollapsed ? "w-[60px]" : "w-[220px]"
+            : isCollapsed ? "w-[62px]" : "w-[230px]"
         }`}
         style={{
-          background: "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(var(--sidebar-background) / 0.97) 100%)",
-          borderRight: "1px solid hsl(var(--sidebar-border) / 0.6)",
-          boxShadow: "2px 0 12px hsl(var(--sidebar-border) / 0.15)",
+          background: "linear-gradient(180deg, hsl(225, 38%, 14%) 0%, hsl(228, 35%, 10%) 100%)",
+          borderRight: "1px solid hsl(225, 25%, 22%)",
+          boxShadow: "4px 0 24px hsl(225, 40%, 6% / 0.5)",
         }}
       >
         {/* ─── Logo Header ─── */}
-        <div className="flex items-center gap-2.5 px-3 h-14 flex-shrink-0">
+        <div className="flex items-center gap-3 px-4 h-16 flex-shrink-0">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden"
-            style={{ background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(220, 70%, 48%), hsl(250, 65%, 55%))" }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+            style={{
+              background: settings.clinicLogo ? "transparent" : "linear-gradient(135deg, hsl(168, 80%, 42%), hsl(190, 90%, 52%))",
+              boxShadow: "0 4px 14px hsl(168, 80%, 42% / 0.3)",
+            }}
           >
             {settings.clinicLogo ? (
               <img src={settings.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
             ) : (
-              <Activity className="w-4 h-4 text-white" />
+              <Activity className="w-5 h-5 text-white" />
             )}
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden flex-1">
-              <h1 className="text-[13px] font-bold text-sidebar-accent-foreground font-heading tracking-tight truncate">
+              <h1 className="text-[13px] font-bold tracking-tight truncate" style={{ color: "hsl(0, 0%, 95%)" }}>
                 {settings.clinicName || "ClinicPOS"}
               </h1>
-              <p className="text-[9px] text-sidebar-muted leading-none truncate mt-0.5">
+              <p className="text-[9px] leading-none truncate mt-0.5" style={{ color: "hsl(220, 15%, 52%)" }}>
                 {settings.clinicTagline || "Healthcare & Wellness"}
               </p>
             </div>
           )}
           {isMobile && (
-            <button onClick={() => setMobileOpen(false)} className="ml-auto w-8 h-8 rounded-xl flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all">
+            <button onClick={() => setMobileOpen(false)} className="ml-auto w-8 h-8 rounded-lg flex items-center justify-center transition-all" style={{ color: "hsl(220, 15%, 52%)" }}>
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* ─── Divider ─── */}
-        <div className="mx-3 h-px bg-sidebar-border" />
-
         {/* ─── Navigation ─── */}
-        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-3 scrollbar-thin">
+        <nav className="flex-1 overflow-y-auto py-1.5 px-2.5 space-y-1 scrollbar-thin">
           {menuSections.map((section) => {
             const visibleItems = section.items.filter((item) => canViewModule(item.module));
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={section.labelKey}>
+              <div key={section.labelKey} className="mb-1">
                 {!isCollapsed && (
-                  <div className="flex items-center gap-2 px-2 mb-1.5">
+                  <div className="px-2 pt-3 pb-1.5">
                     <p
-                      className="text-[10px] uppercase tracking-[0.16em] font-extrabold"
-                      style={{ color: section.color }}
+                      className="text-[9px] uppercase tracking-[0.2em] font-bold"
+                      style={{ color: `${section.color}` }}
                     >
                       {t(section.labelKey, lang)}
                     </p>
-                    <div className="flex-1 h-px bg-sidebar-border/50" />
                   </div>
                 )}
-                {isCollapsed && <div className="w-6 h-px mx-auto mb-1 rounded-full bg-sidebar-border" />}
+                {isCollapsed && <div className="w-5 h-px mx-auto my-2 rounded-full" style={{ background: "hsl(225, 25%, 22%)" }} />}
 
                 <div className="space-y-0.5">
                   {visibleItems.map((item) => {
                     const hasChildren = item.subItems && item.subItems.length > 0;
                     const isExpanded = expandedItems.includes(item.path);
                     const parentActive = isParentActive(item);
-                    const iconColor = item.color || "hsl(168, 80%, 35%)";
+                    const iconColor = item.color || "hsl(168, 80%, 42%)";
 
                     if (hasChildren && !isCollapsed) {
                       return (
                         <div key={item.path}>
                           <button
                             onClick={() => toggleExpand(item.path)}
-                            className={`flex items-center gap-2 w-full px-2 py-[7px] rounded-lg text-[12.5px] font-semibold transition-all duration-200 group relative ${
-                              parentActive
-                                ? "text-sidebar-accent-foreground"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/60"
-                            }`}
+                            className="flex items-center gap-2.5 w-full px-2.5 py-[7px] rounded-lg text-[12px] font-medium transition-all duration-200 group relative"
+                            style={{
+                              color: parentActive ? "hsl(0, 0%, 95%)" : "hsl(220, 15%, 68%)",
+                              background: parentActive ? "hsl(225, 30%, 18%)" : "transparent",
+                            }}
                           >
-                            {/* Active indicator bar */}
                             {parentActive && (
                               <div
-                                className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
-                                style={{ background: iconColor }}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+                                style={{ background: iconColor, boxShadow: `0 0 10px ${iconColor}50` }}
                               />
                             )}
                             <div
-                              className={`w-[30px] h-[30px] rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                                parentActive ? "shadow-md" : "group-hover:shadow-sm"
-                              }`}
+                              className="w-[28px] h-[28px] rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200"
                               style={{
-                                background: parentActive
-                                  ? `linear-gradient(135deg, ${iconColor}, ${iconColor}dd)`
-                                  : `${iconColor}22`,
+                                background: parentActive ? `${iconColor}25` : `${iconColor}12`,
                               }}
                             >
-                              <item.icon className="w-[15px] h-[15px]" style={{ color: parentActive ? "white" : iconColor }} />
+                              <item.icon className="w-[14px] h-[14px]" style={{ color: iconColor }} />
                             </div>
                             <span className="flex-1 text-left">{t(item.labelKey, lang)}</span>
                             <ChevronDown
-                              className={`w-3.5 h-3.5 text-sidebar-muted transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                              className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                              style={{ color: "hsl(220, 15%, 45%)" }}
                             />
                           </button>
 
                           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                            <div className="ml-[22px] pl-3 border-l-[2px] border-sidebar-border/70 space-y-0 mt-0.5 mb-0.5">
+                            <div className="ml-[26px] pl-3 space-y-0 mt-0.5 mb-0.5" style={{ borderLeft: `1.5px solid hsl(225, 25%, 22%)` }}>
                               {item.subItems!.filter((sub) => canViewModule(sub.module)).map((sub) => (
                                 <NavLink
                                   key={sub.path}
                                   to={sub.path}
                                   end
-                                  className={`flex items-center gap-2 px-2 py-[5px] rounded-md text-[11.5px] font-medium transition-all duration-200 ${
-                                    isActive(sub.path)
-                                      ? "text-sidebar-accent-foreground bg-sidebar-accent/80"
-                                      : "text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
-                                  }`}
+                                  className="flex items-center gap-2 px-2 py-[5px] rounded-md text-[11px] font-medium transition-all duration-200"
+                                  style={{
+                                    color: isActive(sub.path) ? "hsl(0, 0%, 95%)" : "hsl(220, 15%, 55%)",
+                                    background: isActive(sub.path) ? "hsl(225, 30%, 18%)" : "transparent",
+                                  }}
                                 >
-                                  {isActive(sub.path) ? (
-                                    <div
-                                      className="w-[6px] h-[6px] rounded-full flex-shrink-0"
-                                      style={{ background: iconColor, boxShadow: `0 0 8px ${iconColor}60` }}
-                                    />
-                                  ) : (
-                                    <div className="w-[6px] h-[6px] rounded-full bg-sidebar-border flex-shrink-0" />
-                                  )}
+                                  <div
+                                    className="w-[5px] h-[5px] rounded-full flex-shrink-0"
+                                    style={{
+                                      background: isActive(sub.path) ? iconColor : "hsl(225, 25%, 28%)",
+                                      boxShadow: isActive(sub.path) ? `0 0 6px ${iconColor}60` : "none",
+                                    }}
+                                  />
                                   <span>{t(sub.labelKey, lang)}</span>
                                 </NavLink>
                               ))}
@@ -264,33 +258,30 @@ const AppSidebar = () => {
                         key={item.path}
                         to={item.path}
                         end={item.path === "/"}
-                        className={`flex items-center gap-2 px-2 py-[7px] rounded-lg text-[12.5px] font-semibold transition-all duration-200 group relative ${
-                          parentActive
-                            ? "text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent/60"
-                        } ${isCollapsed ? "justify-center px-0" : ""}`}
+                        className={`flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[12px] font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? "justify-center px-0" : ""
+                        }`}
+                        style={{
+                          color: parentActive ? "hsl(0, 0%, 95%)" : "hsl(220, 15%, 68%)",
+                          background: parentActive ? "hsl(225, 30%, 18%)" : "transparent",
+                        }}
                         title={isCollapsed ? t(item.labelKey, lang) : undefined}
                       >
-                        {/* Active indicator bar */}
                         {parentActive && !isCollapsed && (
                           <div
-                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
-                            style={{ background: iconColor }}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+                            style={{ background: iconColor, boxShadow: `0 0 10px ${iconColor}50` }}
                           />
                         )}
                         <div
-                          className={`${isCollapsed ? "w-9 h-9" : "w-[30px] h-[30px]"} rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                            parentActive ? "shadow-md" : "group-hover:shadow-sm"
-                          }`}
+                          className={`${isCollapsed ? "w-9 h-9" : "w-[28px] h-[28px]"} rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200`}
                           style={{
-                            background: parentActive
-                              ? `linear-gradient(135deg, ${iconColor}, ${iconColor}dd)`
-                              : `${iconColor}22`,
+                            background: parentActive ? `${iconColor}25` : `${iconColor}12`,
                           }}
                         >
                           <item.icon
-                            className={`${isCollapsed ? "w-4 h-4" : "w-[15px] h-[15px]"}`}
-                            style={{ color: parentActive ? "white" : iconColor }}
+                            className={`${isCollapsed ? "w-4 h-4" : "w-[14px] h-[14px]"}`}
+                            style={{ color: iconColor }}
                           />
                         </div>
                         {!isCollapsed && <span>{t(item.labelKey, lang)}</span>}
@@ -305,23 +296,33 @@ const AppSidebar = () => {
 
         {/* ─── User Profile Card ─── */}
         {!isCollapsed && profile && (
-          <div className="px-2 pb-2">
-            <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-gradient-to-r from-sidebar-accent/80 to-sidebar-accent/40 border border-sidebar-border/50">
+          <div className="px-3 pb-3">
+            <div
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, hsl(225, 30%, 18%), hsl(225, 28%, 15%))",
+                border: "1px solid hsl(225, 25%, 22%)",
+              }}
+            >
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-md"
-                style={{ background: "linear-gradient(135deg, hsl(220, 70%, 48%), hsl(250, 65%, 55%))" }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                style={{
+                  background: "linear-gradient(135deg, hsl(168, 80%, 42%), hsl(190, 90%, 52%))",
+                  boxShadow: "0 2px 8px hsl(168, 80%, 42% / 0.3)",
+                }}
               >
                 <span className="text-white">
                   {profile.full_name?.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?"}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold text-sidebar-accent-foreground truncate">{profile.full_name || "User"}</p>
-                <p className="text-[9px] text-sidebar-muted truncate">{profile.role_name || "No role"}</p>
+                <p className="text-[11px] font-semibold truncate" style={{ color: "hsl(0, 0%, 92%)" }}>{profile.full_name || "User"}</p>
+                <p className="text-[9px] truncate" style={{ color: "hsl(220, 15%, 50%)" }}>{profile.role_name || "No role"}</p>
               </div>
               <button
                 onClick={signOut}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-all"
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:bg-red-500/15"
+                style={{ color: "hsl(220, 15%, 48%)" }}
                 title="Sign out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -332,10 +333,13 @@ const AppSidebar = () => {
 
         {/* Collapsed user avatar */}
         {isCollapsed && profile && (
-          <div className="px-2 pb-2 flex justify-center">
+          <div className="px-2 pb-3 flex justify-center">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold shadow-md cursor-pointer"
-              style={{ background: "linear-gradient(135deg, hsl(220, 70%, 48%), hsl(250, 65%, 55%))" }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg, hsl(168, 80%, 42%), hsl(190, 90%, 52%))",
+                boxShadow: "0 2px 8px hsl(168, 80%, 42% / 0.3)",
+              }}
               title={`${profile.full_name} — Click sidebar expand to sign out`}
             >
               <span className="text-white">
@@ -349,7 +353,11 @@ const AppSidebar = () => {
         {!isMobile && (
           <button
             onClick={toggle}
-            className="flex items-center justify-center h-10 border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all"
+            className="flex items-center justify-center h-10 transition-all"
+            style={{
+              borderTop: "1px solid hsl(225, 25%, 20%)",
+              color: "hsl(220, 15%, 45%)",
+            }}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
