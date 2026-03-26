@@ -225,164 +225,192 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   const isComplete = report.status === "completed";
   const isPending = report.status === "pending";
   const statusLabel = isComplete ? "Complete" : isPending ? "Pending" : "In Progress";
-  const hasResults = report.sections.some(s => s.investigations.some(inv => inv.name));
+  const hasResults = report.sections.some(sec => sec.investigations.some(inv => inv.name));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[680px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-none shadow-2xl">
+      <DialogContent className="sm:max-w-[720px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-0 shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Lab Report - {report.id}</DialogTitle>
           <DialogDescription>Detailed view of lab report for {report.patient}</DialogDescription>
         </DialogHeader>
 
-        {/* ── Blue Header with Logo ── */}
-        <div className="bg-gradient-to-r from-[hsl(221,83%,53%)] to-[hsl(217,91%,60%)] px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-white/95 flex items-center justify-center shadow-md overflow-hidden shrink-0">
-                {s.clinicLogo ? (
-                  <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain" />
-                ) : (
-                  <FlaskConical className="w-5 h-5 text-[hsl(221,83%,53%)]" />
-                )}
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">{s.clinicName || "Lab Report"}</h2>
-                <p className="text-[11px] text-white/80 font-medium">{s.clinicTagline || "Laboratory Report"}</p>
-              </div>
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 px-6 py-5">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-white/80" />
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-white/95 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
+              {s.clinicLogo ? (
+                <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain p-1" />
+              ) : (
+                <FlaskConical className="w-6 h-6 text-primary" />
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${
-                isComplete
-                  ? "bg-emerald-400/20 text-emerald-100 ring-1 ring-emerald-300/30"
-                  : isPending
-                  ? "bg-amber-400/20 text-amber-100 ring-1 ring-amber-300/30"
-                  : "bg-white/20 text-white ring-1 ring-white/30"
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${
-                  isComplete ? "bg-emerald-300" : isPending ? "bg-amber-300" : "bg-white"
-                }`} />
-                {statusLabel}
-              </span>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10" onClick={() => onOpenChange(false)}>
-                <X className="w-4 h-4" />
-              </Button>
+            <div className="flex-1">
+              <h2 className="text-white text-lg font-bold tracking-tight">{s.clinicName || "Lab Report"}</h2>
+              <p className="text-white/50 text-xs font-medium">{s.clinicTagline || "Laboratory Report"}</p>
             </div>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${
+              isComplete
+                ? "bg-emerald-400/20 text-emerald-200 ring-1 ring-emerald-400/30"
+                : isPending
+                ? "bg-amber-400/20 text-amber-200 ring-1 ring-amber-400/30"
+                : "bg-blue-400/20 text-blue-200 ring-1 ring-blue-400/30"
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                isComplete ? "bg-emerald-400" : isPending ? "bg-amber-400" : "bg-blue-400"
+              }`} />
+              {statusLabel}
+            </span>
           </div>
         </div>
 
-        <ScrollArea className="max-h-[calc(95vh-160px)]">
-          {/* ── Patient & Test Info Strip ── */}
-          <div className="px-6 py-4 bg-muted/30 border-b border-border">
-            <div className="grid grid-cols-3 gap-x-6 gap-y-3">
-              <MetaItem label="Report ID" value={report.id} mono />
-              <MetaItem label="Test Name" value={report.testName} bold />
-              <MetaItem label="Patient" value={report.patient} bold />
-              <MetaItem label="Age" value={report.age ? `${report.age} Years` : "—"} />
-              <MetaItem label="Gender" value={report.gender || "—"} />
-              <MetaItem label="Category" value={report.category} />
-              <MetaItem label="Sample Type" value={report.sampleType || "—"} />
-              <MetaItem label="Referring Doctor" value={report.doctor || "—"} />
-              <MetaItem label="Date" value={report.date} />
-              <MetaItem label="Turnaround Time" value={report.expectedTAT || "—"} />
-              <MetaItem label="Patient ID" value={report.patientId} mono />
+        <ScrollArea className="max-h-[calc(95vh-170px)]">
+          {/* Patient Card */}
+          <div className="px-5 -mt-0 relative z-10">
+            <div className="bg-card rounded-xl border border-border shadow-md p-4 mt-0">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary border border-primary/20">
+                  {report.patient.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-foreground truncate">{report.patient}</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span>{report.age ? `${report.age} yrs` : "—"}</span>
+                    <span>·</span>
+                    <span>{report.gender || "—"}</span>
+                    <span>·</span>
+                    <span className="font-mono text-[10px]">{report.patientId}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2">
+                <InfoChip label="Report ID" value={report.id} mono />
+                <InfoChip label="Test Name" value={report.testName} highlight />
+                <InfoChip label="Category" value={report.category} />
+                <InfoChip label="Sample Type" value={report.sampleType || "—"} />
+                <InfoChip label="Doctor" value={report.doctor || "—"} />
+                <InfoChip label="Date" value={report.date} />
+                <InfoChip label="TAT" value={report.expectedTAT || "—"} />
+                <InfoChip label="Instrument" value={report.instrument || "—"} />
+              </div>
             </div>
           </div>
 
-          {/* ── Results Table ── */}
-          {hasResults && (
-            <div className="px-6 pt-4 pb-2">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-foreground/80">
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[34%]">Test Name</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[22%]">Result</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 pr-3 w-[18%]">Unit</th>
-                    <th className="text-left text-[11px] font-extrabold text-foreground py-2 w-[26%]">Normal Ranges</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.sections.map((section, sIdx) => (
-                    <>
-                      {section.title && (
-                        <tr key={`sec-${sIdx}`}>
-                          <td colSpan={4} className="pt-4 pb-1.5 text-[11px] font-extrabold text-foreground uppercase tracking-wider border-b border-border/50">
-                            {section.title}
-                          </td>
-                        </tr>
-                      )}
-                      {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
-                        const isHigh = inv.flag === "High";
-                        const isLow = inv.flag === "Low";
-                        const isPositive = inv.result?.toLowerCase() === "positive";
-                        const flagged = isHigh || isLow || isPositive;
+          {/* Results */}
+          <div className="px-5 pt-4 pb-2">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                <TestTube className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">Test Results</h4>
+            </div>
 
-                        return (
-                          <tr key={`${sIdx}-${iIdx}`} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                            <td className="py-2 pr-3 text-[12px] text-foreground font-medium">{inv.name}</td>
-                            <td className={`py-2 pr-3 text-[12px] font-bold ${
-                              isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : "text-foreground"
-                            }`}>
-                              <span className="flex items-center gap-1.5">
-                                {inv.result || "—"}
-                                {flagged && (
-                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                                    isHigh || isPositive ? "bg-orange-100 text-orange-700" : "bg-blue-100 text-blue-700"
-                                  }`}>
-                                    {isHigh ? "↑ High" : isLow ? "↓ Low" : "Positive"}
-                                  </span>
-                                )}
-                              </span>
+            {hasResults ? (
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-muted/50">
+                      <th className="text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider py-2.5 px-3 w-[34%]">Test Name</th>
+                      <th className="text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider py-2.5 px-3 w-[22%]">Result</th>
+                      <th className="text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider py-2.5 px-3 w-[18%]">Unit</th>
+                      <th className="text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider py-2.5 px-3 w-[26%]">Normal Ranges</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.sections.map((section, sIdx) => (
+                      <>
+                        {section.title && (
+                          <tr key={`sec-${sIdx}`}>
+                            <td colSpan={4} className="pt-3 pb-1.5 px-3 text-[11px] font-extrabold text-foreground uppercase tracking-wider bg-muted/20 border-t border-border/50">
+                              {section.title}
                             </td>
-                            <td className="py-2 pr-3 text-[12px] text-muted-foreground">{inv.unit || "—"}</td>
-                            <td className="py-2 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</td>
                           </tr>
-                        );
-                      })}
-                    </>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                        )}
+                        {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
+                          const isHigh = inv.flag === "High";
+                          const isLow = inv.flag === "Low";
+                          const isPositive = inv.result?.toLowerCase() === "positive";
+                          const flagged = isHigh || isLow || isPositive;
 
-          {!hasResults && (
-            <div className="px-6 py-10 text-center">
-              <FlaskConical className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">No test results available yet</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Results will appear here once entered</p>
-            </div>
-          )}
+                          return (
+                            <tr key={`${sIdx}-${iIdx}`} className="border-t border-border/30 hover:bg-muted/20 transition-colors">
+                              <td className="py-2 px-3 text-[12px] text-foreground font-medium">{inv.name}</td>
+                              <td className={`py-2 px-3 text-[12px] font-bold ${
+                                isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : "text-foreground"
+                              }`}>
+                                <span className="flex items-center gap-1.5">
+                                  {inv.result || "—"}
+                                  {flagged && (
+                                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                      isHigh || isPositive ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400" : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                                    }`}>
+                                      {isHigh ? "↑ High" : isLow ? "↓ Low" : "Positive"}
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td className="py-2 px-3 text-[12px] text-muted-foreground">{inv.unit || "—"}</td>
+                              <td className="py-2 px-3 text-[12px] text-muted-foreground">{inv.referenceValue || "—"}</td>
+                            </tr>
+                          );
+                        })}
+                      </>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border bg-muted/10 py-10 text-center">
+                <FlaskConical className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-sm font-medium text-muted-foreground">No test results available yet</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Results will appear here once entered</p>
+              </div>
+            )}
+          </div>
 
-          {/* ── Remarks ── */}
+          {/* Remarks */}
           {report.remarks && (
-            <div className="px-6 py-4 border-t border-border">
-              <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-[0.15em] mb-1.5">Remarks</p>
-              <p className="text-sm text-foreground leading-relaxed bg-muted/30 rounded-lg p-3 border border-border/40">{report.remarks}</p>
+            <div className="px-5 py-3">
+              <div className="rounded-lg border border-border bg-muted/20 p-3">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Remarks</p>
+                <p className="text-sm text-foreground leading-relaxed">{report.remarks}</p>
+              </div>
             </div>
           )}
         </ScrollArea>
 
-        {/* ── Sticky Footer ── */}
-        <div className="px-6 py-3 border-t border-border bg-card flex items-center justify-between">
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-border bg-muted/30 flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">
-            {isComplete ? "Report finalised" : "Awaiting results"}
+            {isComplete ? "✓ Report finalised" : "⏳ Awaiting results"}
           </p>
-          <Button size="sm" className="rounded-lg px-5 gap-2 font-semibold shadow-sm" onClick={() => printLabReport(report)}>
-            <Printer className="w-3.5 h-3.5" />
-            Print Report
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="h-9">
+              Close
+            </Button>
+            <Button size="sm" className="h-9 px-5 bg-gradient-to-r from-primary to-primary/80 shadow-md font-semibold" onClick={() => printLabReport(report)}>
+              <Printer className="w-3.5 h-3.5 mr-1.5" />
+              Print Report
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-function MetaItem({ label, value, bold, mono }: { label: string; value: string; bold?: boolean; mono?: boolean }) {
+function InfoChip({ label, value, mono, highlight }: { label: string; value: string; mono?: boolean; highlight?: boolean }) {
   return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">{label}</p>
-      <p className={`text-[13px] text-foreground truncate ${bold ? "font-bold" : "font-medium"} ${mono ? "font-mono" : ""}`}>
+    <div className="rounded-lg border border-border bg-muted/30 px-2.5 py-1.5">
+      <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">{label}</p>
+      <p className={`text-[11px] truncate ${highlight ? "font-bold text-primary" : "font-semibold text-foreground"} ${mono ? "font-mono" : ""}`}>
         {value || "—"}
       </p>
     </div>
