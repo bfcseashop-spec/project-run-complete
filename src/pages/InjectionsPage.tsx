@@ -193,23 +193,60 @@ const InjectionsPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Syringe className="w-5 h-5 text-primary" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{injections.length}</p><p className="text-xs text-muted-foreground">Total Injections</p></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Injections */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(210, 100%, 56%), hsl(230, 90%, 62%))", boxShadow: "0 4px 20px hsl(210, 100%, 56% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Syringe className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{injections.length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Total Injections</p>
+            </div>
           </div>
         </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center"><Syringe className="w-5 h-5 text-accent-foreground" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{lowStockCount}</p><p className="text-xs text-muted-foreground">Low Stock</p></div>
+
+        {/* In Stock */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(155, 75%, 42%), hsl(168, 80%, 38%))", boxShadow: "0 4px 20px hsl(155, 75%, 42% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Syringe className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{injections.filter(i => i.status === "in-stock").length}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>In Stock</p>
+            </div>
           </div>
         </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center"><Syringe className="w-5 h-5 text-destructive" /></div>
-            <div><p className="text-2xl font-bold text-foreground">{outOfStockCount}</p><p className="text-xs text-muted-foreground">Out of Stock</p></div>
+
+        {/* Low Stock */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(38, 95%, 50%), hsl(28, 90%, 52%))", boxShadow: "0 4px 20px hsl(38, 95%, 50% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Syringe className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{lowStockCount}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Low Stock</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Out of Stock */}
+        <div className="relative overflow-hidden rounded-xl p-4" style={{ background: "linear-gradient(135deg, hsl(0, 75%, 52%), hsl(350, 80%, 48%))", boxShadow: "0 4px 20px hsl(0, 75%, 52% / 0.3)" }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full" style={{ background: "hsl(0, 0%, 100% / 0.1)", transform: "translate(30%, -30%)" }} />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "hsl(0, 0%, 100% / 0.2)", backdropFilter: "blur(8px)" }}>
+              <Syringe className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white font-number">{outOfStockCount}</p>
+              <p className="text-[11px] font-medium" style={{ color: "hsl(0, 0%, 100% / 0.85)" }}>Out of Stock</p>
+            </div>
           </div>
         </div>
       </div>
