@@ -217,11 +217,7 @@ function modernTealLayout(t: InvoiceTheme, d: InvoiceData): string {
     </tr>`;
     item.subItems.forEach(sub => {
       r += `<tr><td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader}"></td>
-        <td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader};font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td>
-        <td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader}"></td>
-        <td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader}"></td>
-        <td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader};text-align:right;font-size:11px;color:#94a3b8">${d.formatPrice(sub.price)}</td>
-        <td style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader};text-align:right;font-size:11px;color:#94a3b8">${d.formatPrice(sub.total)}</td></tr>`;
+        <td colspan="5" style="padding:4px 14px;border-bottom:1px solid ${t.tableHeader};font-size:11px;color:#94a3b8;padding-left:28px">↳ ${sub.name}</td></tr>`;
     });
     return r;
   }).join("");
