@@ -105,7 +105,7 @@ const OPDPage = () => {
       };
       return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeStyles[p.patientType] || "bg-muted text-muted-foreground"}`}>{p.patientType}</span>;
     }},
-    { key: "complaint", header: "Complaint" },
+    { key: "complaint", header: "Chief Complaint" },
     { key: "doctor", header: "Doctor" },
     { key: "time", header: "Time" },
     
@@ -115,7 +115,7 @@ const OPDPage = () => {
           { label: "Patient Name", value: p.name }, { label: "Age", value: String(p.age) },
           { label: "Gender", value: p.gender }, { label: "Blood Type", value: p.bloodType || "N/A" },
           { label: "Patient Type", value: p.patientType || "N/A" }, { label: "Phone", value: p.phone || "N/A" },
-          { label: "Complaint", value: p.complaint }, { label: "Doctor", value: p.doctor },
+          { label: "Chief Complaint", value: p.complaint }, { label: "Doctor", value: p.doctor },
           { label: "Time", value: p.time }, { label: "Status", value: p.status },
           { label: "Medical History", value: p.medicalHistory || "N/A" },
         ];
@@ -170,7 +170,7 @@ const OPDPage = () => {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search name, token, complaint..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
+          <Input placeholder="Search name, token, chief complaint..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
         </div>
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-[150px] h-9 text-xs">

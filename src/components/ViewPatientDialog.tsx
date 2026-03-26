@@ -77,7 +77,7 @@ const ViewPatientDialog = ({ open, onOpenChange, patient }: ViewPatientDialogPro
             <InfoRow label="Doctor" value={patient.doctor} />
             <InfoRow label="Time" value={patient.time} />
             <div className="col-span-2">
-              <span className="text-muted-foreground text-xs">Complaint</span>
+              <span className="text-muted-foreground text-xs">Chief Complaint</span>
               <p className="mt-0.5 font-medium">{patient.complaint}</p>
             </div>
             {patient.onExamination && (
