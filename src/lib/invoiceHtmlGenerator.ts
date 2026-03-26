@@ -378,24 +378,25 @@ function minimalGrayLayout(t: InvoiceTheme, d: InvoiceData): string {
   const body = `<div class="page" style="padding:48px 56px">
   ${watermarkImg(d)}
   <div class="content">
-    <!-- Minimal header — just text, no background -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
-      <div style="display:flex;align-items:center;gap:14px">
-        ${logoImg(d, 40, "border-radius:4px;opacity:0.7")}
-        <div>
-          <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
-          <p style="font-size:11px;color:#94a3b8;margin-top:4px">${d.clinicAddress}</p>
-          <p style="font-size:11px;color:#94a3b8">${d.clinicPhone} · ${d.clinicEmail}</p>
-        </div>
-      </div>
-      <div style="text-align:right">
+    <!-- Centered minimal header -->
+    <div style="text-align:center;padding:28px 20px 22px;margin-bottom:28px;border-bottom:1px solid #f1f5f9">
+      ${d.clinicLogo ? `<div style="margin-bottom:10px">${logoImg(d, 48, "border-radius:8px;opacity:0.8")}</div>` : ''}
+      <h1 style="font-size:28px;font-weight:300;color:${t.accent};margin:0;letter-spacing:-0.5px">${d.clinicName}</h1>
+      <p style="font-size:11px;color:#94a3b8;margin-top:6px">${d.clinicAddress} · ${d.clinicPhone} · ${d.clinicEmail}</p>
+    </div>
+
+    <!-- Invoice ID + Date row -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid #f1f5f9">
+      <div>
         <p style="font-size:32px;font-weight:200;color:#e2e8f0;margin:0;line-height:1">${d.invoiceLabel.toUpperCase()}</p>
         <p style="font-size:14px;font-weight:600;font-family:monospace;color:${t.accent};margin-top:4px">${d.invoiceId}</p>
+      </div>
+      <div style="text-align:right">
         <p style="font-size:11px;color:#94a3b8;margin-top:2px">${d.dateTimeStr}</p>
       </div>
     </div>
 
-    <!-- Simple two-column patient/doctor with thin separator -->
+    <!-- Simple two-column patient/doctor -->
     <div style="display:flex;gap:40px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #f1f5f9;font-size:13px">
       <div style="flex:1">
         <p style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#cbd5e1;margin-bottom:6px;font-weight:600">Bill To</p>
