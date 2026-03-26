@@ -191,7 +191,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
         age: String(patient.age),
         gender: patient.gender === "F" ? "Female" : patient.gender === "M" ? "Male" : "Other",
         chiefComplaint: patient.complaint || "",
-        onExamination: vitalParts.join(", "),
+        onExamination: patient.onExamination || vitalParts.join(", "),
         spo2: patient.spo2 || "",
         weight: patient.weight || "",
         bp: patient.bp || "",
