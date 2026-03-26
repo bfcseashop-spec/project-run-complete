@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { PatientSearchSelect } from "@/components/PatientSearchSelect";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2, Check, Search } from "lucide-react";
 import { sampleTypes, priorityLevels, type LabTest } from "@/data/labTests";
