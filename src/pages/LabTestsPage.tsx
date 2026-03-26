@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { PatientSearchSelect } from "@/components/PatientSearchSelect";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -324,15 +325,11 @@ const LabTestsPage = () => {
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2">
                 <Label>Patient Name *</Label>
-                <Select value={form.patient} onValueChange={(v) => {
-                  const p = patients.find((pt) => pt.name === v);
-                  setForm({ ...form, patient: v, patientId: p?.id || form.patientId, age: p?.age || form.age, gender: (p?.gender as any) || form.gender });
-                }}>
-                  <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                  <SelectContent>
-                    {patients.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <PatientSearchSelect
+                  patients={patients}
+                  value={form.patient}
+                  onSelect={(p) => setForm({ ...form, patient: p.name, patientId: p.id, age: (p as any).age || form.age, gender: ((p as any).gender as any) || form.gender })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Patient ID</Label>

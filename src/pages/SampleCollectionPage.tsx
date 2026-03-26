@@ -15,9 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "@/components/ui/command";
-import { ChevronDown } from "lucide-react";
+import { PatientSearchSelect } from "@/components/PatientSearchSelect";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -429,35 +427,12 @@ const SampleCollectionPage = () => {
               <div className="grid grid-cols-4 gap-3 p-3.5 rounded-lg border border-border bg-muted/20">
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[11px] font-semibold flex items-center gap-1">Patient Name <span className="text-destructive">*</span></Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className="w-full h-9 justify-between text-sm font-normal">
-                        <span className="truncate">{form.patient || "Search patient..."}</span>
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Search patient name..." />
-                        <CommandList>
-                          <CommandEmpty>No patients found.</CommandEmpty>
-                          {patients.map((p) => (
-                            <CommandItem
-                              key={p.id}
-                              value={p.name}
-                              onSelect={() => {
-                                setForm({ ...form, patient: p.name, patientId: p.id, age: p.age, gender: p.gender as any });
-                              }}
-                              className="flex items-center justify-between cursor-pointer"
-                            >
-                              <span className="text-sm">{p.name}</span>
-                              <span className="text-[10px] text-muted-foreground">{p.id}</span>
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <PatientSearchSelect
+                    patients={patients}
+                    value={form.patient}
+                    onSelect={(p) => setForm({ ...form, patient: p.name, patientId: p.id, age: (p as any).age, gender: (p as any).gender as any })}
+                    className="h-9"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[11px] font-semibold text-muted-foreground">Patient ID</Label>

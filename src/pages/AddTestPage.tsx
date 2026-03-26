@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { PatientSearchSelect } from "@/components/PatientSearchSelect";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Plus, Trash2, Check, Search } from "lucide-react";
 import { sampleTypes, priorityLevels, type LabTest } from "@/data/labTests";
@@ -164,14 +165,11 @@ const AddTestPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Patient Name <span className="text-destructive">*</span></Label>
-                  <Select value={form.patientId} onValueChange={handlePatientSelect}>
-                    <SelectTrigger><SelectValue placeholder="Select patient" /></SelectTrigger>
-                    <SelectContent>
-                      {patients.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <PatientSearchSelect
+                    patients={patients}
+                    value={patients.find(p => p.id === form.patientId)?.name || ""}
+                    onSelect={(p) => handlePatientSelect(p.id)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Patient ID</Label>
