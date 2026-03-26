@@ -219,7 +219,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
 
           {/* Row 4: Complaint */}
           <div>
-            <Label className="flex items-center gap-1.5">Complaint <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
+            <Label className="flex items-center gap-1.5">Chief Complaint <span className="text-xs font-normal text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Recommended</span></Label>
             <Input placeholder="e.g. Fever & Headache" value={form.complaint} onChange={(e) => update("complaint", e.target.value)} className={!form.complaint ? "border-amber-300/50" : "border-green-400/50"} />
           </div>
 
