@@ -163,15 +163,32 @@ const TestNamePage = () => {
     setDialogOpen(true);
   };
 
-  const openEdit = (t: TestNameEntry) => {
+  const openEdit = async (t: TestNameEntry) => {
     setEditingTest(t);
-    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }] });
+    // Load saved parameters from database
+    let params: ReportParameter[] = [];
+    try {
+      const dbParams = await store.loadParameters(t.id);
+      if (dbParams.length > 0) {
+        params = dbParams.map((p: any, i: number) => ({
+          id: ++paramCounter,
+          paramName: p.paramName,
+          category: p.category,
+          unit: p.unit,
+          normalRange: p.normalRange,
+          resultType: p.resultType,
+        }));
+      }
+    } catch { /* ignore */ }
+    if (params.length === 0) {
+      params = [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }];
+    }
+    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: params });
     setDialogOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name.trim()) { toast.error("Test name is required"); return; }
-    // Use first parameter's unit/normalRange as the main values
     const firstParam = form.parameters[0];
     const saveData = {
       name: form.name, category: form.category, sampleType: form.sampleType,
@@ -179,14 +196,25 @@ const TestNamePage = () => {
       unit: firstParam?.unit || form.unit,
       price: form.price, active: form.active,
     };
-    if (editingTest) {
-      store.updateTest(editingTest.id, saveData);
-      toast.success("Test updated successfully");
-    } else {
-      store.addTest(saveData);
-      toast.success(`Test added with ${form.parameters.length} parameter(s)`);
+    try {
+      let testId: string;
+      if (editingTest) {
+        await store.updateTest(editingTest.id, saveData);
+        testId = editingTest.id;
+      } else {
+        const newTest = await store.addTest(saveData);
+        testId = newTest.id;
+      }
+      // Save parameters to database
+      await store.saveParameters(testId, form.parameters.map((p, i) => ({
+        paramName: p.paramName, category: p.category, unit: p.unit,
+        normalRange: p.normalRange, resultType: p.resultType, sortOrder: i,
+      })));
+      toast.success(editingTest ? "Test updated successfully" : `Test added with ${form.parameters.length} parameter(s)`);
+      setDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save test");
     }
-    setDialogOpen(false);
   };
 
   const handleDelete = (id: string) => {

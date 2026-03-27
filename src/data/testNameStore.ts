@@ -105,6 +105,43 @@ export const testNameStore = {
     _sampleTypes = _sampleTypes.filter((s) => s !== name); notify();
   },
 
+  // --- Test Parameters persistence ---
+  saveParameters: async (testId: string, params: { paramName: string; category: string; unit: string; normalRange: string; resultType: string; sortOrder: number }[]) => {
+    // Delete existing parameters for this test, then insert new ones
+    await supabase.from("test_parameters").delete().eq("test_id", testId);
+    if (params.length > 0) {
+      const rows = params.map((p, i) => ({
+        test_id: testId,
+        param_name: p.paramName,
+        category: p.category,
+        unit: p.unit,
+        normal_range: p.normalRange,
+        result_type: p.resultType,
+        sort_order: p.sortOrder ?? i,
+      }));
+      const { error } = await supabase.from("test_parameters").insert(rows);
+      if (error) throw error;
+    }
+  },
+
+  loadParameters: async (testId: string) => {
+    const { data, error } = await supabase
+      .from("test_parameters")
+      .select("*")
+      .eq("test_id", testId)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return (data || []).map((r: any) => ({
+      id: r.id,
+      paramName: r.param_name,
+      category: r.category,
+      unit: r.unit,
+      normalRange: r.normal_range,
+      resultType: r.result_type as "manual" | "dropdown",
+      sortOrder: r.sort_order,
+    }));
+  },
+
   subscribe: (fn: () => void) => {
     _listeners.push(fn);
     return () => { _listeners = _listeners.filter((l) => l !== fn); };
