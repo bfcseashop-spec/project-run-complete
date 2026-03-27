@@ -44,12 +44,17 @@ const TestNamePage = () => {
   const [unitDropdownOpen, setUnitDropdownOpen] = useState<number | null>(null);
 
   const defaultUnits = [
-    "mg/dL", "g/dL", "g/L", "mmol/L", "µmol/L", "mEq/L", "IU/L", "U/L",
-    "ng/mL", "ng/dL", "pg/mL", "µg/dL", "µg/L", "mIU/mL", "µIU/mL",
-    "mm/hr", "sec", "cells/µL", "cells/mm³", "x10³/µL", "x10⁶/µL",
-    "10^3/uL", "10^6/uL", "million/cmm", "thou/cmm",
-    "%", "ratio", "mm Hg", "mL/min", "fL", "pg", "g%",
-    "mg/L", "mg/24hr", "mL", "copies/mL", "CFU/mL", "pH",
+    "g/dL", "%", "10^6/µL", "10^12/L", "10^3/µL", "10^9/L",
+    "10^3/µL (or cells/µL)", "10^3/µL (or 10^9/L)", "fL", "pg", "pg/cell",
+    "U/L", "mg/dL", "mmol/L", "µmol/L", "mL/min/1.73m²", "mOsm/kg",
+    "ng/mL", "pg/mL", "µIU/mL", "pmol/L", "IU/mL", "copies/mL", "IU/L",
+    "CFU/mL", "mm/hr", "mg/L", "ng/L", "µg/mL", "µg/L", "µg/dL", "ng/dL",
+    "mmHg", "bpm", "breaths/min", "°C", "°F",
+    "cells/HPF", "cells/µL", "mEq/L", "mmol/L (electrolytes)",
+    "IU", "units (U)", "drops (gtt)", "tablet(s)", "capsule(s)",
+    "mL", "L", "g", "mg", "µg", "mIU/mL",
+    "g/L", "sec", "cells/mm³", "ratio", "mL/min", "g%",
+    "mg/24hr", "pH", "million/cmm", "thou/cmm",
     "Positive/Negative", "Reactive/Non-Reactive", "Present/Absent",
   ];
   const [customUnits, setCustomUnits] = useState<string[]>([]);
