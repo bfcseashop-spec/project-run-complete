@@ -36,6 +36,10 @@ const TestNamePage = () => {
   const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [newSampleType, setNewSampleType] = useState("");
+  const [manageRangeParam, setManageRangeParam] = useState<number | null>(null);
+  const [rangeEntries, setRangeEntries] = useState<{ label: string; value: string }[]>([]);
+  const [newRangeLabel, setNewRangeLabel] = useState("");
+  const [newRangeValue, setNewRangeValue] = useState("");
   const categoryColors: Record<string, string> = {
     Hematology: "bg-destructive/10 text-destructive border-destructive/30",
     Biochemistry: "bg-warning/10 text-warning border-warning/30",
