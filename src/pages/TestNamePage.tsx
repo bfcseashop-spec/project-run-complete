@@ -167,12 +167,20 @@ const TestNamePage = () => {
 
   const handleSubmit = () => {
     if (!form.name.trim()) { toast.error("Test name is required"); return; }
+    // Use first parameter's unit/normalRange as the main values
+    const firstParam = form.parameters[0];
+    const saveData = {
+      name: form.name, category: form.category, sampleType: form.sampleType,
+      normalRange: firstParam?.normalRange || form.normalRange,
+      unit: firstParam?.unit || form.unit,
+      price: form.price, active: form.active,
+    };
     if (editingTest) {
-      store.updateTest(editingTest.id, form);
+      store.updateTest(editingTest.id, saveData);
       toast.success("Test updated successfully");
     } else {
-      store.addTest(form);
-      toast.success("Test added successfully");
+      store.addTest(saveData);
+      toast.success(`Test added with ${form.parameters.length} parameter(s)`);
     }
     setDialogOpen(false);
   };
