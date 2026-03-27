@@ -70,10 +70,22 @@ const TestNamePage = () => {
     General: "bg-muted text-muted-foreground",
   };
 
-  const [form, setForm] = useState<Omit<TestNameEntry, "id"> & { description: string; isLabTest: boolean; sampleCollectionRequired: boolean }>({
+  interface ReportParameter {
+    id: number;
+    paramName: string;
+    category: string;
+    unit: string;
+    normalRange: string;
+    resultType: "manual" | "dropdown";
+  }
+
+  let paramCounter = 1;
+
+  const [form, setForm] = useState<Omit<TestNameEntry, "id"> & { description: string; isLabTest: boolean; sampleCollectionRequired: boolean; parameters: ReportParameter[] }>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
     description: "", isLabTest: true, sampleCollectionRequired: true,
+    parameters: [{ id: 1, paramName: "", category: "General", unit: "", normalRange: "", resultType: "manual" }],
   });
 
   const toggleSelect = (id: string) => {
