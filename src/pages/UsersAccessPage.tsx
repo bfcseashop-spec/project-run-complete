@@ -299,8 +299,11 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
                     <td className="px-5 py-3 text-xs text-muted-foreground tabular-nums">{u.last_login ? new Date(u.last_login).toLocaleDateString() : "Never"}</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(u)}><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteProfile(u)}><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(u)} title="Edit"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => toggleActive(u)} title={u.active ? "Deactivate" : "Activate"}>
+                          {u.active ? <UserX className="w-3.5 h-3.5 text-orange-500" /> : <UserCheck className="w-3.5 h-3.5 text-emerald-500" />}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteProfile(u)} title="Delete"><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
                       </div>
                     </td>
                   </tr>
