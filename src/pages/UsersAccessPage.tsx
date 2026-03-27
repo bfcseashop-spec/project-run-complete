@@ -358,6 +358,24 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={!!toggleProfile} onOpenChange={() => setToggleProfile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{toggleProfile?.active ? "Deactivate" : "Activate"} User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to {toggleProfile?.active ? "deactivate" : "activate"} <strong>{toggleProfile?.full_name}</strong>?
+              {toggleProfile?.active ? " They will no longer be able to log in." : " They will regain access to the system."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleActive}>
+              {toggleProfile?.active ? "Deactivate" : "Activate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Create User Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-md">
