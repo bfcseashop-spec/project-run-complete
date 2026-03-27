@@ -939,6 +939,42 @@ export type Database = {
         }
         Relationships: []
       }
+      test_parameters: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          normal_range: string
+          param_name: string
+          result_type: string
+          sort_order: number
+          test_id: string
+          unit: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          normal_range?: string
+          param_name?: string
+          result_type?: string
+          sort_order?: number
+          test_id: string
+          unit?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          normal_range?: string
+          param_name?: string
+          result_type?: string
+          sort_order?: number
+          test_id?: string
+          unit?: string
+        }
+        Relationships: []
+      }
       test_sample_types: {
         Row: {
           created_at: string
