@@ -670,17 +670,68 @@ const TestNamePage = () => {
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 relative">
                       <div className="flex items-center gap-1">
                         <Label className="font-medium">Unit</Label>
                         <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
                       </div>
-                      <Input
-                        value={param.unit}
-                        onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: e.target.value } : p) })}
-                        placeholder="e.g. mg/dL"
-                        className="h-10"
-                      />
+                      <div className="relative">
+                        <Input
+                          value={unitDropdownOpen === param.id ? unitSearch : param.unit}
+                          onChange={(e) => {
+                            setUnitSearch(e.target.value);
+                            setUnitDropdownOpen(param.id);
+                          }}
+                          onFocus={() => {
+                            setUnitSearch(param.unit);
+                            setUnitDropdownOpen(param.id);
+                          }}
+                          onBlur={() => setTimeout(() => setUnitDropdownOpen(null), 200)}
+                          placeholder="e.g. mg/dL"
+                          className="h-10"
+                          autoComplete="off"
+                        />
+                        {unitDropdownOpen === param.id && (
+                          <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md">
+                            {allUnits
+                              .filter(u => u.toLowerCase().includes(unitSearch.toLowerCase()))
+                              .map(u => (
+                                <button
+                                  key={u}
+                                  type="button"
+                                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: u } : p) });
+                                    setUnitDropdownOpen(null);
+                                  }}
+                                >
+                                  {u}
+                                </button>
+                              ))
+                            }
+                            {unitSearch.trim() && !allUnits.some(u => u.toLowerCase() === unitSearch.toLowerCase()) && (
+                              <button
+                                type="button"
+                                className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer border-t text-primary font-medium"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  const newUnit = unitSearch.trim();
+                                  setCustomUnits(prev => [...prev, newUnit]);
+                                  setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: newUnit } : p) });
+                                  setUnitDropdownOpen(null);
+                                  toast.success(`Unit "${newUnit}" added`);
+                                }}
+                              >
+                                <Plus className="w-3.5 h-3.5 inline mr-1.5" />Add "{unitSearch.trim()}"
+                              </button>
+                            )}
+                            {!unitSearch.trim() && allUnits.length === 0 && (
+                              <div className="px-3 py-2 text-sm text-muted-foreground">Type to search or add a unit</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1">
