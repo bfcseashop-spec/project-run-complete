@@ -151,15 +151,17 @@ const TestNamePage = () => {
     return matchSearch && matchCategory;
   });
 
+  const defaultParams = (): ReportParameter[] => [{ id: ++paramCounter, paramName: "", category: "General", unit: "", normalRange: "", resultType: "manual" }];
+
   const openAdd = () => {
     setEditingTest(null);
-    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true, description: "", isLabTest: true, sampleCollectionRequired: true });
+    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: defaultParams() });
     setDialogOpen(true);
   };
 
   const openEdit = (t: TestNameEntry) => {
     setEditingTest(t);
-    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true });
+    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }] });
     setDialogOpen(true);
   };
 
