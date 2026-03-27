@@ -454,7 +454,7 @@ const TestNamePage = () => {
                       <TableCell className="font-medium">{t.name}</TableCell>
                       <TableCell><Badge variant="outline" className={categoryColors[t.category] || categoryColors.General}>{t.category}</Badge></TableCell>
                       <TableCell className="capitalize">{t.sampleType}</TableCell>
-                      <TableCell className="text-xs">{t.normalRange}</TableCell>
+                      
                       <TableCell className="text-right font-medium">{formatPrice(t.price)}</TableCell>
                       <TableCell>
                         <Badge
