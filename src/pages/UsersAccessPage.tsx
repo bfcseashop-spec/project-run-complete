@@ -152,13 +152,16 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
     setShowEditDialog(false);
   };
 
-  const toggleActive = async (p: Profile) => {
+  const confirmToggleActive = async () => {
+    if (!toggleProfile) return;
     const { error } = await supabase
       .from("profiles")
-      .update({ active: !p.active })
-      .eq("id", p.id);
+      .update({ active: !toggleProfile.active })
+      .eq("id", toggleProfile.id);
     if (error) toast.error(error.message);
     else onRefresh();
+    setToggleProfile(null);
+  };
   };
 
   const handleCreateUser = async () => {
