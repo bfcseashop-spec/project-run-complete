@@ -509,7 +509,7 @@ const TestNamePage = () => {
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div><span className="text-muted-foreground">Category:</span> <Badge variant="outline" className={`ml-1 text-[10px] px-1.5 py-0 ${categoryColors[t.category] || categoryColors.General}`}>{t.category}</Badge></div>
                       <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
-                      <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
+                      
                       <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatPrice(t.price)}</span></div>
                     </div>
                     <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
