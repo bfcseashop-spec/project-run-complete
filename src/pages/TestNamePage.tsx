@@ -42,6 +42,8 @@ const TestNamePage = () => {
   const [newRangeValue, setNewRangeValue] = useState("");
   const [unitSearch, setUnitSearch] = useState("");
   const [unitDropdownOpen, setUnitDropdownOpen] = useState<number | null>(null);
+  const [sampleTypeSearch, setSampleTypeSearch] = useState("");
+  const [sampleTypeOpen, setSampleTypeOpen] = useState(false);
 
   const defaultUnits = [
     "g/dL", "%", "10^6/µL", "10^12/L", "10^3/µL", "10^9/L",
