@@ -197,13 +197,13 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
 
   const handleDelete = async () => {
     if (!deleteProfile) return;
-    // We can't delete auth users from client, just deactivate
+    // Delete profile record (cascades from auth if needed)
     const { error } = await supabase
       .from("profiles")
-      .update({ active: false })
+      .delete()
       .eq("id", deleteProfile.id);
     if (error) toast.error(error.message);
-    else { toast.success("User deactivated"); onRefresh(); }
+    else { toast.success("User deleted permanently"); onRefresh(); }
     setDeleteProfile(null);
   };
 
