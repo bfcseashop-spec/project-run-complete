@@ -23,21 +23,17 @@ function buildReportHTML(report: LabReport): string {
   const tableRowsHTML = report.sections.map((section) => {
     let rows = "";
     if (section.title) {
-      rows += `<tr class="section-row"><td colspan="5" class="section-cell"><strong>${section.title.toUpperCase()}</strong></td></tr>`;
+      rows += `<tr class="section-row"><td colspan="4" class="section-cell"><strong><u>${section.title}</u></strong></td></tr>`;
     }
     rows += section.investigations.filter(inv => inv.name).map((inv) => {
-      const flagLabel = inv.flag === "High" ? '<span class="flag flag-high">High</span>' 
-                       : inv.flag === "Low" ? '<span class="flag flag-low">Low</span>' 
-                       : inv.result?.toLowerCase() === "positive" ? '<span class="flag flag-high">Positive</span>'
-                       : "";
-      const resultClass = inv.flag === "High" || inv.result?.toLowerCase() === "positive" ? "result-high" 
-                        : inv.flag === "Low" ? "result-low" : "";
+      const isHigh = inv.flag === "High" || inv.result?.toLowerCase() === "positive";
+      const isLow = inv.flag === "Low";
+      const resultClass = isHigh ? "result-high" : isLow ? "result-low" : "";
       return `<tr>
-        <td class="col-inv">${inv.name}</td>
+        <td class="col-test">${inv.name}</td>
         <td class="col-result ${resultClass}">${inv.result || "—"}</td>
-        <td class="col-flag">${flagLabel}</td>
+        <td class="col-unit">${inv.unit || ""}</td>
         <td class="col-ref">${inv.referenceValue || "—"}</td>
-        <td class="col-unit">${inv.unit || "—"}</td>
       </tr>`;
     }).join("");
     return rows;
@@ -46,127 +42,98 @@ function buildReportHTML(report: LabReport): string {
   return `<!DOCTYPE html><html><head><title>Lab Report - ${report.id}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
-.page{max-width:820px;margin:0 auto;padding:0;border:1px solid #e5e7eb}
-.report-header{background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 60%,#3b82f6 100%);padding:16px 24px;display:flex;align-items:flex-start;justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:14px}
-.lab-logo{width:56px;height:56px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.2);flex-shrink:0}
-.lab-logo img{width:100%;height:100%;object-fit:contain}
-.lab-logo-fallback{font-size:24px}
-.header-brand h1{font-size:24px;font-weight:900;color:#fff;letter-spacing:0.5px;margin-bottom:2px}
-.header-brand .tagline{font-size:11px;color:rgba(255,255,255,0.9);font-weight:600;letter-spacing:1px}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
+.page{max-width:820px;margin:0 auto;border:1px solid #d1d5db}
+.header{background:linear-gradient(135deg,#1e40af,#2563eb,#3b82f6);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{width:50px;height:50px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.logo img{width:100%;height:100%;object-fit:contain}
+.brand h1{font-size:22px;font-weight:900;color:#fff}
+.brand .tag{font-size:10px;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
 .header-right{text-align:right;color:#fff;font-size:12px;line-height:1.8}
-.header-address{background:rgba(0,0,0,0.15);padding:6px 24px;font-size:11px;color:rgba(255,255,255,0.95);text-align:center;letter-spacing:0.3px}
-.patient-bar{display:grid;grid-template-columns:1fr 1.2fr auto;gap:12px;padding:16px 24px;border-bottom:2px solid #e5e7eb;background:#fff}
-.patient-info{line-height:1.9}
-.patient-info .pname{font-size:16px;font-weight:800;color:#1a1a1a}
-.patient-info .pdetail{font-size:12px;color:#374151}
-.sample-info{font-size:12px;color:#374151;line-height:1.9}
-.sample-info strong{color:#1a1a1a}
-.barcode-info{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.barcode-info .timestamps{font-size:10px;color:#6b7280;line-height:1.7;text-align:right}
-.barcode-info .timestamps strong{color:#374151}
-.test-title{text-align:center;padding:16px 24px 12px;border-bottom:2px solid #1d4ed8}
-.test-title h2{font-size:18px;font-weight:800;color:#1a1a1a}
-.results-table{width:100%;border-collapse:collapse}
-.results-table thead th{text-align:left;font-size:12px;font-weight:800;color:#1a1a1a;padding:10px 16px;border-bottom:2px solid #1a1a1a;background:#fff}
-.results-table tbody td{padding:6px 16px;border-bottom:1px solid #f3f4f6;font-size:12.5px;vertical-align:middle}
-.results-table tbody tr:hover{background:#f9fafb}
-.section-row td{padding:12px 16px 4px !important;border-bottom:none !important}
-.section-cell{font-size:12px;font-weight:800;color:#1a1a1a;letter-spacing:0.3px}
-.col-inv{width:35%;color:#1a1a1a;font-weight:500}
-.col-result{width:15%;font-weight:700;color:#1a1a1a}
-.col-flag{width:12%;font-size:11px}
-.col-ref{width:24%;color:#4b5563;font-size:12px}
-.col-unit{width:14%;color:#4b5563;font-size:12px}
+.addr-bar{background:rgba(0,0,0,.15);text-align:center;color:rgba(255,255,255,.9);font-size:11px;padding:5px 20px;letter-spacing:.3px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:2px solid #d1d5db;font-size:12px}
+.info-grid .col{padding:12px 16px;line-height:1.9}
+.info-grid .col:not(:last-child){border-right:1px solid #e5e7eb}
+.info-grid .lbl{color:#6b7280;font-size:11px}
+.info-grid .val{font-weight:700;color:#1a1a1a}
+.test-banner{text-align:center;padding:14px;border-bottom:3px solid #1e40af}
+.test-banner h2{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+.test-banner .sub{font-size:11px;color:#6b7280;margin-top:2px}
+.instrument-bar{text-align:center;font-size:11px;color:#4b5563;padding:6px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-style:italic}
+table.results{width:100%;border-collapse:collapse}
+table.results thead th{text-align:left;font-size:12px;font-weight:800;padding:8px 14px;border-bottom:2px solid #1a1a1a;background:#f9fafb}
+table.results tbody td{padding:5px 14px;border-bottom:1px solid #f3f4f6;font-size:12px}
+table.results .section-row td{padding:10px 14px 3px;border-bottom:none}
+table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
+.col-test{width:38%;font-weight:500;padding-left:24px !important}
+.col-result{width:20%;font-weight:700}
+.col-unit{width:14%;color:#4b5563}
+.col-ref{width:28%;color:#4b5563}
 .result-high{color:#ea580c;font-weight:800}
 .result-low{color:#2563eb;font-weight:800}
-.flag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px}
-.flag-high{color:#ea580c}
-.flag-low{color:#2563eb}
-.report-bottom{padding:16px 24px}
-.instrument-line{font-size:12px;color:#374151;margin-bottom:8px}
-.instrument-line strong{color:#1a1a1a}
-.remarks-line{font-size:12px;color:#374151;margin-bottom:8px}
-.remarks-line strong{color:#1a1a1a}
-.signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:30px;padding-top:0}
-.sig-block{text-align:center}
-.sig-line{border-top:2px solid #374151;margin-top:44px;padding-top:8px}
-.sig-name{font-size:12px;font-weight:700;color:#1a1a1a}
-.sig-role{font-size:10px;color:#6b7280}
-.report-footer{border-top:2px solid #e5e7eb;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
-.footer-left{font-size:11px;color:#6b7280;font-style:italic}
-.footer-center{font-size:11px;font-weight:700;color:#374151;letter-spacing:1px}
-.footer-right{font-size:10px;color:#9ca3af}
-.end-text{text-align:center;font-size:11px;font-weight:700;color:#6b7280;margin-top:44px;letter-spacing:1px}
-@media print{@page{size:A4;margin:8mm}body{background:#fff}.page{max-width:100%;border:none}.results-table tbody tr:hover{background:transparent}}
+.bottom{padding:14px 20px}
+.bottom .note{font-size:12px;color:#374151;margin-bottom:6px}
+.bottom .note strong{color:#1a1a1a}
+.sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:30px}
+.sig{text-align:center}
+.sig .line{border-top:2px solid #374151;margin-top:40px;padding-top:6px}
+.sig .name{font-size:12px;font-weight:700}
+.sig .role{font-size:10px;color:#6b7280}
+.sig .end{font-size:11px;font-weight:700;color:#6b7280;margin-top:40px;letter-spacing:1px}
+.footer{border-top:2px solid #e5e7eb;padding:8px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.footer span{font-size:10px;color:#9ca3af}
+.footer .mid{font-weight:700;color:#6b7280;font-size:11px;letter-spacing:1px}
+@media print{@page{size:A4;margin:8mm}body{background:#fff}.page{border:none}}
 </style></head><body>
 <div class="page">
-  <div class="report-header">
+  <div class="header">
     <div class="header-left">
-      <div class="lab-logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '<span class="lab-logo-fallback">🏥</span>'}</div>
-      <div class="header-brand">
-        <h1>${s.clinicName}</h1>
-        <div class="tagline">${s.clinicTagline || "Accurate | Caring | Instant"}</div>
-      </div>
+      <div class="logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
+      <div class="brand"><h1>${s.clinicName}</h1><div class="tag">${s.clinicTagline || "Accurate | Caring | Instant"}</div></div>
     </div>
     <div class="header-right">
       <div>📞 ${s.clinicPhone || "—"}</div>
       <div>✉️ ${s.clinicEmail || "—"}</div>
     </div>
   </div>
-  <div class="header-address">${s.clinicAddress || "—"}</div>
-  <div class="patient-bar">
-    <div class="patient-info">
-      <div class="pname">${report.patient}</div>
-      <div class="pdetail">Age : ${report.age} Years</div>
-      <div class="pdetail">Sex : ${report.gender}</div>
-      <div class="pdetail">PID : ${report.patientId}</div>
+  <div class="addr-bar">${s.clinicAddress || "—"}</div>
+  <div class="info-grid">
+    <div class="col">
+      <div><span class="lbl">Patient Name:</span> <span class="val">${report.patient}</span></div>
+      <div><span class="lbl">Age:</span> <span class="val">${report.age} Years</span></div>
+      <div><span class="lbl">Gender:</span> <span class="val">${report.gender}</span></div>
+      <div><span class="lbl">PID:</span> <span class="val">${report.patientId}</span></div>
     </div>
-    <div class="sample-info">
-      <div><strong>Sample Collected At:</strong></div>
-      <div>${s.clinicAddress || "—"}</div>
-      <div style="margin-top:6px">Ref. By: <strong>Dr. ${report.doctor}</strong></div>
+    <div class="col">
+      <div><span class="lbl">Report No:</span> <span class="val">${report.id}</span></div>
+      <div><span class="lbl">Date:</span> <span class="val">${report.date}</span></div>
+      <div><span class="lbl">Delivery Date:</span> <span class="val">${report.resultDate || "—"}</span></div>
+      <div><span class="lbl">Referred By:</span> <span class="val">Dr. ${report.doctor}</span></div>
     </div>
-    <div class="barcode-info">
-      <div>${barcodeImg}</div>
-      <div class="timestamps">
-        <div><strong>Registered on:</strong> ${report.date}</div>
-        <div><strong>Collected on:</strong> ${collectedOn}</div>
-        <div><strong>Reported on:</strong> ${reportingDate}</div>
-      </div>
+    <div class="col">
+      <div><span class="lbl">Sample:</span> <span class="val">${report.sampleType || "—"}</span></div>
+      <div><span class="lbl">Collected:</span> <span class="val">${report.collectedAt || "—"}</span></div>
+      <div><span class="lbl">Reported:</span> <span class="val">${report.reportedAt || report.resultDate || "—"}</span></div>
+      <div style="margin-top:6px">${barcodeImg}</div>
     </div>
   </div>
-  <div class="test-title"><h2>${report.testName || report.category}</h2></div>
-  <table class="results-table">
-    <thead><tr>
-      <th class="col-inv">Investigation</th>
-      <th class="col-result">Result</th>
-      <th class="col-flag"></th>
-      <th class="col-ref">Reference Value</th>
-      <th class="col-unit">Unit</th>
-    </tr></thead>
-    <tbody>
-      ${report.sampleType ? `<tr><td class="col-inv">Primary Sample Type :</td><td class="col-result">${report.sampleType}</td><td></td><td></td><td></td></tr>` : ""}
-      ${tableRowsHTML}
-    </tbody>
+  <div class="test-banner"><h2>${report.testName || report.category}</h2><div class="sub">Sample: ${report.sampleType || "—"}</div></div>
+  ${report.instrument ? `<div class="instrument-bar">Test is carried out by ${report.instrument}</div>` : ""}
+  <table class="results">
+    <thead><tr><th>Test</th><th>Result</th><th>Unit</th><th>Reference Value</th></tr></thead>
+    <tbody>${tableRowsHTML}</tbody>
   </table>
-  <div class="report-bottom">
-    ${report.instrument ? `<div class="instrument-line"><strong>Instruments:</strong> ${report.instrument}</div>` : ""}
-    ${report.remarks ? `<div class="remarks-line"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
-    <div class="signatures">
-      <div class="sig-block"><div class="sig-line"></div><div class="sig-name">${report.technician || "Lab Technician"}</div><div class="sig-role">(Medical Lab Technician)</div></div>
-      <div class="sig-block"><div class="end-text">****End of Report****</div></div>
-      <div class="sig-block"><div class="sig-line"></div><div class="sig-name">${report.pathologist || "Pathologist"}</div><div class="sig-role">(MD, Pathologist)</div></div>
+  <div class="bottom">
+    ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
+    <div class="sigs">
+      <div class="sig"><div class="line"></div><div class="name">${report.technician || "Lab Technician"}</div><div class="role">Prepared by</div></div>
+      <div class="sig"><div class="end">****End of Report****</div></div>
+      <div class="sig"><div class="line"></div><div class="name">${report.pathologist || "Pathologist"}</div><div class="role">Verified by</div></div>
     </div>
   </div>
-  <div class="report-footer">
-    <div class="footer-left">Thanks for Reference</div>
-    <div class="footer-center">****End of Report****</div>
-    <div class="footer-right">${report.id}</div>
-  </div>
-</div>
-</body></html>`;
+  <div class="footer"><span style="font-style:italic">Thanks for Reference</span><span class="mid">****End of Report****</span><span>${report.id}</span></div>
+</div></body></html>`;
 }
 
 export function printLabReport(report: LabReport) {
@@ -186,108 +153,98 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
   const isPending = report.status === "pending";
   const statusLabel = isComplete ? "Complete" : isPending ? "Pending" : "In Progress";
   const hasResults = report.sections.some(sec => sec.investigations.some(inv => inv.name));
-  const reportingDate = report.resultDate || report.date;
-  const collectedOn = report.collectedAt || report.date;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[820px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-[850px] max-h-[95vh] p-0 gap-0 overflow-hidden rounded-xl border-0 shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Lab Report - {report.id}</DialogTitle>
-          <DialogDescription>Detailed view of lab report for {report.patient}</DialogDescription>
+          <DialogDescription>Lab report for {report.patient}</DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(95vh-70px)]">
-          {/* ===== REPORT DOCUMENT ===== */}
-          <div className="bg-white text-[#1a1a1a] border border-border/50 mx-4 mt-4 mb-2 rounded-lg overflow-hidden shadow-sm" style={{ fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+        <ScrollArea className="max-h-[calc(95vh-65px)]">
+          <div className="bg-white text-[#1a1a1a] mx-3 mt-3 mb-2 rounded-lg overflow-hidden shadow-sm border border-gray-200" style={{ fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
 
-            {/* Header with clinic branding */}
-            <div className="bg-gradient-to-r from-[#1d4ed8] via-[#2563eb] to-[#3b82f6] px-6 py-4 flex items-start justify-between relative">
-              <button
-                onClick={() => onOpenChange(false)}
-                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors z-10"
-              >
-                <X className="w-4 h-4 text-white/80" />
+            {/* Clinic header */}
+            <div className="bg-gradient-to-r from-[#1e40af] via-[#2563eb] to-[#3b82f6] px-5 py-3.5 flex items-center justify-between relative">
+              <button onClick={() => onOpenChange(false)} className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center z-10">
+                <X className="w-3.5 h-3.5 text-white/80" />
               </button>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg shrink-0">
-                  {s.clinicLogo ? (
-                    <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain p-1" />
-                  ) : (
-                    <FlaskConical className="w-7 h-7 text-[#1d4ed8]" />
-                  )}
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg shrink-0">
+                  {s.clinicLogo ? <img src={s.clinicLogo} alt="Logo" className="w-full h-full object-contain p-1" /> : <FlaskConical className="w-6 h-6 text-[#1e40af]" />}
                 </div>
                 <div>
-                  <h2 className="text-white text-xl font-black tracking-tight">{s.clinicName || "Laboratory"}</h2>
-                  <p className="text-white/80 text-[11px] font-semibold tracking-widest uppercase">{s.clinicTagline || "Accurate | Caring | Instant"}</p>
+                  <h2 className="text-white text-lg font-black tracking-tight">{s.clinicName || "Laboratory"}</h2>
+                  <p className="text-white/80 text-[10px] font-bold tracking-[2px] uppercase">{s.clinicTagline || "Healthcare & Wellness"}</p>
                 </div>
               </div>
-              <div className="text-right text-white text-[12px] leading-7 mt-1">
+              <div className="text-right text-white text-[12px] leading-7">
                 <div>📞 {s.clinicPhone || "—"}</div>
                 <div>✉️ {s.clinicEmail || "—"}</div>
               </div>
             </div>
-            {/* Address bar */}
-            <div className="bg-[#1e40af]/90 text-center text-white/90 text-[11px] py-1.5 tracking-wide">
+            <div className="bg-[#1e40af]/80 text-center text-white/90 text-[11px] py-1 tracking-wide">
               {s.clinicAddress || "—"}
             </div>
 
+            {/* Patient info grid — 3 columns like the reference */}
+            <div className="grid grid-cols-3 border-b-2 border-gray-200 text-[12px]">
+              {/* Column 1: Patient */}
+              <div className="p-3 border-r border-gray-100 leading-7">
+                <div><span className="text-gray-500 text-[11px]">Patient Name:</span> <strong>{report.patient}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Age:</span> <strong>{report.age} Years</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Gender:</span> <strong>{report.gender}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">PID:</span> <strong className="font-mono text-[11px]">{report.patientId}</strong></div>
+              </div>
+              {/* Column 2: Report details */}
+              <div className="p-3 border-r border-gray-100 leading-7">
+                <div><span className="text-gray-500 text-[11px]">Report No:</span> <strong>{report.id}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Invoice Date:</span> <strong>{report.date}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Delivery Date:</span> <strong>{report.resultDate || "—"}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Referred By:</span> <strong>Dr. {report.doctor}</strong></div>
+              </div>
+              {/* Column 3: Sample + barcode */}
+              <div className="p-3 leading-7">
+                <div><span className="text-gray-500 text-[11px]">Sample:</span> <strong>{report.sampleType || "—"}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Collected:</span> <strong>{report.collectedAt || "—"}</strong></div>
+                <div><span className="text-gray-500 text-[11px]">Reported:</span> <strong>{report.reportedAt || report.resultDate || "—"}</strong></div>
+                <div className="mt-1" dangerouslySetInnerHTML={{ __html: barcodeSVG(report.id, 160, 35) }} />
+              </div>
+            </div>
+
             {/* Status badge */}
-            <div className="flex justify-end px-5 pt-3">
-              <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border ${
-                isComplete
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : isPending
-                  ? "bg-gray-50 text-gray-600 border-gray-200"
-                  : "bg-blue-50 text-blue-700 border-blue-200"
+            <div className="flex justify-center py-2">
+              <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
+                isComplete ? "bg-emerald-50 text-emerald-700 border-emerald-200" : isPending ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-blue-50 text-blue-700 border-blue-200"
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${
-                  isComplete ? "bg-emerald-500" : isPending ? "bg-gray-400 animate-pulse" : "bg-blue-500 animate-pulse"
-                }`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${isComplete ? "bg-emerald-500" : isPending ? "bg-amber-500 animate-pulse" : "bg-blue-500 animate-pulse"}`} />
                 {statusLabel}
               </div>
             </div>
 
-            {/* Patient info bar */}
-            <div className="grid grid-cols-[1fr_1.2fr_auto] gap-4 px-5 py-4 border-b-2 border-gray-200">
-              <div className="leading-8">
-                <div className="text-[15px] font-extrabold">{report.patient}</div>
-                <div className="text-[12px] text-gray-600">Age : <strong className="text-[#1a1a1a]">{report.age} Years</strong></div>
-                <div className="text-[12px] text-gray-600">Sex : <strong className="text-[#1a1a1a]">{report.gender}</strong></div>
-                <div className="text-[12px] text-gray-600">PID : <strong className="text-[#1a1a1a] font-mono text-[11px]">{report.patientId}</strong></div>
-              </div>
-              <div className="text-[12px] text-gray-600 leading-8">
-                <div><strong className="text-[#1a1a1a]">Sample Collected At:</strong></div>
-                <div>{s.clinicAddress || "—"}</div>
-                <div className="mt-1">Ref. By: <strong className="text-[#1a1a1a]">Dr. {report.doctor}</strong></div>
-              </div>
-              <div className="text-right flex flex-col items-end gap-2">
-                <div dangerouslySetInnerHTML={{ __html: barcodeSVG(report.id, 180, 40) }} />
-                <div className="text-[10px] text-gray-500 leading-6 text-right">
-                  <div><strong className="text-gray-700">Registered on:</strong> {report.date}</div>
-                  <div><strong className="text-gray-700">Collected on:</strong> {collectedOn}</div>
-                  <div><strong className="text-gray-700">Reported on:</strong> {reportingDate}</div>
-                </div>
-              </div>
+            {/* Test title banner */}
+            <div className="text-center py-3 border-b-[3px] border-[#1e40af]">
+              <h3 className="text-[17px] font-black uppercase tracking-wide">{report.testName || report.category}</h3>
+              {report.sampleType && <p className="text-[11px] text-gray-500 mt-0.5">Sample: {report.sampleType}</p>}
             </div>
 
-            {/* Test title */}
-            <div className="text-center py-4 border-b-2 border-[#1d4ed8]">
-              <h3 className="text-[17px] font-extrabold uppercase tracking-wide">{report.testName || report.category}</h3>
-              {report.sampleType && (
-                <p className="text-[11px] text-gray-500 mt-1">Sample Type: {report.sampleType}</p>
-              )}
-            </div>
+            {/* Instrument line */}
+            {report.instrument && (
+              <div className="text-center text-[11px] text-gray-500 italic py-1.5 bg-gray-50 border-b border-gray-100">
+                Test is carried out by {report.instrument}
+              </div>
+            )}
 
             {/* Results table */}
             {hasResults ? (
               <table className="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th className="text-left text-[12px] font-extrabold py-2.5 px-4 border-b-2 border-[#1a1a1a] w-[35%]">Test</th>
-                    <th className="text-left text-[12px] font-extrabold py-2.5 px-4 border-b-2 border-[#1a1a1a] w-[20%]">Result</th>
-                    <th className="text-left text-[12px] font-extrabold py-2.5 px-4 border-b-2 border-[#1a1a1a] w-[12%]">Unit</th>
-                    <th className="text-left text-[12px] font-extrabold py-2.5 px-4 border-b-2 border-[#1a1a1a] w-[33%]">Reference Value</th>
+                  <tr className="bg-gray-50">
+                    <th className="text-left text-[12px] font-extrabold py-2 px-4 border-b-2 border-[#1a1a1a] w-[38%]">Test</th>
+                    <th className="text-left text-[12px] font-extrabold py-2 px-4 border-b-2 border-[#1a1a1a] w-[20%]">Result</th>
+                    <th className="text-left text-[12px] font-extrabold py-2 px-4 border-b-2 border-[#1a1a1a] w-[14%]">Unit</th>
+                    <th className="text-left text-[12px] font-extrabold py-2 px-4 border-b-2 border-[#1a1a1a] w-[28%]">Reference Value</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -295,33 +252,26 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
                     <>
                       {section.title && (
                         <tr key={`sec-${sIdx}`}>
-                          <td colSpan={4} className="pt-4 pb-1.5 px-4 text-[12px] font-extrabold uppercase tracking-wide border-b border-gray-100" style={{ textDecoration: "underline" }}>
-                            {section.title}
+                          <td colSpan={4} className="pt-3 pb-1 px-4 text-[12px] font-extrabold uppercase tracking-wide border-b border-gray-50">
+                            <span className="underline">{section.title}</span>
                           </td>
                         </tr>
                       )}
                       {section.investigations.filter(inv => inv.name).map((inv, iIdx) => {
-                        const isHigh = inv.flag === "High";
+                        const isHigh = inv.flag === "High" || inv.result?.toLowerCase() === "positive";
                         const isLow = inv.flag === "Low";
-                        const isPositive = inv.result?.toLowerCase() === "positive";
-                        const flagged = isHigh || isLow || isPositive;
-
                         return (
-                          <tr key={`${sIdx}-${iIdx}`} className="border-b border-gray-100 hover:bg-gray-50/50">
-                            <td className="py-1.5 px-4 text-[12px] font-medium pl-8">{inv.name}</td>
-                            <td className={`py-1.5 px-4 text-[12px] font-bold ${
-                              isHigh || isPositive ? "text-orange-600" : isLow ? "text-blue-600" : ""
-                            }`}>
+                          <tr key={`${sIdx}-${iIdx}`} className="border-b border-gray-50 hover:bg-gray-50/40">
+                            <td className="py-1.5 pl-7 pr-4 text-[12px] font-medium">{inv.name}</td>
+                            <td className={`py-1.5 px-4 text-[12px] font-bold ${isHigh ? "text-orange-600" : isLow ? "text-blue-600" : ""}`}>
                               {inv.result || "—"}
-                              {flagged && (
-                                <span className={`ml-1.5 text-[9px] font-bold px-1 py-0.5 rounded ${
-                                  isHigh || isPositive ? "bg-orange-100 text-orange-700" : "bg-blue-100 text-blue-700"
-                                }`}>
-                                  {isHigh ? "↑" : isLow ? "↓" : "⊕"}
+                              {(isHigh || isLow) && (
+                                <span className={`ml-1 text-[9px] font-bold px-1 py-0.5 rounded ${isHigh ? "bg-orange-100 text-orange-700" : "bg-blue-100 text-blue-700"}`}>
+                                  {isHigh ? "↑" : "↓"}
                                 </span>
                               )}
                             </td>
-                            <td className="py-1.5 px-4 text-[12px] text-gray-500">{inv.unit || "—"}</td>
+                            <td className="py-1.5 px-4 text-[12px] text-gray-500">{inv.unit || ""}</td>
                             <td className="py-1.5 px-4 text-[12px] text-gray-500">{inv.referenceValue || "—"}</td>
                           </tr>
                         );
@@ -331,29 +281,26 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
                 </tbody>
               </table>
             ) : (
-              <div className="py-14 text-center">
+              <div className="py-12 text-center">
                 <FlaskConical className="w-10 h-10 mx-auto text-gray-300 mb-3" />
                 <p className="text-sm font-semibold text-gray-400">No test results available yet</p>
                 <p className="text-xs text-gray-300 mt-1">Results will appear here once entered</p>
               </div>
             )}
 
-            {/* Bottom info */}
-            <div className="px-5 pt-4">
-              {report.instrument && (
-                <p className="text-[12px] text-gray-600 mb-2"><strong className="text-[#1a1a1a]">Instruments:</strong> {report.instrument}</p>
-              )}
-              {report.remarks && (
-                <p className="text-[12px] text-gray-600 mb-2"><strong className="text-[#1a1a1a]">Interpretation:</strong> {report.remarks}</p>
-              )}
-            </div>
+            {/* Remarks / Interpretation */}
+            {report.remarks && (
+              <div className="px-5 pt-3">
+                <p className="text-[12px] text-gray-600"><strong className="text-[#1a1a1a]">Interpretation:</strong> {report.remarks}</p>
+              </div>
+            )}
 
-            {/* Signatures */}
-            <div className="grid grid-cols-3 gap-6 px-5 mt-8 mb-2">
+            {/* Signatures - matching reference: Prepared by | End | Verified by */}
+            <div className="grid grid-cols-3 gap-5 px-5 mt-8 mb-3">
               <div className="text-center">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
                 <p className="text-[12px] font-bold">{report.technician || "Lab Technician"}</p>
-                <p className="text-[10px] text-gray-500">(Medical Lab Technician)</p>
+                <p className="text-[10px] text-gray-500">Prepared by</p>
               </div>
               <div className="text-center">
                 <p className="text-[11px] font-bold text-gray-500 mt-10 tracking-widest">****End of Report****</p>
@@ -361,13 +308,13 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               <div className="text-center">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
                 <p className="text-[12px] font-bold">{report.pathologist || "Pathologist"}</p>
-                <p className="text-[10px] text-gray-500">(MD, Pathologist)</p>
+                <p className="text-[10px] text-gray-500">Verified by</p>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="border-t-2 border-gray-200 px-5 py-3 flex justify-between items-center mt-4">
-              <span className="text-[11px] text-gray-400 italic">Thanks for Reference</span>
+            <div className="border-t-2 border-gray-200 px-5 py-2.5 flex justify-between items-center mt-3">
+              <span className="text-[10px] text-gray-400 italic">Thanks for Reference</span>
               <span className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</span>
               <span className="text-[10px] text-gray-400 font-mono">{report.id}</span>
             </div>
@@ -375,14 +322,12 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
         </ScrollArea>
 
         {/* Action Footer */}
-        <div className="px-5 py-3 border-t border-border bg-muted/30 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-border bg-muted/30 flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">
             {isComplete ? "✓ Report finalised" : "⏳ Awaiting results"}
           </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="h-9">
-              Close
-            </Button>
+            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="h-9">Close</Button>
             <Button size="sm" className="h-9 px-5 bg-gradient-to-r from-primary to-primary/80 shadow-md font-semibold" onClick={() => printLabReport(report)}>
               <Printer className="w-3.5 h-3.5 mr-1.5" />
               Print Report
