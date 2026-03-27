@@ -87,6 +87,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   const [statusFilter, setStatusFilter] = useState("all");
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
+  const [toggleProfile, setToggleProfile] = useState<Profile | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", role_id: "", active: true, new_password: "" });
   const [resettingPassword, setResettingPassword] = useState(false);
