@@ -233,7 +233,7 @@ const TestNamePage = () => {
       <table>
         <tr><td>Category</td><td>${t.category}</td></tr>
         <tr><td>Sample Type</td><td style="text-transform:capitalize">${t.sampleType}</td></tr>
-        <tr><td>Normal Range</td><td>${t.normalRange}</td></tr>
+        
         <tr><td>Price</td><td>${formatPrice(t.price)}</td></tr>
         <tr><td>Status</td><td>${t.active ? "Active" : "Inactive"}</td></tr>
       </table></body></html>
