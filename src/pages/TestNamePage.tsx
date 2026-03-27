@@ -147,7 +147,7 @@ const TestNamePage = () => {
 
   const openEdit = (t: TestNameEntry) => {
     setEditingTest(t);
-    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active });
+    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true });
     setDialogOpen(true);
   };
 
