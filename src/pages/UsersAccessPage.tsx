@@ -197,13 +197,13 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
 
   const handleDelete = async () => {
     if (!deleteProfile) return;
-    // We can't delete auth users from client, just deactivate
+    // Delete profile record (cascades from auth if needed)
     const { error } = await supabase
       .from("profiles")
-      .update({ active: false })
+      .delete()
       .eq("id", deleteProfile.id);
     if (error) toast.error(error.message);
-    else { toast.success("User deactivated"); onRefresh(); }
+    else { toast.success("User deleted permanently"); onRefresh(); }
     setDeleteProfile(null);
   };
 
@@ -299,8 +299,11 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
                     <td className="px-5 py-3 text-xs text-muted-foreground tabular-nums">{u.last_login ? new Date(u.last_login).toLocaleDateString() : "Never"}</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(u)}><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteProfile(u)}><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(u)} title="Edit"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => toggleActive(u)} title={u.active ? "Deactivate" : "Activate"}>
+                          {u.active ? <UserX className="w-3.5 h-3.5 text-orange-500" /> : <UserCheck className="w-3.5 h-3.5 text-emerald-500" />}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteProfile(u)} title="Delete"><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
                       </div>
                     </td>
                   </tr>
@@ -346,8 +349,8 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
 
       <AlertDialog open={!!deleteProfile} onOpenChange={() => setDeleteProfile(null)}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Deactivate User</AlertDialogTitle><AlertDialogDescription>Deactivate <strong>{deleteProfile?.full_name}</strong>? They will no longer be able to access the system.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Deactivate</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogHeader><AlertDialogTitle>Delete User Permanently</AlertDialogTitle><AlertDialogDescription>Are you sure you want to permanently delete <strong>{deleteProfile?.full_name}</strong>? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
