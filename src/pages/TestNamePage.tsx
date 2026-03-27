@@ -70,9 +70,10 @@ const TestNamePage = () => {
     General: "bg-muted text-muted-foreground",
   };
 
-  const [form, setForm] = useState<Omit<TestNameEntry, "id">>({
+  const [form, setForm] = useState<Omit<TestNameEntry, "id"> & { description: string; isLabTest: boolean; sampleCollectionRequired: boolean }>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
+    description: "", isLabTest: true, sampleCollectionRequired: true,
   });
 
   const toggleSelect = (id: string) => {
