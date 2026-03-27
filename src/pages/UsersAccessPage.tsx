@@ -87,6 +87,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
   const [statusFilter, setStatusFilter] = useState("all");
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
+  const [toggleProfile, setToggleProfile] = useState<Profile | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", role_id: "", active: true, new_password: "" });
   const [resettingPassword, setResettingPassword] = useState(false);
@@ -151,13 +152,15 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
     setShowEditDialog(false);
   };
 
-  const toggleActive = async (p: Profile) => {
+  const confirmToggleActive = async () => {
+    if (!toggleProfile) return;
     const { error } = await supabase
       .from("profiles")
-      .update({ active: !p.active })
-      .eq("id", p.id);
+      .update({ active: !toggleProfile.active })
+      .eq("id", toggleProfile.id);
     if (error) toast.error(error.message);
     else onRefresh();
+    setToggleProfile(null);
   };
 
   const handleCreateUser = async () => {
@@ -290,7 +293,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <Switch checked={u.active} onCheckedChange={() => toggleActive(u)} className="scale-75" />
+                        <Switch checked={u.active} onCheckedChange={() => setToggleProfile(u)} className="scale-75" />
                         <span className={`text-xs font-medium ${u.active ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                           {u.active ? "Active" : "Inactive"}
                         </span>
@@ -300,7 +303,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(u)} title="Edit"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => toggleActive(u)} title={u.active ? "Deactivate" : "Activate"}>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setToggleProfile(u)} title={u.active ? "Deactivate" : "Activate"}>
                           {u.active ? <UserX className="w-3.5 h-3.5 text-orange-500" /> : <UserCheck className="w-3.5 h-3.5 text-emerald-500" />}
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteProfile(u)} title="Delete"><Trash2 className="w-3.5 h-3.5 text-destructive/60" /></Button>
@@ -351,6 +354,24 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
         <AlertDialogContent>
           <AlertDialogHeader><AlertDialogTitle>Delete User Permanently</AlertDialogTitle><AlertDialogDescription>Are you sure you want to permanently delete <strong>{deleteProfile?.full_name}</strong>? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!toggleProfile} onOpenChange={() => setToggleProfile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{toggleProfile?.active ? "Deactivate" : "Activate"} User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to {toggleProfile?.active ? "deactivate" : "activate"} <strong>{toggleProfile?.full_name}</strong>?
+              {toggleProfile?.active ? " They will no longer be able to log in." : " They will regain access to the system."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleActive}>
+              {toggleProfile?.active ? "Deactivate" : "Activate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
