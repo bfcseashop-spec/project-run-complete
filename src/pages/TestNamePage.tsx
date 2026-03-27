@@ -163,9 +163,27 @@ const TestNamePage = () => {
     setDialogOpen(true);
   };
 
-  const openEdit = (t: TestNameEntry) => {
+  const openEdit = async (t: TestNameEntry) => {
     setEditingTest(t);
-    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }] });
+    // Load saved parameters from database
+    let params: ReportParameter[] = [];
+    try {
+      const dbParams = await store.loadParameters(t.id);
+      if (dbParams.length > 0) {
+        params = dbParams.map((p: any, i: number) => ({
+          id: ++paramCounter,
+          paramName: p.paramName,
+          category: p.category,
+          unit: p.unit,
+          normalRange: p.normalRange,
+          resultType: p.resultType,
+        }));
+      }
+    } catch { /* ignore */ }
+    if (params.length === 0) {
+      params = [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }];
+    }
+    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: params });
     setDialogOpen(true);
   };
 
