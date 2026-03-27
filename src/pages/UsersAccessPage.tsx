@@ -349,8 +349,8 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
 
       <AlertDialog open={!!deleteProfile} onOpenChange={() => setDeleteProfile(null)}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Deactivate User</AlertDialogTitle><AlertDialogDescription>Deactivate <strong>{deleteProfile?.full_name}</strong>? They will no longer be able to access the system.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Deactivate</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogHeader><AlertDialogTitle>Delete User Permanently</AlertDialogTitle><AlertDialogDescription>Are you sure you want to permanently delete <strong>{deleteProfile?.full_name}</strong>? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
