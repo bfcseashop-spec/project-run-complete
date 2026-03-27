@@ -141,7 +141,7 @@ const TestNamePage = () => {
 
   const openAdd = () => {
     setEditingTest(null);
-    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true });
+    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true, description: "", isLabTest: true, sampleCollectionRequired: true });
     setDialogOpen(true);
   };
 
