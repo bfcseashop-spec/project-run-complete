@@ -294,7 +294,7 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <Switch checked={u.active} onCheckedChange={() => toggleActive(u)} className="scale-75" />
+                        <Switch checked={u.active} onCheckedChange={() => setToggleProfile(u)} className="scale-75" />
                         <span className={`text-xs font-medium ${u.active ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                           {u.active ? "Active" : "Inactive"}
                         </span>
