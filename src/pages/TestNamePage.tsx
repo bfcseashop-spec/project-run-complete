@@ -70,10 +70,22 @@ const TestNamePage = () => {
     General: "bg-muted text-muted-foreground",
   };
 
-  const [form, setForm] = useState<Omit<TestNameEntry, "id"> & { description: string; isLabTest: boolean; sampleCollectionRequired: boolean }>({
+  interface ReportParameter {
+    id: number;
+    paramName: string;
+    category: string;
+    unit: string;
+    normalRange: string;
+    resultType: "manual" | "dropdown";
+  }
+
+  let paramCounter = 1;
+
+  const [form, setForm] = useState<Omit<TestNameEntry, "id"> & { description: string; isLabTest: boolean; sampleCollectionRequired: boolean; parameters: ReportParameter[] }>({
     name: "", category: "General", sampleType: "blood",
     normalRange: "", unit: "", price: 0, active: true,
     description: "", isLabTest: true, sampleCollectionRequired: true,
+    parameters: [{ id: 1, paramName: "", category: "General", unit: "", normalRange: "", resultType: "manual" }],
   });
 
   const toggleSelect = (id: string) => {
@@ -139,26 +151,36 @@ const TestNamePage = () => {
     return matchSearch && matchCategory;
   });
 
+  const defaultParams = (): ReportParameter[] => [{ id: ++paramCounter, paramName: "", category: "General", unit: "", normalRange: "", resultType: "manual" }];
+
   const openAdd = () => {
     setEditingTest(null);
-    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true, description: "", isLabTest: true, sampleCollectionRequired: true });
+    setForm({ name: "", category: "General", sampleType: "blood", normalRange: "", unit: "", price: 0, active: true, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: defaultParams() });
     setDialogOpen(true);
   };
 
   const openEdit = (t: TestNameEntry) => {
     setEditingTest(t);
-    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true });
+    setForm({ name: t.name, category: t.category, sampleType: t.sampleType, normalRange: t.normalRange, unit: t.unit, price: t.price, active: t.active, description: "", isLabTest: true, sampleCollectionRequired: true, parameters: [{ id: ++paramCounter, paramName: t.name, category: t.category, unit: t.unit, normalRange: t.normalRange, resultType: "manual" }] });
     setDialogOpen(true);
   };
 
   const handleSubmit = () => {
     if (!form.name.trim()) { toast.error("Test name is required"); return; }
+    // Use first parameter's unit/normalRange as the main values
+    const firstParam = form.parameters[0];
+    const saveData = {
+      name: form.name, category: form.category, sampleType: form.sampleType,
+      normalRange: firstParam?.normalRange || form.normalRange,
+      unit: firstParam?.unit || form.unit,
+      price: form.price, active: form.active,
+    };
     if (editingTest) {
-      store.updateTest(editingTest.id, form);
+      store.updateTest(editingTest.id, saveData);
       toast.success("Test updated successfully");
     } else {
-      store.addTest(form);
-      toast.success("Test added successfully");
+      store.addTest(saveData);
+      toast.success(`Test added with ${form.parameters.length} parameter(s)`);
     }
     setDialogOpen(false);
   };
@@ -564,70 +586,98 @@ const TestNamePage = () => {
                 Configure parameters for test result entry. Manual = type value; Dropdown = select from predefined options.
               </p>
 
-              {/* Parameter Card #1 */}
-              <div className="border border-border rounded-xl p-5 space-y-4 bg-muted/20">
-                <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="text-xs font-semibold px-3 py-1">#1</Badge>
-                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+              {form.parameters.map((param, idx) => (
+                <div key={param.id} className="border border-border rounded-xl p-5 space-y-4 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="text-xs font-semibold px-3 py-1">#{idx + 1}</Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      disabled={form.parameters.length <= 1}
+                      onClick={() => setForm({ ...form, parameters: form.parameters.filter(p => p.id !== param.id) })}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="font-medium">Parameter</Label>
-                    <Input value={form.name} readOnly className="bg-muted/50" placeholder="Auto-filled from test name" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="font-medium">Category</Label>
-                    <Select value={form.category} disabled>
-                      <SelectTrigger className="h-10 bg-muted/50"><SelectValue /></SelectTrigger>
-                      <SelectContent>{store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1">
-                      <Label className="font-medium">Unit</Label>
-                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="e.g. mg/dL" className="h-10" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1">
-                      <Label className="font-medium">Normal/Reference Ranges</Label>
-                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Textarea
-                        value={form.normalRange}
-                        onChange={(e) => setForm({ ...form, normalRange: e.target.value })}
-                        rows={3}
-                        placeholder="e.g. Normal&#10;<140mg/dL&#10;Prediabetes&#10;(140-199)mg/dL"
-                        className="text-sm resize-y"
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="font-medium">Parameter</Label>
+                      <Input
+                        value={param.paramName}
+                        onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, paramName: e.target.value } : p) })}
+                        placeholder={idx === 0 ? "Auto-filled from test name" : "Parameter name"}
                       />
-                      <Button type="button" variant="outline" size="sm" className="shrink-0 self-end gap-1 h-8">
-                        <Pencil className="w-3 h-3" /> Manage
-                      </Button>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="font-medium">Category</Label>
+                      <Select
+                        value={param.category}
+                        onValueChange={(v) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, category: v } : p) })}
+                      >
+                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                        <SelectContent>{store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                      </Select>
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="font-medium">Result Type</Label>
-                    <Select defaultValue="manual">
-                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manual">Manual (type value)</SelectItem>
-                        <SelectItem value="dropdown">Dropdown (select)</SelectItem>
-                      </SelectContent>
-                    </Select>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1">
+                        <Label className="font-medium">Unit</Label>
+                        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                      </div>
+                      <Input
+                        value={param.unit}
+                        onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: e.target.value } : p) })}
+                        placeholder="e.g. mg/dL"
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1">
+                        <Label className="font-medium">Normal/Reference Ranges</Label>
+                        <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                      </div>
+                      <div className="flex gap-2">
+                        <Textarea
+                          value={param.normalRange}
+                          onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, normalRange: e.target.value } : p) })}
+                          rows={3}
+                          placeholder={"e.g. Normal\n<140mg/dL\nPrediabetes\n(140-199)mg/dL"}
+                          className="text-sm resize-y"
+                        />
+                        <Button type="button" variant="outline" size="sm" className="shrink-0 self-end gap-1 h-8">
+                          <Pencil className="w-3 h-3" /> Manage
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="font-medium">Result Type</Label>
+                      <Select
+                        value={param.resultType}
+                        onValueChange={(v) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, resultType: v as "manual" | "dropdown" } : p) })}
+                      >
+                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="manual">Manual (type value)</SelectItem>
+                          <SelectItem value="dropdown">Dropdown (select)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
 
               {/* Add Parameter Button */}
-              <Button type="button" variant="outline" className="gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setForm({ ...form, parameters: [...form.parameters, { id: ++paramCounter, paramName: "", category: form.category, unit: "", normalRange: "", resultType: "manual" }] })}
+              >
                 <Plus className="w-4 h-4" /> Add parameter
               </Button>
             </div>
