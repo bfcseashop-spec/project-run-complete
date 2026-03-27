@@ -254,7 +254,7 @@ const TestNamePage = () => {
     { key: "name", header: "Test Name" },
     { key: "category", header: "Category" },
     { key: "sampleType", header: "Sample Type" },
-    { key: "normalRange", header: "Normal Range" },
+    
     { key: "price", header: "Price" },
     { key: "active", header: "Active" },
   ];
