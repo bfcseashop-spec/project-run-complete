@@ -67,7 +67,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff}
 }
 
 /** Open a barcode label print window */
-export function printBarcode(id: string, label?: string) {
+export function printBarcode(id: string, label?: string, testName?: string) {
   const s = getSettings();
   const svg = barcodeSVG(id, 300, 80);
   const win = window.open("", "_blank", "width=450,height=350");
@@ -77,18 +77,20 @@ export function printBarcode(id: string, label?: string) {
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff}
-.label{text-align:center;padding:24px}
-.clinic{font-size:11px;color:#888;margin-bottom:8px}
+.label{text-align:center;padding:24px;border:1px solid #e5e7eb;border-radius:8px;min-width:320px}
+.clinic{font-size:11px;color:#64748b;margin-bottom:10px;letter-spacing:1px}
+.patient-name{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:2px}
+.test-name{font-size:11px;color:#475569;margin-bottom:8px}
 .barcode-svg{margin:8px 0}
 .id-text{font-size:14px;font-weight:700;letter-spacing:2px;margin-top:4px}
-.sub-text{font-size:11px;color:#666;margin-top:2px}
-@media print{@page{size:80mm 40mm;margin:2mm}body{min-height:auto}}
+@media print{@page{size:80mm 50mm;margin:2mm}body{min-height:auto}.label{border:none}}
 </style></head><body>
 <div class="label">
   <div class="clinic">${s.clinicName}</div>
+  ${label ? `<div class="patient-name">${label}</div>` : ""}
+  ${testName ? `<div class="test-name">${testName}</div>` : ""}
   <div class="barcode-svg">${svg}</div>
   <div class="id-text">${id}</div>
-  ${label ? `<div class="sub-text">${label}</div>` : ""}
 </div>
 </body></html>`);
   win.document.close();
