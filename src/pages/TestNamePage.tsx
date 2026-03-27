@@ -479,41 +479,160 @@ const TestNamePage = () => {
 
       {/* Add/Edit Test Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingTest ? "Edit Test" : "Add New Test"}</DialogTitle></DialogHeader>
-          <div className="grid gap-4 py-2">
-            <div>
-              <label className="text-sm font-medium">Test Name *</label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Complete Blood Count" />
+          <div className="space-y-6 py-2">
+            {/* Service/Test Name */}
+            <div className="space-y-1.5">
+              <Label className="font-semibold">Service Name <span className="text-destructive">*</span></Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 2 HABS" className="h-11" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium">Category</label>
+
+            {/* Category + Price */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="font-semibold">Category <span className="text-destructive">*</span></Label>
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                   <SelectContent>{store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-sm font-medium">Sample Type</label>
-                <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{store.sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-                </Select>
+              <div className="space-y-1.5">
+                <Label className="font-semibold">Price <span className="text-destructive">*</span></Label>
+                <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="h-11" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium">Normal Range</label>
-                <Input value={form.normalRange} onChange={(e) => setForm({ ...form, normalRange: e.target.value })} placeholder="e.g. 70-100" />
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label className="font-semibold">Description</Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={3}
+                placeholder="Optional description for this test..."
+              />
+            </div>
+
+            {/* Lab Test Checkbox */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="isLabTest"
+                  checked={form.isLabTest}
+                  onCheckedChange={(v) => setForm({ ...form, isLabTest: !!v })}
+                />
+                <Label htmlFor="isLabTest" className="font-medium cursor-pointer">
+                  Lab Test (creates lab request when added to bill)
+                </Label>
               </div>
-              <div>
-                <label className="text-sm font-medium">Price</label>
-                <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} />
+              {form.isLabTest && (
+                <div className="ml-6 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="sampleRequired"
+                      checked={form.sampleCollectionRequired}
+                      onCheckedChange={(v) => setForm({ ...form, sampleCollectionRequired: !!v })}
+                    />
+                    <Label htmlFor="sampleRequired" className="font-medium cursor-pointer">
+                      Sample collection required
+                    </Label>
+                  </div>
+                  {form.sampleCollectionRequired && (
+                    <div className="space-y-1.5 max-w-[200px]">
+                      <Label className="text-sm">Sample type</Label>
+                      <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
+                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                        <SelectContent>{store.sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-border" />
+
+            {/* Report Parameters Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-semibold text-foreground">Report Parameters</h3>
+                <Settings2 className="w-4 h-4 text-muted-foreground" />
               </div>
+              <p className="text-sm text-muted-foreground -mt-2">
+                Configure parameters for test result entry. Manual = type value; Dropdown = select from predefined options.
+              </p>
+
+              {/* Parameter Card #1 */}
+              <div className="border border-border rounded-xl p-5 space-y-4 bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="text-xs font-semibold px-3 py-1">#1</Badge>
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="font-medium">Parameter</Label>
+                    <Input value={form.name} readOnly className="bg-muted/50" placeholder="Auto-filled from test name" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-medium">Category</Label>
+                    <Select value={form.category} disabled>
+                      <SelectTrigger className="h-10 bg-muted/50"><SelectValue /></SelectTrigger>
+                      <SelectContent>{store.categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1">
+                      <Label className="font-medium">Unit</Label>
+                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                    </div>
+                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="e.g. mg/dL" className="h-10" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1">
+                      <Label className="font-medium">Normal/Reference Ranges</Label>
+                      <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Textarea
+                        value={form.normalRange}
+                        onChange={(e) => setForm({ ...form, normalRange: e.target.value })}
+                        rows={3}
+                        placeholder="e.g. Normal&#10;<140mg/dL&#10;Prediabetes&#10;(140-199)mg/dL"
+                        className="text-sm resize-y"
+                      />
+                      <Button type="button" variant="outline" size="sm" className="shrink-0 self-end gap-1 h-8">
+                        <Pencil className="w-3 h-3" /> Manage
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-medium">Result Type</Label>
+                    <Select defaultValue="manual">
+                      <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Manual (type value)</SelectItem>
+                        <SelectItem value="dropdown">Dropdown (select)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Parameter Button */}
+              <Button type="button" variant="outline" className="gap-1.5">
+                <Plus className="w-4 h-4" /> Add parameter
+              </Button>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit}>{editingTest ? "Update" : "Add Test"}</Button>
           </DialogFooter>
