@@ -42,6 +42,8 @@ const TestNamePage = () => {
   const [newRangeValue, setNewRangeValue] = useState("");
   const [unitSearch, setUnitSearch] = useState("");
   const [unitDropdownOpen, setUnitDropdownOpen] = useState<number | null>(null);
+  const [sampleTypeSearch, setSampleTypeSearch] = useState("");
+  const [sampleTypeOpen, setSampleTypeOpen] = useState(false);
 
   const defaultUnits = [
     "g/dL", "%", "10^6/µL", "10^12/L", "10^3/µL", "10^9/L",
@@ -619,12 +621,50 @@ const TestNamePage = () => {
                     </Label>
                   </div>
                   {form.sampleCollectionRequired && (
-                    <div className="space-y-2 max-w-[220px]">
+                    <div className="space-y-2 max-w-[220px] relative">
                       <Label className="text-xs text-muted-foreground">Sample type</Label>
-                      <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
-                        <SelectTrigger className="h-10 bg-muted/30 border-border/60"><SelectValue /></SelectTrigger>
-                        <SelectContent>{store.sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent>
-                      </Select>
+                      <div className="relative">
+                        <Input
+                          value={sampleTypeOpen ? sampleTypeSearch : form.sampleType}
+                          onChange={(e) => {
+                            setSampleTypeSearch(e.target.value);
+                            setSampleTypeOpen(true);
+                          }}
+                          onFocus={() => {
+                            setSampleTypeSearch(form.sampleType);
+                            setSampleTypeOpen(true);
+                          }}
+                          onBlur={() => setTimeout(() => setSampleTypeOpen(false), 200)}
+                          placeholder="Search sample type..."
+                          className="h-10 bg-muted/30 border-border/60 capitalize"
+                          autoComplete="off"
+                        />
+                        {sampleTypeOpen && (
+                          <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto rounded-md border bg-popover text-popover-foreground shadow-lg">
+                            {store.sampleTypes
+                              .filter(s => s.toLowerCase().includes(sampleTypeSearch.toLowerCase()))
+                              .map(s => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  className={`w-full text-left px-3 py-2 text-sm capitalize cursor-pointer flex items-center gap-2 ${form.sampleType === s ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent hover:text-accent-foreground"}`}
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    setForm({ ...form, sampleType: s });
+                                    setSampleTypeOpen(false);
+                                  }}
+                                >
+                                  {form.sampleType === s && <span className="text-primary">✓</span>}
+                                  {s}
+                                </button>
+                              ))
+                            }
+                            {sampleTypeSearch.trim() && !store.sampleTypes.some(s => s.toLowerCase() === sampleTypeSearch.toLowerCase()) && (
+                              <div className="px-3 py-2 text-xs text-muted-foreground border-t">No match found</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
