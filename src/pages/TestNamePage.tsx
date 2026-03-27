@@ -40,6 +40,20 @@ const TestNamePage = () => {
   const [rangeEntries, setRangeEntries] = useState<{ label: string; value: string }[]>([]);
   const [newRangeLabel, setNewRangeLabel] = useState("");
   const [newRangeValue, setNewRangeValue] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
+  const [unitDropdownOpen, setUnitDropdownOpen] = useState<number | null>(null);
+
+  const defaultUnits = [
+    "mg/dL", "g/dL", "g/L", "mmol/L", "µmol/L", "mEq/L", "IU/L", "U/L",
+    "ng/mL", "ng/dL", "pg/mL", "µg/dL", "µg/L", "mIU/mL", "µIU/mL",
+    "mm/hr", "sec", "cells/µL", "cells/mm³", "x10³/µL", "x10⁶/µL",
+    "10^3/uL", "10^6/uL", "million/cmm", "thou/cmm",
+    "%", "ratio", "mm Hg", "mL/min", "fL", "pg", "g%",
+    "mg/L", "mg/24hr", "mL", "copies/mL", "CFU/mL", "pH",
+    "Positive/Negative", "Reactive/Non-Reactive", "Present/Absent",
+  ];
+  const [customUnits, setCustomUnits] = useState<string[]>([]);
+  const allUnits = [...new Set([...defaultUnits, ...customUnits])];
   const categoryColors: Record<string, string> = {
     Hematology: "bg-destructive/10 text-destructive border-destructive/30",
     Biochemistry: "bg-warning/10 text-warning border-warning/30",
