@@ -69,24 +69,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff}
 /** Open a barcode label print window */
 export function printBarcode(id: string, label?: string, testName?: string) {
   const s = getSettings();
-  const svg = barcodeSVG(id, 300, 80);
-  const win = window.open("", "_blank", "width=450,height=350");
+  const svg = barcodeSVG(id, 200, 50);
+  const win = window.open("", "_blank", "width=350,height=300");
   if (!win) return;
 
   win.document.write(`<!DOCTYPE html><html><head><title>Barcode - ${id}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff}
-.label{text-align:center;padding:24px;border:1px solid #e5e7eb;border-radius:8px;min-width:320px}
-.clinic{font-size:11px;color:#64748b;margin-bottom:10px;letter-spacing:1px}
-.patient-name{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:2px}
-.test-name{font-size:11px;color:#475569;margin-bottom:8px}
-.barcode-svg{margin:8px 0}
-.id-text{font-size:14px;font-weight:700;letter-spacing:2px;margin-top:4px}
-@media print{@page{size:80mm 50mm;margin:2mm}body{min-height:auto}.label{border:none}}
+.label{text-align:center;width:1.5in;height:1.25in;display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px solid #e5e7eb;border-radius:4px;padding:4px 6px;overflow:hidden}
+.patient-name{font-size:9px;font-weight:700;color:#1e293b;margin-bottom:1px;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.test-name{font-size:8px;color:#475569;margin-bottom:3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barcode-svg{margin:2px 0;width:100%}
+.barcode-svg svg{width:100%;height:auto;max-height:40px}
+.id-text{font-size:8px;font-weight:700;letter-spacing:1.5px;margin-top:1px;color:#1e293b}
+@media print{@page{size:1.5in 1.25in;margin:0}body{min-height:auto}.label{border:none;border-radius:0}}
 </style></head><body>
 <div class="label">
-  <div class="clinic">${s.clinicName}</div>
   ${label ? `<div class="patient-name">${label}</div>` : ""}
   ${testName ? `<div class="test-name">${testName}</div>` : ""}
   <div class="barcode-svg">${svg}</div>
