@@ -54,7 +54,7 @@ const TestNamePage = () => {
     "mmHg", "bpm", "breaths/min", "°C", "°F",
     "cells/HPF", "cells/µL", "mEq/L", "mmol/L (electrolytes)",
     "IU", "units (U)", "drops (gtt)", "tablet(s)", "capsule(s)",
-    "mL", "L", "g", "mg", "µg", "mIU/mL",
+    "mL", "L", "g", "mg", "µg", "mIU/mL", "10^3/mm^3",
     "g/L", "sec", "cells/mm³", "ratio", "mL/min", "g%",
     "mg/24hr", "pH", "million/cmm", "thou/cmm",
     "Positive/Negative", "Reactive/Non-Reactive", "Present/Absent",
