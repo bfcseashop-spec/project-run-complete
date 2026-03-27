@@ -31,5 +31,7 @@ export function useTestNameStore() {
     removeCategory: testNameStore.removeCategory,
     addSampleType: testNameStore.addSampleType,
     removeSampleType: testNameStore.removeSampleType,
+    saveParameters: testNameStore.saveParameters,
+    loadParameters: testNameStore.loadParameters,
   };
 }
