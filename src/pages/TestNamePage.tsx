@@ -435,7 +435,7 @@ const TestNamePage = () => {
                     <TableHead>Test Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Sample</TableHead>
-                    <TableHead>Normal Range</TableHead>
+                    
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
