@@ -879,6 +879,56 @@ const TestNamePage = () => {
           <DialogFooter><Button variant="outline" onClick={() => setSampleTypeDialog(false)}>Close</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Manage Normal Ranges Dialog */}
+      <Dialog open={manageRangeParam !== null} onOpenChange={(open) => { if (!open) setManageRangeParam(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Settings2 className="w-5 h-5" /> Manage Reference Ranges</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Add label/value pairs for normal ranges (e.g. "Normal" → "&lt;140mg/dL").</p>
+          <div className="space-y-3 py-2 max-h-[300px] overflow-y-auto">
+            {rangeEntries.map((entry, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <Input
+                  value={entry.label}
+                  onChange={(e) => setRangeEntries(rangeEntries.map((r, i) => i === idx ? { ...r, label: e.target.value } : r))}
+                  placeholder="Label (e.g. Normal)"
+                  className="h-9"
+                />
+                <Input
+                  value={entry.value}
+                  onChange={(e) => setRangeEntries(rangeEntries.map((r, i) => i === idx ? { ...r, value: e.target.value } : r))}
+                  placeholder="Value (e.g. <140mg/dL)"
+                  className="h-9"
+                />
+                <Button
+                  type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0"
+                  disabled={rangeEntries.length <= 1}
+                  onClick={() => setRangeEntries(rangeEntries.filter((_, i) => i !== idx))}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => setRangeEntries([...rangeEntries, { label: "", value: "" }])}>
+            <Plus className="w-3.5 h-3.5" /> Add Range
+          </Button>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageRangeParam(null)}>Cancel</Button>
+            <Button onClick={() => {
+              const text = rangeEntries
+                .filter(e => e.label.trim() || e.value.trim())
+                .map(e => `${e.label}\n${e.value}`)
+                .join("\n");
+              if (manageRangeParam !== null) {
+                setForm({ ...form, parameters: form.parameters.map(p => p.id === manageRangeParam ? { ...p, normalRange: text } : p) });
+              }
+              setManageRangeParam(null);
+              toast.success("Reference ranges updated");
+            }}>Save Ranges</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
