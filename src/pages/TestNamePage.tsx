@@ -808,7 +808,7 @@ const TestNamePage = () => {
           {/* Footer */}
           <div className="px-6 py-4 border-t border-border bg-muted/20 flex justify-end gap-3">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit} className="bg-amber-600 hover:bg-amber-700 text-white min-w-[100px]">{editingTest ? "Update" : "Add Test"}</Button>
+            <Button onClick={handleSubmit} className="min-w-[100px]">{editingTest ? "Update" : "Add Test"}</Button>
           </div>
         </DialogContent>
       </Dialog>
