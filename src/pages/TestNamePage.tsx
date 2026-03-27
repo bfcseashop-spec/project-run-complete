@@ -121,7 +121,7 @@ const TestNamePage = () => {
         <div class="meta">${t.category} · ${t.sampleType.charAt(0).toUpperCase() + t.sampleType.slice(1)} · ${formatPrice(t.price)}</div>
         <div class="barcode-wrap">${svg}</div>
         <div class="code">${t.id}</div>
-        <div class="ref">Ref: ${t.normalRange}</div>
+        
       </div>`;
     }).join("");
     printWin.document.write(`<!DOCTYPE html><html><head><title>Batch Barcodes</title>
