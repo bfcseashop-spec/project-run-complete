@@ -162,7 +162,6 @@ const UserManagementTab = ({ profiles, roles, onRefresh }: { profiles: Profile[]
     else onRefresh();
     setToggleProfile(null);
   };
-  };
 
   const handleCreateUser = async () => {
     if (!createForm.full_name.trim() || !createForm.email.trim() || !createForm.password.trim()) {
