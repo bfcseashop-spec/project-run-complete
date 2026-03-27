@@ -1009,8 +1009,8 @@ const TestNamePage = () => {
             <Button variant="outline" onClick={() => setManageRangeParam(null)}>Cancel</Button>
             <Button onClick={() => {
               const text = rangeEntries
-                .filter(e => e.label.trim() || e.value.trim())
-                .map(e => `${e.label}\n${e.value}`)
+                .filter(e => e.label.trim())
+                .map(e => e.label.trim())
                 .join("\n");
               if (manageRangeParam !== null) {
                 setForm({ ...form, parameters: form.parameters.map(p => p.id === manageRangeParam ? { ...p, normalRange: text } : p) });
