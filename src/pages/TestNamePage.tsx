@@ -653,7 +653,18 @@ const TestNamePage = () => {
                           placeholder={"e.g. Normal\n<140mg/dL\nPrediabetes\n(140-199)mg/dL"}
                           className="text-sm resize-y"
                         />
-                        <Button type="button" variant="outline" size="sm" className="shrink-0 self-end gap-1 h-8">
+                        <Button type="button" variant="outline" size="sm" className="shrink-0 self-end gap-1 h-8"
+                          onClick={() => {
+                            const lines = param.normalRange.split("\n").filter(l => l.trim());
+                            const entries: { label: string; value: string }[] = [];
+                            for (let i = 0; i < lines.length; i += 2) {
+                              entries.push({ label: lines[i] || "", value: lines[i + 1] || "" });
+                            }
+                            if (entries.length === 0) entries.push({ label: "", value: "" });
+                            setRangeEntries(entries);
+                            setManageRangeParam(param.id);
+                          }}
+                        >
                           <Pencil className="w-3 h-3" /> Manage
                         </Button>
                       </div>
