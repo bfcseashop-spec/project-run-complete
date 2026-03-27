@@ -121,7 +121,7 @@ const TestNamePage = () => {
         <div class="meta">${t.category} · ${t.sampleType.charAt(0).toUpperCase() + t.sampleType.slice(1)} · ${formatPrice(t.price)}</div>
         <div class="barcode-wrap">${svg}</div>
         <div class="code">${t.id}</div>
-        <div class="ref">Ref: ${t.normalRange}</div>
+        
       </div>`;
     }).join("");
     printWin.document.write(`<!DOCTYPE html><html><head><title>Batch Barcodes</title>
@@ -233,7 +233,7 @@ const TestNamePage = () => {
       <table>
         <tr><td>Category</td><td>${t.category}</td></tr>
         <tr><td>Sample Type</td><td style="text-transform:capitalize">${t.sampleType}</td></tr>
-        <tr><td>Normal Range</td><td>${t.normalRange}</td></tr>
+        
         <tr><td>Price</td><td>${formatPrice(t.price)}</td></tr>
         <tr><td>Status</td><td>${t.active ? "Active" : "Inactive"}</td></tr>
       </table></body></html>
@@ -254,7 +254,7 @@ const TestNamePage = () => {
     { key: "name", header: "Test Name" },
     { key: "category", header: "Category" },
     { key: "sampleType", header: "Sample Type" },
-    { key: "normalRange", header: "Normal Range" },
+    
     { key: "price", header: "Price" },
     { key: "active", header: "Active" },
   ];
@@ -435,7 +435,7 @@ const TestNamePage = () => {
                     <TableHead>Test Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Sample</TableHead>
-                    <TableHead>Normal Range</TableHead>
+                    
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -454,7 +454,7 @@ const TestNamePage = () => {
                       <TableCell className="font-medium">{t.name}</TableCell>
                       <TableCell><Badge variant="outline" className={categoryColors[t.category] || categoryColors.General}>{t.category}</Badge></TableCell>
                       <TableCell className="capitalize">{t.sampleType}</TableCell>
-                      <TableCell className="text-xs">{t.normalRange}</TableCell>
+                      
                       <TableCell className="text-right font-medium">{formatPrice(t.price)}</TableCell>
                       <TableCell>
                         <Badge
@@ -509,7 +509,7 @@ const TestNamePage = () => {
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div><span className="text-muted-foreground">Category:</span> <Badge variant="outline" className={`ml-1 text-[10px] px-1.5 py-0 ${categoryColors[t.category] || categoryColors.General}`}>{t.category}</Badge></div>
                       <div><span className="text-muted-foreground">Sample:</span> <span className="font-medium capitalize">{t.sampleType}</span></div>
-                      <div><span className="text-muted-foreground">Range:</span> <span className="font-medium">{t.normalRange}</span></div>
+                      
                       <div><span className="text-muted-foreground">Price:</span> <span className="font-medium text-primary">{formatPrice(t.price)}</span></div>
                     </div>
                     <div className="flex justify-end gap-0.5 pt-1 border-t border-border">
