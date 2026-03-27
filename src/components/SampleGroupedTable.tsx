@@ -248,7 +248,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                           <div className="flex items-center justify-end gap-0.5">
                             <ActionButton icon={Eye} title={`View ${r.testName}`} onClick={() => onView(r)} />
                             <ActionButton icon={Pencil} title={`Edit ${r.testName}`} onClick={() => onEdit(r)} />
-                            <ActionButton icon={BarcodeIcon} title="Print Barcode" onClick={() => printBarcode(r.id, r.patient)} />
+                            <ActionButton icon={BarcodeIcon} title="Print Barcode" onClick={() => printBarcode(r.id, r.patient, r.testName)} />
                             <ActionButton icon={Printer} title="Print Report" onClick={() => handlePrint(r)} className="text-primary" />
                             {(r.status === "pending" || r.status === "collected") && (
                               <ActionButton icon={SendHorizonal} title="Send to Lab" onClick={() => onConfirm(r)} className="text-primary" />
