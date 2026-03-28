@@ -75,7 +75,7 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
 .bottom{padding:14px 20px}
 .bottom .note{font-size:12px;color:#374151;margin-bottom:6px}
 .bottom .note strong{color:#1a1a1a}
-.sigs{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}
+.sigs{margin-top:30px}
 .sig{text-align:center}
 .sig .line{border-top:2px solid #374151;margin-top:40px;padding-top:6px}
 .sig .name{font-size:12px;font-weight:700}
@@ -127,8 +127,8 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
   <div class="bottom">
     ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
     <div class="sigs">
-      <div class="sig"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
-      <div class="sig"><div class="end">****End of Report****</div></div>
+      <div class="sig" style="text-align:left;max-width:250px"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
+      <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
     </div>
   </div>
 </div></body></html>`;
@@ -294,13 +294,13 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
             )}
 
             {/* Signatures - matching reference: Prepared by | End | Verified by */}
-            <div className="grid grid-cols-2 gap-5 px-5 mt-8 mb-3">
-              <div className="text-center">
+            <div className="px-5 mt-8 mb-3">
+              <div className="max-w-[200px]">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
                 <p className="text-[12px] font-bold">{report.technician || "Lab Technologist"}</p>
                 <p className="text-[10px] text-gray-500">Prepared by</p>
               </div>
-              <div className="flex items-end justify-center">
+              <div className="text-center mt-5">
                 <p className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</p>
               </div>
             </div>
