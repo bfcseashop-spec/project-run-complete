@@ -112,6 +112,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     healthPackages: "প্যাকেজ",
     inventoryList: "ইনভেন্টরি তালিকা",
     labTechnologists: "ল্যাব টেকনোলজিস্ট",
+    patientLookup: "রোগী খুঁজুন",
   },
 };
 
