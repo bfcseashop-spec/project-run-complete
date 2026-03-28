@@ -95,6 +95,7 @@ const LabReportsPage = () => {
     return Array.from(merged).filter(Boolean).sort();
   }, [configuredSampleTypes, activeTests, reports, form.sampleType]);
 
+  const openAdd = () => {
     setEditReport(null);
     setForm({
       ...emptyForm,
