@@ -356,7 +356,7 @@ const SampleCollectionPage = () => {
             <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Sample Type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+              {availableSampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
