@@ -448,9 +448,14 @@ const TestNamePage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               {selectedIds.size > 0 && (
-                <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
-                  <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
-                </Button>
+                <>
+                  <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
+                    <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
+                  </Button>
+                  <Button onClick={() => setBulkDeleteOpen(true)} size="sm" variant="destructive">
+                    <Trash2 className="w-4 h-4 mr-1" /> Delete ({selectedIds.size})
+                  </Button>
+                </>
               )}
             </div>
           </div>
