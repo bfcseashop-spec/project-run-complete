@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -29,37 +29,15 @@ import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
 import { addSampleRecords } from "@/data/sampleStore";
 import { getPatients } from "@/data/patientStore";
-
-interface Prescription {
-  id: string;
-  patient: string;
-  doctor: string;
-  doctorSpecialization?: string;
-  date: string;
-  medicines: string;
-  age?: string;
-  gender?: string;
-  notes?: string;
-  medicineDetails?: { name: string; dosage: string; frequency: string; duration: string }[];
-  injections?: InjectionEntry[];
-  tests?: SelectedTest[];
-  chiefComplaint?: string;
-  onExamination?: string;
-  advices?: string;
-  followUp?: string;
-}
-
-const initialPrescriptions: Prescription[] = [
-  { id: "RX-201", patient: "Sarah Johnson", doctor: "Dr. Sarah Smith", doctorSpecialization: "General Physician", date: "2026-03-19", medicines: "Amoxicillin 500mg, Paracetamol 650mg", age: "34", gender: "Female", medicineDetails: [{ name: "Amoxicillin 500mg", dosage: "1 cap", frequency: "Thrice daily", duration: "7 days" }, { name: "Paracetamol 650mg", dosage: "1 tab", frequency: "As needed", duration: "5 days" }], injections: [{ name: "Ceftriaxone 1g", dosage: "1 vial", route: "IV", frequency: "Twice daily" }], tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", sampleType: "blood", price: 350 }, { id: "TN-015", name: "ESR", category: "Hematology", sampleType: "blood", price: 100 }] },
-  { id: "RX-202", patient: "Michael Chen", doctor: "Dr. Raj Patel", doctorSpecialization: "Diabetologist", date: "2026-03-19", medicines: "Metformin 500mg, Glimepiride 2mg", age: "56", gender: "Male", medicineDetails: [{ name: "Metformin 500mg", dosage: "1 tab", frequency: "Twice daily", duration: "30 days" }, { name: "Glimepiride 2mg", dosage: "1 tab", frequency: "Once daily", duration: "30 days" }], injections: [{ name: "Insulin (Regular) 10 IU", dosage: "10 IU", route: "SC", frequency: "Twice daily" }], tests: [{ id: "TN-002", name: "Blood Sugar (Fasting)", category: "Biochemistry", sampleType: "blood", price: 150 }, { id: "TN-003", name: "Blood Sugar (PP)", category: "Biochemistry", sampleType: "blood", price: 150 }, { id: "TN-006", name: "HbA1c", category: "Biochemistry", sampleType: "blood", price: 500 }, { id: "TN-004", name: "Lipid Profile", category: "Biochemistry", sampleType: "blood", price: 800 }, { id: "TN-008", name: "Kidney Function Test", category: "Biochemistry", sampleType: "blood", price: 800 }, { id: "TN-007", name: "Liver Function Test", category: "Biochemistry", sampleType: "blood", price: 900 }, { id: "TN-009", name: "Urine Routine", category: "Urology", sampleType: "urine", price: 200 }] },
-  { id: "RX-203", patient: "Emily Davis", doctor: "Dr. Emily Williams", doctorSpecialization: "Orthopedic Surgeon", date: "2026-03-18", medicines: "Ibuprofen 400mg, Diclofenac 50mg", age: "28", gender: "Female", medicineDetails: [{ name: "Ibuprofen 400mg", dosage: "1 tab", frequency: "Twice daily", duration: "5 days" }] },
-  { id: "RX-204", patient: "James Wilson", doctor: "Dr. Mark Brown", doctorSpecialization: "Dermatologist", date: "2026-03-18", medicines: "Cetirizine 10mg, Prednisolone 5mg", age: "45", gender: "Male", medicineDetails: [{ name: "Cetirizine 10mg", dosage: "1 tab", frequency: "Once daily", duration: "10 days" }, { name: "Prednisolone 5mg", dosage: "2 tab", frequency: "Once daily", duration: "5 days" }] },
-];
+import {
+  getPrescriptions, subscribePrescriptions, addPrescription,
+  updatePrescription, deletePrescription, type Prescription,
+} from "@/data/prescriptionStore";
 
 const PrescriptionPage = () => {
   useSettings();
   const s = getSettings();
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>(initialPrescriptions);
+  const prescriptions = useSyncExternalStore(subscribePrescriptions, getPrescriptions);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRx, setViewRx] = useState<Prescription | null>(null);
   const [editRx, setEditRx] = useState<Prescription | null>(null);
@@ -84,66 +62,56 @@ const PrescriptionPage = () => {
     followUp: rx.followUp || "",
   });
 
-  const handleSubmit = (data: PrescriptionFormData) => {
+  const handleSubmit = async (data: PrescriptionFormData) => {
     const medNames = data.medicines.filter((m) => m.name).map((m) => m.name).join(", ");
     const injNames = data.injections.filter((inj) => inj.name).map((inj) => inj.name).join(", ");
     const allMeds = [medNames, injNames].filter(Boolean).join(", ");
+    const patient = getPatients().find((p) => p.name === data.patient);
+    const patientId = patient?.id || "";
 
     if (editRx) {
-      setPrescriptions((prev) =>
-        prev.map((p) =>
-          p.id === editRx.id
-            ? {
-                ...p,
-                patient: data.patient,
-                doctor: data.doctor,
-                doctorSpecialization: data.doctorSpecialization,
-                medicines: allMeds,
-                age: data.age,
-                gender: data.gender,
-                notes: data.notes,
-                medicineDetails: data.medicines.filter((m) => m.name),
-                injections: data.injections.filter((inj) => inj.name),
-                tests: data.tests,
-                chiefComplaint: data.chiefComplaint,
-                onExamination: data.onExamination,
-                advices: data.advices,
-                followUp: data.followUp,
-              }
-            : p
-        )
-      );
+      await updatePrescription(editRx.id, {
+        patient: data.patient,
+        patientId,
+        doctor: data.doctor,
+        doctorSpecialization: data.doctorSpecialization,
+        medicines: allMeds,
+        age: data.age,
+        gender: data.gender,
+        notes: data.notes,
+        medicineDetails: data.medicines.filter((m) => m.name),
+        injections: data.injections.filter((inj) => inj.name),
+        tests: data.tests,
+        chiefComplaint: data.chiefComplaint,
+        onExamination: data.onExamination,
+        advices: data.advices,
+        followUp: data.followUp,
+      });
       setEditRx(null);
       toast.success("Prescription updated");
     } else {
-      const nextId = `RX-${200 + prescriptions.length + 1}`;
-      setPrescriptions((prev) => [
-        {
-          id: nextId,
-          patient: data.patient,
-          doctor: data.doctor,
-          doctorSpecialization: data.doctorSpecialization,
-          date: new Date().toISOString().split("T")[0],
-          medicines: allMeds,
-          age: data.age,
-          gender: data.gender,
-          notes: data.notes,
-          medicineDetails: data.medicines.filter((m) => m.name),
-          injections: data.injections.filter((inj) => inj.name),
-          tests: data.tests,
-          chiefComplaint: data.chiefComplaint,
-          onExamination: data.onExamination,
-          advices: data.advices,
-          followUp: data.followUp,
-        },
-        ...prev,
-      ]);
+      const newRx = await addPrescription({
+        patient: data.patient,
+        patientId,
+        age: data.age,
+        gender: data.gender,
+        doctor: data.doctor,
+        doctorSpecialization: data.doctorSpecialization,
+        date: new Date().toISOString().split("T")[0],
+        medicines: allMeds,
+        notes: data.notes,
+        medicineDetails: data.medicines.filter((m) => m.name),
+        injections: data.injections.filter((inj) => inj.name),
+        tests: data.tests,
+        chiefComplaint: data.chiefComplaint,
+        onExamination: data.onExamination,
+        advices: data.advices,
+        followUp: data.followUp,
+      });
       toast.success("Prescription created");
 
       // Auto-send prescribed tests to Sample Collection
       if (data.tests.length > 0) {
-        const patient = getPatients().find((p) => p.name === data.patient);
-        const patientId = patient?.id || "";
         const gender: "Female" | "Male" | "Other" = data.gender === "Female" ? "Female" : data.gender === "Other" ? "Other" : "Male";
         const today = new Date().toISOString().split("T")[0];
 
@@ -163,7 +131,7 @@ const PrescriptionPage = () => {
           storageTemp: "room" as const,
           barcode: "",
           rejectionReason: "",
-          notes: `From Prescription ${nextId}`,
+          notes: `From Prescription ${newRx.id}`,
         }));
 
         addSampleRecords(sampleRecords).then(() => {
@@ -186,9 +154,9 @@ const PrescriptionPage = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteRx) {
-      setPrescriptions((prev) => prev.filter((p) => p.id !== deleteRx.id));
+      await deletePrescription(deleteRx.id);
       setDeleteRx(null);
       toast.success("Prescription deleted");
     }
@@ -466,13 +434,26 @@ const PrescriptionPage = () => {
   const handleImportRx = async (file: File) => {
     const rows = await rxToolbar.handleImport(file);
     if (rows.length > 0) {
-      const newRx: Prescription[] = rows.map((row, i) => ({
-        id: `RX-${200 + prescriptions.length + i + 1}`,
-        patient: String(row.patient || ""), doctor: String(row.doctor || ""),
-        date: String(row.date || new Date().toISOString().split("T")[0]),
-        medicines: String(row.medicines || ""),
-      }));
-      setPrescriptions((prev) => [...newRx, ...prev]);
+      for (const row of rows) {
+        await addPrescription({
+          patient: String(row.patient || ""),
+          patientId: "",
+          age: String(row.age || ""),
+          gender: String(row.gender || ""),
+          doctor: String(row.doctor || ""),
+          doctorSpecialization: "",
+          date: String(row.date || new Date().toISOString().split("T")[0]),
+          medicines: String(row.medicines || ""),
+          medicineDetails: [],
+          injections: [],
+          tests: [],
+          chiefComplaint: "",
+          onExamination: "",
+          advices: "",
+          followUp: "",
+          notes: "",
+        });
+      }
     }
   };
 

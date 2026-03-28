@@ -668,6 +668,69 @@ export type Database = {
         }
         Relationships: []
       }
+      prescriptions: {
+        Row: {
+          advices: string
+          age: string
+          chief_complaint: string
+          created_at: string
+          date: string
+          doctor: string
+          doctor_specialization: string
+          follow_up: string
+          gender: string
+          id: string
+          injections: Json
+          medicine_details: Json
+          medicines: string
+          notes: string
+          on_examination: string
+          patient: string
+          patient_id: string
+          tests: Json
+        }
+        Insert: {
+          advices?: string
+          age?: string
+          chief_complaint?: string
+          created_at?: string
+          date?: string
+          doctor?: string
+          doctor_specialization?: string
+          follow_up?: string
+          gender?: string
+          id: string
+          injections?: Json
+          medicine_details?: Json
+          medicines?: string
+          notes?: string
+          on_examination?: string
+          patient?: string
+          patient_id?: string
+          tests?: Json
+        }
+        Update: {
+          advices?: string
+          age?: string
+          chief_complaint?: string
+          created_at?: string
+          date?: string
+          doctor?: string
+          doctor_specialization?: string
+          follow_up?: string
+          gender?: string
+          id?: string
+          injections?: Json
+          medicine_details?: Json
+          medicines?: string
+          notes?: string
+          on_examination?: string
+          patient?: string
+          patient_id?: string
+          tests?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           active: boolean | null
