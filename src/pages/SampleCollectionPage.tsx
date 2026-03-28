@@ -145,6 +145,7 @@ const SampleCollectionPage = () => {
       collectionTime: confirmRecord.collectionTime || now.toTimeString().slice(0, 5),
     });
     // Create a pending lab report
+    const updated = { ...confirmRecord, status: "collected" as const };
     const matchedTest = activeTests.find(t => t.name === confirmRecord.testName);
     const resolvedSampleType = updated.sampleType || matchedTest?.sampleType || "other";
     createReportFromSample({
