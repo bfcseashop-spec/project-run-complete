@@ -723,54 +723,68 @@ const TestNamePage = () => {
                         </div>
                       </div>
 
-                      {/* Unit + Normal Range + Result Type row */}
-                      <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-4">
-                        <div className="space-y-1.5 relative">
+                      {/* Unit + Result Type row */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
                           <div className="flex items-center gap-1">
                             <Label className="text-xs font-semibold text-foreground">Unit</Label>
                             <HelpCircle className="w-3 h-3 text-muted-foreground" />
                           </div>
-                          <div className="relative">
-                            <Input
-                              value={unitDropdownOpen === param.id ? unitSearch : param.unit}
-                              onChange={(e) => {
-                                setUnitSearch(e.target.value);
-                                setUnitDropdownOpen(param.id);
-                              }}
-                              onFocus={() => {
-                                setUnitSearch(param.unit);
-                                setUnitDropdownOpen(param.id);
-                              }}
-                              onBlur={() => setTimeout(() => setUnitDropdownOpen(null), 200)}
-                              placeholder="e.g. mg/dL"
-                              className="h-10 bg-muted/20 border-border/60"
-                              autoComplete="off"
-                            />
-                            {unitDropdownOpen === param.id && (
-                              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-lg">
+                          <Popover open={unitDropdownOpen === param.id} onOpenChange={(open) => {
+                            if (open) {
+                              setUnitSearch(param.unit || "");
+                              setUnitDropdownOpen(param.id);
+                            } else {
+                              setUnitDropdownOpen(null);
+                            }
+                          }}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-start h-10 font-normal bg-muted/20 border-border/60 text-sm"
+                              >
+                                {param.unit || <span className="text-muted-foreground">Select unit...</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[280px] p-0" align="start" side="bottom" sideOffset={4}>
+                              <div className="p-2 border-b border-border">
+                                <div className="flex items-center gap-2 px-2">
+                                  <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                                  <input
+                                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                    placeholder="Search or type unit..."
+                                    value={unitSearch}
+                                    onChange={(e) => setUnitSearch(e.target.value)}
+                                    autoFocus
+                                  />
+                                </div>
+                              </div>
+                              <div className="max-h-[200px] overflow-y-auto p-1">
                                 {allUnits
                                   .filter(u => u.toLowerCase().includes(unitSearch.toLowerCase()))
                                   .map(u => (
                                     <button
                                       key={u}
                                       type="button"
-                                      className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
+                                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-left text-sm transition-colors ${
+                                        param.unit === u ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent hover:text-accent-foreground"
+                                      }`}
+                                      onClick={() => {
                                         setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: u } : p) });
                                         setUnitDropdownOpen(null);
                                       }}
                                     >
-                                      {u}
+                                      {param.unit === u && <Check className="w-3.5 h-3.5 shrink-0" />}
+                                      <span className={param.unit === u ? "" : "pl-5"}>{u}</span>
                                     </button>
                                   ))
                                 }
                                 {unitSearch.trim() && !allUnits.some(u => u.toLowerCase() === unitSearch.toLowerCase()) && (
                                   <button
                                     type="button"
-                                    className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer border-t text-primary font-medium"
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
+                                    className="w-full text-left px-3 py-1.5 rounded-md text-sm hover:bg-accent hover:text-accent-foreground border-t text-primary font-medium mt-1 pt-2"
+                                    onClick={() => {
                                       const newUnit = unitSearch.trim();
                                       setCustomUnits(prev => [...prev, newUnit]);
                                       setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, unit: newUnit } : p) });
@@ -782,37 +796,8 @@ const TestNamePage = () => {
                                   </button>
                                 )}
                               </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-1">
-                            <Label className="text-xs font-semibold text-foreground">Normal/Reference Ranges</Label>
-                            <HelpCircle className="w-3 h-3 text-muted-foreground" />
-                          </div>
-                          <div className="flex gap-2 items-end">
-                            <Textarea
-                              value={param.normalRange}
-                              onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, normalRange: e.target.value } : p) })}
-                              rows={2}
-                              placeholder={"e.g. Normal\n<140 mg/dL"}
-                              className="text-sm resize-y bg-muted/20 border-border/60 min-h-[60px]"
-                            />
-                            <Button type="button" variant="outline" size="sm" className="shrink-0 gap-1 h-8 text-xs"
-                              onClick={() => {
-                                const lines = param.normalRange.split("\n").filter(l => l.trim());
-                                const entries: { label: string; value: string }[] = [];
-                                for (let i = 0; i < lines.length; i++) {
-                                  entries.push({ label: lines[i] || "", value: "" });
-                                }
-                                if (entries.length === 0) entries.push({ label: "", value: "" });
-                                setRangeEntries(entries);
-                                setManageRangeParam(param.id);
-                              }}
-                            >
-                              <Pencil className="w-3 h-3" /> Manage
-                            </Button>
-                          </div>
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="space-y-1.5">
                           <Label className="text-xs font-semibold text-foreground">Result Type</Label>
@@ -826,6 +811,37 @@ const TestNamePage = () => {
                               <SelectItem value="dropdown">Dropdown (select)</SelectItem>
                             </SelectContent>
                           </Select>
+                        </div>
+                      </div>
+
+                      {/* Normal/Reference Ranges row */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-1">
+                          <Label className="text-xs font-semibold text-foreground">Normal/Reference Ranges</Label>
+                          <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                        <div className="flex gap-2 items-end">
+                          <Textarea
+                            value={param.normalRange}
+                            onChange={(e) => setForm({ ...form, parameters: form.parameters.map(p => p.id === param.id ? { ...p, normalRange: e.target.value } : p) })}
+                            rows={2}
+                            placeholder={"e.g. Normal\n<140 mg/dL"}
+                            className="text-sm resize-y bg-muted/20 border-border/60 min-h-[60px]"
+                          />
+                          <Button type="button" variant="outline" size="sm" className="shrink-0 gap-1 h-8 text-xs"
+                            onClick={() => {
+                              const lines = param.normalRange.split("\n").filter(l => l.trim());
+                              const entries: { label: string; value: string }[] = [];
+                              for (let i = 0; i < lines.length; i++) {
+                                entries.push({ label: lines[i] || "", value: "" });
+                              }
+                              if (entries.length === 0) entries.push({ label: "", value: "" });
+                              setRangeEntries(entries);
+                              setManageRangeParam(param.id);
+                            }}
+                          >
+                            <Pencil className="w-3 h-3" /> Manage
+                          </Button>
                         </div>
                       </div>
                     </div>
