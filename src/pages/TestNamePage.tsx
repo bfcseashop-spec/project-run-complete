@@ -249,6 +249,15 @@ const TestNamePage = () => {
     toast.success("Test removed");
   };
 
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await store.removeTest(id);
+    }
+    toast.success(`${selectedIds.size} test(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   const handlePrint = (t: TestNameEntry) => {
     const printWin = window.open("", "_blank", "width=400,height=300");
     if (!printWin) return;
