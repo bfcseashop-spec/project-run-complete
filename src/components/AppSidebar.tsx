@@ -91,7 +91,7 @@ const menuSections: MenuSection[] = [
 const AppSidebar = () => {
   const { collapsed, toggle, isMobile, mobileOpen, setMobileOpen } = useSidebarState();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests", "/health-services", "/medicine"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["/opd", "/lab-tests", "/health-services", "/medicine"]);
   const { settings } = useSettings();
   const lang = settings.language;
   const { can, isAdmin } = usePermissions();

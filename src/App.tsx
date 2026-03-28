@@ -113,6 +113,7 @@ const App = () => (
                 <Route path="/billing/drafts" element={<PermissionGate module="Billing"><DraftsPage /></PermissionGate>} />
                 <Route path="/medicine" element={<PermissionGate module="Medicine"><MedicinePage /></PermissionGate>} />
                 <Route path="/opd" element={<PermissionGate module="OPD Section"><OPDPage /></PermissionGate>} />
+                <Route path="/opd/register" element={<PermissionGate module="OPD Section"><RegisterPatientPage /></PermissionGate>} />
                 <Route path="/patient-lookup" element={<PermissionGate module="OPD Section"><PatientLookupPage /></PermissionGate>} />
                 <Route path="/prescriptions" element={<PermissionGate module="Prescriptions"><PrescriptionPage /></PermissionGate>} />
                 <Route path="/doctors" element={<PermissionGate module="Doctors"><DoctorPage /></PermissionGate>} />
