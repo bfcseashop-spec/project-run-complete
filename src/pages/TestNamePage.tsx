@@ -761,7 +761,7 @@ const TestNamePage = () => {
                                   />
                                 </div>
                               </div>
-                              <div className="max-h-[200px] overflow-y-auto p-1">
+                              <div className="max-h-[200px] overflow-y-auto p-1 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
                                 {allUnits
                                   .filter(u => u.toLowerCase().includes(unitSearch.toLowerCase()))
                                   .map(u => (
