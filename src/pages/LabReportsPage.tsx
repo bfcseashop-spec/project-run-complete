@@ -941,7 +941,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   </div>
                   {/* Unit */}
                   <div className="col-span-2 pr-2">
-                    <span className="text-sm text-muted-foreground">%</span>
+                    <span className="text-sm text-muted-foreground break-words">{inv.unit || "—"}</span>
                   </div>
                   {/* Normal/Reference Range */}
                   <div className="col-span-3">
