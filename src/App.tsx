@@ -42,6 +42,7 @@ const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
 const LazyInvestments = lazy(() => import("@/pages/InvestmentsPage"));
 const LabTechnologistsPage = lazy(() => import("@/pages/LabTechnologistsPage"));
 const PatientLookupPage = lazy(() => import("@/pages/PatientLookupPage"));
+const RegisterPatientPage = lazy(() => import("@/pages/RegisterPatientPage"));
 
 const queryClient = new QueryClient();
 
