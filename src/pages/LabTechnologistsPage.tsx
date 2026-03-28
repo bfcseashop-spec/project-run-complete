@@ -24,6 +24,29 @@ const roleColors: Record<StaffRole, string> = {
 
 const staffRoles: StaffRole[] = ["Lab Technologist", "Nurse", "Phlebotomist", "Lab Assistant"];
 
+interface ParsedStaff {
+  name: string;
+  role: StaffRole;
+  degree: string;
+  company: string;
+  expertise: string;
+}
+
+// Store format: "Name | Role | Degree | Company | Expertise"
+const parseStaff = (raw: string): ParsedStaff => {
+  const parts = raw.split(" | ");
+  return {
+    name: parts[0] || "",
+    role: (parts[1] as StaffRole) || "Lab Technologist",
+    degree: parts[2] || "",
+    company: parts[3] || "",
+    expertise: parts[4] || "",
+  };
+};
+
+const encodeStaff = (s: ParsedStaff) =>
+  `${s.name} | ${s.role} | ${s.degree} | ${s.company} | ${s.expertise}`;
+
 const LabTechnologistsPage = () => {
   const technicians = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const [search, setSearch] = useState("");
@@ -32,39 +55,50 @@ const LabTechnologistsPage = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
   const [formRole, setFormRole] = useState<StaffRole>("Lab Technologist");
+  const [formDegree, setFormDegree] = useState("");
+  const [formCompany, setFormCompany] = useState("");
+  const [formExpertise, setFormExpertise] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Parse role from name (stored as "Name | Role")
-  const parseName = (raw: string) => {
-    const parts = raw.split(" | ");
-    return { name: parts[0], role: (parts[1] as StaffRole) || "Lab Technologist" };
-  };
-
   const filtered = technicians.filter((t) => {
-    const { name, role } = parseName(t.name);
+    const s = parseStaff(t.name);
     const q = search.toLowerCase();
-    return name.toLowerCase().includes(q) || role.toLowerCase().includes(q);
+    return s.name.toLowerCase().includes(q) || s.role.toLowerCase().includes(q) ||
+      s.degree.toLowerCase().includes(q) || s.company.toLowerCase().includes(q) ||
+      s.expertise.toLowerCase().includes(q);
   });
 
   const openAdd = () => {
     setEditId(null);
     setFormName("");
     setFormRole("Lab Technologist");
+    setFormDegree("");
+    setFormCompany("");
+    setFormExpertise("");
     setDialogOpen(true);
   };
 
   const openEdit = (t: typeof technicians[0]) => {
-    const { name, role } = parseName(t.name);
+    const s = parseStaff(t.name);
     setEditId(t.id);
-    setFormName(name);
-    setFormRole(role);
+    setFormName(s.name);
+    setFormRole(s.role);
+    setFormDegree(s.degree);
+    setFormCompany(s.company);
+    setFormExpertise(s.expertise);
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
     if (!formName.trim()) return;
     setLoading(true);
-    const storedValue = `${formName.trim()} | ${formRole}`;
+    const storedValue = encodeStaff({
+      name: formName.trim(),
+      role: formRole,
+      degree: formDegree.trim(),
+      company: formCompany.trim(),
+      expertise: formExpertise.trim(),
+    });
     try {
       if (editId) {
         await updateTechnician(editId, storedValue);
@@ -95,9 +129,9 @@ const LabTechnologistsPage = () => {
 
   const stats = {
     total: technicians.length,
-    technologists: technicians.filter(t => parseName(t.name).role === "Lab Technologist").length,
-    nurses: technicians.filter(t => parseName(t.name).role === "Nurse").length,
-    others: technicians.filter(t => !["Lab Technologist", "Nurse"].includes(parseName(t.name).role)).length,
+    technologists: technicians.filter(t => parseStaff(t.name).role === "Lab Technologist").length,
+    nurses: technicians.filter(t => parseStaff(t.name).role === "Nurse").length,
+    others: technicians.filter(t => !["Lab Technologist", "Nurse"].includes(parseStaff(t.name).role)).length,
   };
 
   return (
@@ -132,7 +166,7 @@ const LabTechnologistsPage = () => {
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or role..."
+            placeholder="Search by name, role, degree..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-9"
@@ -152,6 +186,9 @@ const LabTechnologistsPage = () => {
               <TableHead className="w-12">#</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Degree</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Expertise</TableHead>
               <TableHead>Added</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -159,22 +196,25 @@ const LabTechnologistsPage = () => {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   No staff members found
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((t, i) => {
-                const { name, role } = parseName(t.name);
+                const s = parseStaff(t.name);
                 return (
                   <TableRow key={t.id}>
                     <TableCell className="text-muted-foreground text-xs">{i + 1}</TableCell>
-                    <TableCell className="font-medium">{name}</TableCell>
+                    <TableCell className="font-medium">{s.name}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${roleColors[role] || "bg-muted text-muted-foreground"}`}>
-                        {role}
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${roleColors[s.role] || "bg-muted text-muted-foreground"}`}>
+                        {s.role}
                       </span>
                     </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.degree || "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.company || "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.expertise || "—"}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(t.created_at).toLocaleDateString()}
                     </TableCell>
@@ -209,7 +249,6 @@ const LabTechnologistsPage = () => {
                 placeholder="Enter full name..."
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSave()}
               />
             </div>
             <div>
@@ -224,6 +263,31 @@ const LabTechnologistsPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Degree</label>
+              <Input
+                placeholder="e.g. BSc, DMLT, GNM..."
+                value={formDegree}
+                onChange={(e) => setFormDegree(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Company / Institution</label>
+              <Input
+                placeholder="e.g. Prime Poly Clinic..."
+                value={formCompany}
+                onChange={(e) => setFormCompany(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Expertise</label>
+              <Input
+                placeholder="e.g. Hematology, Biochemistry..."
+                value={formExpertise}
+                onChange={(e) => setFormExpertise(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              />
             </div>
           </div>
           <DialogFooter>
