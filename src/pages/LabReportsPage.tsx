@@ -486,7 +486,7 @@ const LabReportsPage = () => {
       </div>
 
       {reportToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
       )}
