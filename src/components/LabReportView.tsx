@@ -126,9 +126,23 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
   </table>
   <div class="bottom">
     ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
-    <div class="sigs" style="display:flex;flex-direction:column;align-items:flex-end">
-      <div class="sig" style="text-align:center;max-width:250px"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
-    </div>
+    ${(() => {
+      const parts = (report.technician || "Lab Technologist").split(" | ");
+      const name = parts[0] || "Lab Technologist";
+      const degree = parts[2] || "";
+      const role = parts[1] || "Lab Technologist";
+      const company = parts[3] || "";
+      return `<div class="sigs" style="display:flex;flex-direction:column;align-items:flex-end">
+        <div class="sig" style="text-align:center;max-width:280px">
+          <div class="line"></div>
+          <div class="name" style="font-weight:bold;font-size:13px">${name}</div>
+          ${degree ? `<div style="font-size:10px;color:#555;margin-top:1px">${degree}</div>` : ""}
+          <div style="font-size:10px;color:#555;margin-top:1px">${role}</div>
+          ${company ? `<div style="font-size:10px;color:#555;margin-top:1px">${company}</div>` : ""}
+          <div class="role" style="margin-top:4px;font-size:10px;color:#888">Prepared by</div>
+        </div>
+      </div>`;
+    })()}
     <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
   </div>
 </div></body></html>`;
