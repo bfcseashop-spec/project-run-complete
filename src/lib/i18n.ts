@@ -15,7 +15,8 @@ type TranslationKey =
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
   | "frequency" | "duration" | "dosage" | "injection" | "systemManage"
-  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists" | "patientLookup";
+  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists" | "patientLookup"
+  | "patientList" | "registerPatient";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {

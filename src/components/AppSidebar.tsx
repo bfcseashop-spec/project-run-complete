@@ -30,6 +30,8 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)",
         subItems: [
+          { icon: ClipboardCheck, labelKey: "patientList", path: "/opd" },
+          { icon: Plus, labelKey: "registerPatient", path: "/opd/register" },
           { icon: Search, labelKey: "patientLookup", path: "/patient-lookup" },
         ],
       },
