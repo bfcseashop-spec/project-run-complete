@@ -42,111 +42,177 @@ function buildReportHTML(report: LabReport): string {
   return `<!DOCTYPE html><html><head><title>Lab Report - ${report.id}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;color:#1a1a1a;background:#fff;font-size:13px}
-.page{max-width:820px;margin:0 auto;border:1px solid #d1d5db}
-.header{background:linear-gradient(135deg,#1e40af,#2563eb,#3b82f6);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:12px}
-.logo{width:50px;height:50px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;background:#fff;font-size:12.5px;line-height:1.5}
+.page{max-width:800px;margin:0 auto;position:relative;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Watermark ── */
+.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.035;pointer-events:none;z-index:0}
+.watermark img{width:280px;height:280px;object-fit:contain}
+
+/* ── Header ── */
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 12px;border-bottom:3px solid #0f766e}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid #e2e8f0}
 .logo img{width:100%;height:100%;object-fit:contain}
-.brand h1{font-size:22px;font-weight:900;color:#fff}
-.brand .tag{font-size:10px;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
-.header-right{text-align:right;color:#fff;font-size:12px;line-height:1.8}
-.addr-bar{background:rgba(0,0,0,.15);text-align:center;color:rgba(255,255,255,.9);font-size:11px;padding:5px 20px;letter-spacing:.3px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:2px solid #d1d5db;font-size:12px}
-.info-grid .col{padding:12px 16px;line-height:1.9}
-.info-grid .col:not(:last-child){border-right:1px solid #e5e7eb}
-.info-grid .lbl{color:#6b7280;font-size:11px}
-.info-grid .val{font-weight:700;color:#1a1a1a}
-.test-banner{text-align:center;padding:14px;border-bottom:3px solid #1e40af}
-.test-banner h2{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
-.test-banner .sub{font-size:11px;color:#6b7280;margin-top:2px}
-.instrument-bar{text-align:center;font-size:11px;color:#4b5563;padding:6px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-style:italic}
-table.results{width:100%;border-collapse:collapse}
-table.results thead th{text-align:left;font-size:12px;font-weight:800;padding:8px 14px;border-bottom:2px solid #1a1a1a;background:#f9fafb}
-table.results tbody td{padding:5px 14px;border-bottom:1px solid #f3f4f6;font-size:12px}
-table.results .section-row td{padding:10px 14px 3px;border-bottom:none}
-table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
-.col-test{width:38%;font-weight:500;padding-left:24px !important}
-.col-result{width:20%;font-weight:700}
-.col-unit{width:14%;color:#4b5563}
-.col-ref{width:28%;color:#4b5563}
-.result-high{color:#ea580c;font-weight:800}
-.result-low{color:#2563eb;font-weight:800}
-.bottom{padding:14px 20px}
-.bottom .note{font-size:12px;color:#374151;margin-bottom:6px}
-.bottom .note strong{color:#1a1a1a}
-.sigs{margin-top:30px}
-.sig{text-align:center}
-.sig .line{border-top:2px solid #374151;margin-top:40px;padding-top:6px}
-.sig .name{font-size:12px;font-weight:700}
-.sig .role{font-size:10px;color:#6b7280}
-.sig .end{font-size:11px;font-weight:700;color:#6b7280;margin-top:40px;letter-spacing:1px}
-.footer{border-top:2px solid #e5e7eb;padding:8px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.footer span{font-size:10px;color:#9ca3af}
-.footer .mid{font-weight:700;color:#6b7280;font-size:11px;letter-spacing:1px}
-@media print{@page{size:A4;margin:8mm}body{background:#fff}.page{border:none}}
+.brand-info h1{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-.3px;line-height:1.2}
+.brand-info .tagline{font-size:9.5px;color:#0f766e;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.contact-info{text-align:right;font-size:11px;color:#64748b;line-height:1.9}
+.contact-info .icon{color:#0f766e;margin-right:4px;font-style:normal}
+.address-bar{text-align:center;font-size:10.5px;color:#64748b;padding:6px 24px;background:#f8fafc;border-bottom:1px solid #e2e8f0;letter-spacing:.2px}
+
+/* ── Report Title Bar ── */
+.report-title-bar{background:linear-gradient(135deg,#0f766e,#14b8a6);padding:8px 24px;text-align:center}
+.report-title-bar h2{font-size:14px;font-weight:800;color:#fff;letter-spacing:2px;text-transform:uppercase}
+
+/* ── Patient Info Grid ── */
+.info-section{padding:14px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.info-col{padding:0 12px;line-height:2}
+.info-col:first-child{padding-left:0}
+.info-col:last-child{padding-right:0}
+.info-col:not(:last-child){border-right:1px solid #e2e8f0}
+.info-row{display:flex;gap:6px;font-size:11.5px}
+.info-label{color:#94a3b8;font-weight:500;white-space:nowrap;min-width:85px}
+.info-value{font-weight:700;color:#1e293b}
+.barcode-wrap{margin-top:6px;text-align:center}
+
+/* ── Separator ── */
+.section-divider{height:2px;background:linear-gradient(90deg,#0f766e,#14b8a6,#0f766e);margin:0 24px}
+
+/* ── Results Table ── */
+.results-wrap{padding:0 24px;flex:1}
+table.results{width:100%;border-collapse:collapse;margin-top:6px}
+table.results thead th{
+  text-align:left;font-size:11px;font-weight:700;padding:10px 12px;
+  color:#0f766e;text-transform:uppercase;letter-spacing:.8px;
+  border-bottom:2px solid #0f766e;background:#f0fdfa
+}
+table.results thead th:nth-child(2),
+table.results thead th:nth-child(3){text-align:center}
+table.results tbody td{padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:12px;vertical-align:top}
+table.results tbody td:nth-child(2),
+table.results tbody td:nth-child(3){text-align:center}
+table.results tbody tr:hover{background:#f8fafc}
+table.results .section-row td{padding:12px 12px 4px;border-bottom:none}
+table.results .section-cell{font-size:12px;font-weight:800;color:#0f766e;letter-spacing:.3px}
+.col-test{width:36%;font-weight:500;padding-left:20px !important}
+.col-result{width:18%;font-weight:700}
+.col-unit{width:14%;color:#64748b}
+.col-ref{width:32%;color:#64748b;font-size:11px}
+.result-high{color:#dc2626 !important;font-weight:800;background:#fef2f2;border-radius:3px;padding:2px 6px !important}
+.result-low{color:#2563eb !important;font-weight:800;background:#eff6ff;border-radius:3px;padding:2px 6px !important}
+
+/* ── Interpretation ── */
+.interpretation{margin:16px 24px;padding:10px 14px;background:#f0fdfa;border-left:3px solid #0f766e;border-radius:0 6px 6px 0;font-size:11.5px;color:#334155}
+.interpretation strong{color:#0f766e}
+
+/* ── Instrument ── */
+.instrument-bar{text-align:center;font-size:10.5px;color:#64748b;padding:6px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;font-style:italic}
+
+/* ── Signature Section ── */
+.signature-section{padding:20px 24px 10px;display:flex;justify-content:flex-end}
+.sig-block{text-align:center;min-width:240px;max-width:300px}
+.sig-space{height:50px;border-bottom:2px solid #334155;margin-bottom:6px}
+.sig-hint{font-size:9px;color:#94a3b8;margin-bottom:6px;font-style:italic}
+.sig-name{font-size:13px;font-weight:800;color:#1e293b}
+.sig-detail{font-size:10px;color:#475569;margin-top:1px;line-height:1.5}
+.sig-label{font-size:9.5px;color:#94a3b8;margin-top:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+
+/* ── Footer ── */
+.report-footer{margin-top:auto;border-top:2px solid #e2e8f0;padding:10px 24px;display:flex;justify-content:space-between;align-items:center}
+.report-footer .end-mark{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:2px}
+.report-footer .print-info{font-size:9px;color:#cbd5e1}
+
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff}
+  .page{border:none;min-height:auto}
+  .watermark{position:fixed}
+}
 </style></head><body>
 <div class="page">
-  <div class="header">
+  ${s.clinicLogo ? `<div class="watermark"><img src="${s.clinicLogo}" alt=""/></div>` : ""}
+
+  <!-- Header -->
+  <div class="header-top">
     <div class="header-left">
-      <div class="logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '🏥'}</div>
-      <div class="brand"><h1>${s.clinicName}</h1><div class="tag">${s.clinicTagline || "Accurate | Caring | Instant"}</div></div>
+      <div class="logo">${s.clinicLogo ? `<img src="${s.clinicLogo}" alt="Logo"/>` : '<span style="font-size:28px">🏥</span>'}</div>
+      <div class="brand-info">
+        <h1>${s.clinicName}</h1>
+        <div class="tagline">${s.clinicTagline || "Accurate · Caring · Instant"}</div>
+      </div>
     </div>
-    <div class="header-right">
-      <div>📞 ${s.clinicPhone || "—"}</div>
-      <div>✉️ ${s.clinicEmail || "—"}</div>
-    </div>
-  </div>
-  <div class="addr-bar">${s.clinicAddress || "—"}</div>
-  <div class="info-grid">
-    <div class="col">
-      <div><span class="lbl">Patient Name:</span> <span class="val">${report.patient}</span></div>
-      <div><span class="lbl">Age:</span> <span class="val">${report.age} Years</span></div>
-      <div><span class="lbl">Gender:</span> <span class="val">${report.gender}</span></div>
-      <div><span class="lbl">PID:</span> <span class="val">${report.patientId}</span></div>
-    </div>
-    <div class="col">
-      <div><span class="lbl">Report No:</span> <span class="val">${report.id}</span></div>
-      <div><span class="lbl">Date:</span> <span class="val">${report.date}</span></div>
-      <div><span class="lbl">Delivery Date:</span> <span class="val">${report.resultDate || "—"}</span></div>
-      <div><span class="lbl">Referred By:</span> <span class="val">Dr. ${report.doctor}</span></div>
-    </div>
-    <div class="col">
-      <div><span class="lbl">Sample:</span> <span class="val">${report.sampleType || "—"}</span></div>
-      <div><span class="lbl">Collected:</span> <span class="val">${report.collectedAt || "—"}</span></div>
-      <div><span class="lbl">Reported:</span> <span class="val">${report.reportedAt || report.resultDate || "—"}</span></div>
-      <div style="margin-top:6px">${barcodeImg}</div>
+    <div class="contact-info">
+      <div><em class="icon">📞</em> ${s.clinicPhone || "—"}</div>
+      <div><em class="icon">✉️</em> ${s.clinicEmail || "—"}</div>
     </div>
   </div>
-  
-  ${report.instrument ? `<div class="instrument-bar">Test is carried out by ${report.instrument}</div>` : ""}
-  <table class="results">
-    <thead><tr><th>Test</th><th>Result</th><th>Unit</th><th>Reference Value</th></tr></thead>
-    <tbody>${tableRowsHTML}</tbody>
-  </table>
-  <div class="bottom">
-    ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
-    ${(() => {
-      const parts = (report.technician || "Lab Technologist").split(" | ");
-      const name = parts[0] || "Lab Technologist";
-      const role = parts[1] || "Lab Technologist";
-      const degree = parts[2] || "";
-      const company = parts[3] || "";
-      const expertise = parts[4] || "";
-      return `<div class="sigs" style="display:flex;flex-direction:column;align-items:flex-end">
-        <div class="sig" style="text-align:center;max-width:300px;min-width:220px">
-          <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px">Prepared by</div>
-          <div style="height:60px;border-bottom:2px solid #374151;margin-bottom:6px"></div>
-          <div style="font-size:10px;color:#888;margin-bottom:4px">(Signature & Stamp)</div>
-          <div class="name" style="font-weight:bold;font-size:13px">${name}</div>
-          ${degree ? `<div style="font-size:10px;color:#444;margin-top:1px">${degree}</div>` : ""}
-          ${expertise ? `<div style="font-size:10px;color:#444;margin-top:1px">${expertise}</div>` : ""}
-          <div style="font-size:10px;color:#444;margin-top:1px">${role}</div>
-          ${company ? `<div style="font-size:10px;color:#444;margin-top:1px">${company}</div>` : ""}
-        </div>
-      </div>`;
-    })()}
-    <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
+  <div class="address-bar">${s.clinicAddress || "—"}</div>
+
+  <!-- Report Title -->
+  <div class="report-title-bar"><h2>Laboratory Report</h2></div>
+
+  <!-- Patient Info -->
+  <div class="info-section">
+    <div class="info-col">
+      <div class="info-row"><span class="info-label">Patient Name:</span> <span class="info-value">${report.patient}</span></div>
+      <div class="info-row"><span class="info-label">Age / Gender:</span> <span class="info-value">${report.age} Yrs / ${report.gender}</span></div>
+      <div class="info-row"><span class="info-label">Patient ID:</span> <span class="info-value">${report.patientId}</span></div>
+      <div class="info-row"><span class="info-label">Referred By:</span> <span class="info-value">Dr. ${report.doctor}</span></div>
+    </div>
+    <div class="info-col">
+      <div class="info-row"><span class="info-label">Report No:</span> <span class="info-value">${report.id}</span></div>
+      <div class="info-row"><span class="info-label">Report Date:</span> <span class="info-value">${report.date}</span></div>
+      <div class="info-row"><span class="info-label">Delivery Date:</span> <span class="info-value">${reportingDate}</span></div>
+      <div class="info-row"><span class="info-label">Sample Type:</span> <span class="info-value">${report.sampleType || "—"}</span></div>
+    </div>
+    <div class="info-col">
+      <div class="info-row"><span class="info-label">Collected:</span> <span class="info-value">${collectedOn}</span></div>
+      <div class="info-row"><span class="info-label">Reported:</span> <span class="info-value">${report.reportedAt || reportingDate}</span></div>
+      <div class="barcode-wrap">${barcodeImg}</div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  ${report.instrument ? `<div class="instrument-bar">Tested using: <strong>${report.instrument}</strong></div>` : ""}
+
+  <!-- Results Table -->
+  <div class="results-wrap">
+    <table class="results">
+      <thead><tr><th>Test Parameter</th><th>Result</th><th>Unit</th><th>Reference Range</th></tr></thead>
+      <tbody>${tableRowsHTML}</tbody>
+    </table>
+  </div>
+
+  ${report.remarks ? `<div class="interpretation"><strong>Interpretation: </strong>${report.remarks}</div>` : ""}
+
+  <!-- Signature -->
+  ${(() => {
+    const parts = (report.technician || "Lab Technologist").split(" | ");
+    const name = parts[0] || "Lab Technologist";
+    const role = parts[1] || "Lab Technologist";
+    const degree = parts[2] || "";
+    const company = parts[3] || "";
+    const expertise = parts[4] || "";
+    return `<div class="signature-section">
+      <div class="sig-block">
+        <div class="sig-space"></div>
+        <div class="sig-hint">(Signature & Stamp)</div>
+        <div class="sig-name">${name}</div>
+        ${degree ? `<div class="sig-detail">${degree}</div>` : ""}
+        ${expertise ? `<div class="sig-detail">${expertise}</div>` : ""}
+        <div class="sig-detail">${role}</div>
+        ${company ? `<div class="sig-detail">${company}</div>` : ""}
+        <div class="sig-label">Prepared by</div>
+      </div>
+    </div>`;
+  })()}
+
+  <!-- Footer -->
+  <div class="report-footer">
+    <span class="print-info">Printed: ${new Date().toLocaleString()}</span>
+    <span class="end-mark">— End of Report —</span>
+    <span class="print-info">${s.clinicName}</span>
   </div>
 </div></body></html>`;
 }
