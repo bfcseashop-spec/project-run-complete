@@ -173,10 +173,11 @@ const SampleCollectionPage = () => {
         collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
         collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
       });
+      const bulkMatchedTest = activeTests.find(t => t.name === rec.testName);
       await createReportFromSample({
         patient: rec.patient, patientId: rec.patientId, age: rec.age,
         gender: rec.gender, testName: rec.testName, doctor: rec.doctor,
-        sampleType: rec.sampleType,
+        sampleType: rec.sampleType || bulkMatchedTest?.sampleType || "other",
         collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
         collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
         collectedBy: rec.collectedBy,
