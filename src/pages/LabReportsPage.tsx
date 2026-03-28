@@ -632,7 +632,22 @@ const LabReportsPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ========== INPUT TEST RESULTS DIALOG ========== */}
+      {/* Bulk Delete */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Lab Report(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected lab report(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleBulkDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={!!inputResultsReport} onOpenChange={(open) => !open && setInputResultsReport(null)}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
           <div className="px-6 pt-5 pb-3">
