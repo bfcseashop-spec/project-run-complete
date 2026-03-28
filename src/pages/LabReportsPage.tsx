@@ -482,14 +482,15 @@ const LabReportsPage = () => {
             {/* Test Name */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Test Name <span className="text-destructive">*</span></Label>
-              <Select value={form.testName} onValueChange={(v) => {
+              <Select value={form.testName} onValueChange={async (v) => {
                 const testInfo = findByName(v);
+                const sections = await getTemplateSectionsFromDB(v);
                 setForm({
                   ...form,
                   testName: v,
-                  normalRange: testInfo ? String(testInfo.price) : form.normalRange,
                   sampleType: testInfo?.sampleType || form.sampleType,
-                  category: (testInfo?.category as any) || form.category,
+                  category: (testInfo?.category?.toLowerCase() as any) || form.category,
+                  sections: sections.length > 0 ? sections : form.sections,
                 });
               }}>
                 <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
