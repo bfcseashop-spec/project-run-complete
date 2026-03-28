@@ -464,7 +464,11 @@ const SampleCollectionPage = () => {
                 </div>
                 <div className="space-y-1.5 col-span-2">
                   <Label className="text-[11px] font-semibold flex items-center gap-1">Test Name <span className="text-destructive">*</span></Label>
-                  <Select value={form.testName} onValueChange={(v) => setForm({ ...form, testName: v })}>
+                  <Select value={form.testName} onValueChange={(v) => {
+                    const matchedTest = activeTests.find(t => t.name === v);
+                    const autoSampleType = matchedTest?.sample_type || form.sampleType;
+                    setForm({ ...form, testName: v, sampleType: autoSampleType as SampleRecord["sampleType"] });
+                  }}>
                     <SelectTrigger className="h-9"><SelectValue placeholder="Select test" /></SelectTrigger>
                     <SelectContent>
                       {allTestNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
