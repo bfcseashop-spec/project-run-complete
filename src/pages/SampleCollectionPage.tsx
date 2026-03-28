@@ -381,7 +381,7 @@ const SampleCollectionPage = () => {
               <div><span className="text-muted-foreground">Collection Date:</span> <span className="font-medium">{viewRecord.collectionDate}</span></div>
               <div><span className="text-muted-foreground">Collection Time:</span> <span className="font-medium">{viewRecord.collectionTime || "Not yet"}</span></div>
               <div><span className="text-muted-foreground">Storage:</span> <span className="font-medium capitalize">{viewRecord.storageTemp}</span></div>
-              <div><span className="text-muted-foreground">Lab Technician:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
+              <div><span className="text-muted-foreground">Lab Technologist:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
               <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={viewRecord.status === "failed" ? "rejected" : viewRecord.status as any} /></div>
               {viewRecord.rejectionReason && <div className="col-span-2"><span className="text-muted-foreground">Rejection Reason:</span> <span className="font-medium text-destructive">{viewRecord.rejectionReason}</span></div>}
               {viewRecord.notes && <div className="col-span-2"><span className="text-muted-foreground">Notes:</span> <span className="font-medium">{viewRecord.notes}</span></div>}
