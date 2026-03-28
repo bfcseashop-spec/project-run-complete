@@ -201,8 +201,18 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                     return (
                       <tr
                         key={r.id}
-                        className={`hover:bg-muted/20 transition-colors ${!isLast ? "border-b border-border/40" : ""}`}
+                        className={`hover:bg-muted/20 transition-colors ${!isLast ? "border-b border-border/40" : ""} ${selectable && selectedKeys?.has(r.id) ? "bg-primary/5" : ""}`}
                       >
+                        {selectable && (
+                          <td className="w-10 px-3 py-2.5">
+                            <Checkbox checked={!!selectedKeys?.has(r.id)} onCheckedChange={() => {
+                              if (!onSelectionChange || !selectedKeys) return;
+                              const next = new Set(selectedKeys);
+                              next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+                              onSelectionChange(next);
+                            }} />
+                          </td>
+                        )}
                         <td className="px-4 py-2.5">
                           <span className="font-mono text-xs text-muted-foreground">{r.id}</span>
                         </td>
