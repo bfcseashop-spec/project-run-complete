@@ -89,6 +89,8 @@ const LabReportsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const availableSampleTypes = useMemo(() => {
     const fromTests = activeTests.map(t => t.sampleType).filter(Boolean);
@@ -189,6 +191,15 @@ const LabReportsPage = () => {
       removeLabReport(deleteReport.id);
       setDeleteReport(null);
     }
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await removeLabReport(id);
+    }
+    toast.success(`${selectedIds.size} report(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const filtered = reports.filter((r) => {
@@ -380,6 +391,11 @@ const LabReportsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button variant="outline" onClick={() => { setParamName(""); setAddParamOpen(true); }}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
@@ -470,7 +486,7 @@ const LabReportsPage = () => {
       </div>
 
       {reportToolbar.viewMode === "list" ? (
-        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} />
+        <DataTable columns={columns} data={filtered} keyExtractor={(r) => r.id} selectable selectedKeys={selectedIds} onSelectionChange={setSelectedIds} />
       ) : (
         <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
       )}
@@ -616,7 +632,22 @@ const LabReportsPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ========== INPUT TEST RESULTS DIALOG ========== */}
+      {/* Bulk Delete */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Lab Report(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected lab report(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleBulkDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={!!inputResultsReport} onOpenChange={(open) => !open && setInputResultsReport(null)}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
           <div className="px-6 pt-5 pb-3">

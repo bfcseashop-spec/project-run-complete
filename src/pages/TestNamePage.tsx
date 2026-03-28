@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -32,6 +36,7 @@ const TestNamePage = () => {
   const [viewTest, setViewTest] = useState<TestNameEntry | null>(null);
   const [barcodeTest, setBarcodeTest] = useState<TestNameEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
@@ -244,6 +249,15 @@ const TestNamePage = () => {
     toast.success("Test removed");
   };
 
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await store.removeTest(id);
+    }
+    toast.success(`${selectedIds.size} test(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   const handlePrint = (t: TestNameEntry) => {
     const printWin = window.open("", "_blank", "width=400,height=300");
     if (!printWin) return;
@@ -434,9 +448,14 @@ const TestNamePage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               {selectedIds.size > 0 && (
-                <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
-                  <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
-                </Button>
+                <>
+                  <Button onClick={printBatchBarcodes} size="sm" variant="secondary">
+                    <Printer className="w-4 h-4 mr-1" /> Print {selectedIds.size} Label{selectedIds.size > 1 ? "s" : ""}
+                  </Button>
+                  <Button onClick={() => setBulkDeleteOpen(true)} size="sm" variant="destructive">
+                    <Trash2 className="w-4 h-4 mr-1" /> Delete ({selectedIds.size})
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -1089,6 +1108,21 @@ const TestNamePage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Bulk Delete */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Test(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected test(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleBulkDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

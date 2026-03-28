@@ -87,6 +87,8 @@ const SampleCollectionPage = () => {
   const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
   const [bulkConfirmRecords, setBulkConfirmRecords] = useState<SampleRecord[] | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const availableSampleTypes = useMemo(() => {
     const merged = new Set([
@@ -193,6 +195,15 @@ const SampleCollectionPage = () => {
     }
     toast.success(`${bulkConfirmRecords.length} samples confirmed & sent to Lab Reports`);
     setBulkConfirmRecords(null);
+  };
+
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await removeSampleRecord(id);
+    }
+    toast.success(`${selectedIds.size} sample(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
   };
 
   const tabFilter = (r: SampleRecord) => {
@@ -325,6 +336,11 @@ const SampleCollectionPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Sample Collection" description="Track sample collection, chain of custody, and storage management">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Sample</Button>
       </PageHeader>
 
@@ -370,6 +386,9 @@ const SampleCollectionPage = () => {
               onConfirm={setConfirmRecord}
               onDelete={setDeleteRecord}
               onBulkConfirm={setBulkConfirmRecords}
+              selectable
+              selectedKeys={selectedIds}
+              onSelectionChange={setSelectedIds}
             />
           ) : (
             <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
@@ -647,6 +666,21 @@ const SampleCollectionPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkConfirm}>Confirm All & Send</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Bulk Delete */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Sample Record(s)</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected sample record(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleBulkDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
