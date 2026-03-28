@@ -29,7 +29,7 @@ import {
   Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2, User,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
-import { type SampleRecord, sampleTypes, storageTempOptions } from "@/data/sampleRecords";
+import { type SampleRecord, storageTempOptions } from "@/data/sampleRecords";
 import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import ManageTechniciansDialog from "@/components/ManageTechniciansDialog";
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
@@ -75,7 +75,7 @@ const SampleCollectionPage = () => {
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
-  const { activeTests } = useTestNameStore();
+  const { activeTests, sampleTypes: configuredSampleTypes } = useTestNameStore();
   const allTestNames = useMemo(() => {
     const storeNames = activeTests.map(t => t.name);
     const merged = new Set([...labTestNames, ...storeNames]);
@@ -88,6 +88,14 @@ const SampleCollectionPage = () => {
   const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
   const [bulkConfirmRecords, setBulkConfirmRecords] = useState<SampleRecord[] | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const availableSampleTypes = useMemo(() => {
+    const merged = new Set([
+      ...configuredSampleTypes,
+      ...records.map((record) => record.sampleType).filter(Boolean),
+      form.sampleType,
+    ]);
+    return Array.from(merged).filter(Boolean).sort((a, b) => a.localeCompare(b));
+  }, [configuredSampleTypes, records, form.sampleType]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
@@ -348,7 +356,7 @@ const SampleCollectionPage = () => {
             <SelectTrigger className="w-full sm:w-[160px]"><SelectValue placeholder="Sample Type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+              {availableSampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -498,7 +506,7 @@ const SampleCollectionPage = () => {
                   <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v as SampleRecord["sampleType"] })}>
                     <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                      {availableSampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
