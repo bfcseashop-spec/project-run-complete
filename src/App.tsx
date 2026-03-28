@@ -40,6 +40,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const LazyRoles = lazy(() => import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage })));
 const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
 const LazyInvestments = lazy(() => import("@/pages/InvestmentsPage"));
+const LabTechnologistsPage = lazy(() => import("@/pages/LabTechnologistsPage"));
 
 const queryClient = new QueryClient();
 
