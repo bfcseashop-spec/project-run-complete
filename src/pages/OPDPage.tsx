@@ -79,9 +79,34 @@ const OPDPage = () => {
     }
   };
 
-  const nextToken = patients.length > 0
-    ? Math.max(...patients.map((p) => parseInt(p.id.replace("OPD-", "")))) + 1
-    : 401;
+  // Persistent OPD counter from DB - never reuses IDs
+  const [nextToken, setNextToken] = useState<number>(0);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+
+  const loadNextToken = useCallback(async () => {
+    // Get the stored counter from app_settings
+    const { data } = await supabase.from("app_settings").select("value").eq("key", "last_opd_number").maybeSingle();
+    if (data?.value && typeof data.value === "number") {
+      setNextToken(data.value + 1);
+    } else {
+      // Initialize from existing patients max ID
+      const maxId = patients.length > 0
+        ? Math.max(...patients.map((p) => parseInt(p.id.replace("OPD-", "")) || 0))
+        : 400;
+      setNextToken(maxId + 1);
+    }
+    setTokenLoaded(true);
+  }, [patients.length]);
+
+  useEffect(() => { loadNextToken(); }, [loadNextToken]);
+
+  const claimNextToken = useCallback(async (): Promise<number> => {
+    const token = nextToken;
+    // Save to DB so it's never reused
+    await supabase.from("app_settings").upsert({ key: "last_opd_number", value: token as any });
+    setNextToken(token + 1);
+    return token;
+  }, [nextToken]);
 
   const columns = [
     { key: "id", header: "Serial No.", render: (p: OPDPatient) => <span className="text-xs font-medium text-foreground">{p.id}</span> },
