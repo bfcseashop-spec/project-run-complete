@@ -53,12 +53,21 @@ const PatientLookupPage = () => {
   }, []);
 
   const searchResults = useMemo(() => {
-    if (!search.trim()) return [];
-    const q = search.toLowerCase();
-    return patients
-      .filter((p) => p.id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || (p.phone || "").includes(q))
-      .slice(0, 20);
-  }, [patients, search]);
+    const q = search.toLowerCase().trim();
+    const list = q
+      ? patients.filter((p) => {
+          if (searchBy === "id") return p.id.toLowerCase().includes(q);
+          if (searchBy === "name") return p.name.toLowerCase().includes(q);
+          if (searchBy === "phone") return (p.phone || "").includes(q);
+          return p.id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || (p.phone || "").includes(q);
+        })
+      : patients;
+    return list.sort((a, b) => {
+      const aNum = parseInt(a.id.replace("OPD-", "")) || 0;
+      const bNum = parseInt(b.id.replace("OPD-", "")) || 0;
+      return bNum - aNum;
+    }).slice(0, 30);
+  }, [patients, search, searchBy]);
 
   // Visit history for selected patient
   const visits = useMemo(() => {
