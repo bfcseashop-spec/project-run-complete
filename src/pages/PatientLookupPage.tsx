@@ -186,9 +186,9 @@ const PatientLookupPage = () => {
                 }
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setSelectedPatient(null); setShowDropdown(true); }}
-                onFocus={() => setShowDropdown(true)}
+                onFocus={() => { if (!selectedPatient) setShowDropdown(true); }}
+                onBlur={() => { setTimeout(() => setShowDropdown(false), 200); }}
                 className="pl-10 h-12 text-base"
-                autoFocus
               />
             </div>
           </div>
