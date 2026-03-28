@@ -59,6 +59,7 @@ const LabTechnologistsPage = () => {
   const [formCompany, setFormCompany] = useState("");
   const [formExpertise, setFormExpertise] = useState("");
   const [loading, setLoading] = useState(false);
+  const [previewStaff, setPreviewStaff] = useState<ParsedStaff | null>(null);
 
   const filtered = technicians.filter((t) => {
     const s = parseStaff(t.name);
