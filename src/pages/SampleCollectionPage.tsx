@@ -275,7 +275,7 @@ const SampleCollectionPage = () => {
     },
     {
       key: "collectedBy", header: "Collect By",
-      render: (r: SampleRecord) => r.collectedBy || <span className="text-muted-foreground italic text-xs">Unassigned</span>,
+      render: (r: SampleRecord) => r.collectedBy ? r.collectedBy.split(" | ")[0] : <span className="text-muted-foreground italic text-xs">Unassigned</span>,
     },
     {
       key: "status", header: "Status",
@@ -303,7 +303,7 @@ const SampleCollectionPage = () => {
               { label: "Test", value: r.testName }, { label: "Sample Type", value: r.sampleType },
               { label: "Priority", value: r.priority }, { label: "Barcode", value: r.barcode },
               { label: "Collection Date", value: r.collectionDate }, { label: "Collection Time", value: r.collectionTime || "N/A" },
-              { label: "Storage", value: r.storageTemp }, { label: "Lab Technologist", value: r.collectedBy || "Unassigned" },
+              { label: "Storage", value: r.storageTemp }, { label: "Lab Technologist", value: r.collectedBy ? r.collectedBy.split(" | ")[0] : "Unassigned" },
               { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
             ],
           })}>
@@ -397,7 +397,7 @@ const SampleCollectionPage = () => {
               <div><span className="text-muted-foreground">Collection Date:</span> <span className="font-medium">{viewRecord.collectionDate}</span></div>
               <div><span className="text-muted-foreground">Collection Time:</span> <span className="font-medium">{viewRecord.collectionTime || "Not yet"}</span></div>
               <div><span className="text-muted-foreground">Storage:</span> <span className="font-medium capitalize">{viewRecord.storageTemp}</span></div>
-              <div><span className="text-muted-foreground">Lab Technologist:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
+              <div><span className="text-muted-foreground">Lab Technologist:</span> <span className="font-medium">{viewRecord.collectedBy ? viewRecord.collectedBy.split(" | ")[0] : "Unassigned"}</span></div>
               <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={viewRecord.status === "failed" ? "rejected" : viewRecord.status as any} /></div>
               {viewRecord.rejectionReason && <div className="col-span-2"><span className="text-muted-foreground">Rejection Reason:</span> <span className="font-medium text-destructive">{viewRecord.rejectionReason}</span></div>}
               {viewRecord.notes && <div className="col-span-2"><span className="text-muted-foreground">Notes:</span> <span className="font-medium">{viewRecord.notes}</span></div>}
@@ -408,7 +408,7 @@ const SampleCollectionPage = () => {
             <Button onClick={() => { if (viewRecord) printRecordReport({ id: viewRecord.id, sectionTitle: "Sample Collection Report", fields: [
               { label: "Patient", value: viewRecord.patient }, { label: "Test", value: viewRecord.testName },
               { label: "Sample Type", value: viewRecord.sampleType }, { label: "Status", value: viewRecord.status },
-              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technologist", value: viewRecord.collectedBy || "Unassigned" },
+              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technologist", value: viewRecord.collectedBy ? viewRecord.collectedBy.split(" | ")[0] : "Unassigned" },
             ]}); }}>
               <Printer className="w-4 h-4 mr-2" /> Print
             </Button>
