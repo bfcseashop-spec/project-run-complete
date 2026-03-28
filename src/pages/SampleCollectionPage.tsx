@@ -75,12 +75,20 @@ const SampleCollectionPage = () => {
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
   const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
-  const { activeTests } = useTestNameStore();
+  const { activeTests, sampleTypes: configuredSampleTypes } = useTestNameStore();
   const allTestNames = useMemo(() => {
     const storeNames = activeTests.map(t => t.name);
     const merged = new Set([...labTestNames, ...storeNames]);
     return Array.from(merged).sort();
   }, [activeTests]);
+  const availableSampleTypes = useMemo(() => {
+    const merged = new Set([
+      ...configuredSampleTypes,
+      ...records.map((record) => record.sampleType).filter(Boolean),
+      form.sampleType,
+    ]);
+    return Array.from(merged).filter(Boolean).sort((a, b) => a.localeCompare(b));
+  }, [configuredSampleTypes, records, form.sampleType]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
   const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
