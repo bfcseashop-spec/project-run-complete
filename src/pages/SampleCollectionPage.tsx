@@ -336,6 +336,11 @@ const SampleCollectionPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Sample Collection" description="Track sample collection, chain of custody, and storage management">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Sample</Button>
       </PageHeader>
 
