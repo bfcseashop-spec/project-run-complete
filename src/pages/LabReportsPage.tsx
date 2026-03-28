@@ -193,6 +193,15 @@ const LabReportsPage = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await removeLabReport(id);
+    }
+    toast.success(`${selectedIds.size} report(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   const filtered = reports.filter((r) => {
     const matchSearch = searchTerm === "" ||
       r.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
