@@ -367,7 +367,7 @@ const LabTestsPage = () => {
                 <Select value={form.technicianAssigned} onValueChange={(v) => setForm({ ...form, technicianAssigned: v })}>
                   <SelectTrigger><SelectValue placeholder="Assign technologist" /></SelectTrigger>
                   <SelectContent>
-                    {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}
+                    {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name.split(" | ")[0]}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

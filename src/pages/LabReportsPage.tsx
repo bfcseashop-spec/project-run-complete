@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
+import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -70,6 +71,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 const LabReportsPage = () => {
   const navigate = useNavigate();
   const { activeTests, activeTestNames, findByName, addTest, updateTest, removeTest, sampleTypes: configuredSampleTypes } = useTestNameStore();
+  const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
@@ -745,6 +747,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onCancel: () => void;
 }) {
   const { activeTestNames, findByName, loadParameters } = useTestNameStore();
+  const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
@@ -884,12 +887,13 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             <SelectValue placeholder="Select lab technologist" />
           </SelectTrigger>
           <SelectContent>
-            {technician && !["Md Ekbal Hossain (Lab Technologist)", "Dr. Shaheen Akter (Lab Technologist)", "Farhan Rahman (Lab Technologist)"].includes(technician) && (
-              <SelectItem value={technician}>{technician}</SelectItem>
+            {technicianList.map((t) => {
+              const displayName = t.name.split(" | ")[0];
+              return <SelectItem key={t.id} value={t.name}>{displayName}</SelectItem>;
+            })}
+            {technician && !technicianList.some(t => t.name === technician) && (
+              <SelectItem value={technician}>{technician.split(" | ")[0]}</SelectItem>
             )}
-            <SelectItem value="Md Ekbal Hossain (Lab Technologist)">Md Ekbal Hossain (Lab Technologist)</SelectItem>
-            <SelectItem value="Dr. Shaheen Akter (Lab Technologist)">Dr. Shaheen Akter (Lab Technologist)</SelectItem>
-            <SelectItem value="Farhan Rahman (Lab Technologist)">Farhan Rahman (Lab Technologist)</SelectItem>
           </SelectContent>
         </Select>
       </div>
