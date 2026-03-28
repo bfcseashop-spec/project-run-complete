@@ -89,6 +89,8 @@ const LabReportsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const availableSampleTypes = useMemo(() => {
     const fromTests = activeTests.map(t => t.sampleType).filter(Boolean);
