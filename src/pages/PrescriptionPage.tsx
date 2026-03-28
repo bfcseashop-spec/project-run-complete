@@ -434,13 +434,26 @@ const PrescriptionPage = () => {
   const handleImportRx = async (file: File) => {
     const rows = await rxToolbar.handleImport(file);
     if (rows.length > 0) {
-      const newRx: Prescription[] = rows.map((row, i) => ({
-        id: `RX-${200 + prescriptions.length + i + 1}`,
-        patient: String(row.patient || ""), doctor: String(row.doctor || ""),
-        date: String(row.date || new Date().toISOString().split("T")[0]),
-        medicines: String(row.medicines || ""),
-      }));
-      setPrescriptions((prev) => [...newRx, ...prev]);
+      for (const row of rows) {
+        await addPrescription({
+          patient: String(row.patient || ""),
+          patientId: "",
+          age: String(row.age || ""),
+          gender: String(row.gender || ""),
+          doctor: String(row.doctor || ""),
+          doctorSpecialization: "",
+          date: String(row.date || new Date().toISOString().split("T")[0]),
+          medicines: String(row.medicines || ""),
+          medicineDetails: [],
+          injections: [],
+          tests: [],
+          chiefComplaint: "",
+          onExamination: "",
+          advices: "",
+          followUp: "",
+          notes: "",
+        });
+      }
     }
   };
 
