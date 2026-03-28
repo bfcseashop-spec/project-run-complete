@@ -50,6 +50,7 @@ const menuSections: MenuSection[] = [
         ],
       },
       { icon: FileText, labelKey: "labReports", path: "/lab-reports", module: "Lab Reports", color: "hsl(220, 85%, 62%)" },
+      { icon: Stethoscope, labelKey: "labTechnologists", path: "/lab-technologists", module: "Lab Technologists", color: "hsl(168, 80%, 42%)" },
       { icon: ScanLine, labelKey: "xray", path: "/xray", module: "X-Ray", color: "hsl(45, 95%, 55%)" },
       { icon: Radio, labelKey: "ultrasound", path: "/ultrasound", module: "Ultrasound", color: "hsl(285, 75%, 62%)" },
     ],
