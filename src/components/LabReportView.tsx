@@ -118,7 +118,7 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
       <div style="margin-top:6px">${barcodeImg}</div>
     </div>
   </div>
-  <div class="test-banner"><h2>${report.testName || report.category}</h2><div class="sub">Sample: ${report.sampleType || "—"}</div></div>
+  
   ${report.instrument ? `<div class="instrument-bar">Test is carried out by ${report.instrument}</div>` : ""}
   <table class="results">
     <thead><tr><th>Test</th><th>Result</th><th>Unit</th><th>Reference Value</th></tr></thead>
