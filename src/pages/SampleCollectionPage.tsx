@@ -386,6 +386,9 @@ const SampleCollectionPage = () => {
               onConfirm={setConfirmRecord}
               onDelete={setDeleteRecord}
               onBulkConfirm={setBulkConfirmRecords}
+              selectable
+              selectedKeys={selectedIds}
+              onSelectionChange={setSelectedIds}
             />
           ) : (
             <DataGridView columns={columns} data={filtered} keyExtractor={(r) => r.id} />
