@@ -1,4 +1,4 @@
-export interface ReportInvestigation {
+import { supabase } from "@/integrations/supabase/client";
   name: string;
   result: string;
   referenceValue: string;
