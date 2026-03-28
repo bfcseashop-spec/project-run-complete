@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText, LayoutList, LayoutGrid, FolderPlus, Droplets, X, FlaskConical, Layers, HelpCircle, Settings2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, TestTube, Beaker, Eye, Barcode, Printer, Download, Upload, FileSpreadsheet, FileText, LayoutList, LayoutGrid, FolderPlus, Droplets, X, FlaskConical, Layers, HelpCircle, Settings2, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
