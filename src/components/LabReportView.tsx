@@ -98,32 +98,32 @@ table.results .section-cell{font-size:10.5px;font-weight:800;color:#0f766e;lette
 .col-result{width:18%;font-weight:700}
 .col-unit{width:14%;color:#64748b;font-size:10px}
 .col-ref{width:32%;color:#64748b;font-size:9.5px}
-.result-high{color:#dc2626 !important;font-weight:800;background:#fef2f2;border-radius:3px;padding:2px 6px !important}
-.result-low{color:#2563eb !important;font-weight:800;background:#eff6ff;border-radius:3px;padding:2px 6px !important}
+.result-high{color:#dc2626 !important;font-weight:800;background:#fef2f2;border-radius:2px;padding:1px 4px !important}
+.result-low{color:#2563eb !important;font-weight:800;background:#eff6ff;border-radius:2px;padding:1px 4px !important}
 
 /* ── Interpretation ── */
-.interpretation{margin:16px 24px;padding:10px 14px;background:#f0fdfa;border-left:3px solid #0f766e;border-radius:0 6px 6px 0;font-size:11.5px;color:#334155}
+.interpretation{margin:6px 20px;padding:5px 10px;background:#f0fdfa;border-left:2px solid #0f766e;border-radius:0 4px 4px 0;font-size:10px;color:#334155}
 .interpretation strong{color:#0f766e}
 
 /* ── Instrument ── */
-.instrument-bar{text-align:center;font-size:10.5px;color:#64748b;padding:6px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;font-style:italic}
+.instrument-bar{text-align:center;font-size:9px;color:#64748b;padding:3px 20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-style:italic}
 
 /* ── Signature Section ── */
-.signature-section{padding:20px 24px 10px;display:flex;justify-content:flex-end}
-.sig-block{text-align:center;min-width:240px;max-width:300px}
-.sig-space{height:50px;border-bottom:2px solid #334155;margin-bottom:6px}
-.sig-hint{font-size:9px;color:#94a3b8;margin-bottom:6px;font-style:italic}
-.sig-name{font-size:13px;font-weight:800;color:#1e293b}
-.sig-detail{font-size:10px;color:#475569;margin-top:1px;line-height:1.5}
-.sig-label{font-size:9.5px;color:#94a3b8;margin-top:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.signature-section{padding:10px 20px 6px;display:flex;justify-content:flex-end}
+.sig-block{text-align:center;min-width:200px;max-width:260px}
+.sig-space{height:35px;border-bottom:1.5px solid #334155;margin-bottom:4px}
+.sig-hint{font-size:8px;color:#94a3b8;margin-bottom:4px;font-style:italic}
+.sig-name{font-size:11px;font-weight:800;color:#1e293b}
+.sig-detail{font-size:9px;color:#475569;margin-top:1px;line-height:1.4}
+.sig-label{font-size:8px;color:#94a3b8;margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 
 /* ── Footer ── */
-.report-footer{margin-top:auto;border-top:2px solid #e2e8f0;padding:10px 24px;display:flex;justify-content:space-between;align-items:center}
-.report-footer .end-mark{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:2px}
-.report-footer .print-info{font-size:9px;color:#cbd5e1}
+.report-footer{margin-top:auto;border-top:1.5px solid #e2e8f0;padding:6px 20px;display:flex;justify-content:space-between;align-items:center}
+.report-footer .end-mark{font-size:9px;font-weight:700;color:#94a3b8;letter-spacing:2px}
+.report-footer .print-info{font-size:8px;color:#cbd5e1}
 
 @media print{
-  @page{size:A4;margin:8mm}
+  @page{size:A4;margin:6mm}
   body{background:#fff}
   .page{border:none;min-height:auto}
   .watermark{position:fixed}
