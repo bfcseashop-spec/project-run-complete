@@ -28,7 +28,11 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "patientCare", color: "hsl(340, 85%, 62%)",
     items: [
-      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)" },
+      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)",
+        subItems: [
+          { icon: Search, labelKey: "patientLookup" as any, path: "/patient-lookup" },
+        ],
+      },
       { icon: FileBarChart, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(270, 70%, 65%)" },
       { icon: HeartPulse, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(340, 85%, 62%)",
         subItems: [
