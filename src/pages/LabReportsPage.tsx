@@ -748,7 +748,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   const [loadedFromDB, setLoadedFromDB] = useState(false);
 
   // Auto-load parameters from DB if report has no/empty sections
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loadedFromDB && report.sections.length === 0 && report.testName) {
       getTemplateSectionsFromDB(report.testName).then((dbSections) => {
         if (dbSections.length > 0 && dbSections[0].investigations.length > 0) {
