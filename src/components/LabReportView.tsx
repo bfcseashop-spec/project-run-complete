@@ -75,7 +75,7 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
 .bottom{padding:14px 20px}
 .bottom .note{font-size:12px;color:#374151;margin-bottom:6px}
 .bottom .note strong{color:#1a1a1a}
-.sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:30px}
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}
 .sig{text-align:center}
 .sig .line{border-top:2px solid #374151;margin-top:40px;padding-top:6px}
 .sig .name{font-size:12px;font-weight:700}
@@ -129,10 +129,8 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
     <div class="sigs">
       <div class="sig"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
       <div class="sig"><div class="end">****End of Report****</div></div>
-      <div class="sig"><div class="line"></div><div class="name">${report.pathologist || "Pathologist"}</div><div class="role">Verified by</div></div>
     </div>
   </div>
-  <div class="footer"><span style="font-style:italic">Thanks for Reference</span><span class="mid">****End of Report****</span><span>${report.id}</span></div>
 </div></body></html>`;
 }
 
@@ -296,27 +294,15 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
             )}
 
             {/* Signatures - matching reference: Prepared by | End | Verified by */}
-            <div className="grid grid-cols-3 gap-5 px-5 mt-8 mb-3">
+            <div className="grid grid-cols-2 gap-5 px-5 mt-8 mb-3">
               <div className="text-center">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
                 <p className="text-[12px] font-bold">{report.technician || "Lab Technologist"}</p>
                 <p className="text-[10px] text-gray-500">Prepared by</p>
               </div>
-              <div className="text-center">
-                <p className="text-[11px] font-bold text-gray-500 mt-10 tracking-widest">****End of Report****</p>
+              <div className="flex items-end justify-center">
+                <p className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</p>
               </div>
-              <div className="text-center">
-                <div className="border-t-2 border-gray-700 mt-10 pt-2" />
-                <p className="text-[12px] font-bold">{report.pathologist || "Pathologist"}</p>
-                <p className="text-[10px] text-gray-500">Verified by</p>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t-2 border-gray-200 px-5 py-2.5 flex justify-between items-center mt-3">
-              <span className="text-[10px] text-gray-400 italic">Thanks for Reference</span>
-              <span className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</span>
-              <span className="text-[10px] text-gray-400 font-mono">{report.id}</span>
             </div>
           </div>
         </ScrollArea>
