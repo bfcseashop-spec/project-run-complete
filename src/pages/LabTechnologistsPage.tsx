@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Users, Microscope } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Users, Microscope, Eye } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import {
@@ -59,6 +59,7 @@ const LabTechnologistsPage = () => {
   const [formCompany, setFormCompany] = useState("");
   const [formExpertise, setFormExpertise] = useState("");
   const [loading, setLoading] = useState(false);
+  const [previewStaff, setPreviewStaff] = useState<ParsedStaff | null>(null);
 
   const filtered = technicians.filter((t) => {
     const s = parseStaff(t.name);
@@ -220,6 +221,9 @@ const LabTechnologistsPage = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setPreviewStaff(s)} title="Preview">
+                          <Eye className="w-3.5 h-3.5 text-blue-500" />
+                        </Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(t)}>
                           <Pencil className="w-3.5 h-3.5 text-amber-500" />
                         </Button>
@@ -316,6 +320,36 @@ const LabTechnologistsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Preview Dialog — shows how signature will appear on printed lab reports */}
+      <Dialog open={!!previewStaff} onOpenChange={() => setPreviewStaff(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Report Signature Preview</DialogTitle>
+          </DialogHeader>
+          {previewStaff && (
+            <div className="py-6">
+              <p className="text-xs text-muted-foreground text-center mb-6">This is how the signature will appear on printed lab reports:</p>
+              <div className="border border-border rounded-lg bg-white dark:bg-gray-950 p-8">
+                <div className="flex flex-col items-end">
+                  <div className="text-center max-w-[280px]">
+                    <div className="border-t-2 border-gray-700 dark:border-gray-400 pt-3 min-w-[200px]" />
+                    <p className="text-[14px] font-bold text-foreground mt-1">{previewStaff.name}</p>
+                    {previewStaff.degree && <p className="text-[11px] text-muted-foreground mt-0.5">{previewStaff.degree}</p>}
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{previewStaff.role}</p>
+                    {previewStaff.company && <p className="text-[11px] text-muted-foreground mt-0.5">{previewStaff.company}</p>}
+                    <p className="text-[10px] text-muted-foreground/60 mt-2">Prepared by</p>
+                  </div>
+                </div>
+                <p className="text-[11px] font-bold text-muted-foreground tracking-widest text-center mt-6">****End of Report****</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreviewStaff(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
