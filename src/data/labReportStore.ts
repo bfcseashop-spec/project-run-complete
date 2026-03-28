@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { LabReport, getTemplateSections } from "./labReports";
+import { LabReport, getTemplateSections, getTemplateSectionsFromDB } from "./labReports";
 
 type Listener = () => void;
 let reports: LabReport[] = [];
@@ -93,12 +93,22 @@ export async function createReportFromSample(sample: {
   doctor: string; sampleType: string; collectionDate: string;
   collectionTime: string; collectedBy: string;
 }): Promise<LabReport> {
-  const sections = getTemplateSections(sample.testName);
+  // Load parameters from DB for auto-populated sections
+  const sections = await getTemplateSectionsFromDB(sample.testName);
+  
+  // Get test info for category
+  const { data: testData } = await supabase
+    .from("test_names")
+    .select("category")
+    .eq("name", sample.testName)
+    .limit(1);
+  const category = (testData?.[0]?.category?.toLowerCase() || "biochemistry") as LabReport["category"];
+
   return addLabReport({
     patient: sample.patient, patientId: sample.patientId, age: sample.age,
     gender: sample.gender, testName: sample.testName, doctor: sample.doctor,
     date: sample.collectionDate, resultDate: "", status: "pending",
-    category: "biochemistry", result: "", normalRange: "", remarks: "",
+    category, result: "", normalRange: "", remarks: "",
     sampleType: sample.sampleType, collectedAt: sample.collectionTime,
     reportedAt: "", technician: sample.collectedBy, pathologist: "",
     instrument: "", sections, attachments: [],

@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
@@ -37,7 +37,7 @@ import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/
 import { toast } from "sonner";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
-  reportCategories,
+  reportCategories, getTemplateSectionsFromDB,
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView, { printLabReport } from "@/components/LabReportView";
@@ -482,14 +482,15 @@ const LabReportsPage = () => {
             {/* Test Name */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Test Name <span className="text-destructive">*</span></Label>
-              <Select value={form.testName} onValueChange={(v) => {
+              <Select value={form.testName} onValueChange={async (v) => {
                 const testInfo = findByName(v);
+                const sections = await getTemplateSectionsFromDB(v);
                 setForm({
                   ...form,
                   testName: v,
-                  normalRange: testInfo ? String(testInfo.price) : form.normalRange,
                   sampleType: testInfo?.sampleType || form.sampleType,
-                  category: (testInfo?.category as any) || form.category,
+                  category: (testInfo?.category?.toLowerCase() as any) || form.category,
+                  sections: sections.length > 0 ? sections : form.sections,
                 });
               }}>
                 <SelectTrigger><SelectValue placeholder="Select test" /></SelectTrigger>
@@ -744,6 +745,19 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   );
   const [remarks, setRemarks] = useState(report.remarks);
   const [technician, setTechnician] = useState(report.technician);
+  const [loadedFromDB, setLoadedFromDB] = useState(false);
+
+  // Auto-load parameters from DB if report has no/empty sections
+  useEffect(() => {
+    if (!loadedFromDB && report.sections.length === 0 && report.testName) {
+      getTemplateSectionsFromDB(report.testName).then((dbSections) => {
+        if (dbSections.length > 0 && dbSections[0].investigations.length > 0) {
+          setSections(dbSections);
+        }
+        setLoadedFromDB(true);
+      });
+    }
+  }, [report.testName, report.sections.length, loadedFromDB]);
 
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
