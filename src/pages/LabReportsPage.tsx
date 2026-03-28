@@ -391,6 +391,11 @@ const LabReportsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader title="Lab Reports" description="View and manage laboratory reports and results">
+        {selectedIds.size > 0 && (
+          <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+            <Trash2 className="w-4 h-4 mr-2" /> Delete ({selectedIds.size})
+          </Button>
+        )}
         <Button variant="outline" onClick={() => { setParamName(""); setAddParamOpen(true); }}><Plus className="w-4 h-4 mr-2" /> Parameter</Button>
         <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> New Report</Button>
       </PageHeader>
