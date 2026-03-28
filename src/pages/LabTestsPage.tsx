@@ -363,9 +363,9 @@ const LabTestsPage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Technician</Label>
+                <Label>Technologist</Label>
                 <Select value={form.technicianAssigned} onValueChange={(v) => setForm({ ...form, technicianAssigned: v })}>
-                  <SelectTrigger><SelectValue placeholder="Assign technician" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Assign technologist" /></SelectTrigger>
                   <SelectContent>
                     {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}
                   </SelectContent>

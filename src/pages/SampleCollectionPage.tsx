@@ -512,7 +512,7 @@ const SampleCollectionPage = () => {
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technician</Label>
+                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technologist</Label>
                     <ManageTechniciansDialog />
                   </div>
                   <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
