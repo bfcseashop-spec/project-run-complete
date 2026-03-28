@@ -744,7 +744,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onSave: (sections: ReportSection[], remarks: string, technician: string) => void;
   onCancel: () => void;
 }) {
-  const { activeTestNames } = useTestNameStore();
+  const { activeTestNames, findByName, loadParameters } = useTestNameStore();
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
@@ -754,6 +754,31 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   const [remarks, setRemarks] = useState(report.remarks);
   const [technician, setTechnician] = useState(report.technician);
   const [loadedFromDB, setLoadedFromDB] = useState(false);
+  const [parameterMeta, setParameterMeta] = useState<Record<string, { unit: string; referenceValue: string }>>({});
+
+  // Load parameter definitions for this test so unit/reference can auto-fill in the results form
+  useEffect(() => {
+    const matchedTest = findByName(report.testName);
+    if (!matchedTest) {
+      setParameterMeta({});
+      return;
+    }
+
+    loadParameters(matchedTest.id)
+      .then((params) => {
+        const meta = Object.fromEntries(
+          params.map((param) => [
+            param.paramName,
+            {
+              unit: param.unit || "",
+              referenceValue: param.normalRange || "",
+            },
+          ])
+        );
+        setParameterMeta(meta);
+      })
+      .catch(() => setParameterMeta({}));
+  }, [report.testName, findByName, loadParameters]);
 
   // Auto-load parameters from DB if report has no/empty sections
   useEffect(() => {
@@ -767,17 +792,55 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
     }
   }, [report.testName, report.sections.length, loadedFromDB]);
 
+  // Backfill unit/reference from saved parameter definitions for older reports with missing values
+  useEffect(() => {
+    if (Object.keys(parameterMeta).length === 0) return;
+
+    setSections((currentSections) => {
+      let changed = false;
+      const nextSections = currentSections.map((section) => ({
+        ...section,
+        investigations: section.investigations.map((inv) => {
+          const meta = parameterMeta[inv.name];
+          if (!meta) return inv;
+
+          const nextUnit = inv.unit || meta.unit;
+          const nextReferenceValue = inv.referenceValue || meta.referenceValue;
+          if (nextUnit === inv.unit && nextReferenceValue === inv.referenceValue) return inv;
+
+          changed = true;
+          return {
+            ...inv,
+            unit: nextUnit,
+            referenceValue: nextReferenceValue,
+          };
+        }),
+      }));
+
+      return changed ? nextSections : currentSections;
+    });
+  }, [parameterMeta]);
+
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
     const invs = [...newSections[sIdx].investigations];
-    const updated = { ...invs[iIdx], [field]: value };
+    const previous = invs[iIdx];
+    const updated = { ...previous, [field]: value };
+
+    if (field === "name" && value) {
+      const meta = parameterMeta[value];
+      if (meta) {
+        updated.unit = meta.unit;
+        updated.referenceValue = meta.referenceValue;
+      }
+    }
 
     // Auto-detect flag from result vs reference range
-    if (field === "result" && value && invs[iIdx].referenceValue) {
-      updated.flag = detectFlag(value, invs[iIdx].referenceValue);
+    if (field === "result" && value && updated.referenceValue) {
+      updated.flag = detectFlag(value, updated.referenceValue);
     }
-    if (field === "referenceValue" && value && invs[iIdx].result) {
-      updated.flag = detectFlag(invs[iIdx].result, value);
+    if (field === "referenceValue" && value && updated.result) {
+      updated.flag = detectFlag(updated.result, value);
     }
 
     invs[iIdx] = updated;
@@ -878,7 +941,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
                   </div>
                   {/* Unit */}
                   <div className="col-span-2 pr-2">
-                    <span className="text-sm text-muted-foreground">%</span>
+                    <span className="text-sm text-muted-foreground break-words">{inv.unit || "—"}</span>
                   </div>
                   {/* Normal/Reference Range */}
                   <div className="col-span-3">
