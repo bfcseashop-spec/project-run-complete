@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore, useEffect } from "react";
+import { useState, useSyncExternalStore, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useTestNameStore } from "@/hooks/use-test-name-store";
@@ -69,7 +69,7 @@ const emptyForm: Omit<LabReport, "id"> = {
 
 const LabReportsPage = () => {
   const navigate = useNavigate();
-  const { activeTests, activeTestNames, findByName, addTest, updateTest, removeTest } = useTestNameStore();
+  const { activeTests, activeTestNames, findByName, addTest, updateTest, removeTest, sampleTypes: configuredSampleTypes } = useTestNameStore();
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
@@ -87,6 +87,13 @@ const LabReportsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+
+  const availableSampleTypes = useMemo(() => {
+    const fromTests = activeTests.map(t => t.sampleType).filter(Boolean);
+    const fromReports = reports.map(r => r.sampleType).filter(Boolean);
+    const merged = new Set([...configuredSampleTypes, ...fromTests, ...fromReports, form.sampleType]);
+    return Array.from(merged).filter(Boolean).sort();
+  }, [configuredSampleTypes, activeTests, reports, form.sampleType]);
 
   const openAdd = () => {
     setEditReport(null);
@@ -531,13 +538,9 @@ const LabReportsPage = () => {
                 <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Blood">Blood</SelectItem>
-                    <SelectItem value="Urine">Urine</SelectItem>
-                    <SelectItem value="Stool">Stool</SelectItem>
-                    <SelectItem value="Sputum">Sputum</SelectItem>
-                    <SelectItem value="Swab">Swab</SelectItem>
-                    <SelectItem value="CSF">CSF</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {availableSampleTypes.map((type) => (
+                      <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
