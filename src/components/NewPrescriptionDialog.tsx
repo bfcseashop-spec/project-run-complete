@@ -463,7 +463,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                             <Checkbox checked={isSelected} onCheckedChange={() => toggleTest(test)} className="h-3.5 w-3.5" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs truncate">{test.name}</p>
-                              <p className="text-[10px] text-muted-foreground">{test.category}</p>
+                              <p className="text-[10px] text-muted-foreground">{test.category} · <span className="capitalize">{test.sampleType}</span></p>
                             </div>
                             <span className="text-[10px] tabular-nums text-muted-foreground">{formatPrice(test.price)}</span>
                           </label>
