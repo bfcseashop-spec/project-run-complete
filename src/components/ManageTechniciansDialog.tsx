@@ -76,7 +76,7 @@ const ManageTechniciansDialog = () => {
         {/* List */}
         <div className="space-y-1 max-h-[300px] overflow-y-auto mt-2">
           {technicians.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">No technicians added yet</p>
+            <p className="text-sm text-muted-foreground text-center py-4">No technologists added yet</p>
           )}
           {technicians.map((t) => (
             <div key={t.id} className="flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-muted/30">
