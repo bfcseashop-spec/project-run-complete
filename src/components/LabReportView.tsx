@@ -299,7 +299,7 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
             <div className="grid grid-cols-3 gap-5 px-5 mt-8 mb-3">
               <div className="text-center">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
-                <p className="text-[12px] font-bold">{report.technician || "Lab Technician"}</p>
+                <p className="text-[12px] font-bold">{report.technician || "Lab Technologist"}</p>
                 <p className="text-[10px] text-gray-500">Prepared by</p>
               </div>
               <div className="text-center">
