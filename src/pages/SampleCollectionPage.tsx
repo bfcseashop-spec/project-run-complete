@@ -87,6 +87,8 @@ const SampleCollectionPage = () => {
   const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
   const [bulkConfirmRecords, setBulkConfirmRecords] = useState<SampleRecord[] | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const availableSampleTypes = useMemo(() => {
     const merged = new Set([
