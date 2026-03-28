@@ -60,7 +60,7 @@ function ActionButton({ icon: Icon, title, onClick, className = "" }: {
   );
 }
 
-function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm }: Props) {
+function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkConfirm, selectable, selectedKeys, onSelectionChange }: Props) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const toggleCollapse = (key: string) => {
