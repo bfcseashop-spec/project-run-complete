@@ -37,7 +37,7 @@ import { printBarcode, printCompactLabReport, printSampleBarcodes } from "@/lib/
 import { toast } from "sonner";
 import {
   labReports as staticLabReports, type LabReport, type ReportSection, type ReportInvestigation,
-  reportCategories,
+  reportCategories, getTemplateSectionsFromDB,
 } from "@/data/labReports";
 import { getLabReports, subscribeLabReports, addLabReport, updateLabReport, removeLabReport } from "@/data/labReportStore";
 import LabReportView, { printLabReport } from "@/components/LabReportView";
