@@ -62,66 +62,56 @@ const PrescriptionPage = () => {
     followUp: rx.followUp || "",
   });
 
-  const handleSubmit = (data: PrescriptionFormData) => {
+  const handleSubmit = async (data: PrescriptionFormData) => {
     const medNames = data.medicines.filter((m) => m.name).map((m) => m.name).join(", ");
     const injNames = data.injections.filter((inj) => inj.name).map((inj) => inj.name).join(", ");
     const allMeds = [medNames, injNames].filter(Boolean).join(", ");
+    const patient = getPatients().find((p) => p.name === data.patient);
+    const patientId = patient?.id || "";
 
     if (editRx) {
-      setPrescriptions((prev) =>
-        prev.map((p) =>
-          p.id === editRx.id
-            ? {
-                ...p,
-                patient: data.patient,
-                doctor: data.doctor,
-                doctorSpecialization: data.doctorSpecialization,
-                medicines: allMeds,
-                age: data.age,
-                gender: data.gender,
-                notes: data.notes,
-                medicineDetails: data.medicines.filter((m) => m.name),
-                injections: data.injections.filter((inj) => inj.name),
-                tests: data.tests,
-                chiefComplaint: data.chiefComplaint,
-                onExamination: data.onExamination,
-                advices: data.advices,
-                followUp: data.followUp,
-              }
-            : p
-        )
-      );
+      await updatePrescription(editRx.id, {
+        patient: data.patient,
+        patientId,
+        doctor: data.doctor,
+        doctorSpecialization: data.doctorSpecialization,
+        medicines: allMeds,
+        age: data.age,
+        gender: data.gender,
+        notes: data.notes,
+        medicineDetails: data.medicines.filter((m) => m.name),
+        injections: data.injections.filter((inj) => inj.name),
+        tests: data.tests,
+        chiefComplaint: data.chiefComplaint,
+        onExamination: data.onExamination,
+        advices: data.advices,
+        followUp: data.followUp,
+      });
       setEditRx(null);
       toast.success("Prescription updated");
     } else {
-      const nextId = `RX-${200 + prescriptions.length + 1}`;
-      setPrescriptions((prev) => [
-        {
-          id: nextId,
-          patient: data.patient,
-          doctor: data.doctor,
-          doctorSpecialization: data.doctorSpecialization,
-          date: new Date().toISOString().split("T")[0],
-          medicines: allMeds,
-          age: data.age,
-          gender: data.gender,
-          notes: data.notes,
-          medicineDetails: data.medicines.filter((m) => m.name),
-          injections: data.injections.filter((inj) => inj.name),
-          tests: data.tests,
-          chiefComplaint: data.chiefComplaint,
-          onExamination: data.onExamination,
-          advices: data.advices,
-          followUp: data.followUp,
-        },
-        ...prev,
-      ]);
+      const newRx = await addPrescription({
+        patient: data.patient,
+        patientId,
+        age: data.age,
+        gender: data.gender,
+        doctor: data.doctor,
+        doctorSpecialization: data.doctorSpecialization,
+        date: new Date().toISOString().split("T")[0],
+        medicines: allMeds,
+        notes: data.notes,
+        medicineDetails: data.medicines.filter((m) => m.name),
+        injections: data.injections.filter((inj) => inj.name),
+        tests: data.tests,
+        chiefComplaint: data.chiefComplaint,
+        onExamination: data.onExamination,
+        advices: data.advices,
+        followUp: data.followUp,
+      });
       toast.success("Prescription created");
 
       // Auto-send prescribed tests to Sample Collection
       if (data.tests.length > 0) {
-        const patient = getPatients().find((p) => p.name === data.patient);
-        const patientId = patient?.id || "";
         const gender: "Female" | "Male" | "Other" = data.gender === "Female" ? "Female" : data.gender === "Other" ? "Other" : "Male";
         const today = new Date().toISOString().split("T")[0];
 
@@ -141,7 +131,7 @@ const PrescriptionPage = () => {
           storageTemp: "room" as const,
           barcode: "",
           rejectionReason: "",
-          notes: `From Prescription ${nextId}`,
+          notes: `From Prescription ${newRx.id}`,
         }));
 
         addSampleRecords(sampleRecords).then(() => {
