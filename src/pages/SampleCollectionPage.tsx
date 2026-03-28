@@ -116,6 +116,11 @@ const SampleCollectionPage = () => {
   const openEdit = (r: SampleRecord) => {
     setEditRecord(r);
     const { id, ...rest } = r;
+    // Auto-fill empty sampleType from test config
+    const matchedTest = activeTests.find(t => t.name === rest.testName);
+    if (matchedTest && (!rest.sampleType || rest.sampleType === "other")) {
+      rest.sampleType = (matchedTest.sampleType || rest.sampleType) as SampleRecord["sampleType"];
+    }
     setForm(rest);
     setDialogOpen(true);
   };
@@ -141,6 +146,8 @@ const SampleCollectionPage = () => {
     });
     // Create a pending lab report
     const updated = { ...confirmRecord, status: "collected" as const };
+    const matchedTest = activeTests.find(t => t.name === confirmRecord.testName);
+    const resolvedSampleType = updated.sampleType || matchedTest?.sampleType || "other";
     createReportFromSample({
       patient: updated.patient,
       patientId: updated.patientId,
@@ -148,7 +155,7 @@ const SampleCollectionPage = () => {
       gender: updated.gender,
       testName: updated.testName,
       doctor: updated.doctor,
-      sampleType: updated.sampleType,
+      sampleType: resolvedSampleType,
       collectionDate: updated.collectionDate || now.toISOString().split("T")[0],
       collectionTime: updated.collectionTime || now.toTimeString().slice(0, 5),
       collectedBy: updated.collectedBy,
@@ -166,10 +173,11 @@ const SampleCollectionPage = () => {
         collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
         collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
       });
+      const bulkMatchedTest = activeTests.find(t => t.name === rec.testName);
       await createReportFromSample({
         patient: rec.patient, patientId: rec.patientId, age: rec.age,
         gender: rec.gender, testName: rec.testName, doctor: rec.doctor,
-        sampleType: rec.sampleType,
+        sampleType: rec.sampleType || bulkMatchedTest?.sampleType || "other",
         collectionDate: rec.collectionDate || now.toISOString().split("T")[0],
         collectionTime: rec.collectionTime || now.toTimeString().slice(0, 5),
         collectedBy: rec.collectedBy,
