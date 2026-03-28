@@ -307,26 +307,14 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
               </div>
             )}
 
-            {/* Signatures - matching reference: Prepared by | End | Verified by */}
-            {(() => {
-              const parts = (report.technician || "Lab Technologist").split(" | ");
-              const name = parts[0] || "Lab Technologist";
-              const degree = parts[2] || "";
-              const role = parts[1] || "Lab Technologist";
-              const company = parts[3] || "";
-              return (
-                <div className="px-5 mt-8 mb-3 flex flex-col items-end">
-                  <div className="max-w-[280px] text-center">
-                    <div className="border-t-2 border-gray-700 mt-10 pt-2" />
-                    <p className="text-[13px] font-bold">{name}</p>
-                    {degree && <p className="text-[10px] text-gray-500 mt-0.5">{degree}</p>}
-                    <p className="text-[10px] text-gray-500 mt-0.5">{role}</p>
-                    {company && <p className="text-[10px] text-gray-500 mt-0.5">{company}</p>}
-                    <p className="text-[9px] text-gray-400 mt-1">Prepared by</p>
-                  </div>
-                </div>
-              );
-            })()}
+            {/* Signature - view shows name only */}
+            <div className="px-5 mt-8 mb-3 flex flex-col items-end">
+              <div className="max-w-[280px] text-center">
+                <div className="border-t-2 border-gray-700 mt-10 pt-2" />
+                <p className="text-[13px] font-bold">{(report.technician || "Lab Technologist").split(" | ")[0]}</p>
+                <p className="text-[9px] text-gray-400 mt-1">Prepared by</p>
+              </div>
+            </div>
             <div className="text-center mt-3 mb-3">
               <p className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</p>
             </div>
