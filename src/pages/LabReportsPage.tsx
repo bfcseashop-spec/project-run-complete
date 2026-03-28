@@ -884,12 +884,13 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
             <SelectValue placeholder="Select lab technologist" />
           </SelectTrigger>
           <SelectContent>
-            {technician && !["Md Ekbal Hossain (Lab Technologist)", "Dr. Shaheen Akter (Lab Technologist)", "Farhan Rahman (Lab Technologist)"].includes(technician) && (
-              <SelectItem value={technician}>{technician}</SelectItem>
+            {technicianList.map((t) => {
+              const displayName = t.name.split(" | ")[0];
+              return <SelectItem key={t.id} value={t.name}>{displayName}</SelectItem>;
+            })}
+            {technician && !technicianList.some(t => t.name === technician) && (
+              <SelectItem value={technician}>{technician.split(" | ")[0]}</SelectItem>
             )}
-            <SelectItem value="Md Ekbal Hossain (Lab Technologist)">Md Ekbal Hossain (Lab Technologist)</SelectItem>
-            <SelectItem value="Dr. Shaheen Akter (Lab Technologist)">Dr. Shaheen Akter (Lab Technologist)</SelectItem>
-            <SelectItem value="Farhan Rahman (Lab Technologist)">Farhan Rahman (Lab Technologist)</SelectItem>
           </SelectContent>
         </Select>
       </div>
