@@ -131,7 +131,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
                 {editPatient ? "Edit Patient" : "Register New Patient"}
               </h2>
               <p className="text-white/50 text-xs">
-                {editPatient ? `Editing ${editPatient.id}` : `Token: OPD-${nextTokenNumber}`}
+                {editPatient ? `Editing ${editPatient.id}` : `Next Token: OPD-${nextTokenNumber}`}
               </p>
             </div>
           </div>
