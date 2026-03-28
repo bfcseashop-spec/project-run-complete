@@ -407,7 +407,57 @@ export function getTemplateSections(testName: string): ReportSection[] {
   return templateMap[testName] || defaultSections;
 }
 
-// ===== REPORT DATA =====
+/**
+ * Async version: loads test parameters from DB first, falls back to hardcoded templates.
+ * Groups parameters by category into ReportSections with unit and normalRange pre-filled.
+ */
+export async function getTemplateSectionsFromDB(testName: string): Promise<ReportSection[]> {
+  // Find the test by name to get its ID
+  const { data: testData } = await supabase
+    .from("test_names")
+    .select("id, sample_type, category")
+    .eq("name", testName)
+    .limit(1);
+
+  if (!testData || testData.length === 0) {
+    return templateMap[testName] || defaultSections;
+  }
+
+  const testId = testData[0].id;
+
+  // Load parameters from DB
+  const { data: params } = await supabase
+    .from("test_parameters")
+    .select("*")
+    .eq("test_id", testId)
+    .order("sort_order", { ascending: true });
+
+  if (!params || params.length === 0) {
+    return templateMap[testName] || defaultSections;
+  }
+
+  // Group parameters by category into sections
+  const categoryMap = new Map<string, ReportInvestigation[]>();
+  for (const p of params) {
+    const cat = p.category || "General";
+    if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+    categoryMap.get(cat)!.push({
+      name: p.param_name,
+      result: "",
+      referenceValue: p.normal_range || "",
+      unit: p.unit || "",
+    });
+  }
+
+  const sections: ReportSection[] = [];
+  for (const [title, investigations] of categoryMap) {
+    sections.push({ title, investigations });
+  }
+
+  return sections;
+}
+
+
 
 export const labReports: LabReport[] = [
   {
