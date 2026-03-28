@@ -239,7 +239,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                           </div>
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className="text-xs">{r.collectedBy || <span className="text-muted-foreground italic">Unassigned</span>}</span>
+                          <span className="text-xs">{r.collectedBy ? r.collectedBy.split(" | ")[0] : <span className="text-muted-foreground italic">Unassigned</span>}</span>
                         </td>
                         <td className="px-4 py-2.5">
                           <StatusBadge status={(r.status === "failed" ? "rejected" : r.status) as any} />
