@@ -38,9 +38,11 @@ const PatientLookupPage = () => {
   const [labReports, setLabReports] = useState(getLabReports());
   const [prescriptions, setPrescriptions] = useState(getPrescriptions());
   const [search, setSearch] = useState("");
+  const [searchBy, setSearchBy] = useState<"all" | "id" | "name" | "phone">("all");
   const [selectedPatient, setSelectedPatient] = useState<OPDPatient | null>(null);
   const [filterProvider, setFilterProvider] = useState("all");
   const [expandedVisit, setExpandedVisit] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const unsub1 = subscribe(() => setPatients([...getPatients()]));
