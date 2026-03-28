@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Eye, Pencil, Printer, Barcode as BarcodeIcon, SendHorizonal, Trash2,
   User, TestTubes, Droplets, FlaskConical, TestTube, ClipboardList,
