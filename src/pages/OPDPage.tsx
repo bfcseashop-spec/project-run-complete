@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import DataTable from "@/components/DataTable";
 import DataGridView from "@/components/DataGridView";
@@ -56,11 +57,13 @@ const OPDPage = () => {
       });
   }, [patients, search, filterBlood, filterType]);
 
-  const handleRegister = (patient: OPDPatient) => {
+  const handleRegister = async (patient: OPDPatient) => {
     if (editPatient) {
       updatePatient(editPatient.id, patient);
     } else {
-      addPatient(patient);
+      const token = await claimNextToken();
+      const patientWithId = { ...patient, id: `OPD-${token}` };
+      addPatient(patientWithId);
     }
     setDialogOpen(false);
     setEditPatient(null);
@@ -78,9 +81,34 @@ const OPDPage = () => {
     }
   };
 
-  const nextToken = patients.length > 0
-    ? Math.max(...patients.map((p) => parseInt(p.id.replace("OPD-", "")))) + 1
-    : 401;
+  // Persistent OPD counter from DB - never reuses IDs
+  const [nextToken, setNextToken] = useState<number>(0);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+
+  const loadNextToken = useCallback(async () => {
+    // Get the stored counter from app_settings
+    const { data } = await supabase.from("app_settings").select("value").eq("key", "last_opd_number").maybeSingle();
+    if (data?.value && typeof data.value === "number") {
+      setNextToken(data.value + 1);
+    } else {
+      // Initialize from existing patients max ID
+      const maxId = patients.length > 0
+        ? Math.max(...patients.map((p) => parseInt(p.id.replace("OPD-", "")) || 0))
+        : 400;
+      setNextToken(maxId + 1);
+    }
+    setTokenLoaded(true);
+  }, [patients.length]);
+
+  useEffect(() => { loadNextToken(); }, [loadNextToken]);
+
+  const claimNextToken = useCallback(async (): Promise<number> => {
+    const token = nextToken;
+    // Save to DB so it's never reused
+    await supabase.from("app_settings").upsert({ key: "last_opd_number", value: token as any });
+    setNextToken(token + 1);
+    return token;
+  }, [nextToken]);
 
   const columns = [
     { key: "id", header: "Serial No.", render: (p: OPDPatient) => <span className="text-xs font-medium text-foreground">{p.id}</span> },
@@ -137,15 +165,16 @@ const OPDPage = () => {
   const handleImportOPD = async (file: File) => {
     const rows = await opdToolbar.handleImport(file);
     if (rows.length > 0) {
-      rows.forEach((row) => {
-        addPatient({
-          id: `OPD-${nextToken}`,
+      for (const row of rows) {
+        const token = await claimNextToken();
+        await addPatient({
+          id: `OPD-${token}`,
           name: String(row.name || ""), age: Number(row.age) || 0,
           gender: String(row.gender || "Male"), complaint: String(row.complaint || ""),
           doctor: String(row.doctor || ""), time: String(row.time || ""),
           status: "waiting",
         } as unknown as OPDPatient);
-      });
+      }
     }
   };
 

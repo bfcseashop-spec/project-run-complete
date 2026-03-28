@@ -85,7 +85,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
     const now = new Date();
     const timeStr = form.time || now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
     const patient: OPDPatient = {
-      id: editPatient?.id || `OPD-${nextTokenNumber}`,
+      id: editPatient?.id || `OPD-TEMP`,
       name: form.name,
       age: parseInt(form.age) || 0,
       gender: form.gender === "Female" ? "F" : form.gender === "Other" ? "O" : "M",
@@ -131,7 +131,7 @@ const RegisterPatientDialog = ({ open, onOpenChange, onSubmit, nextTokenNumber, 
                 {editPatient ? "Edit Patient" : "Register New Patient"}
               </h2>
               <p className="text-white/50 text-xs">
-                {editPatient ? `Editing ${editPatient.id}` : `Token: OPD-${nextTokenNumber}`}
+                {editPatient ? `Editing ${editPatient.id}` : `Next Token: OPD-${nextTokenNumber}`}
               </p>
             </div>
           </div>
