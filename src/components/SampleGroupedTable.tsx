@@ -93,7 +93,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
         { label: "Collection Date", value: r.collectionDate },
         { label: "Collection Time", value: r.collectionTime || "N/A" },
         { label: "Storage", value: r.storageTemp },
-        { label: "Collected By", value: r.collectedBy || "Unassigned" },
+        { label: "Collected By", value: r.collectedBy ? r.collectedBy.split(" | ")[0] : "Unassigned" },
         { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
       ],
     });
@@ -239,7 +239,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                           </div>
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className="text-xs">{r.collectedBy || <span className="text-muted-foreground italic">Unassigned</span>}</span>
+                          <span className="text-xs">{r.collectedBy ? r.collectedBy.split(" | ")[0] : <span className="text-muted-foreground italic">Unassigned</span>}</span>
                         </td>
                         <td className="px-4 py-2.5">
                           <StatusBadge status={(r.status === "failed" ? "rejected" : r.status) as any} />
