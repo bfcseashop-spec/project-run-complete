@@ -104,7 +104,7 @@ const LabTechnologistsPage = () => {
     <div className="space-y-6">
       <PageHeader
         title="Lab Technologists & Staff"
-        subtitle="Manage lab technologists, nurses, and other diagnostic staff"
+        description="Manage lab technologists, nurses, and other diagnostic staff"
       />
 
       {/* Stats */}
