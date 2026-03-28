@@ -23,7 +23,7 @@ const ManageTechniciansDialog = () => {
     try {
       await addTechnician(newName.trim());
       setNewName("");
-      toast.success("Technician added");
+      toast.success("Technologist added");
     } catch { toast.error("Failed to add"); }
     setLoading(false);
   };
@@ -34,7 +34,7 @@ const ManageTechniciansDialog = () => {
     try {
       await updateTechnician(editId, editName.trim());
       setEditId(null);
-      toast.success("Technician updated");
+      toast.success("Technologist updated");
     } catch { toast.error("Failed to update"); }
     setLoading(false);
   };
@@ -43,7 +43,7 @@ const ManageTechniciansDialog = () => {
     setLoading(true);
     try {
       await deleteTechnician(id);
-      toast.success("Technician deleted");
+      toast.success("Technologist deleted");
     } catch { toast.error("Failed to delete"); }
     setLoading(false);
   };
@@ -52,18 +52,18 @@ const ManageTechniciansDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" className="text-xs gap-1">
-          <Plus className="w-3.5 h-3.5" /> Lab Technician
+          <Plus className="w-3.5 h-3.5" /> Lab Technologist
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Manage Lab Technicians</DialogTitle>
+          <DialogTitle>Manage Lab Technologists</DialogTitle>
         </DialogHeader>
 
         {/* Add new */}
         <div className="flex gap-2">
           <Input
-            placeholder="Technician name..."
+            placeholder="Technologist name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -76,7 +76,7 @@ const ManageTechniciansDialog = () => {
         {/* List */}
         <div className="space-y-1 max-h-[300px] overflow-y-auto mt-2">
           {technicians.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">No technicians added yet</p>
+            <p className="text-sm text-muted-foreground text-center py-4">No technologists added yet</p>
           )}
           {technicians.map((t) => (
             <div key={t.id} className="flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-muted/30">

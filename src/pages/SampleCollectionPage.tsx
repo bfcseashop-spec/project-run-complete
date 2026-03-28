@@ -287,7 +287,7 @@ const SampleCollectionPage = () => {
               { label: "Test", value: r.testName }, { label: "Sample Type", value: r.sampleType },
               { label: "Priority", value: r.priority }, { label: "Barcode", value: r.barcode },
               { label: "Collection Date", value: r.collectionDate }, { label: "Collection Time", value: r.collectionTime || "N/A" },
-              { label: "Storage", value: r.storageTemp }, { label: "Lab Technician", value: r.collectedBy || "Unassigned" },
+              { label: "Storage", value: r.storageTemp }, { label: "Lab Technologist", value: r.collectedBy || "Unassigned" },
               { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
             ],
           })}>
@@ -381,7 +381,7 @@ const SampleCollectionPage = () => {
               <div><span className="text-muted-foreground">Collection Date:</span> <span className="font-medium">{viewRecord.collectionDate}</span></div>
               <div><span className="text-muted-foreground">Collection Time:</span> <span className="font-medium">{viewRecord.collectionTime || "Not yet"}</span></div>
               <div><span className="text-muted-foreground">Storage:</span> <span className="font-medium capitalize">{viewRecord.storageTemp}</span></div>
-              <div><span className="text-muted-foreground">Lab Technician:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
+              <div><span className="text-muted-foreground">Lab Technologist:</span> <span className="font-medium">{viewRecord.collectedBy || "Unassigned"}</span></div>
               <div><span className="text-muted-foreground">Status:</span> <StatusBadge status={viewRecord.status === "failed" ? "rejected" : viewRecord.status as any} /></div>
               {viewRecord.rejectionReason && <div className="col-span-2"><span className="text-muted-foreground">Rejection Reason:</span> <span className="font-medium text-destructive">{viewRecord.rejectionReason}</span></div>}
               {viewRecord.notes && <div className="col-span-2"><span className="text-muted-foreground">Notes:</span> <span className="font-medium">{viewRecord.notes}</span></div>}
@@ -392,7 +392,7 @@ const SampleCollectionPage = () => {
             <Button onClick={() => { if (viewRecord) printRecordReport({ id: viewRecord.id, sectionTitle: "Sample Collection Report", fields: [
               { label: "Patient", value: viewRecord.patient }, { label: "Test", value: viewRecord.testName },
               { label: "Sample Type", value: viewRecord.sampleType }, { label: "Status", value: viewRecord.status },
-              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technician", value: viewRecord.collectedBy || "Unassigned" },
+              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technologist", value: viewRecord.collectedBy || "Unassigned" },
             ]}); }}>
               <Printer className="w-4 h-4 mr-2" /> Print
             </Button>
@@ -512,7 +512,7 @@ const SampleCollectionPage = () => {
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technician</Label>
+                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technologist</Label>
                     <ManageTechniciansDialog />
                   </div>
                   <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>

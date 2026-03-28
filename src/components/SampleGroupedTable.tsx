@@ -182,7 +182,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Barcode</th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Collected</th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Storage</th>
-                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Lab Technician</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Lab Technologist</th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
                     <th className="text-right px-4 py-2.5 font-medium text-muted-foreground text-xs">Actions</th>
                   </tr>

@@ -355,11 +355,11 @@ const AddTestPage = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Assign Technician</Label>
+                    <Label>Assign Technologist</Label>
                     <ManageTechniciansDialog />
                   </div>
                   <Select value={form.technicianAssigned} onValueChange={(v) => setForm({ ...form, technicianAssigned: v })}>
-                    <SelectTrigger><SelectValue placeholder="Select technician" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select technologist" /></SelectTrigger>
                     <SelectContent>
                       {technicians.map((t) => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}
                     </SelectContent>
