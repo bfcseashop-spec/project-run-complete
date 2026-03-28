@@ -52,7 +52,7 @@ const ManageTechniciansDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" className="text-xs gap-1">
-          <Plus className="w-3.5 h-3.5" /> Lab Technician
+          <Plus className="w-3.5 h-3.5" /> Lab Technologist
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
