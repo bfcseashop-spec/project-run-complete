@@ -29,7 +29,7 @@ import {
   Droplets, FlaskConical, TestTube, ClipboardList, Eye, Printer, Barcode as BarcodeIcon, XCircle, SendHorizonal, Trash2, User,
 } from "lucide-react";
 import { printRecordReport, printBarcode } from "@/lib/printUtils";
-import { type SampleRecord, sampleTypes, storageTempOptions } from "@/data/sampleRecords";
+import { type SampleRecord, storageTempOptions } from "@/data/sampleRecords";
 import { getTechnicians, subscribeTechnicians } from "@/data/technicianStore";
 import ManageTechniciansDialog from "@/components/ManageTechniciansDialog";
 import { getSampleRecords, subscribeSamples, addSampleRecord, updateSampleRecord, removeSampleRecord, bulkAddSampleRecords } from "@/data/sampleStore";
