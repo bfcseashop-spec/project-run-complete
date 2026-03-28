@@ -427,7 +427,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                     <div className="flex flex-wrap gap-1">
                       {form.tests.map((t) => (
                         <Badge key={t.id} variant="secondary" className="pl-1.5 pr-0.5 py-0.5 flex items-center gap-0.5 text-[10px]">
-                          {t.name}
+                          {t.name} <span className="text-muted-foreground capitalize">({t.sampleType})</span>
                           <button type="button" onClick={() => removeTest(t.id)} className="ml-0.5 rounded-full hover:bg-destructive/20 p-0.5">
                             <X className="w-2.5 h-2.5" />
                           </button>
@@ -463,7 +463,7 @@ const NewPrescriptionDialog = ({ open, onOpenChange, onSubmit, editData }: NewPr
                             <Checkbox checked={isSelected} onCheckedChange={() => toggleTest(test)} className="h-3.5 w-3.5" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs truncate">{test.name}</p>
-                              <p className="text-[10px] text-muted-foreground">{test.category}</p>
+                              <p className="text-[10px] text-muted-foreground">{test.category} · <span className="capitalize">{test.sampleType}</span></p>
                             </div>
                             <span className="text-[10px] tabular-nums text-muted-foreground">{formatPrice(test.price)}</span>
                           </label>
