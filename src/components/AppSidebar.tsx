@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import {
-  LayoutDashboard, Wallet, FileText, FlaskConical, ScanLine,
+  LayoutDashboard, Wallet, FileText, FlaskConical, ScanLine, Search,
   Radio, HeartPulse, UserCog, Stethoscope, ClipboardCheck, Syringe,
   ReceiptText, Landmark, TrendingUp, Beaker, BadgeDollarSign, Settings2,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, Sliders,
