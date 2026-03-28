@@ -55,7 +55,6 @@ const RegisterPatientPage = () => {
           onSubmit={handleRegister}
           nextTokenNumber={nextToken}
           editPatient={null}
-          embedded
         />
       )}
     </div>
