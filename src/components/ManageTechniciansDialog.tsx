@@ -57,7 +57,7 @@ const ManageTechniciansDialog = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Manage Lab Technicians</DialogTitle>
+          <DialogTitle>Manage Lab Technologists</DialogTitle>
         </DialogHeader>
 
         {/* Add new */}
