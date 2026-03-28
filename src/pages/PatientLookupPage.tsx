@@ -163,28 +163,47 @@ const PatientLookupPage = () => {
       {/* Search Bar */}
       <Card className="border-primary/20">
         <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search by OPD ID (e.g. OPD-058), patient name, or phone number..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setSelectedPatient(null); }}
-              className="pl-10 h-12 text-base"
-              autoFocus
-            />
+          <div className="flex items-center gap-2">
+            <Select value={searchBy} onValueChange={(v) => setSearchBy(v as any)}>
+              <SelectTrigger className="w-[140px] h-12 text-sm shrink-0">
+                <SelectValue placeholder="Search By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Fields</SelectItem>
+                <SelectItem value="id">OPD ID</SelectItem>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="phone">Phone</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder={
+                  searchBy === "id" ? "Enter OPD ID (e.g. OPD-058)..." :
+                  searchBy === "name" ? "Enter patient name..." :
+                  searchBy === "phone" ? "Enter phone number..." :
+                  "Search by OPD ID, name, or phone..."
+                }
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
+                onFocus={() => setShowDropdown(true)}
+                className="pl-10 h-12 text-base"
+                autoFocus
+              />
+            </div>
           </div>
 
           {/* Search Results Dropdown */}
-          {search.trim() && !selectedPatient && (
-            <div className="mt-3 border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+          {showDropdown && !selectedPatient && (
+            <div className="mt-3 border rounded-lg divide-y max-h-[350px] overflow-y-auto">
               {searchResults.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">No patients found matching "{search}"</p>
+                <p className="text-sm text-muted-foreground text-center py-6">No patients found{search ? ` matching "${search}"` : ""}</p>
               ) : (
                 searchResults.map((p) => (
                   <button
                     key={p.id}
                     className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-                    onClick={() => { setSelectedPatient(p); setSearch(p.id); setFilterProvider("all"); setExpandedVisit(null); }}
+                    onClick={() => { setSelectedPatient(p); setSearch(p.id); setFilterProvider("all"); setExpandedVisit(null); setShowDropdown(false); }}
                   >
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {p.photo ? <img src={p.photo} alt={p.name} className="w-full h-full object-cover" /> : <User className="w-4 h-4 text-primary" />}
