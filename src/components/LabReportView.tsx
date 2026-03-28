@@ -127,8 +127,8 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
   <div class="bottom">
     ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
     <div class="sigs">
-      <div class="sig"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
-      <div class="sig"><div class="end">****End of Report****</div></div>
+      <div class="sig" style="text-align:left;max-width:250px"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
+      <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
     </div>
   </div>
 </div></body></html>`;
