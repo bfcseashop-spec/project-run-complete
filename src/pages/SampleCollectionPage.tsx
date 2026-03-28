@@ -392,7 +392,7 @@ const SampleCollectionPage = () => {
             <Button onClick={() => { if (viewRecord) printRecordReport({ id: viewRecord.id, sectionTitle: "Sample Collection Report", fields: [
               { label: "Patient", value: viewRecord.patient }, { label: "Test", value: viewRecord.testName },
               { label: "Sample Type", value: viewRecord.sampleType }, { label: "Status", value: viewRecord.status },
-              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technician", value: viewRecord.collectedBy || "Unassigned" },
+              { label: "Barcode", value: viewRecord.barcode }, { label: "Lab Technologist", value: viewRecord.collectedBy || "Unassigned" },
             ]}); }}>
               <Printer className="w-4 h-4 mr-2" /> Print
             </Button>
