@@ -197,6 +197,15 @@ const SampleCollectionPage = () => {
     setBulkConfirmRecords(null);
   };
 
+  const handleBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await removeSampleRecord(id);
+    }
+    toast.success(`${selectedIds.size} sample(s) deleted`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   const tabFilter = (r: SampleRecord) => {
     if (activeTab === "all") return true;
     return r.status === activeTab;
