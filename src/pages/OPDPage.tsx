@@ -165,15 +165,16 @@ const OPDPage = () => {
   const handleImportOPD = async (file: File) => {
     const rows = await opdToolbar.handleImport(file);
     if (rows.length > 0) {
-      rows.forEach((row) => {
-        addPatient({
-          id: `OPD-${nextToken}`,
+      for (const row of rows) {
+        const token = await claimNextToken();
+        await addPatient({
+          id: `OPD-${token}`,
           name: String(row.name || ""), age: Number(row.age) || 0,
           gender: String(row.gender || "Male"), complaint: String(row.complaint || ""),
           doctor: String(row.doctor || ""), time: String(row.time || ""),
           status: "waiting",
         } as unknown as OPDPatient);
-      });
+      }
     }
   };
 
