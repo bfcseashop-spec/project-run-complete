@@ -745,6 +745,19 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   );
   const [remarks, setRemarks] = useState(report.remarks);
   const [technician, setTechnician] = useState(report.technician);
+  const [loadedFromDB, setLoadedFromDB] = useState(false);
+
+  // Auto-load parameters from DB if report has no/empty sections
+  React.useEffect(() => {
+    if (!loadedFromDB && report.sections.length === 0 && report.testName) {
+      getTemplateSectionsFromDB(report.testName).then((dbSections) => {
+        if (dbSections.length > 0 && dbSections[0].investigations.length > 0) {
+          setSections(dbSections);
+        }
+        setLoadedFromDB(true);
+      });
+    }
+  }, [report.testName, report.sections.length, loadedFromDB]);
 
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
