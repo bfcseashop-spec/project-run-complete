@@ -93,7 +93,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
         { label: "Collection Date", value: r.collectionDate },
         { label: "Collection Time", value: r.collectionTime || "N/A" },
         { label: "Storage", value: r.storageTemp },
-        { label: "Collected By", value: r.collectedBy || "Unassigned" },
+        { label: "Collected By", value: r.collectedBy ? r.collectedBy.split(" | ")[0] : "Unassigned" },
         { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
       ],
     });
