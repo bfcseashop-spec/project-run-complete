@@ -15,7 +15,7 @@ type TranslationKey =
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
   | "frequency" | "duration" | "dosage" | "injection" | "systemManage"
-  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists";
+  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists" | "patientLookup";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {
@@ -48,6 +48,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     healthPackages: "Packages",
     inventoryList: "Inventory List",
     labTechnologists: "Lab Technologists",
+    patientLookup: "Patient Lookup",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
@@ -79,6 +80,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     healthPackages: "កញ្ចប់",
     inventoryList: "បញ្ជីស្តុក",
     labTechnologists: "បច្ចេកទេសមន្ទីរពិសោធន៍",
+    patientLookup: "ស្វែងរកអ្នកជំងឺ",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
@@ -110,6 +112,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     healthPackages: "প্যাকেজ",
     inventoryList: "ইনভেন্টরি তালিকা",
     labTechnologists: "ল্যাব টেকনোলজিস্ট",
+    patientLookup: "রোগী খুঁজুন",
   },
 };
 

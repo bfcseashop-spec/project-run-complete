@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
 import {
-  LayoutDashboard, Wallet, FileText, FlaskConical, ScanLine,
+  LayoutDashboard, Wallet, FileText, FlaskConical, ScanLine, Search,
   Radio, HeartPulse, UserCog, Stethoscope, ClipboardCheck, Syringe,
   ReceiptText, Landmark, TrendingUp, Beaker, BadgeDollarSign, Settings2,
   ChevronLeft, ChevronRight, ChevronDown, Activity, Plus, Sliders,
@@ -28,7 +28,11 @@ const menuSections: MenuSection[] = [
   {
     labelKey: "patientCare", color: "hsl(340, 85%, 62%)",
     items: [
-      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)" },
+      { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)",
+        subItems: [
+          { icon: Search, labelKey: "patientLookup", path: "/patient-lookup" },
+        ],
+      },
       { icon: FileBarChart, labelKey: "prescriptions", path: "/prescriptions", module: "Prescriptions", color: "hsl(270, 70%, 65%)" },
       { icon: HeartPulse, labelKey: "healthServices", path: "/health-services", module: "Health Services", color: "hsl(340, 85%, 62%)",
         subItems: [
