@@ -84,6 +84,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inventoryList: "បញ្ជីស្តុក",
     labTechnologists: "បច្ចេកទេសមន្ទីរពិសោធន៍",
     patientLookup: "ស្វែងរកអ្នកជំងឺ",
+    patientList: "អ្នកជំងឺ",
+    registerPatient: "ចុះឈ្មោះ",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
