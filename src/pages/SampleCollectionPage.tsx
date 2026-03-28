@@ -116,6 +116,11 @@ const SampleCollectionPage = () => {
   const openEdit = (r: SampleRecord) => {
     setEditRecord(r);
     const { id, ...rest } = r;
+    // Auto-fill empty sampleType from test config
+    const matchedTest = activeTests.find(t => t.name === rest.testName);
+    if (matchedTest && (!rest.sampleType || rest.sampleType === "other")) {
+      rest.sampleType = (matchedTest.sampleType || rest.sampleType) as SampleRecord["sampleType"];
+    }
     setForm(rest);
     setDialogOpen(true);
   };

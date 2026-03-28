@@ -99,6 +99,11 @@ const LabReportsPage = () => {
   const openEdit = (r: LabReport) => {
     setEditReport(r);
     const { id, ...rest } = r;
+    // Auto-fill empty sampleType from test config
+    const matchedTest = findByName(rest.testName);
+    if (matchedTest && !rest.sampleType) {
+      rest.sampleType = matchedTest.sampleType || rest.sampleType;
+    }
     setForm({
       ...rest,
       sections: rest.sections.length > 0 ? rest.sections : [{ ...emptySection }],
