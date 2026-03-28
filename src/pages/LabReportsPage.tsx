@@ -531,13 +531,9 @@ const LabReportsPage = () => {
                 <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v })}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Blood">Blood</SelectItem>
-                    <SelectItem value="Urine">Urine</SelectItem>
-                    <SelectItem value="Stool">Stool</SelectItem>
-                    <SelectItem value="Sputum">Sputum</SelectItem>
-                    <SelectItem value="Swab">Swab</SelectItem>
-                    <SelectItem value="CSF">CSF</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {availableSampleTypes.map((type) => (
+                      <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
