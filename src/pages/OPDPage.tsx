@@ -57,11 +57,13 @@ const OPDPage = () => {
       });
   }, [patients, search, filterBlood, filterType]);
 
-  const handleRegister = (patient: OPDPatient) => {
+  const handleRegister = async (patient: OPDPatient) => {
     if (editPatient) {
       updatePatient(editPatient.id, patient);
     } else {
-      addPatient(patient);
+      const token = await claimNextToken();
+      const patientWithId = { ...patient, id: `OPD-${token}` };
+      addPatient(patientWithId);
     }
     setDialogOpen(false);
     setEditPatient(null);
