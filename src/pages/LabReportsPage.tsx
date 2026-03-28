@@ -747,6 +747,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onCancel: () => void;
 }) {
   const { activeTestNames, findByName, loadParameters } = useTestNameStore();
+  const technicianList = useSyncExternalStore(subscribeTechnicians, getTechnicians);
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
