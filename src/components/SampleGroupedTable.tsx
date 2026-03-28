@@ -179,6 +179,7 @@ function SampleGroupedTable({ data, onView, onEdit, onConfirm, onDelete, onBulkC
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/60">
+                    {selectable && <th className="w-10 px-3 py-2.5"><Checkbox checked={data.length > 0 && selectedKeys?.size === data.length} onCheckedChange={() => { if (!onSelectionChange) return; if (selectedKeys?.size === data.length) { onSelectionChange(new Set()); } else { onSelectionChange(new Set(data.map(r => r.id))); } }} /></th>}
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">ID</th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Test</th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground text-xs">Sample</th>
