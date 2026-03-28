@@ -36,6 +36,7 @@ const TestNamePage = () => {
   const [viewTest, setViewTest] = useState<TestNameEntry | null>(null);
   const [barcodeTest, setBarcodeTest] = useState<TestNameEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [sampleTypeDialog, setSampleTypeDialog] = useState(false);
