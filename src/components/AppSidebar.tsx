@@ -231,7 +231,7 @@ const AppSidebar = () => {
                             />
                           </button>
 
-                          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
                             <div className="ml-[26px] pl-3 space-y-0 mt-0.5 mb-0.5" style={{ borderLeft: `1.5px solid hsl(225, 25%, 22%)` }}>
                               {item.subItems!.filter((sub) => canViewModule(sub.module)).map((sub) => (
                                 <NavLink
