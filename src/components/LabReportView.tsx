@@ -129,10 +129,8 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
     <div class="sigs">
       <div class="sig"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
       <div class="sig"><div class="end">****End of Report****</div></div>
-      <div class="sig"><div class="line"></div><div class="name">${report.pathologist || "Pathologist"}</div><div class="role">Verified by</div></div>
     </div>
   </div>
-  <div class="footer"><span style="font-style:italic">Thanks for Reference</span><span class="mid">****End of Report****</span><span>${report.id}</span></div>
 </div></body></html>`;
 }
 
