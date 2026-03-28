@@ -531,10 +531,7 @@ const SampleCollectionPage = () => {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technologist</Label>
-                    <ManageTechniciansDialog />
-                  </div>
+                  <Label className="text-[11px] font-semibold text-muted-foreground">Lab Technologist</Label>
                   <Select value={form.collectedBy} onValueChange={(v) => setForm({ ...form, collectedBy: v })}>
                     <SelectTrigger className="h-9"><SelectValue placeholder="Assign" /></SelectTrigger>
                     <SelectContent>
