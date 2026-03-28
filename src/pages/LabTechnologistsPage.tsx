@@ -221,6 +221,9 @@ const LabTechnologistsPage = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setPreviewStaff(s)} title="Preview">
+                          <Eye className="w-3.5 h-3.5 text-blue-500" />
+                        </Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(t)}>
                           <Pencil className="w-3.5 h-3.5 text-amber-500" />
                         </Button>
