@@ -744,7 +744,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   onSave: (sections: ReportSection[], remarks: string, technician: string) => void;
   onCancel: () => void;
 }) {
-  const { activeTestNames } = useTestNameStore();
+  const { activeTestNames, findByName, loadParameters } = useTestNameStore();
   const [sections, setSections] = useState<ReportSection[]>(
     report.sections.length > 0 ? report.sections.map(s => ({
       ...s,
@@ -754,6 +754,7 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   const [remarks, setRemarks] = useState(report.remarks);
   const [technician, setTechnician] = useState(report.technician);
   const [loadedFromDB, setLoadedFromDB] = useState(false);
+  const [parameterMeta, setParameterMeta] = useState<Record<string, { unit: string; referenceValue: string }>>({});
 
   // Auto-load parameters from DB if report has no/empty sections
   useEffect(() => {
