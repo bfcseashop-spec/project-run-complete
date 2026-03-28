@@ -81,6 +81,13 @@ const SampleCollectionPage = () => {
     const merged = new Set([...labTestNames, ...storeNames]);
     return Array.from(merged).sort();
   }, [activeTests]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
+  const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
+  const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
+  const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
+  const [bulkConfirmRecords, setBulkConfirmRecords] = useState<SampleRecord[] | null>(null);
+  const [form, setForm] = useState(emptyForm);
   const availableSampleTypes = useMemo(() => {
     const merged = new Set([
       ...configuredSampleTypes,
@@ -89,13 +96,6 @@ const SampleCollectionPage = () => {
     ]);
     return Array.from(merged).filter(Boolean).sort((a, b) => a.localeCompare(b));
   }, [configuredSampleTypes, records, form.sampleType]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [viewRecord, setViewRecord] = useState<SampleRecord | null>(null);
-  const [editRecord, setEditRecord] = useState<SampleRecord | null>(null);
-  const [confirmRecord, setConfirmRecord] = useState<SampleRecord | null>(null);
-  const [deleteRecord, setDeleteRecord] = useState<SampleRecord | null>(null);
-  const [bulkConfirmRecords, setBulkConfirmRecords] = useState<SampleRecord[] | null>(null);
-  const [form, setForm] = useState(emptyForm);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSampleType, setFilterSampleType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
