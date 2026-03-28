@@ -29,37 +29,15 @@ import { getSettings } from "@/data/settingsStore";
 import { t } from "@/lib/i18n";
 import { addSampleRecords } from "@/data/sampleStore";
 import { getPatients } from "@/data/patientStore";
-
-interface Prescription {
-  id: string;
-  patient: string;
-  doctor: string;
-  doctorSpecialization?: string;
-  date: string;
-  medicines: string;
-  age?: string;
-  gender?: string;
-  notes?: string;
-  medicineDetails?: { name: string; dosage: string; frequency: string; duration: string }[];
-  injections?: InjectionEntry[];
-  tests?: SelectedTest[];
-  chiefComplaint?: string;
-  onExamination?: string;
-  advices?: string;
-  followUp?: string;
-}
-
-const initialPrescriptions: Prescription[] = [
-  { id: "RX-201", patient: "Sarah Johnson", doctor: "Dr. Sarah Smith", doctorSpecialization: "General Physician", date: "2026-03-19", medicines: "Amoxicillin 500mg, Paracetamol 650mg", age: "34", gender: "Female", medicineDetails: [{ name: "Amoxicillin 500mg", dosage: "1 cap", frequency: "Thrice daily", duration: "7 days" }, { name: "Paracetamol 650mg", dosage: "1 tab", frequency: "As needed", duration: "5 days" }], injections: [{ name: "Ceftriaxone 1g", dosage: "1 vial", route: "IV", frequency: "Twice daily" }], tests: [{ id: "TN-001", name: "Complete Blood Count", category: "Hematology", sampleType: "blood", price: 350 }, { id: "TN-015", name: "ESR", category: "Hematology", sampleType: "blood", price: 100 }] },
-  { id: "RX-202", patient: "Michael Chen", doctor: "Dr. Raj Patel", doctorSpecialization: "Diabetologist", date: "2026-03-19", medicines: "Metformin 500mg, Glimepiride 2mg", age: "56", gender: "Male", medicineDetails: [{ name: "Metformin 500mg", dosage: "1 tab", frequency: "Twice daily", duration: "30 days" }, { name: "Glimepiride 2mg", dosage: "1 tab", frequency: "Once daily", duration: "30 days" }], injections: [{ name: "Insulin (Regular) 10 IU", dosage: "10 IU", route: "SC", frequency: "Twice daily" }], tests: [{ id: "TN-002", name: "Blood Sugar (Fasting)", category: "Biochemistry", sampleType: "blood", price: 150 }, { id: "TN-003", name: "Blood Sugar (PP)", category: "Biochemistry", sampleType: "blood", price: 150 }, { id: "TN-006", name: "HbA1c", category: "Biochemistry", sampleType: "blood", price: 500 }, { id: "TN-004", name: "Lipid Profile", category: "Biochemistry", sampleType: "blood", price: 800 }, { id: "TN-008", name: "Kidney Function Test", category: "Biochemistry", sampleType: "blood", price: 800 }, { id: "TN-007", name: "Liver Function Test", category: "Biochemistry", sampleType: "blood", price: 900 }, { id: "TN-009", name: "Urine Routine", category: "Urology", sampleType: "urine", price: 200 }] },
-  { id: "RX-203", patient: "Emily Davis", doctor: "Dr. Emily Williams", doctorSpecialization: "Orthopedic Surgeon", date: "2026-03-18", medicines: "Ibuprofen 400mg, Diclofenac 50mg", age: "28", gender: "Female", medicineDetails: [{ name: "Ibuprofen 400mg", dosage: "1 tab", frequency: "Twice daily", duration: "5 days" }] },
-  { id: "RX-204", patient: "James Wilson", doctor: "Dr. Mark Brown", doctorSpecialization: "Dermatologist", date: "2026-03-18", medicines: "Cetirizine 10mg, Prednisolone 5mg", age: "45", gender: "Male", medicineDetails: [{ name: "Cetirizine 10mg", dosage: "1 tab", frequency: "Once daily", duration: "10 days" }, { name: "Prednisolone 5mg", dosage: "2 tab", frequency: "Once daily", duration: "5 days" }] },
-];
+import {
+  getPrescriptions, subscribePrescriptions, addPrescription,
+  updatePrescription, deletePrescription, type Prescription,
+} from "@/data/prescriptionStore";
 
 const PrescriptionPage = () => {
   useSettings();
   const s = getSettings();
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>(initialPrescriptions);
+  const prescriptions = useSyncExternalStore(subscribePrescriptions, getPrescriptions);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewRx, setViewRx] = useState<Prescription | null>(null);
   const [editRx, setEditRx] = useState<Prescription | null>(null);
