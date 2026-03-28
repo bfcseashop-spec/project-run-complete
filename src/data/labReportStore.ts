@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { LabReport, getTemplateSections } from "./labReports";
+import { LabReport, getTemplateSections, getTemplateSectionsFromDB } from "./labReports";
 
 type Listener = () => void;
 let reports: LabReport[] = [];
