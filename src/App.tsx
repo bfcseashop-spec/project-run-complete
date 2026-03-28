@@ -40,6 +40,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const LazyRoles = lazy(() => import("@/pages/PlaceholderPages").then((m) => ({ default: m.RolesPage })));
 const LazyBank = lazy(() => import("@/pages/BankStatementPage"));
 const LazyInvestments = lazy(() => import("@/pages/InvestmentsPage"));
+const LabTechnologistsPage = lazy(() => import("@/pages/LabTechnologistsPage"));
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
                 <Route path="/lab-tests/add" element={<PermissionGate module="Lab Tests"><AddTestPage /></PermissionGate>} />
                 <Route path="/lab-tests/names" element={<PermissionGate module="Test Names"><TestNamePage /></PermissionGate>} />
                 <Route path="/lab-reports" element={<PermissionGate module="Lab Reports"><LabReportsPage /></PermissionGate>} />
+                <Route path="/lab-technologists" element={<PermissionGate module="Lab Technologists"><LabTechnologistsPage /></PermissionGate>} />
                 <Route path="/xray" element={<PermissionGate module="X-Ray"><XRayPage /></PermissionGate>} />
                 <Route path="/ultrasound" element={<PermissionGate module="Ultrasound"><UltrasoundPage /></PermissionGate>} />
                 <Route path="/sample-collection" element={<PermissionGate module="Sample Collection"><SampleCollectionPage /></PermissionGate>} />
