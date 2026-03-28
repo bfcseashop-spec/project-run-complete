@@ -29,6 +29,9 @@ interface Props {
   onConfirm: (r: SampleRecord) => void;
   onDelete: (r: SampleRecord) => void;
   onBulkConfirm?: (records: SampleRecord[]) => void;
+  selectable?: boolean;
+  selectedKeys?: Set<string>;
+  onSelectionChange?: (keys: Set<string>) => void;
 }
 
 const sampleTypeIcons: Record<string, React.ElementType> = {
