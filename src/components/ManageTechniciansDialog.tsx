@@ -23,7 +23,7 @@ const ManageTechniciansDialog = () => {
     try {
       await addTechnician(newName.trim());
       setNewName("");
-      toast.success("Technician added");
+      toast.success("Technologist added");
     } catch { toast.error("Failed to add"); }
     setLoading(false);
   };
