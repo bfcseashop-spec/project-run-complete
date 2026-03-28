@@ -506,7 +506,7 @@ const SampleCollectionPage = () => {
                   <Select value={form.sampleType} onValueChange={(v) => setForm({ ...form, sampleType: v as SampleRecord["sampleType"] })}>
                     <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {sampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                      {availableSampleTypes.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
