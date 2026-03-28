@@ -50,54 +50,54 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;bac
 .watermark img{width:280px;height:280px;object-fit:contain}
 
 /* ── Header ── */
-.header-top{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 12px;border-bottom:3px solid #0f766e}
-.header-left{display:flex;align-items:center;gap:14px}
-.logo{width:56px;height:56px;border-radius:14px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid #e2e8f0}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 8px;border-bottom:2px solid #0f766e}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo{width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid #e2e8f0}
 .logo img{width:100%;height:100%;object-fit:contain}
-.brand-info h1{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-.3px;line-height:1.2}
-.brand-info .tagline{font-size:9.5px;color:#0f766e;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.contact-info{text-align:right;font-size:11px;color:#64748b;line-height:1.9}
-.contact-info .icon{color:#0f766e;margin-right:4px;font-style:normal}
-.address-bar{text-align:center;font-size:10.5px;color:#64748b;padding:6px 24px;background:#f8fafc;border-bottom:1px solid #e2e8f0;letter-spacing:.2px}
+.brand-info h1{font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-.3px;line-height:1.2}
+.brand-info .tagline{font-size:8px;color:#0f766e;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.contact-info{text-align:right;font-size:9.5px;color:#64748b;line-height:1.6}
+.contact-info .icon{color:#0f766e;margin-right:3px;font-style:normal}
+.address-bar{text-align:center;font-size:9px;color:#64748b;padding:3px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;letter-spacing:.2px}
 
 /* ── Report Title Bar ── */
-.report-title-bar{background:linear-gradient(135deg,#0f766e,#14b8a6);padding:8px 24px;text-align:center}
-.report-title-bar h2{font-size:14px;font-weight:800;color:#fff;letter-spacing:2px;text-transform:uppercase}
+.report-title-bar{background:linear-gradient(135deg,#0f766e,#14b8a6);padding:4px 20px;text-align:center}
+.report-title-bar h2{font-size:12px;font-weight:800;color:#fff;letter-spacing:2px;text-transform:uppercase}
 
 /* ── Patient Info Grid ── */
-.info-section{padding:14px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
-.info-col{padding:0 12px;line-height:2}
+.info-section{padding:8px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.info-col{padding:0 10px;line-height:1.6}
 .info-col:first-child{padding-left:0}
 .info-col:last-child{padding-right:0}
 .info-col:not(:last-child){border-right:1px solid #e2e8f0}
-.info-row{display:flex;gap:6px;font-size:11.5px}
-.info-label{color:#94a3b8;font-weight:500;white-space:nowrap;min-width:85px}
+.info-row{display:flex;gap:4px;font-size:10px}
+.info-label{color:#94a3b8;font-weight:500;white-space:nowrap;min-width:75px}
 .info-value{font-weight:700;color:#1e293b}
-.barcode-wrap{margin-top:6px;text-align:center}
+.barcode-wrap{margin-top:3px;text-align:center}
 
 /* ── Separator ── */
-.section-divider{height:2px;background:linear-gradient(90deg,#0f766e,#14b8a6,#0f766e);margin:0 24px}
+.section-divider{height:1.5px;background:linear-gradient(90deg,#0f766e,#14b8a6,#0f766e);margin:0 20px}
 
 /* ── Results Table ── */
-.results-wrap{padding:0 24px;flex:1}
-table.results{width:100%;border-collapse:collapse;margin-top:6px}
+.results-wrap{padding:0 20px;flex:1}
+table.results{width:100%;border-collapse:collapse;margin-top:2px}
 table.results thead th{
-  text-align:left;font-size:11px;font-weight:700;padding:10px 12px;
-  color:#0f766e;text-transform:uppercase;letter-spacing:.8px;
-  border-bottom:2px solid #0f766e;background:#f0fdfa
+  text-align:left;font-size:9.5px;font-weight:700;padding:4px 8px;
+  color:#0f766e;text-transform:uppercase;letter-spacing:.6px;
+  border-bottom:1.5px solid #0f766e;background:#f0fdfa
 }
 table.results thead th:nth-child(2),
 table.results thead th:nth-child(3){text-align:center}
-table.results tbody td{padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:12px;vertical-align:top}
+table.results tbody td{padding:3px 8px;border-bottom:1px solid #f1f5f9;font-size:10.5px;vertical-align:middle}
 table.results tbody td:nth-child(2),
 table.results tbody td:nth-child(3){text-align:center}
 table.results tbody tr:hover{background:#f8fafc}
-table.results .section-row td{padding:12px 12px 4px;border-bottom:none}
-table.results .section-cell{font-size:12px;font-weight:800;color:#0f766e;letter-spacing:.3px}
-.col-test{width:36%;font-weight:500;padding-left:20px !important}
+table.results .section-row td{padding:6px 8px 2px;border-bottom:none}
+table.results .section-cell{font-size:10.5px;font-weight:800;color:#0f766e;letter-spacing:.3px}
+.col-test{width:36%;font-weight:500;padding-left:14px !important}
 .col-result{width:18%;font-weight:700}
-.col-unit{width:14%;color:#64748b}
-.col-ref{width:32%;color:#64748b;font-size:11px}
+.col-unit{width:14%;color:#64748b;font-size:10px}
+.col-ref{width:32%;color:#64748b;font-size:9.5px}
 .result-high{color:#dc2626 !important;font-weight:800;background:#fef2f2;border-radius:3px;padding:2px 6px !important}
 .result-low{color:#2563eb !important;font-weight:800;background:#eff6ff;border-radius:3px;padding:2px 6px !important}
 
