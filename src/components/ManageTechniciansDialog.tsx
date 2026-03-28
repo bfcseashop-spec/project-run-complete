@@ -43,7 +43,7 @@ const ManageTechniciansDialog = () => {
     setLoading(true);
     try {
       await deleteTechnician(id);
-      toast.success("Technician deleted");
+      toast.success("Technologist deleted");
     } catch { toast.error("Failed to delete"); }
     setLoading(false);
   };
