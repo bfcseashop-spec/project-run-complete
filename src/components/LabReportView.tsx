@@ -75,7 +75,7 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
 .bottom{padding:14px 20px}
 .bottom .note{font-size:12px;color:#374151;margin-bottom:6px}
 .bottom .note strong{color:#1a1a1a}
-.sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:30px}
+.sigs{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}
 .sig{text-align:center}
 .sig .line{border-top:2px solid #374151;margin-top:40px;padding-top:6px}
 .sig .name{font-size:12px;font-weight:700}
