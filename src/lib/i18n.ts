@@ -15,7 +15,8 @@ type TranslationKey =
   | "usersAccess" | "preferences" | "billingInvoice" | "printers" | "currencyLanguage"
   | "inStock" | "lowStock" | "outOfStock" | "code" | "route" | "strength"
   | "frequency" | "duration" | "dosage" | "injection" | "systemManage"
-  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists" | "patientLookup";
+  | "refund" | "addService" | "healthPackages" | "inventoryList" | "labTechnologists" | "patientLookup"
+  | "patientList" | "registerPatient";
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   English: {
@@ -49,6 +50,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inventoryList: "Inventory List",
     labTechnologists: "Lab Technologists",
     patientLookup: "Patient Lookup",
+    patientList: "Patients",
+    registerPatient: "Register",
   },
   Khmer: {
     dashboard: "ផ្ទាំងគ្រប់គ្រង", billing: "វិក្កយបត្រ", medicine: "ឱសថ", opdSection: "ផ្នែក OPD",
@@ -81,6 +84,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inventoryList: "បញ្ជីស្តុក",
     labTechnologists: "បច្ចេកទេសមន្ទីរពិសោធន៍",
     patientLookup: "ស្វែងរកអ្នកជំងឺ",
+    patientList: "អ្នកជំងឺ",
+    registerPatient: "ចុះឈ្មោះ",
   },
   Bengali: {
     dashboard: "ড্যাশবোর্ড", billing: "বিলিং", medicine: "ওষুধ", opdSection: "ওপিডি বিভাগ",
@@ -113,6 +118,8 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     inventoryList: "ইনভেন্টরি তালিকা",
     labTechnologists: "ল্যাব টেকনোলজিস্ট",
     patientLookup: "রোগী খুঁজুন",
+    patientList: "রোগী তালিকা",
+    registerPatient: "নিবন্ধন",
   },
 };
 

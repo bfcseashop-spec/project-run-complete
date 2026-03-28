@@ -30,6 +30,8 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: ClipboardCheck, labelKey: "opdSection", path: "/opd", module: "OPD Section", color: "hsl(160, 70%, 50%)",
         subItems: [
+          { icon: ClipboardCheck, labelKey: "patientList", path: "/opd" },
+          { icon: Plus, labelKey: "registerPatient", path: "/opd/register" },
           { icon: Search, labelKey: "patientLookup", path: "/patient-lookup" },
         ],
       },
@@ -89,7 +91,7 @@ const menuSections: MenuSection[] = [
 const AppSidebar = () => {
   const { collapsed, toggle, isMobile, mobileOpen, setMobileOpen } = useSidebarState();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["/lab-tests", "/health-services", "/medicine"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["/opd", "/lab-tests", "/health-services", "/medicine"]);
   const { settings } = useSettings();
   const lang = settings.language;
   const { can, isAdmin } = usePermissions();
@@ -229,7 +231,7 @@ const AppSidebar = () => {
                             />
                           </button>
 
-                          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
                             <div className="ml-[26px] pl-3 space-y-0 mt-0.5 mb-0.5" style={{ borderLeft: `1.5px solid hsl(225, 25%, 22%)` }}>
                               {item.subItems!.filter((sub) => canViewModule(sub.module)).map((sub) => (
                                 <NavLink
