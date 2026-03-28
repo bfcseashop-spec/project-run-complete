@@ -42,7 +42,7 @@ function buildReportHTML(report: LabReport): string {
   return `<!DOCTYPE html><html><head><title>Lab Report - ${report.id}</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;background:#fff;font-size:12.5px;line-height:1.5}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#1e293b;background:#fff;font-size:11px;line-height:1.35}
 .page{max-width:800px;margin:0 auto;position:relative;min-height:100vh;display:flex;flex-direction:column}
 
 /* ── Watermark ── */
