@@ -303,7 +303,7 @@ const SampleCollectionPage = () => {
               { label: "Test", value: r.testName }, { label: "Sample Type", value: r.sampleType },
               { label: "Priority", value: r.priority }, { label: "Barcode", value: r.barcode },
               { label: "Collection Date", value: r.collectionDate }, { label: "Collection Time", value: r.collectionTime || "N/A" },
-              { label: "Storage", value: r.storageTemp }, { label: "Lab Technologist", value: r.collectedBy || "Unassigned" },
+              { label: "Storage", value: r.storageTemp }, { label: "Lab Technologist", value: r.collectedBy ? r.collectedBy.split(" | ")[0] : "Unassigned" },
               { label: "Status", value: r.status }, { label: "Notes", value: r.notes || "—" },
             ],
           })}>
