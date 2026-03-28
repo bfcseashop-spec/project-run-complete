@@ -129,17 +129,20 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
     ${(() => {
       const parts = (report.technician || "Lab Technologist").split(" | ");
       const name = parts[0] || "Lab Technologist";
-      const degree = parts[2] || "";
       const role = parts[1] || "Lab Technologist";
+      const degree = parts[2] || "";
       const company = parts[3] || "";
+      const expertise = parts[4] || "";
       return `<div class="sigs" style="display:flex;flex-direction:column;align-items:flex-end">
-        <div class="sig" style="text-align:center;max-width:280px">
-          <div class="line"></div>
+        <div class="sig" style="text-align:center;max-width:300px;min-width:220px">
+          <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px">Prepared by</div>
+          <div style="height:60px;border-bottom:2px solid #374151;margin-bottom:6px"></div>
+          <div style="font-size:10px;color:#888;margin-bottom:4px">(Signature & Stamp)</div>
           <div class="name" style="font-weight:bold;font-size:13px">${name}</div>
-          ${degree ? `<div style="font-size:10px;color:#555;margin-top:1px">${degree}</div>` : ""}
-          <div style="font-size:10px;color:#555;margin-top:1px">${role}</div>
-          ${company ? `<div style="font-size:10px;color:#555;margin-top:1px">${company}</div>` : ""}
-          <div class="role" style="margin-top:4px;font-size:10px;color:#888">Prepared by</div>
+          ${degree ? `<div style="font-size:10px;color:#444;margin-top:1px">${degree}</div>` : ""}
+          ${expertise ? `<div style="font-size:10px;color:#444;margin-top:1px">${expertise}</div>` : ""}
+          <div style="font-size:10px;color:#444;margin-top:1px">${role}</div>
+          ${company ? `<div style="font-size:10px;color:#444;margin-top:1px">${company}</div>` : ""}
         </div>
       </div>`;
     })()}
