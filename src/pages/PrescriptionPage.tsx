@@ -154,9 +154,9 @@ const PrescriptionPage = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteRx) {
-      setPrescriptions((prev) => prev.filter((p) => p.id !== deleteRx.id));
+      await deletePrescription(deleteRx.id);
       setDeleteRx(null);
       toast.success("Prescription deleted");
     }
