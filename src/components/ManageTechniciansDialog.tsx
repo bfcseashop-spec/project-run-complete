@@ -34,7 +34,7 @@ const ManageTechniciansDialog = () => {
     try {
       await updateTechnician(editId, editName.trim());
       setEditId(null);
-      toast.success("Technician updated");
+      toast.success("Technologist updated");
     } catch { toast.error("Failed to update"); }
     setLoading(false);
   };
