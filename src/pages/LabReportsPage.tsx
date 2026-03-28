@@ -824,14 +824,23 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
     const invs = [...newSections[sIdx].investigations];
-    const updated = { ...invs[iIdx], [field]: value };
+    const previous = invs[iIdx];
+    const updated = { ...previous, [field]: value };
+
+    if (field === "name" && value) {
+      const meta = parameterMeta[value];
+      if (meta) {
+        updated.unit = meta.unit;
+        updated.referenceValue = meta.referenceValue;
+      }
+    }
 
     // Auto-detect flag from result vs reference range
-    if (field === "result" && value && invs[iIdx].referenceValue) {
-      updated.flag = detectFlag(value, invs[iIdx].referenceValue);
+    if (field === "result" && value && updated.referenceValue) {
+      updated.flag = detectFlag(value, updated.referenceValue);
     }
-    if (field === "referenceValue" && value && invs[iIdx].result) {
-      updated.flag = detectFlag(invs[iIdx].result, value);
+    if (field === "referenceValue" && value && updated.result) {
+      updated.flag = detectFlag(updated.result, value);
     }
 
     invs[iIdx] = updated;
