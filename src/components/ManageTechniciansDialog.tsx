@@ -63,7 +63,7 @@ const ManageTechniciansDialog = () => {
         {/* Add new */}
         <div className="flex gap-2">
           <Input
-            placeholder="Technician name..."
+            placeholder="Technologist name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
