@@ -88,7 +88,13 @@ const LabReportsPage = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
-  const openAdd = () => {
+  const availableSampleTypes = useMemo(() => {
+    const fromTests = activeTests.map(t => t.sampleType).filter(Boolean);
+    const fromReports = reports.map(r => r.sampleType).filter(Boolean);
+    const merged = new Set([...configuredSampleTypes, ...fromTests, ...fromReports, form.sampleType]);
+    return Array.from(merged).filter(Boolean).sort();
+  }, [configuredSampleTypes, activeTests, reports, form.sampleType]);
+
     setEditReport(null);
     setForm({
       ...emptyForm,
