@@ -756,6 +756,30 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
   const [loadedFromDB, setLoadedFromDB] = useState(false);
   const [parameterMeta, setParameterMeta] = useState<Record<string, { unit: string; referenceValue: string }>>({});
 
+  // Load parameter definitions for this test so unit/reference can auto-fill in the results form
+  useEffect(() => {
+    const matchedTest = findByName(report.testName);
+    if (!matchedTest) {
+      setParameterMeta({});
+      return;
+    }
+
+    loadParameters(matchedTest.id)
+      .then((params) => {
+        const meta = Object.fromEntries(
+          params.map((param) => [
+            param.paramName,
+            {
+              unit: param.unit || "",
+              referenceValue: param.normalRange || "",
+            },
+          ])
+        );
+        setParameterMeta(meta);
+      })
+      .catch(() => setParameterMeta({}));
+  }, [report.testName, findByName, loadParameters]);
+
   // Auto-load parameters from DB if report has no/empty sections
   useEffect(() => {
     if (!loadedFromDB && report.sections.length === 0 && report.testName) {
@@ -767,6 +791,35 @@ function InputTestResultsForm({ report, onSave, onCancel }: {
       });
     }
   }, [report.testName, report.sections.length, loadedFromDB]);
+
+  // Backfill unit/reference from saved parameter definitions for older reports with missing values
+  useEffect(() => {
+    if (Object.keys(parameterMeta).length === 0) return;
+
+    setSections((currentSections) => {
+      let changed = false;
+      const nextSections = currentSections.map((section) => ({
+        ...section,
+        investigations: section.investigations.map((inv) => {
+          const meta = parameterMeta[inv.name];
+          if (!meta) return inv;
+
+          const nextUnit = inv.unit || meta.unit;
+          const nextReferenceValue = inv.referenceValue || meta.referenceValue;
+          if (nextUnit === inv.unit && nextReferenceValue === inv.referenceValue) return inv;
+
+          changed = true;
+          return {
+            ...inv,
+            unit: nextUnit,
+            referenceValue: nextReferenceValue,
+          };
+        }),
+      }));
+
+      return changed ? nextSections : currentSections;
+    });
+  }, [parameterMeta]);
 
   const updateInv = (sIdx: number, iIdx: number, field: string, value: string | undefined) => {
     const newSections = [...sections];
