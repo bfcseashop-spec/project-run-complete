@@ -73,6 +73,12 @@ const LabReportsPage = () => {
   const reports = useSyncExternalStore(subscribeLabReports, getLabReports);
   const patients = useSyncExternalStore(subscribePatients, getPatients);
   const doctorNames = useSyncExternalStore(subscribeDoctors, getActiveDoctorNames);
+  const availableSampleTypes = useMemo(() => {
+    const fromTests = activeTests.map(t => t.sampleType).filter(Boolean);
+    const fromReports = reports.map(r => r.sampleType).filter(Boolean);
+    const merged = new Set([...configuredSampleTypes, ...fromTests, ...fromReports, form.sampleType]);
+    return Array.from(merged).filter(Boolean).sort();
+  }, [configuredSampleTypes, activeTests, reports, form.sampleType]);
   const [addParamOpen, setAddParamOpen] = useState(false);
   const [paramName, setParamName] = useState("");
   const [editParamId, setEditParamId] = useState<string | null>(null);
