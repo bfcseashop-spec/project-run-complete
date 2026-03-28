@@ -126,10 +126,10 @@ table.results .section-cell{font-size:12px;font-weight:800;letter-spacing:.3px}
   </table>
   <div class="bottom">
     ${report.remarks ? `<div class="note"><strong>Interpretation:</strong> ${report.remarks}</div>` : ""}
-    <div class="sigs">
-      <div class="sig" style="text-align:left;max-width:250px"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
-      <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
+    <div class="sigs" style="display:flex;flex-direction:column;align-items:flex-end">
+      <div class="sig" style="text-align:center;max-width:250px"><div class="line"></div><div class="name">${report.technician || "Lab Technologist"}</div><div class="role">Prepared by</div></div>
     </div>
+    <div style="text-align:center;margin-top:20px"><span class="end">****End of Report****</span></div>
   </div>
 </div></body></html>`;
 }
@@ -294,15 +294,15 @@ const LabReportView = ({ report, open, onOpenChange }: LabReportViewProps) => {
             )}
 
             {/* Signatures - matching reference: Prepared by | End | Verified by */}
-            <div className="px-5 mt-8 mb-3">
-              <div className="max-w-[200px]">
+            <div className="px-5 mt-8 mb-3 flex flex-col items-end">
+              <div className="max-w-[200px] text-center">
                 <div className="border-t-2 border-gray-700 mt-10 pt-2" />
                 <p className="text-[12px] font-bold">{report.technician || "Lab Technologist"}</p>
                 <p className="text-[10px] text-gray-500">Prepared by</p>
               </div>
-              <div className="text-center mt-5">
-                <p className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</p>
-              </div>
+            </div>
+            <div className="text-center mt-3 mb-3">
+              <p className="text-[11px] font-bold text-gray-500 tracking-widest">****End of Report****</p>
             </div>
           </div>
         </ScrollArea>
