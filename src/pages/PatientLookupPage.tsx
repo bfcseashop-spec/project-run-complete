@@ -185,7 +185,7 @@ const PatientLookupPage = () => {
                   "Search by OPD ID, name, or phone..."
                 }
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
+                onChange={(e) => { setSearch(e.target.value); setSelectedPatient(null); setShowDropdown(true); }}
                 onFocus={() => setShowDropdown(true)}
                 className="pl-10 h-12 text-base"
                 autoFocus
