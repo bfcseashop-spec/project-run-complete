@@ -275,7 +275,7 @@ const SampleCollectionPage = () => {
     },
     {
       key: "collectedBy", header: "Collect By",
-      render: (r: SampleRecord) => r.collectedBy || <span className="text-muted-foreground italic text-xs">Unassigned</span>,
+      render: (r: SampleRecord) => r.collectedBy ? r.collectedBy.split(" | ")[0] : <span className="text-muted-foreground italic text-xs">Unassigned</span>,
     },
     {
       key: "status", header: "Status",
